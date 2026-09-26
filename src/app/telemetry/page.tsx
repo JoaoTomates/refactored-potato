@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
-import { fetchNextEvent, F1Event, F1_DRIVERS } from '@/api/f1-data';
-import Image from 'next/image';
+import { fetchNextEvent, F1Event, F1_MATCHUPS, getDriverDetails } from '@/api/f1-data';
 
 interface ProfileData {
   id: string;
@@ -27,35 +26,63 @@ interface PredictionData {
   profile?: ProfileData;
 }
 
-// Helper para abreviação de 3 letras (ex: M.VERSTAPPEN -> VER)
-const getShortName = (fullName: string) => {
-    if (!fullName) return 'TBD';
-    const parts = fullName.split('.');
-    if (parts.length > 1) {
-        return parts[1].substring(0, 3).toUpperCase();
+const QUESTIONS = [
+    { id: 'q1', text: 'Safety car during the race?' },
+    { id: 'q2', text: 'Red flag during the race?' },
+    { id: 'q3', text: 'Will L.SARGEANT DNF?' },
+    { id: 'q4', text: 'Will both Ferraris finish in top 5?' },
+    { id: 'q5', text: 'M.VERSTAPPEN fastest lap?' },
+];
+
+const getTeamColor = (team: string) => {
+    switch(team) {
+        case 'McLaren': return '#FF8000';
+        case 'Ferrari': return '#E8002D';
+        case 'Mercedes': return '#27F4D2';
+        case 'Red Bull': return '#3671C6';
+        case 'Aston Martin': return '#229971';
+        case 'Alpine': return '#0093cc';
+        case 'Haas': return '#B6BABD';
+        case 'Racing Bulls': return '#6692FF';
+        case 'Cadillac': return '#FFB800';
+        case 'Williams': return '#64C4FF';
+        case 'Audi/Sauber': return '#52e252';
+        default: return '#777777';
     }
-    return fullName.substring(0, 3).toUpperCase();
+};
+
+const getDriverInfo = (fullName: string) => {
+    if (!fullName || fullName === 'TBD' || fullName === '') return { short: '-', color: '#555' };
+    const details = getDriverDetails(fullName);
+    const color = details.team ? getTeamColor(details.team) : '#777';
+    const parts = fullName.split('.');
+    const short = parts.length > 1 ? parts[1].substring(0, 3).toUpperCase() : fullName.substring(0, 3).toUpperCase();
+    return { short, color };
 };
 
 export default function TelemetryPage() {
     const [predictions, setPredictions] = useState<PredictionData[]>([]);
     const [eventData, setEventData] = useState<F1Event | null>(null);
+    const [activeMisc, setActiveMisc] = useState('q1');
     const [loading, setLoading] = useState(true);
 
-    // Mock real results for now (Gabarito)
-    const [realResults, setRealResults] = useState<string[]>(Array(22).fill('TBD'));
+    const [realResults, setRealResults] = useState<string[]>(Array(10).fill('TBD'));
     const [realPoletime, setRealPoletime] = useState<string>('TBD');
 
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
             
-            // 1. Fetch Event
+            // 1. Fetch Event & Global Settings
             try {
-                const event = await fetchNextEvent();
+                const [event, { data: settings }] = await Promise.all([
+                    fetchNextEvent(),
+                    supabase.from('global_settings').select('value').eq('id', 'active_misc').single()
+                ]);
                 setEventData(event);
+                if (settings?.value?.question_id) setActiveMisc(settings.value.question_id);
             } catch (e) {
-                console.error("Error fetching event", e);
+                console.error("Error fetching event/settings", e);
             }
 
             // 2. Fetch Predictions
@@ -98,6 +125,8 @@ export default function TelemetryPage() {
 
         loadData();
     }, []);
+
+    const activeQuestionText = QUESTIONS.find(q => q.id === activeMisc)?.text || 'MISC';
 
     return (
         <main className="w-full min-h-screen bg-[#050505] text-white pt-0 pb-24 overflow-x-hidden font-sans">
@@ -156,34 +185,35 @@ export default function TelemetryPage() {
                             <p className="font-bold tracking-widest uppercase text-sm text-[#fbaa19] font-mono">SYNCING TELEMETRY...</p>
                         </div>
                     ) : (
-                        <table className="w-full text-left border-collapse min-w-[2000px]">
+                        <table className="w-full text-left border-collapse min-w-[1600px]">
                             {/* THEAD */}
-                            <thead className="bg-[#111] border-b-2 border-[#fbaa19] text-[10px] uppercase tracking-widest text-gray-400 font-mono sticky top-0 z-20">
+                            <thead className="bg-[#111] border-b-2 border-[#fbaa19] text-[10px] uppercase tracking-widest text-gray-400 font-mono sticky top-0 z-20 shadow-md">
                                 <tr>
                                     {/* Sticky Headers */}
                                     <th className="p-4 sticky left-0 bg-[#111] z-30 w-16 border-r border-[#333] text-center">POS</th>
-                                    <th className="p-4 sticky left-16 bg-[#111] z-30 min-w-[220px] border-r border-[#333]">DRIVER</th>
+                                    <th className="p-4 sticky left-16 bg-[#111] z-30 min-w-[220px] border-r-4 border-r-[#fbaa19]">DRIVER</th>
                                     
-                                    <th className="p-4 border-r border-[#333] text-center bg-[#1a1a1a]">POLETIME</th>
+                                    <th className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#1a1a1a]">POLETIME</th>
                                     
                                     {/* Master P1-P10 */}
-                                    <th colSpan={10} className="p-4 border-r border-[#333] text-center bg-[#151515]">MASTER (TOP 10)</th>
+                                    <th colSpan={10} className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#151515]">TOP 10</th>
                                     
                                     {/* Evo */}
-                                    <th colSpan={5} className="p-4 border-r border-[#333] text-center bg-[#1a1a1a]">EVOLUTION</th>
+                                    <th colSpan={5} className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#1a1a1a]">EVOLUTION</th>
                                     
                                     {/* H2H (11) */}
-                                    <th colSpan={11} className="p-4 border-r border-[#333] text-center bg-[#151515]">HEAD-TO-HEAD</th>
+                                    <th colSpan={11} className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#151515]">HEAD-TO-HEAD</th>
                                     
-                                    {/* Misc (5) */}
-                                    <th colSpan={5} className="p-4 border-r border-[#333] text-center bg-[#1a1a1a]">MISC</th>
+                                    {/* Misc */}
+                                    <th className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#1a1a1a] max-w-[150px] truncate" title={activeQuestionText}>MISC ({activeQuestionText})</th>
                                     
                                     <th className="p-4 text-center bg-[#111]">TIMESTAMP</th>
                                 </tr>
                                 <tr className="border-t border-[#333] text-[9px] bg-[#0a0a0a]">
                                     <th className="p-2 sticky left-0 bg-[#0a0a0a] z-30 border-r border-[#333]"></th>
-                                    <th className="p-2 sticky left-16 bg-[#0a0a0a] z-30 border-r border-[#333] text-right pr-4 text-[#fbaa19]">REAL RESULTS &rarr;</th>
-                                    <th className="p-2 border-r border-[#333] text-center text-[#00ff00] font-bold">{realPoletime}</th>
+                                    <th className="p-2 sticky left-16 bg-[#0a0a0a] z-30 border-r-4 border-r-[#fbaa19] text-right pr-4 text-[#fbaa19] opacity-70 tracking-widest font-bold">REAL RESULTS &rarr;</th>
+                                    
+                                    <th className="p-2 border-r-4 border-r-[#fbaa19] text-center text-[#00ff00] font-bold">{realPoletime}</th>
                                     
                                     {/* Render 10 slots for Master actuals */}
                                     {Array.from({length: 10}).map((_, i) => (
@@ -192,9 +222,9 @@ export default function TelemetryPage() {
                                         </th>
                                     ))}
                                     
-                                    <th colSpan={5} className="p-2 border-r border-[#333] text-center text-gray-500">TBD</th>
-                                    <th colSpan={11} className="p-2 border-r border-[#333] text-center text-gray-500">TBD</th>
-                                    <th colSpan={5} className="p-2 border-r border-[#333] text-center text-gray-500">TBD</th>
+                                    <th colSpan={5} className="p-2 border-l-2 border-l-[#fbaa19] border-r-4 border-r-[#fbaa19] text-center text-gray-500 opacity-50">TBD</th>
+                                    <th colSpan={11} className="p-2 border-r-4 border-r-[#fbaa19] text-center text-gray-500 opacity-50">TBD</th>
+                                    <th className="p-2 border-r-4 border-r-[#fbaa19] text-center text-gray-500 opacity-50">TBD</th>
                                     
                                     <th className="p-2"></th>
                                 </tr>
@@ -204,23 +234,28 @@ export default function TelemetryPage() {
                             <tbody className="text-xs font-medium font-mono">
                                 {predictions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={35} className="p-8 text-center text-gray-500">NO PREDICTIONS FOUND FOR THIS ROUND.</td>
+                                        <td colSpan={31} className="p-8 text-center text-gray-500">NO PREDICTIONS FOUND FOR THIS ROUND.</td>
                                     </tr>
                                 ) : (
                                     predictions.map((pred, idx) => {
                                         const prof = pred.profile;
                                         const driverName = prof ? `${prof.first_name.charAt(0)}.${prof.last_name}` : 'UNKNOWN';
                                         const driverNum = prof?.driver_number || '99';
+                                        const userTeamColor = prof?.team ? getTeamColor(prof.team) : '#555';
                                         
+                                        const miscAns = pred.misc?.[activeMisc] || '-';
+                                        const miscStake = pred.misc?.stake || '10';
+                                        const displayMisc = miscAns !== '-' ? `${miscAns} [${miscStake}%]` : '-';
+
                                         return (
                                             <tr key={pred.id} className="border-b border-[#222] hover:bg-white/5 transition-colors group">
                                                 {/* Sticky Col 1: POS */}
-                                                <td className="p-3 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#111] z-10 border-r border-[#333] text-center text-gray-400">
+                                                <td className="p-3 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#111] z-10 border-r border-[#333] text-center text-gray-400 font-black">
                                                     {idx + 1}
                                                 </td>
                                                 
                                                 {/* Sticky Col 2: DRIVER */}
-                                                <td className="p-3 sticky left-16 bg-[#0a0a0a] group-hover:bg-[#111] z-10 border-r border-[#333]">
+                                                <td className="p-3 sticky left-16 bg-[#0a0a0a] group-hover:bg-[#111] z-10 border-r-4 border-r-[#fbaa19]" style={{ borderLeft: `4px solid ${userTeamColor}` }}>
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-full overflow-hidden border border-[#333] bg-black shrink-0">
                                                             {prof?.avatar_url ? (
@@ -233,23 +268,23 @@ export default function TelemetryPage() {
                                                             <span className="font-bold text-white tracking-widest whitespace-nowrap">
                                                                 {driverName} <span className="text-[#fbaa19]">#{driverNum}</span>
                                                             </span>
-                                                            <span className="text-[9px] text-gray-500 uppercase">{prof?.team || 'No Team'}</span>
+                                                            <span className="text-[9px] text-gray-400 uppercase tracking-widest">{prof?.team || 'No Team'}</span>
                                                         </div>
                                                     </div>
                                                 </td>
 
                                                 {/* POLETIME */}
-                                                <td className="p-3 border-r border-[#333] text-center text-[#00ff00] font-bold">
+                                                <td className="p-3 border-r-4 border-r-[#fbaa19] text-center text-[#00ff00] font-bold bg-[#1a1a1a]/50">
                                                     {pred.poletime || '--:--.---'}
                                                 </td>
 
                                                 {/* MASTER (10) */}
                                                 {Array.from({length: 10}).map((_, i) => {
                                                     const rawPick = pred.top10?.[i] || '';
-                                                    const shortPick = getShortName(rawPick);
+                                                    const { short, color } = getDriverInfo(rawPick);
                                                     return (
-                                                        <td key={`m-${i}`} className="p-2 border-r border-[#333] text-center text-gray-300">
-                                                            {shortPick}
+                                                        <td key={`m-${i}`} className={`p-2 border-r border-[#333] text-center font-bold ${i === 9 ? '!border-r-4 !border-r-[#fbaa19]' : ''}`} style={{ color }}>
+                                                            {short}
                                                         </td>
                                                     );
                                                 })}
@@ -257,40 +292,35 @@ export default function TelemetryPage() {
                                                 {/* EVO (5) */}
                                                 {Array.from({length: 5}).map((_, i) => {
                                                     const rawPick = pred.evo?.[i] || '';
-                                                    const shortPick = getShortName(rawPick);
+                                                    const { short, color } = getDriverInfo(rawPick);
                                                     return (
-                                                        <td key={`e-${i}`} className="p-2 border-r border-[#333] text-center text-[#fbaa19]">
-                                                            {shortPick}
+                                                        <td key={`e-${i}`} className={`p-2 border-r border-[#333] text-center font-bold bg-[#1a1a1a]/30 ${i === 4 ? '!border-r-4 !border-r-[#fbaa19]' : ''}`} style={{ color }}>
+                                                            {short}
                                                         </td>
                                                     );
                                                 })}
 
                                                 {/* H2H (11) */}
                                                 {Array.from({length: 11}).map((_, i) => {
+                                                    const matchInfo = F1_MATCHUPS[i];
+                                                    const matchTitle = matchInfo ? `${matchInfo.d1.name} vs ${matchInfo.d2.name}` : `Matchup ${i+1}`;
                                                     const matchId = `m${i+1}`;
                                                     const rawPick = pred.h2h?.[matchId] || '';
-                                                    const shortPick = rawPick ? getShortName(rawPick) : '--';
+                                                    const { short, color } = rawPick ? getDriverInfo(rawPick) : { short: '--', color: '#555' };
                                                     return (
-                                                        <td key={`h-${i}`} className="p-2 border-r border-[#333] text-center text-gray-400">
-                                                            {shortPick}
+                                                        <td key={`h-${i}`} title={matchTitle} className={`p-2 border-r border-[#333] text-center font-bold cursor-help ${i === 10 ? '!border-r-4 !border-r-[#fbaa19]' : ''}`} style={{ color }}>
+                                                            {short}
                                                         </td>
                                                     );
                                                 })}
 
-                                                {/* MISC (5) */}
-                                                {Array.from({length: 5}).map((_, i) => {
-                                                    const qId = `q${i+1}`;
-                                                    const rawAns = pred.misc?.[qId] || '';
-                                                    const displayAns = rawAns === 'Yes' ? 'Y' : rawAns === 'No' ? 'N' : rawAns ? getShortName(rawAns) : '-';
-                                                    return (
-                                                        <td key={`q-${i}`} className="p-2 border-r border-[#333] text-center text-gray-400">
-                                                            {displayAns}
-                                                        </td>
-                                                    );
-                                                })}
+                                                {/* MISC */}
+                                                <td className="p-3 border-r-4 border-r-[#fbaa19] text-center text-[#fbaa19] font-bold bg-[#1a1a1a]/50">
+                                                    {displayMisc}
+                                                </td>
 
                                                 {/* TIMESTAMP */}
-                                                <td className="p-3 text-right text-gray-500 text-[10px] whitespace-nowrap">
+                                                <td className="p-3 text-right text-gray-500 text-[10px] whitespace-nowrap group-hover:text-white transition-colors">
                                                     {new Date(pred.created_at).toLocaleString('en-GB', { 
                                                         day: '2-digit', month: '2-digit', year: '2-digit', 
                                                         hour: '2-digit', minute: '2-digit', second: '2-digit' 
