@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState } from 'react';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
@@ -7,7 +7,7 @@ const DigitButton = ({ value, onClick }: { value: number, onClick: () => void })
     <button
         type="button"
         onClick={onClick}
-        className="w-10 h-16 sm:w-14 sm:h-20 md:w-20 md:h-28 bg-white dark:bg-[#1a1a1a] border border-black/20 dark:border-[#ffffff3d] flex items-center justify-center text-3xl sm:text-4xl md:text-6xl font-display font-bold text-black dark:text-white hover:border-[#fbaa19] hover:text-[#fbaa19] transition-colors select-none focus:outline-none focus:border-[#fbaa19]"
+        className="w-12 h-20 sm:w-16 sm:h-24 md:w-24 md:h-32 bg-white dark:bg-[#1a1a1a] border border-black/20 dark:border-[#ffffff3d] flex items-center justify-center text-4xl sm:text-5xl md:text-7xl font-display font-bold text-black dark:text-white hover:border-[#fbaa19] hover:text-[#fbaa19] transition-colors select-none focus:outline-none focus:border-[#fbaa19]"
     >
         {value}
     </button>
@@ -54,7 +54,7 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                     {/* Minutes */}
                     <DigitButton value={digits[0]} onClick={() => incrementDigit(0)} />
                     
-                    <span className="text-black dark:text-white text-3xl sm:text-4xl md:text-6xl font-display font-bold pb-2 mx-0.5 sm:mx-1 md:mx-2">:</span>
+                    <span className="text-black dark:text-white text-4xl sm:text-5xl md:text-7xl font-display font-bold pb-2 mx-0.5 sm:mx-1 md:mx-2">:</span>
                     
                     {/* Seconds */}
                     <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
@@ -62,7 +62,7 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                         <DigitButton value={digits[2]} onClick={() => incrementDigit(2)} />
                     </div>
 
-                    <span className="text-[#fbaa19] text-3xl sm:text-4xl md:text-6xl font-display font-bold pb-2 mx-0.5 sm:mx-1 md:mx-2">.</span>
+                    <span className="text-[#fbaa19] text-4xl sm:text-5xl md:text-7xl font-display font-bold pb-2 mx-0.5 sm:mx-1 md:mx-2">.</span>
                     
                     {/* Milliseconds */}
                     <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
@@ -103,7 +103,7 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                             disabled={isSubmitting || isSuccess}
                             className="w-full md:w-auto order-1 md:order-2 f1-submit-picks bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-6 py-3 font-bold uppercase tracking-widest text-xs md:text-sm transition-colors hover:bg-gray-200 dark:hover:bg-black hover:text-[#fbaa19] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? 'SUBMITTING...' : isSuccess ? '✔ SAVED' : 'SUBMIT PREDICTION'}
+                            {isSubmitting ? 'SUBMITTING...' : isSuccess ? 'âœ” SAVED' : 'SUBMIT PREDICTION'}
                         </button>
 )}
                     </div>
@@ -113,3 +113,5 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
 };
 
 export default Poletime;
+
+

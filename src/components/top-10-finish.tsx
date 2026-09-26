@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState } from 'react';
 import { F1_DRIVERS, getDriverDetails } from '@/api/f1-data';
 import { usePredictionStore } from '@/store/usePredictionStore';
@@ -28,7 +28,7 @@ const Top10Finish = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHea
             {!hideHeader && (
                 <header className="f1-predictions-header border border-black/20 dark:border-[#ffffff3d] p-6 bg-white dark:bg-[#1a1a1a] border-b-2 border-b-[#fbaa19] shadow-md mb-2">
                     <p className="text-[#fbaa19] text-xs font-medium uppercase tracking-[0.14em] mb-2">F1 PREDICTION MARKET</p>
-                    <h2 className="text-black dark:text-white text-2xl md:text-3xl font-display font-bold uppercase tracking-wider mb-2">MASTER (TOP 10)</h2>
+                    <h2 className="text-black dark:text-white text-2xl md:text-3xl font-display font-bold uppercase tracking-wider mb-2">TOP 10</h2>
                     <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
                         Predict the exact finishing order of the top 10 drivers.
                     </p>
@@ -180,7 +180,7 @@ const Top10Finish = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHea
                             disabled={picks.some(p => p === '') || isSubmitting || isSuccess}
                             className="w-full md:w-auto order-1 md:order-2 f1-submit-picks bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-6 py-3 font-bold uppercase tracking-widest text-xs md:text-sm transition-colors hover:bg-gray-200 dark:hover:bg-black hover:text-[#fbaa19] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? 'SUBMITTING...' : isSuccess ? '✔ SAVED' : 'SUBMIT PREDICTION'}
+                            {isSubmitting ? 'SUBMITTING...' : isSuccess ? 'âœ” SAVED' : 'SUBMIT PREDICTION'}
                         </button>
 )}
                     </div>
@@ -190,3 +190,4 @@ const Top10Finish = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHea
 };
 
 export default Top10Finish;
+
