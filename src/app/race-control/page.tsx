@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/utils/supabase';
 
 import { F1_DRIVERS, getDriverDetails, fetchNextEvent, F1Event } from '@/api/f1-data';
 
@@ -36,12 +37,32 @@ const sessions = [
 ];
 
 export default function RaceControlPage() {
-    const [activeView, setActiveView] = useState<'dashboard' | 'resultados'>('dashboard');
+    const [activeView, setActiveView] = useState<'dashboard' | 'resultados' | 'misc'>('dashboard');
     const [selectedSession, setSelectedSession] = useState(sessions[8]);
     const [results, setResults] = useState(initialDrivers);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMsg, setSuccessMsg] = useState("");
     const [currentEvent, setCurrentEvent] = useState<F1Event | null>(null);
+
+        const [activeMiscQuestion, setActiveMiscQuestion] = useState('q1');
+    const [savingMisc, setSavingMisc] = useState(false);
+
+    useEffect(() => {
+        // Fetch current active misc
+        supabase.from('global_settings').select('value').eq('id', 'active_misc').single().then(({ data }) => {
+            if (data && data.value && data.value.question_id) {
+                setActiveMiscQuestion(data.value.question_id);
+            }
+        });
+    }, []);
+
+    const handleSaveMisc = async () => {
+        setSavingMisc(true);
+        await supabase.from('global_settings').upsert({ id: 'active_misc', value: { question_id: activeMiscQuestion } });
+        setSuccessMsg("MISC ATUALIZADO!");
+        setTimeout(() => setSuccessMsg(""), 3000);
+        setSavingMisc(false);
+    };
 
     useEffect(() => {
         fetchNextEvent().then(event => setCurrentEvent(event));
@@ -282,6 +303,41 @@ export default function RaceControlPage() {
                             </section>
                         </div>
                     </div>
+                )}
+                            {activeView === 'misc' && (
+                    <section className="flex flex-col gap-6 animate-fade-in">
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest border-l-4 border-[#fbaa19] pl-4">Gerenciar Misc</h2>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm">Escolha a pergunta MISC ativa para a rodada atual. Os usuários responderão apenas a esta pergunta.</p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-[#111] border border-black/10 dark:border-white/10 p-4 md:p-8 rounded-sm">
+                            <div className="flex flex-col gap-4">
+                                {['q1', 'q2', 'q3', 'q4', 'q5'].map((qid) => (
+                                    <button 
+                                        key={qid}
+                                        onClick={() => setActiveMiscQuestion(qid)}
+                                        className={`p-4 border-2 text-left font-bold uppercase transition-colors ${activeMiscQuestion === qid ? 'border-[#fbaa19] bg-[#fbaa19]/10 text-[#fbaa19]' : 'border-gray-500 text-gray-500 hover:border-white hover:text-white'}`}
+                                    >
+                                        Selecionar Pergunta {qid}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 flex flex-col sm:flex-row items-center justify-end gap-4">
+                                {successMsg && (
+                                    <span className="text-green-500 font-bold uppercase tracking-widest animate-pulse text-sm">
+                                        {successMsg}
+                                    </span>
+                                )}
+                                <button 
+                                    onClick={handleSaveMisc}
+                                    disabled={savingMisc}
+                                    className="w-full sm:w-auto bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-10 py-4 font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black hover:border-white transition-colors disabled:opacity-50"
+                                >
+                                    {savingMisc ? 'Salvando...' : 'Salvar Misc'}
+                                </button>
+                            </div>
+                        </div>
+                    </section>
                 )}
             </main>
         </div>

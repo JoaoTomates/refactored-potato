@@ -43,7 +43,7 @@ const PredictionTabs = () => {
     const isTop10Valid = top10.every(p => p !== '');
     const isEvoValid = evo.every(p => p !== '');
     const isH2HValid = Object.keys(h2h).length === 11; // F1_MATCHUPS.length
-    const isMiscValid = Object.keys(misc).length === 5; // QUESTIONS.length
+    const isMiscValid = Object.keys(misc).some(k => k !== 'stake'); // QUESTIONS.length
     
     const isAllValid = isTop10Valid && isEvoValid && isH2HValid && isMiscValid;
 
@@ -137,6 +137,8 @@ const PredictionTabs = () => {
 };
 
 export default PredictionTabs;
+
+
 
 
 
