@@ -1,10 +1,14 @@
-"use client";
+﻿"use client";
+import { usePathname } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from './logo';
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 const Navigation = () => {
+    const pathname = usePathname();
+    if (pathname === '/') return null;
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
     const { user } = useSupabaseAuth();
@@ -147,3 +151,5 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
+

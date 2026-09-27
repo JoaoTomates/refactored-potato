@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+import { usePathname } from 'next/navigation';
 import React from 'react'
 import Link from 'next/link'
 
@@ -8,6 +9,9 @@ import Logo from './logo'
 // css imported globally
 
 const Footer = () => {
+    const pathname = usePathname();
+    if (pathname === '/') return null;
+
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => {
         const t = setTimeout(() => setMounted(true), 0);
@@ -57,3 +61,4 @@ const Footer = () => {
 };
 
 export default Footer
+

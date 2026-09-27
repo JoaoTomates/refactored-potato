@@ -1,8 +1,12 @@
-"use client";
+﻿"use client";
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { fetchNextEvent, type F1Event } from '@/api/f1-data';
 
 export default function NasdaqTicker() {
+    const pathname = usePathname();
+    if (pathname === '/') return null;
+
     const [event, setEvent] = useState<F1Event | null>(null);
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -107,3 +111,5 @@ export default function NasdaqTicker() {
         </a>
     );
 }
+
+
