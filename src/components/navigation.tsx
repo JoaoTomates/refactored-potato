@@ -23,7 +23,7 @@ const Navigation = () => {
 
     const navLinks = [
         { name: 'F1', href: '/f1' },
-        { name: 'News', href: '#' },
+        { name: 'News', href: '/news' },
         { name: 'SocialMedia', href: '#' },
         { name: 'Fantasy', href: '/fantasy' }
     ];
@@ -151,5 +151,6 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
 
 
