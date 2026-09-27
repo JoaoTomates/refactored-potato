@@ -20,7 +20,12 @@ export default function NasdaqTicker() {
 
     // The deadline is typically the start of Qualifying
     const qualiTimeStr = event.qualiDate && event.qualiTime 
-        ? `${new Date(`${event.qualiDate}T${event.qualiTime}`).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` 
+        ? (() => {
+            const date = new Date(`${event.qualiDate}T${event.qualiTime}`);
+            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
+            const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return `${dayOfWeek} ${time}`;
+        })()
         : "TBA";
 
     const tickerText = `MKT: ${event.status} | RND ${event.round} | EVT ${event.name} | LOC ${event.circuit} | RACE ${event.date} ${event.time}`;
