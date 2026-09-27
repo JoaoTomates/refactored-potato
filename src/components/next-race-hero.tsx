@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useEffect, useState } from "react";
 import { useJolpicaCalendar, JolpicaRace } from "@/hooks/useJolpica";
 
@@ -40,7 +40,13 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
     if (!targetRace) return null;
 
     const raceDate = new Date(`${targetRace.date}T${targetRace.time || "00:00:00Z"}`);
-    const isPast = raceDate < new Date();
+    const now = new Date();
+    const isPast = raceDate < now;
+    
+    const timeDiff = raceDate.getTime() - now.getTime();
+    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const showDaysLeft = !isPast && daysLeft > 0;
+
     
     const formatTime = (dateStr?: string, timeStr?: string) => {
         if (!dateStr || !timeStr) return "--:--";
@@ -70,7 +76,7 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
                 <div className="flex justify-between w-full items-start">
                     <span className={`font-bold text-xs uppercase tracking-[0.3em] mb-4 flex items-center gap-2 ${isPast ? 'text-gray-400' : 'text-[#fbaa19]'}`}>
                         {!isPast && <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>}
-                        {isPast ? 'RESULTADOS OFICIAIS' : 'PRÓXIMA ETAPA'} • ROUND {targetRace.round}
+                        {isPast ? 'RESULTADOS OFICIAIS' : 'PRÃ“XIMA ETAPA'} â€¢ ROUND {targetRace.round}
                     </span>
 
                     {/* CALENDAR BUTTON */}
@@ -79,7 +85,7 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
                         className="bg-transparent border-2 border-white/30 text-white hover:border-white hover:bg-white hover:text-black px-4 py-2 text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-2 backdrop-blur-sm"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span className="hidden sm:inline">Ver Calendário/Resultados</span>
+                        <span className="hidden sm:inline">Ver CalendÃ¡rio/Resultados</span>
                     </button>
                 </div>
                 
@@ -113,3 +119,4 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
         </div>
     );
 }
+
