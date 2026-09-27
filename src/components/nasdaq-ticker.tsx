@@ -51,9 +51,9 @@ export default function NasdaqTicker() {
     }
 
     return (
-        <div className="w-full bg-[#0a0a0a] h-8 flex items-center justify-center relative overflow-hidden">
-            {/* Reduced width wrapper */}
-            <div className="w-full max-w-xl flex items-center h-full relative px-2 md:px-0">
+        <a href="/telemetry" className="block w-full bg-[#0a0a0a] h-8 flex items-center justify-center relative overflow-hidden hover:bg-[#111] transition-colors cursor-pointer group border-t border-[#1a1a1a]">
+            {/* Wrapper matching Navbar width */}
+            <div className="w-full max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-full relative gap-4">
                 
                 {/* Left Fixed Label */}
                 <div className="z-20 bg-[#0a0a0a] pr-3 py-1 flex items-center shrink-0">
@@ -99,6 +99,6 @@ export default function NasdaqTicker() {
                 </div>
 
             </div>
-        </div>
+        </a>
     );
 }
