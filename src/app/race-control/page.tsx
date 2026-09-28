@@ -224,7 +224,7 @@ export default function RaceControlPage() {
                                     disabled={isSubmitting}
                                     className="bg-[#fbaa19] text-black font-black uppercase tracking-widest px-8 py-4 hover:bg-black hover:text-[#fbaa19] dark:hover:bg-white transition-colors border-2 border-[#fbaa19] shadow-lg shadow-[#fbaa19]/20 w-full md:w-auto disabled:opacity-50 disabled:cursor-wait"
                                 >
-                                    {isSubmitting ? "Sincronizando..." : "Salvar Resultados Oficiais"}
+                                    {isSubmitting ? "Syncing..." : "Save Official Results"}
                                 </button>
                             </div>
                         </div>
@@ -268,7 +268,7 @@ export default function RaceControlPage() {
                                     <div className="bg-white dark:bg-black border-l-4 border-l-[#fbaa19] border border-black/10 dark:border-white/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                         <div className="flex flex-col gap-1">
                                             <span className="font-bold text-sm uppercase tracking-wider">DenÃºncia: ViolaÃ§Ã£o de Prazo</span>
-                                            <span className="text-xs text-gray-500">UsuÃ¡rio @Hamilton44 submeteu aposta apÃ³s Q1.</span>
+                                            <span className="text-xs text-gray-500">UsuÃ¡rio @Hamilton44 submitted prediction apÃ³s Q1.</span>
                                         </div>
                                         <div className="flex gap-2 w-full sm:w-auto">
                                             <button className="flex-1 sm:flex-none bg-green-500/10 text-green-600 border border-green-500 px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-green-500 hover:text-white transition-colors">Absolver</button>
@@ -307,7 +307,7 @@ export default function RaceControlPage() {
                             {activeView === 'misc' && (
                     <section className="flex flex-col gap-6 animate-fade-in">
                         <div className="flex flex-col gap-2">
-                            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest border-l-4 border-[#fbaa19] pl-4">Gerenciar Misc</h2>
+                            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest border-l-4 border-[#fbaa19] pl-4">Manage Misc</h2>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">Escolha a pergunta MISC ativa para a rodada atual. Os usuários responderão apenas a esta pergunta.</p>
                         </div>
                         <div className="bg-gray-50 dark:bg-[#111] border border-black/10 dark:border-white/10 p-4 md:p-8 rounded-sm">
@@ -333,7 +333,7 @@ export default function RaceControlPage() {
                                     disabled={savingMisc}
                                     className="w-full sm:w-auto bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-10 py-4 font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black hover:border-white transition-colors disabled:opacity-50"
                                 >
-                                    {savingMisc ? 'Salvando...' : 'Salvar Misc'}
+                                    {savingMisc ? 'Saving...' : 'Save Misc'}
                                 </button>
                             </div>
                         </div>

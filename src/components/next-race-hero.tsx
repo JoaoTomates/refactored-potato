@@ -31,7 +31,7 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
         return (
             <div className="w-full h-[50vh] bg-black border-b-4 border-[#fbaa19] flex items-center justify-center mb-8">
                 <div className="animate-pulse text-[#fbaa19] font-bold tracking-widest uppercase">
-                    SINCRONIZANDO COM A FIA...
+                    SYNCING WITH FIA...
                 </div>
             </div>
         );
@@ -50,10 +50,10 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
     
     const formatTime = (dateStr?: string, timeStr?: string) => {
         if (!dateStr || !timeStr) return "--:--";
-        return new Date(`${dateStr}T${timeStr}`).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
+        return new Date(`${dateStr}T${timeStr}`).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
     };
     const formatDate = (dateStr: string) => {
-        return new Date(`${dateStr}T12:00:00Z`).toLocaleDateString("pt-BR", { day: '2-digit', month: 'short' });
+        return new Date(`${dateStr}T12:00:00Z`).toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
     };
 
     return (
@@ -76,7 +76,7 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
                 <div className="flex justify-between w-full items-start">
                     <span className={`font-bold text-xs uppercase tracking-[0.3em] mb-4 flex items-center gap-2 ${isPast ? 'text-gray-400' : 'text-[#fbaa19]'}`}>
                         {!isPast && <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>}
-                        {isPast ? 'RESULTADOS OFICIAIS' : 'PRÃ“XIMA ETAPA'} â€¢ ROUND {targetRace.round}
+                        {isPast ? 'OFFICIAL RESULTS' : 'PRÃ“XIMA ETAPA'} â€¢ ROUND {targetRace.round}
                     </span>
 
                     {/* CALENDAR BUTTON */}

@@ -207,17 +207,17 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                         
                         <div className="flex flex-col gap-4">
                             <div className="bg-black/10 p-4 border-l-4 border-black">
-                                <p className="text-xs font-bold leading-relaxed">As apostas para a primeira etapa Master jÃ¡ estÃ£o abertas. Revise sua garagem.</p>
+                                <p className="text-xs font-bold leading-relaxed">As apostas para a primeira etapa Master jÃ¡ estÃ£o abertas. Check your garage.</p>
                             </div>
                             <div className="bg-black/10 p-4 border-l-4 border-black">
-                                <p className="text-xs font-bold leading-relaxed">VocÃª foi convidado para uma liga privada: <span className="underline cursor-pointer">Senna Fans</span></p>
+                                <p className="text-xs font-bold leading-relaxed">VocÃª foi convidado to a private league: <span className="underline cursor-pointer">Senna Fans</span></p>
                             </div>
                         </div>
                     </div>
                     
                     <div className="relative z-10 mt-8">
                         <button className="w-full bg-black text-[#fbaa19] p-3 font-black uppercase tracking-widest text-[10px] hover:bg-white hover:text-black transition-colors shadow-xl">
-                            Ler Mensagens
+                            Read Messages
                         </button>
                     </div>
                 </div>

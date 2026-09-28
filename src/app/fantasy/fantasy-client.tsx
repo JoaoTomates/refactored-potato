@@ -76,7 +76,7 @@ export default function FantasyClient() {
                         <div className="p-8 text-center flex flex-col items-center justify-center gap-4 bg-black/5 dark:bg-white/5 border border-dashed border-black/20 dark:border-white/20 mt-4">
                             <h3 className="text-xl font-bold text-black dark:text-white uppercase tracking-widest">{getCompetitionTitle(activeId)} Results</h3>
                             <p className="text-gray-500">
-                                Simulando resultados do <strong>ROUND {activeResultRound}</strong> para a competição {getCompetitionTitle(activeId)}.
+                                Simulating results for <strong>ROUND {activeResultRound}</strong> for competition {getCompetitionTitle(activeId)}.
                             </p>
                             <div className="mt-4 text-xs font-mono bg-white dark:bg-black p-4 rounded-md border border-black/10 dark:border-white/10">
                                 {/* Fake table placeholder */}
@@ -114,7 +114,7 @@ export default function FantasyClient() {
                                         POLETIME RULES
                                     </h3>
                                     <p className="text-gray-500 max-w-xl mx-auto">
-                                        Domine os milissegundos e craque o tempo perfeito na Qualificação.
+                                        Master the milliseconds and nail the perfect Qualifying time.
                                     </p>
                                 </div>
 
@@ -125,7 +125,7 @@ export default function FantasyClient() {
                                         </div>
                                         <h4 className="font-bold uppercase tracking-widest text-sm">O Objetivo</h4>
                                         <p className="text-gray-500 text-sm leading-relaxed">
-                                            Sua missão é prever com a maior precisão possível qual será o <strong>tempo exato da Pole Position</strong> (o tempo mais rápido do Q3 na sessão de Qualificação).
+                                            Your mission is to predict with the highest precision possible what will be the <strong>exact Pole Position time</strong> (the fastest Q3 time in the Qualifying session).
                                         </p>
                                     </div>
                                     <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 hover:border-[#fbaa19] transition-colors">
@@ -176,11 +176,11 @@ export default function FantasyClient() {
                                     <ul className="text-gray-500 text-sm space-y-3">
                                         <li className="flex gap-2">
                                             <span className="text-[#fbaa19] font-bold">✓</span> 
-                                            <span><strong>Na mosca:</strong> Se você cravar o tempo exato, leva os 5.000 pontos totais!</span>
+                                            <span><strong>Bullseye:</strong> If you nail the exact time, you take all 5,000 points!</span>
                                         </li>
                                         <li className="flex gap-2">
                                             <span className="text-[#fbaa19] font-bold">⚠</span> 
-                                            <span><strong>Erro superior a 5s:</strong> Se o gap for maior que 5.000 ms, sua pontuação será <strong>0</strong>. Não existem pontuações negativas no Poletime.</span>
+                                            <span><strong>Error greater than 5s:</strong> If the gap is greater than 5,000 ms, your score will be <strong>0</strong>. There are no negative scores in Poletime.</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -206,7 +206,7 @@ export default function FantasyClient() {
                                             <h4 className="font-bold uppercase tracking-widest text-sm">Estrutura de Grupos</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed">
-                                            Você compete em um micro-campeonato. Cada grupo tem capacidade para exatos <strong>22 participantes</strong> (o grid oficial da F1). Existem 500 grupos disponíveis no total.
+                                            You compete in a micro-championship. Each group holds exactly <strong>22 participantes</strong> (the official F1 grid). There are 500 groups available in total.
                                         </p>
                                         <div className="mt-2 text-xs p-3 bg-black/5 dark:bg-white/5 border-l-2 border-[#fbaa19]">
                                             <strong>Nota Histórica:</strong> Os 34 primeiros grupos homenageiam todos os Campeões Mundiais da F1, indo do Grupo 1 (G. Farina) ao Grupo 34 (L. Norris).
@@ -222,7 +222,7 @@ export default function FantasyClient() {
                                             <h4 className="font-bold uppercase tracking-widest text-sm">1. Acertos do Evento</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed mb-2">
-                                            Seu objetivo inicial é acertar o resultado da corrida. Ao acertar a posição exata de um piloto, você ganha pontos de performance baseados na F1 real:
+                                            Your initial goal is to predict the race result. By predicting the exact position of a driver, you earn performance points based on real F1:
                                         </p>
                                         <div className="grid grid-cols-5 gap-1 text-[10px] sm:text-xs font-mono text-center">
                                             <div className="bg-[#fbaa19] text-black font-bold p-1 rounded">P1<br/>25</div>
@@ -247,7 +247,7 @@ export default function FantasyClient() {
                                             <h4 className="font-bold uppercase tracking-widest text-sm">2. O Ranking Acumulado no Grupo</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                                            Os pontos que você faz nos palpites servem para te ranquear <strong>contra os outros 21 jogadores do seu grupo</strong> naquele evento. Após essa apuração, os pontos que vão para o Campeonato Anual são distribuídos apenas para os 10 melhores pontuadores do grupo, idêntico à F1:
+                                            The points you score from predictions rank you <strong>against the other 21 players in your group</strong> in that event. After the tally, Annual Championship points are distributed only to the top 10 scorers in the group, identical to real F1:
                                         </p>
                                         
                                         <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 text-center text-[10px] sm:text-xs font-mono mb-2">
@@ -311,7 +311,7 @@ export default function FantasyClient() {
                                         MILESIMUS RULES
                                     </h3>
                                     <p className="text-gray-500 max-w-2xl mx-auto">
-                                        O ranking global supremo. Aqui não há grupos, apenas a soma bruta e absoluta de todo o seu conhecimento da Fórmula 1.
+                                        The supreme global ranking. There are no groups here, just the raw and absolute sum of all your Formula 1 knowledge.
                                     </p>
                                 </div>
 
@@ -322,7 +322,7 @@ export default function FantasyClient() {
                                     <div className="text-center">
                                         <h4 className="font-black text-xl uppercase tracking-widest mb-4">Como Funciona</h4>
                                         <p className="text-gray-500 leading-relaxed max-w-2xl mx-auto mb-6">
-                                            A competição Milesimus representa a <strong>soma total dos pontos</strong> conquistados por você de forma absoluta, independente do formulário preenchido. É o acumulado bruto ao longo da temporada.
+                                            The Milesimus competition represents the <strong>total sum of points</strong> earned by you in absolute terms, regardless of the prediction format. It is the gross accumulation throughout the season.
                                         </p>
                                     </div>
 

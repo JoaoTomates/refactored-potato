@@ -11,7 +11,7 @@ function DriverRankingTable() {
     if (isLoading) return <div className="p-8 text-center animate-pulse text-[#fbaa19] font-bold">CARREGANDO RANKING...</div>;
     return (
         <div className="flex flex-col w-full border border-black/20 dark:border-white/10 bg-white dark:bg-[#111]">
-            <div className="bg-[#fbaa19] text-black font-black uppercase tracking-widest p-4 text-xl">Campeonato de Pilotos (2026)</div>
+            <div className="bg-[#fbaa19] text-black font-black uppercase tracking-widest p-4 text-xl">Campeonato de Drivers (2026)</div>
             <div className="flex flex-col">
                 {drivers.map((d, i) => (
                     <div key={d.Driver.driverId} className="flex items-center p-3 md:p-4 border-b border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -36,7 +36,7 @@ function ConstructorRankingTable() {
     if (isLoading) return null;
     return (
         <div className="flex flex-col w-full border border-black/20 dark:border-white/10 bg-white dark:bg-[#111] mt-8">
-            <div className="bg-black text-[#fbaa19] border-b-2 border-[#fbaa19] font-black uppercase tracking-widest p-4 text-xl">Campeonato de Construtores (2026)</div>
+            <div className="bg-black text-[#fbaa19] border-b-2 border-[#fbaa19] font-black uppercase tracking-widest p-4 text-xl">Campeonato de Constructors (2026)</div>
             <div className="flex flex-col">
                 {constructors.map((c, i) => (
                     <div key={c.Constructor.constructorId} className="flex items-center p-3 md:p-4 border-b border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -206,7 +206,7 @@ export default function F1Page() {
                             ))}
                         </div>
 
-                        {/* TABELA DE RESULTADOS */}
+                        {/* RESULTS TABLE */}
                         <RaceResultsView round={selectedRound} session={sessionTab} />
                     </div>
                 ) : (

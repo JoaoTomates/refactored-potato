@@ -90,8 +90,8 @@ export default async function NewsPage() {
                         {news.map((item, index) => {
                             // Convert pubDate to a readable format
                             const dateObj = new Date(item.pubDate);
-                            const formattedDate = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-                            const formattedTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                            const formattedDate = dateObj.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+                            const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                             
                             // Use enclosure link for image if available
                             const imageUrl = item.enclosure?.link || item.thumbnail || '/f1_hero_banner.jpg'; // fallback image

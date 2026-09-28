@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from 'react';
 import { useJolpicaCalendar, JolpicaRace } from "@/hooks/useJolpica";
 
@@ -19,7 +19,7 @@ export default function F1CalendarModal({ isOpen, onClose, onSelectRound, curren
     const formatDateTime = (dateStr?: string, timeStr?: string) => {
         if (!dateStr) return "TBA";
         const d = new Date(`${dateStr}T${timeStr || "00:00:00Z"}`);
-        return d.toLocaleDateString("pt-BR", { day: '2-digit', month: 'short' }) + " " + (timeStr ? d.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' }) : "");
+        return d.toLocaleDateString("en-US", { day: '2-digit', month: 'short' }) + " " + (timeStr ? d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' }) : "");
     };
 
     return (
@@ -42,7 +42,7 @@ export default function F1CalendarModal({ isOpen, onClose, onSelectRound, curren
                     {isLoading ? (
                         <div className="p-12 text-center animate-pulse flex flex-col items-center justify-center">
                             <div className="w-8 h-8 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin mb-4"></div>
-                            <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs">Sincronizando Calendário da FIA...</p>
+                            <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs">Syncing FIA Calendar...</p>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-4">
@@ -120,3 +120,4 @@ export default function F1CalendarModal({ isOpen, onClose, onSelectRound, curren
         </div>
     );
 }
+

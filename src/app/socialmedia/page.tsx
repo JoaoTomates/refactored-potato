@@ -128,14 +128,14 @@ export default async function SocialMediaPage({ searchParams }: { searchParams: 
                 {/* Masonry Grid */}
                 {posts.length === 0 ? (
                     <div className="text-center text-gray-500 py-20 font-mono text-sm uppercase tracking-widest">
-                        {activeTag ? `Nenhum post recente encontrado para #${activeTag}.` : 'Não foi possível conectar ao Hub Social no momento.'}
+                        {activeTag ? `No recent posts found for #${activeTag}.` : 'Unable to connect to the Social Hub right now.'}
                     </div>
                 ) : (
                     <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
                         {posts.map((post, index) => {
                             const dateObj = new Date(post.pubDate);
                             const timeAgo = Math.floor((new Date().getTime() - dateObj.getTime()) / (1000 * 60 * 60));
-                            const timeDisplay = timeAgo === 0 ? 'Agora mesmo' : `${timeAgo}h atrás`;
+                            const timeDisplay = timeAgo === 0 ? 'Just now' : `${timeAgo}h ago`;
 
                             const imageUrl = extractHighResImage(post.content || post.description) || post.thumbnail;
 

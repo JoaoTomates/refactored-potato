@@ -27,7 +27,7 @@ export default function NasdaqTicker() {
         ? (() => {
             const date = new Date(`${event.qualiDate}T${event.qualiTime}`);
             const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
-            const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             return `${dayOfWeek} ${time}`;
         })()
         : "TBA";

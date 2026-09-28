@@ -169,7 +169,7 @@ export default function TelemetryPage() {
                         </div>
                         <div className="flex flex-col">
                             <span className="text-[#fbaa19] font-bold">DEADLINE (Q1)</span>
-                            <span>{eventData && eventData.qualiDate && eventData.qualiTime ? (() => { const d = new Date(`${eventData.qualiDate}T${eventData.qualiTime}`); return `${d.toLocaleDateString("en-US", { weekday: "short" })} | ${d.toLocaleDateString("pt-BR")} ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`; })() : "TBD"}</span>
+                            <span>{eventData && eventData.qualiDate && eventData.qualiTime ? (() => { const d = new Date(`${eventData.qualiDate}T${eventData.qualiTime}`); return `${d.toLocaleDateString("en-US", { weekday: "short" })} | ${d.toLocaleDateString("en-US")} ${d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`; })() : "TBD"}</span>
                         </div>
                     </div>
                 </div>
@@ -347,4 +347,5 @@ export default function TelemetryPage() {
         </main>
     );
 }
+
 
