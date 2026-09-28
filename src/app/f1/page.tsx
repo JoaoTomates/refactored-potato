@@ -91,7 +91,7 @@ function RaceResultsView({ round, session }: { round: string, session: string })
     if (!results || results.length === 0) {
         return (
             <div className="p-12 text-center text-gray-500 uppercase tracking-widest border border-dashed border-gray-400/30 bg-black/5 dark:bg-white/5">
-                Resultados nÃ£o disponÃ­veis para esta sessÃ£o ainda.
+                Results not available for this session yet.
             </div>
         );
     }

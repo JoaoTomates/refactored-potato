@@ -132,16 +132,16 @@ export default function FantasyClient() {
                                         <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] mb-2">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                         </div>
-                                        <h4 className="font-bold uppercase tracking-widest text-sm">A Matemática</h4>
+                                        <h4 className="font-bold uppercase tracking-widest text-sm">The Math</h4>
                                         <p className="text-gray-500 text-sm leading-relaxed">
-                                            A pontuação máxima perfeita é de <strong>5.000 pontos</strong>. Cada 1 milissegundo (ms) de erro custa 1 ponto.<br/>
+                                            The perfect maximum score is <strong>5,000 points</strong>. Each 1 millisecond (ms) of error costs 1 point.<br/>
                                             <span className="inline-block mt-2 font-mono text-[#fbaa19] bg-black/5 dark:bg-white/5 p-2 rounded">Pts = 5.000 - GAP(ms)</span>
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="bg-black/5 dark:bg-white/5 border border-dashed border-black/20 dark:border-white/20 p-6 md:p-8 rounded-lg flex flex-col items-center text-center">
-                                    <h4 className="font-bold uppercase tracking-widest text-[#fbaa19] mb-6">Exemplo Prático</h4>
+                                    <h4 className="font-bold uppercase tracking-widest text-[#fbaa19] mb-6">Practical Example</h4>
                                     
                                     <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 w-full max-w-xl">
                                         <div className="flex flex-col items-center">
@@ -165,7 +165,7 @@ export default function FantasyClient() {
                                             <span className="block font-mono font-bold text-red-500">250 ms</span>
                                         </div>
                                         <div className="text-right">
-                                            <span className="block text-xs text-gray-500 uppercase tracking-widest">Pontuação Final</span>
+                                            <span className="block text-xs text-gray-500 uppercase tracking-widest">Final Score</span>
                                             <span className="block text-2xl font-black text-[#fbaa19]">4.750 pts</span>
                                         </div>
                                     </div>
@@ -192,7 +192,7 @@ export default function FantasyClient() {
                                         MASTER RULES
                                     </h3>
                                     <p className="text-gray-500 max-w-2xl mx-auto">
-                                        Uma simulação brutal baseada nos moldes oficiais da Fórmula 1, onde a disputa acontece dentro do seu próprio grupo de 22 competidores.
+                                        A brutal simulation based on the official Formula 1 format, where the dispute happens within your own group of 22 competitors.
                                     </p>
                                 </div>
 
@@ -209,11 +209,11 @@ export default function FantasyClient() {
                                             You compete in a micro-championship. Each group holds exactly <strong>22 participantes</strong> (the official F1 grid). There are 500 groups available in total.
                                         </p>
                                         <div className="mt-2 text-xs p-3 bg-black/5 dark:bg-white/5 border-l-2 border-[#fbaa19]">
-                                            <strong>Nota Histórica:</strong> Os 34 primeiros grupos homenageiam todos os Campeões Mundiais da F1, indo do Grupo 1 (G. Farina) ao Grupo 34 (L. Norris).
+                                            <strong>Historical Note:</strong> The first 34 groups honor all F1 World Champions, indo do Grupo 1 (G. Farina) ao Grupo 34 (L. Norris).
                                         </div>
                                     </div>
 
-                                    {/* Card 2: Pontuação do Palpite */}
+                                    {/* Card 2: Prediction Score */}
                                     <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3">
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0">
@@ -300,7 +300,7 @@ export default function FantasyClient() {
                                 </div>
                                 <div className="text-center mt-4">
                                     <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                        O Campeão Master do seu grupo será aquele que acumular mais pontos no Ranking final!
+                                        The Master Champion of your group will be the one who accumulates the most points in the final Ranking!
                                     </p>
                                 </div>
                             </div>
@@ -349,7 +349,7 @@ export default function FantasyClient() {
                                 
                                 <div className="text-center mt-4">
                                     <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                        O jogador que chegar ao final da temporada com o maior Milesimus Score é coroado o Campeão Absoluto do ano!
+                                        The player who reaches the end of the season with the highest Milesimus Score is crowned the Absolute Champion of the year!
                                     </p>
                                 </div>
                             </div>

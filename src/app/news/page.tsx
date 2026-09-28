@@ -83,7 +83,7 @@ export default async function NewsPage() {
                 {/* News Grid */}
                 {news.length === 0 ? (
                     <div className="text-center text-gray-500 py-20 font-mono text-sm uppercase tracking-widest">
-                        NÃ£o foi possÃ­vel carregar as notÃ­cias no momento. Tente novamente mais tarde.
+                        Unable to load news at the moment. Please try again later.
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -139,7 +139,7 @@ export default async function NewsPage() {
                                         </p>
 
                                         <div className="mt-auto pt-4 border-t border-[#1a1a1a] flex items-center justify-between text-[#fbaa19] text-[10px] font-bold uppercase tracking-widest">
-                                            <span>Ler na Ã­ntegra</span>
+                                            <span>Read full article</span>
                                             <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                         </div>
                                     </div>

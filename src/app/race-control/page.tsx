@@ -103,7 +103,7 @@ export default function RaceControlPage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-4">
                     <p className="text-[#fbaa19] text-sm md:text-base font-bold uppercase tracking-[0.2em] font-display">F1 // VOLTGRID</p>
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-widest font-display">Race Control</h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">Painel de gerenciamento de dados oficiais, pontuação e integridade.</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">Management panel for official data, scoring, and integrity.</p>
                 </div>
             </header>
 
@@ -113,7 +113,7 @@ export default function RaceControlPage() {
                         onClick={() => setActiveView('dashboard')}
                         className={`text-sm md:text-base font-bold uppercase tracking-widest px-4 py-2 border-b-2 transition-colors ${activeView === 'dashboard' ? 'border-[#fbaa19] text-[#fbaa19]' : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'}`}
                     >
-                        Visão Geral
+                        Overview
                     </button>
                     <button 
                         onClick={() => setActiveView('resultados')}
@@ -127,13 +127,13 @@ export default function RaceControlPage() {
                     <section className="flex flex-col gap-6 animate-fade-in">
                         <div className="flex flex-col gap-2">
                             <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest border-l-4 border-[#fbaa19] pl-4">Resultados Oficiais</h2>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm">Atualize os resultados de cada sessão. Impacta diretamente na pontuação dos jogadores no Milesimus.</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm">Update the results of each session. Directly impacts players' scores in Milesimus.</p>
                         </div>
                         
                         <div className="bg-gray-50 dark:bg-[#111] border border-black/10 dark:border-white/10 p-4 md:p-8 rounded-sm">
                             <div className="mb-8 flex flex-col gap-2">
                                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-2 border-b border-black/10 dark:border-white/10 pb-2 gap-2">
-                                    <label className="text-sm font-bold uppercase tracking-widest text-[#fbaa19]">Sessão</label>
+                                    <label className="text-sm font-bold uppercase tracking-widest text-[#fbaa19]">Session</label>
                                     {currentEvent ? (
                                         <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
                                             ROUND {currentEvent.round} {"//"} {currentEvent.name}
@@ -165,7 +165,7 @@ export default function RaceControlPage() {
 
                             <div className="flex flex-col gap-4">
                                 <label className="text-sm font-bold uppercase tracking-widest text-[#fbaa19] mb-2 border-b border-black/10 dark:border-white/10 pb-2">
-                                    Classificação Final (Ajuste a ordem)
+                                    Final Classification (Adjust order)
                                 </label>
                                 <div className="flex flex-col gap-2">
                                     {results.map((driver, i) => (
