@@ -9,6 +9,7 @@ interface NewsItem {
     author: string;
     thumbnail: string;
     description: string;
+    sourceName: string;
     enclosure?: {
         link: string;
         type: string;
@@ -19,17 +20,49 @@ interface NewsItem {
 export const revalidate = 3600; // Revalidate every hour
 
 async function fetchNews(): Promise<NewsItem[]> {
-    try {
-        const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.motorsport.com/rss/f1/news/');
-        if (!response.ok) {
-            throw new Error('Failed to fetch news');
+    const FEEDS = [
+        { name: 'Motorsport.com', url: 'https://www.motorsport.com/rss/f1/news/' },
+        { name: 'Autosport', url: 'https://www.autosport.com/rss/f1/news/' },
+        { name: 'Sky Sports', url: 'https://www.skysports.com/rss/12433' },
+        { name: 'BBC Sport', url: 'http://feeds.bbci.co.uk/sport/formula1/rss.xml' }
+    ];
+
+    let allNews: NewsItem[] = [];
+
+    await Promise.allSettled(
+        FEEDS.map(async (feed) => {
+            try {
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.items) {
+                        const itemsWithSource = data.items.map((item: any) => ({
+                            ...item,
+                            sourceName: feed.name
+                        }));
+                        allNews = [...allNews, ...itemsWithSource];
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching news from ${feed.name}:`, error);
+            }
+        })
+    );
+
+    // Sort by pubDate (newest first)
+    allNews.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
+
+    // Deduplicate by title (Motorsport and Autosport often share articles)
+    const uniqueNews: NewsItem[] = [];
+    const titles = new Set();
+    for (const item of allNews) {
+        if (!titles.has(item.title)) {
+            titles.add(item.title);
+            uniqueNews.push(item);
         }
-        const data = await response.json();
-        return data.items || [];
-    } catch (error) {
-        console.error("Error fetching news:", error);
-        return [];
     }
+
+    return uniqueNews.slice(0, 30);
 }
 
 export default async function NewsPage() {
@@ -83,12 +116,10 @@ export default async function NewsPage() {
                                             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                                             
                                         />
-                                        {/* Category Badge */}
-                                        {item.categories && item.categories.length > 0 && (
-                                            <div className="absolute top-4 left-4 z-20 bg-[#fbaa19] text-black text-[9px] font-black uppercase tracking-widest px-2 py-1">
-                                                {item.categories[0]}
-                                            </div>
-                                        )}
+                                        {/* Source Badge */}
+                                        <div className="absolute top-4 left-4 z-20 bg-[#fbaa19] text-black text-[9px] font-black uppercase tracking-widest px-2 py-1 shadow-md">
+                                            {item.sourceName}
+                                        </div>
                                     </div>
                                     
                                     {/* Content */}
