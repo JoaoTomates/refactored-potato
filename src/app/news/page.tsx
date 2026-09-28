@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import NewsInteractions from '@/components/news-interactions';
 import Image from 'next/image';
 
 interface NewsItem {
@@ -99,21 +100,18 @@ export default async function NewsPage() {
                             // Clean description from HTML tags
                             const cleanDescription = item.description.replace(/<[^>]+>/g, '').split('Keep reading')[0].trim();
 
-                            return (
-                                <a 
+                                                        return (
+                                <div 
                                     key={item.guid || index} 
-                                    href={item.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="group bg-[#0a0a0a] border border-[#1a1a1a] overflow-hidden flex flex-col hover:border-[#fbaa19] transition-all hover:-translate-y-1 shadow-lg"
+                                    className="group bg-[#0a0a0a] border border-[#1a1a1a] overflow-hidden flex flex-col transition-all shadow-lg"
                                 >
                                     {/* Image Container */}
                                     <div className="relative w-full h-48 md:h-56 overflow-hidden bg-black">
-                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
+                                        <div className="absolute inset-0 bg-black/40 z-10"></div>
                                         <img 
                                             src={imageUrl} 
                                             alt={item.title}
-                                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                            className="w-full h-full object-cover"
                                             
                                         />
                                         {/* Source Badge */}
@@ -126,11 +124,11 @@ export default async function NewsPage() {
                                     <div className="p-6 flex flex-col flex-1">
                                         <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3 font-mono">
                                             <span>{formattedDate}</span>
-                                            <span>â€¢</span>
+                                            <span>•</span>
                                             <span>{formattedTime}</span>
                                         </div>
                                         
-                                        <h2 className="text-lg md:text-xl font-bold leading-tight mb-3 group-hover:text-[#fbaa19] transition-colors">
+                                        <h2 className="text-lg md:text-xl font-bold leading-tight mb-3 text-white">
                                             {item.title}
                                         </h2>
                                         
@@ -138,13 +136,21 @@ export default async function NewsPage() {
                                             {cleanDescription}
                                         </p>
 
-                                        <div className="mt-auto pt-4 border-t border-[#1a1a1a] flex items-center justify-between text-[#fbaa19] text-[10px] font-bold uppercase tracking-widest">
-                                            <span>Read full article</span>
-                                            <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                        <div className="mt-auto pt-4 border-t border-[#1a1a1a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <NewsInteractions newsId={item.guid || index.toString()} />
+                                            <a 
+                                                href={item.link} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="text-[#fbaa19] text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#fbaa19] hover:text-black px-4 py-2 border border-[#fbaa19] transition-all group/btn"
+                                            >
+                                                <span>Read full article</span>
+                                                <svg className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                            </a>
                                         </div>
                                     </div>
-                                </a>
-                            );
+                                </div>
+                            );;
                         })}
                     </div>
                 )}
