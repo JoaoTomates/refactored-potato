@@ -60,9 +60,9 @@ export default function NasdaqTicker() {
     }
 
     return (
-        <a href="/telemetry" className="block w-full bg-[#0a0a0a] h-8 flex items-center justify-center relative overflow-hidden hover:bg-[#111] transition-colors cursor-pointer group border-t border-[#1a1a1a]">
+        <div className="w-full border-t border-[#1a1a1a] bg-[#050505]"><a href="/telemetry" className="block max-w-5xl mx-auto bg-[#0a0a0a] h-8 flex items-center justify-center relative overflow-hidden hover:bg-[#111] transition-colors cursor-pointer group">
             {/* Wrapper matching Navbar width */}
-            <div className="w-full max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-full relative gap-4">
+            <div className="w-full max-w-5xl mx-auto px-4 md:px-8 flex items-center justify-between h-full relative gap-4">
                 
                 {/* Left Fixed Label */}
                 <div className="z-20 bg-[#0a0a0a] pr-3 py-1 flex items-center shrink-0">
@@ -87,7 +87,7 @@ export default function NasdaqTicker() {
                         .animate-marquee-pause {
                             display: inline-block;
                             white-space: nowrap;
-                            animation: marquee-disappear 25s linear infinite;
+                            animation: marquee-disappear 60s linear infinite;
                             will-change: transform;
                         }
                     `}} />
@@ -108,7 +108,7 @@ export default function NasdaqTicker() {
                 </div>
 
             </div>
-        </a>
+        </a></div>
     );
 }
 

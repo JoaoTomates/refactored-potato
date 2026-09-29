@@ -142,7 +142,7 @@ export default function TelemetryPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
                 </div>
                 
-                <div className="relative z-10 w-full px-4 md:px-8 max-w-[1400px] mx-auto flex flex-col gap-2">
+                <div className="relative z-10 w-full px-4 md:px-8 max-w-5xl mx-auto flex flex-col gap-2">
                     <div className="flex items-center gap-3">
                         <span className="bg-[#fbaa19] text-black font-black uppercase px-3 py-1 text-xs md:text-sm tracking-widest">
                             TELEMETRY
@@ -176,7 +176,7 @@ export default function TelemetryPage() {
             </section>
 
             {/* DATA CENTER TABLE */}
-            <section className="w-full px-4 md:px-8 max-w-[1800px] mx-auto mt-8">
+            <section className="w-full px-4 md:px-8 max-w-5xl mx-auto mt-8">
                 
                 <div className="w-full overflow-x-auto bg-[#0a0a0a] rounded-sm border border-[#222] shadow-2xl relative custom-scrollbar">
                     {loading ? (
