@@ -5,7 +5,7 @@ import { fetchNextEvent, type F1Event } from '@/api/f1-data';
 
 export default function NasdaqTicker() {
     const pathname = usePathname();
-    if (pathname === '/') return null;
+    if (pathname === '/' || pathname === '/superlicense') return null;
 
     const [event, setEvent] = useState<F1Event | null>(null);
     const [currentTime, setCurrentTime] = useState(new Date());

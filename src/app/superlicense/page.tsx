@@ -140,183 +140,204 @@ export default function SuperlicensePage() {
     }
 
     return (
-        <main className="w-full min-h-screen bg-[#050505] flex flex-col items-center justify-center p-4">
+        <main className="w-full min-h-screen bg-black flex flex-col items-center">
             
-            {/* Header Text */}
-            <div className="text-center mb-8">
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-widest font-display text-white drop-shadow-lg">
-                    DRIVER <span className="text-[#fbaa19]">SETUP</span>
-                </h1>
-                <p className="text-gray-400 text-xs md:text-sm font-bold uppercase tracking-[0.2em] mt-2">
-                    {mode === 'setup' ? 'Acquire your Super License' : 'Access your Garage'}
-                </p>
-            </div>
-
-            <div className="w-full max-w-md bg-black border border-[#1a1a1a] shadow-2xl p-6 md:p-8">
-                
-                {errorMsg && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
-                        {errorMsg}
-                    </div>
-                )}
-
-                {mode === 'setup' ? (
-                    <form onSubmit={handleSetupSubmit} className="flex flex-col gap-6">
+            {mode === 'setup' ? (
+                // --- SETUP MODE ---
+                <div className="w-full flex flex-col items-center">
+                    
+                    {/* EXPANDED AVATAR / HELMET HEADER */}
+                    <div className="relative w-full h-64 md:h-80 bg-black overflow-hidden shadow-2xl flex items-center justify-center">
+                        {/* Background Layer (For future AI generated image) */}
+                        {/* If no AI image, it uses a subtle pattern or dark gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
                         
-                        {/* Avatar Image (Capacete) - Retangular, bg-black */}
-                        <div className="w-full flex justify-center mb-2">
-                            <div className="w-32 h-32 bg-black border-2 border-[#1a1a1a] flex items-center justify-center overflow-hidden shadow-inner group relative">
-                                <div className="absolute inset-0 bg-[#fbaa19]/5 group-hover:bg-[#fbaa19]/10 transition-colors"></div>
-                                {/* SVG Capacete Placeholder */}
-                                <svg viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-gray-700 group-hover:text-[#fbaa19] transition-colors relative z-10">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12v7h20v-7c0-5.52-4.48-10-10-10zm0 2c4.41 0 8 3.59 8 8v1h-3v-2c0-2.76-2.24-5-5-5s-5 2.24-5 5v2H4v-1c0-4.41 3.59-8 8-8z"/>
-                                </svg>
-                                <div className="absolute bottom-2 w-full text-center z-10">
-                                    <span className="text-[8px] font-black uppercase tracking-widest text-gray-500">Avatar</span>
+                        {/* Foreground Layer (Helmet PNG with transparent background) */}
+                        <img 
+                            src="/helmet.png" 
+                            alt="Driver Helmet" 
+                            className="relative z-10 w-full h-full object-contain drop-shadow-2xl scale-110 object-bottom"
+                            onError={(e) => {
+                                // Fallback se a imagem não existir ainda na pasta public
+                                (e.target as HTMLImageElement).src = 'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/motorcycle.svg'; 
+                                (e.target as HTMLImageElement).className = "relative z-10 w-32 h-32 opacity-20 filter invert object-contain";
+                            }}
+                        />
+
+                        {/* Title Overlay */}
+                        <div className="absolute top-6 left-0 w-full text-center z-20">
+                            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-widest font-display text-white drop-shadow-lg">
+                                DRIVER <span className="text-[#fbaa19]">SETUP</span>
+                            </h1>
+                        </div>
+                    </div>
+
+                    {/* FORM SECTION */}
+                    <div className="w-full max-w-md bg-black border-x border-b border-[#1a1a1a] shadow-2xl p-6 md:p-8 -mt-4 relative z-30 rounded-b-xl">
+                        
+                        {errorMsg && (
+                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                                {errorMsg}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSetupSubmit} className="flex flex-col gap-6">
+                            
+                            {/* Driver Name (2 inputs: Left small, Right normal) */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Driver Name</label>
+                                <div className="flex gap-3">
+                                    <input 
+                                        type="text" 
+                                        maxLength={1}
+                                        placeholder="A"
+                                        required
+                                        value={initial}
+                                        onChange={(e) => setInitial(e.target.value)}
+                                        className="w-16 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-center focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    />
+                                    <input 
+                                        type="text" 
+                                        placeholder="SENNA"
+                                        required
+                                        value={surname}
+                                        onChange={(e) => setSurname(e.target.value)}
+                                        className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    />
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Driver Name (2 inputs: Left small, Right normal) */}
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Driver Name</label>
-                            <div className="flex gap-3">
+                            {/* Nationality */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Nationality</label>
                                 <input 
                                     type="text" 
-                                    maxLength={1}
-                                    placeholder="J"
+                                    placeholder="BRAZILIAN"
                                     required
-                                    value={initial}
-                                    onChange={(e) => setInitial(e.target.value)}
-                                    className="w-16 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-center focus:outline-none focus:border-[#fbaa19] transition-colors"
-                                />
-                                <input 
-                                    type="text" 
-                                    placeholder="SURNAME"
-                                    required
-                                    value={surname}
-                                    onChange={(e) => setSurname(e.target.value)}
-                                    className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    value={nationality}
+                                    onChange={(e) => setNationality(e.target.value)}
+                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                 />
                             </div>
-                        </div>
 
-                        {/* Nationality */}
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Nationality</label>
-                            <input 
-                                type="text" 
-                                placeholder="BRAZILIAN"
-                                required
-                                value={nationality}
-                                onChange={(e) => setNationality(e.target.value)}
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
-                            />
-                        </div>
+                            {/* OCR (Organization Color Reference) */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center justify-between">
+                                    <span>Organization Color (OCR)</span>
+                                    <span className="text-[#fbaa19]">{ocr.toUpperCase()}</span>
+                                </label>
+                                <div className="flex items-center gap-3 bg-[#1a1a1a] border border-[#333] p-2 focus-within:border-[#fbaa19] transition-colors">
+                                    <input 
+                                        type="color" 
+                                        value={ocr}
+                                        onChange={(e) => setOcr(e.target.value)}
+                                        className="w-10 h-10 cursor-pointer bg-transparent border-none outline-none"
+                                    />
+                                    <input 
+                                        type="text" 
+                                        value={ocr.toUpperCase()}
+                                        onChange={(e) => setOcr(e.target.value)}
+                                        className="flex-1 bg-transparent text-white font-mono text-sm uppercase focus:outline-none"
+                                    />
+                                </div>
+                            </div>
 
-                        {/* OCR (Organization Color Reference) */}
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center justify-between">
-                                <span>Organization Color (OCR)</span>
-                                <span className="text-[#fbaa19]">{ocr.toUpperCase()}</span>
-                            </label>
-                            <div className="flex items-center gap-3 bg-[#1a1a1a] border border-[#333] p-2 focus-within:border-[#fbaa19] transition-colors">
-                                <input 
-                                    type="color" 
-                                    value={ocr}
-                                    onChange={(e) => setOcr(e.target.value)}
-                                    className="w-10 h-10 cursor-pointer bg-transparent border-none outline-none"
-                                />
+                            {/* Email or Phone */}
+                            <div className="flex flex-col gap-2 mt-2 pt-6 border-t border-[#1a1a1a]">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Contact & Security</label>
                                 <input 
                                     type="text" 
-                                    value={ocr.toUpperCase()}
-                                    onChange={(e) => setOcr(e.target.value)}
-                                    className="flex-1 bg-transparent text-white font-mono text-sm uppercase focus:outline-none"
+                                    placeholder="EMAIL OR CELLPHONE"
+                                    required
+                                    value={contact}
+                                    onChange={(e) => setContact(e.target.value)}
+                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                />
+                                <input 
+                                    type="password" 
+                                    placeholder="SECRET PASSWORD"
+                                    required
+                                    minLength={6}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
                                 />
                             </div>
-                        </div>
 
-                        {/* Email or Phone */}
-                        <div className="flex flex-col gap-2 mt-2 pt-6 border-t border-[#1a1a1a]">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Contact & Security</label>
-                            <input 
-                                type="text" 
-                                placeholder="EMAIL OR CELLPHONE"
-                                required
-                                value={contact}
-                                onChange={(e) => setContact(e.target.value)}
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
-                            />
-                            {/* Password input so Supabase auth works */}
-                            <input 
-                                type="password" 
-                                placeholder="SECRET PASSWORD"
-                                required
-                                minLength={6}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
-                            />
-                        </div>
+                            <button 
+                                type="submit"
+                                disabled={loadingAction}
+                                className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 mt-4 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loadingAction ? 'SAVING...' : 'SAVE & ENTER'}
+                            </button>
 
-                        <button 
-                            type="submit"
-                            disabled={loadingAction}
-                            className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 mt-4 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loadingAction ? 'SAVING...' : 'SAVE & ENTER'}
-                        </button>
+                            <button 
+                                type="button"
+                                onClick={() => setMode('login')}
+                                className="text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:text-white transition-colors text-center mt-2"
+                            >
+                                ALREADY HAVE A LICENSE? LOGIN
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            ) : (
+                // --- LOGIN MODE ---
+                <div className="w-full flex flex-col items-center justify-center min-h-screen p-4">
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-widest font-display text-white drop-shadow-lg">
+                            GARAGE <span className="text-[#fbaa19]">ACCESS</span>
+                        </h1>
+                    </div>
+                    
+                    <div className="w-full max-w-md bg-black border border-[#1a1a1a] shadow-2xl p-6 md:p-8 rounded-xl">
+                        {errorMsg && (
+                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                                {errorMsg}
+                            </div>
+                        )}
+                        <form onSubmit={handleLoginSubmit} className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Email</label>
+                                <input 
+                                    type="email" 
+                                    required
+                                    value={loginEmail}
+                                    onChange={(e) => setLoginEmail(e.target.value)}
+                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Password</label>
+                                <input 
+                                    type="password" 
+                                    required
+                                    value={loginPassword}
+                                    onChange={(e) => setLoginPassword(e.target.value)}
+                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                />
+                            </div>
 
-                        <button 
-                            type="button"
-                            onClick={() => setMode('login')}
-                            className="text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:text-white transition-colors text-center mt-2"
-                        >
-                            ALREADY HAVE A LICENSE? LOGIN
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleLoginSubmit} className="flex flex-col gap-6">
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Email</label>
-                            <input 
-                                type="email" 
-                                required
-                                value={loginEmail}
-                                onChange={(e) => setLoginEmail(e.target.value)}
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Password</label>
-                            <input 
-                                type="password" 
-                                required
-                                value={loginPassword}
-                                onChange={(e) => setLoginPassword(e.target.value)}
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold text-sm focus:outline-none focus:border-[#fbaa19] transition-colors"
-                            />
-                        </div>
+                            <button 
+                                type="submit"
+                                disabled={loadingAction}
+                                className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 mt-4 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loadingAction ? 'AUTHENTICATING...' : 'LOGIN'}
+                            </button>
 
-                        <button 
-                            type="submit"
-                            disabled={loadingAction}
-                            className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 mt-4 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loadingAction ? 'AUTHENTICATING...' : 'LOGIN'}
-                        </button>
-
-                        <button 
-                            type="button"
-                            onClick={() => setMode('setup')}
-                            className="text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:text-white transition-colors text-center mt-2"
-                        >
-                            NEED A SUPER LICENSE? SETUP
-                        </button>
-                    </form>
-                )}
-
-            </div>
+                            <button 
+                                type="button"
+                                onClick={() => setMode('setup')}
+                                className="text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:text-white transition-colors text-center mt-2"
+                            >
+                                NEED A SUPER LICENSE? SETUP
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

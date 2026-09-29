@@ -7,7 +7,7 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 const Navigation = () => {
     const pathname = usePathname();
-    if (pathname === '/') return null;
+    if (pathname === '/' || pathname === '/superlicense') return null;
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     

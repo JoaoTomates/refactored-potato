@@ -10,7 +10,7 @@ import Logo from './logo'
 
 const Footer = () => {
     const pathname = usePathname();
-    if (pathname === '/') return null;
+    if (pathname === '/' || pathname === '/superlicense') return null;
 
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => {
