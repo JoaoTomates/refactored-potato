@@ -100,14 +100,14 @@ export default function RaceControlPage() {
     return (
         <div className="w-full flex flex-col min-h-screen bg-gray-50 dark:bg-black text-black dark:text-white pb-24">
             <header className="w-full p-4 md:p-8 border-b-4 border-[#fbaa19] bg-white dark:bg-[#111]">
-                <div className="max-w-6xl mx-auto flex flex-col gap-4">
+                <div className="max-w-5xl mx-auto flex flex-col gap-4">
                     <p className="text-[#fbaa19] text-sm md:text-base font-bold uppercase tracking-[0.2em] font-display">F1 // VOLTGRID</p>
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-widest font-display">Race Control</h1>
                     <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">Management panel for official data, scoring, and integrity.</p>
                 </div>
             </header>
 
-            <main className="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8 mt-4 flex flex-col gap-8">
+            <main className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-8 mt-4 flex flex-col gap-8">
                 <nav className="flex flex-row gap-4 border-b border-black/10 dark:border-white/10 pb-4 overflow-x-auto scrollbar-hide min-w-max">
                     <button 
                         onClick={() => setActiveView('dashboard')}

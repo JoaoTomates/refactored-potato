@@ -165,7 +165,7 @@ export default function F1Page() {
             {/* HERO COMUNICA O EVENTO DIRETAMENTE */}
             <RaceEventHero selectedRound={selectedRound} onOpenCalendar={() => setIsCalendarOpen(true)} />
 
-            <div className="w-full max-w-7xl mx-auto px-4 md:px-8 mt-[-20px] md:mt-[-32px] relative z-20">
+            <div className="w-full max-w-5xl mx-auto px-4 md:px-8 mt-[-20px] md:mt-[-32px] relative z-20">
                 
                 {/* GLOBAL PAGE TOGGLE (RESULTS VS RANKING) */}
                 <div className="flex justify-end mb-4">

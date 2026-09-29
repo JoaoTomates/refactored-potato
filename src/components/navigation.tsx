@@ -40,7 +40,7 @@ const Navigation = () => {
                 <div className="absolute inset-0 z-0 opacity-10 pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("https://images.pexels.com/photos/6159693/pexels-photo-6159693.jpeg?auto=compress&cs=tinysrgb&h=650&w=940")', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
                 
                 {/* Dynamic Height Container */}
-                <div className={`relative z-10 flex items-center justify-between w-full max-w-7xl mx-auto px-4 md:px-8 transition-all duration-300 ease-in-out ${isScrolled ? 'h-12 md:h-12' : 'h-16 md:h-20'}`}>
+                <div className={`relative z-10 flex items-center justify-between w-full max-w-5xl mx-auto px-4 md:px-8 transition-all duration-300 ease-in-out ${isScrolled ? 'h-12 md:h-12' : 'h-16 md:h-20'}`}>
                     
                     {/* LEFT: Logo */}
                     <div className="flex items-center">
@@ -91,7 +91,7 @@ const Navigation = () => {
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 bg-[#0a0a0a] z-[9999] p-6 md:p-12 flex flex-col overflow-y-auto animate-fade-in">
                     
-                    <div className="flex items-center justify-between mb-12 max-w-7xl mx-auto w-full">
+                    <div className="flex items-center justify-between mb-12 max-w-5xl mx-auto w-full">
                         <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
                             <Logo isOnDarkBackground={true} />
                         </Link>
@@ -108,7 +108,7 @@ const Navigation = () => {
                     </div>
                     
 
-                    <div className="flex flex-col flex-grow max-w-7xl mx-auto w-full gap-8 mt-10">
+                    <div className="flex flex-col flex-grow max-w-5xl mx-auto w-full gap-8 mt-10">
                         
                         {/* F1, NEWS AND SOCIAL MEDIA ON THE SAME ROW */}
                         <div className="flex flex-row flex-wrap items-center gap-4 md:gap-8 border-b border-white/10 pb-6 w-full">
@@ -147,7 +147,7 @@ const Navigation = () => {
                         </Link>
                     </div>
 
-                    <div className="mt-12 flex flex-col md:flex-row gap-4 max-w-7xl mx-auto w-full pb-8">
+                    <div className="mt-12 flex flex-col md:flex-row gap-4 max-w-5xl mx-auto w-full pb-8">
                         <Link 
                             href="/bet" 
                             onClick={() => setIsMobileMenuOpen(false)}

@@ -74,7 +74,7 @@ export default async function NewsPage() {
 
     return (
         <main className="w-full min-h-screen bg-[#050505] text-white pt-8 pb-24 font-sans">
-            <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="max-w-5xl mx-auto px-4 md:px-8">
                 
                 {/* Header */}
                 <div className="mb-12 border-l-4 border-[#fbaa19] pl-6">

@@ -44,7 +44,7 @@ export default function Home() {
                 <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 to-transparent" />
 
                 {/* Content Container */}
-                <div className="relative z-20 w-full h-full flex flex-col p-6 md:p-12 lg:p-20">
+                <div className="relative z-20 w-full h-full flex flex-col justify-center max-w-5xl mx-auto px-4 md:px-8 py-12 md:py-20">
                     
                     {/* Header (Logo + Brand) */}
                     <div className="flex items-center gap-4">
@@ -61,35 +61,28 @@ export default function Home() {
                             A new era of F1 predictions. Build your legacy, manage your resources, and dominate the global leaderboards. The grid awaits.
                         </p>
                         
-                        {/* New Explore Button */}
-                        <div className="mt-4">
+                        {/* Action Buttons */}
+                        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+                            <Link 
+                                href={buttonLink}
+                                className="w-full sm:w-auto bg-[#fbaa19] text-black border-[3px] border-[#fbaa19] rounded-[3px] px-8 py-4 flex items-center justify-center transition-colors shadow-[0_0_20px_rgba(251,170,25,0.4)] hover:bg-white hover:border-white font-black uppercase tracking-widest text-xs sm:text-sm"
+                            >
+                                <span>{buttonText}</span>
+                            </Link>
                             <button 
                                 onClick={scrollToAbout}
-                                className="group max-w-[220px] w-full bg-transparent text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black border-[3px] border-[#fbaa19] rounded-[3px] px-4 py-3 flex items-center justify-between transition-colors shadow-lg"
+                                className="w-full sm:w-auto bg-transparent text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black border-[3px] border-[#fbaa19] rounded-[3px] px-8 py-4 flex items-center justify-center transition-colors shadow-lg font-black uppercase tracking-widest text-xs sm:text-sm"
                             >
-                                <span className="font-bold uppercase tracking-widest text-[10px] sm:text-xs truncate mr-2">Explore Competition</span>
-                                <svg className="w-4 h-4 shrink-0 transform group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                <span>Explore Competition</span>
                             </button>
                         </div>
                     </div>
 
-                    {/* Bottom Right Main Action Button */}
-                    <div className="absolute bottom-10 right-6 md:bottom-20 md:right-20 flex justify-end">
-                        <Link 
-                            href={buttonLink}
-                            className="group flex items-center gap-4 bg-[#fbaa19] text-black px-8 py-5 md:px-12 md:py-6 font-black uppercase tracking-[0.2em] text-sm md:text-xl border-4 border-transparent hover:border-white transition-all shadow-[0_0_40px_rgba(251,170,25,0.4)] hover:scale-105 hover:bg-white hover:text-black overflow-hidden relative rounded-sm"
-                        >
-                            <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
-                            <span className="relative z-10">{buttonText}</span>
-                            <svg className="w-6 h-6 md:w-8 md:h-8 transform group-hover:translate-x-3 transition-transform relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </Link>
                     </div>
-
-                </div>
             </section>
 
             {/* ABOUT SECTION */}
-            <section id="about" className="w-full min-h-screen bg-[#050505] p-6 md:p-20 relative flex flex-col justify-center">
+            <section id="about" className="w-full min-h-screen bg-[#050505] relative flex flex-col justify-center py-12 md:py-20">
                 {/* Background Element */}
                 <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none">
                     <svg viewBox="0 0 100 100" className="w-full h-full fill-white" preserveAspectRatio="none">
@@ -97,7 +90,7 @@ export default function Home() {
                     </svg>
                 </div>
 
-                <div className="max-w-6xl mx-auto w-full z-10 flex flex-col gap-16 py-20">
+                <div className="max-w-5xl mx-auto w-full px-4 md:px-8 z-10 flex flex-col gap-16 py-20">
                     
                     <div className="flex flex-col gap-4">
                         <span className="text-[#fbaa19] font-bold uppercase tracking-[0.3em] text-sm border-l-4 border-[#fbaa19] pl-4">The Origin</span>

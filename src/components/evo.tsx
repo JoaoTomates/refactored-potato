@@ -61,13 +61,13 @@ const Evo = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: bo
                                 >
                                     {pickDetails ? (
                                         <div className="flex flex-col leading-tight">
-                                            <span className={`uppercase font-bold tracking-wider ${pick ? 'text-black' : 'text-black dark:text-white'}`}>
+                                            <span className={`text-lg md:text-xl font-black uppercase tracking-widest ${pick ? 'text-black' : 'text-black dark:text-white'}`}>
                                                 {pickDetails.name} <span className={pick ? 'text-black/70' : 'text-[#fbaa19]'}># {pickDetails.num}</span>
                                             </span>
                                             <span className={`text-xs font-medium uppercase tracking-wider mt-0.5 ${pick ? 'text-black/70' : 'text-gray-600 dark:text-gray-400'}`}>{pickDetails.team}</span>
                                         </div>
                                     ) : (
-                                        <span className="uppercase font-bold tracking-wider text-gray-500">
+                                        <span className="text-lg md:text-xl font-black uppercase tracking-widest text-gray-500">
                                             Select Driver
                                         </span>
                                     )}
@@ -116,7 +116,7 @@ const Evo = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: bo
                                                         }`}
                                                     >
                                                         <div className="flex flex-col leading-tight">
-                                                            <span>{driverDetails.name} <span className={isPickedHere ? "text-black/70" : "text-[#fbaa19]"}># {driverDetails.num}</span></span>
+                                                            <span className="text-lg md:text-xl font-black uppercase tracking-widest">{driverDetails.name} <span className={isPickedHere ? "text-black/70" : "text-[#fbaa19]"}># {driverDetails.num}</span></span>
                                                             <span className={`text-[10px] sm:text-xs mt-0.5 ${isPickedHere ? "text-black/70" : "text-gray-500"}`}>{driverDetails.team}</span>
                                                         </div>
                                                         {isPickedElsewhere && (

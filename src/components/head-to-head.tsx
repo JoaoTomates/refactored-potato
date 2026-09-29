@@ -50,7 +50,7 @@ const HeadToHead = (props: React.HTMLAttributes<HTMLDivElement>) => {
                                                 : 'bg-white dark:bg-[#1a1a1a] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-black hover:text-[#fbaa19]'
                                             }`}
                                         >
-                                            <span className="uppercase font-bold tracking-wider text-sm md:text-base leading-tight">
+                                            <span className="text-lg md:text-xl font-black uppercase tracking-widest text-sm md:text-base leading-tight">
                                                 {d.name} <span className={isPicked ? "text-black/70" : "text-[#fbaa19]"}># {d.num}</span>
                                             </span>
                                             {isPicked && (

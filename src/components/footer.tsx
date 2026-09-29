@@ -22,7 +22,7 @@ const Footer = () => {
     // Instead of importing the hook (which might conflict if I don't have it), let's just use CSS injection to hide/show the logos
     return (
         <footer className="w-full bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-[#ffffff3d] mt-16 transition-colors">
-            <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+            <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 md:py-12">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex flex-col items-center md:items-start gap-4">
                         <Link href="/">
