@@ -1,5 +1,8 @@
-import React from 'react';
+﻿import React from 'react';
+
 import Link from 'next/link';
+import NewsInteractions from '@/components/news-interactions';
+
 
 interface SocialItem {
     title: string;
@@ -140,11 +143,8 @@ export default async function SocialMediaPage({ searchParams }: { searchParams: 
                             const imageUrl = extractHighResImage(post.content || post.description) || post.thumbnail;
 
                             return (
-                                <a 
+                                <div 
                                     key={post.guid || index} 
-                                    href={post.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
                                     className="break-inside-avoid group bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden flex flex-col hover:border-[#fbaa19] transition-all hover:-translate-y-1 shadow-xl block"
                                 >
                                     <div className="p-4 border-b border-[#1a1a1a] flex items-center justify-between bg-black/40">
@@ -178,13 +178,30 @@ export default async function SocialMediaPage({ searchParams }: { searchParams: 
                                             {post.title}
                                         </h2>
                                         
-                                        <div className="mt-auto flex items-center gap-2 text-gray-500 text-xs">
-                                            <span className="font-mono bg-[#1a1a1a] px-2 py-1 rounded truncate max-w-full">
-                                                {post.author.replace('/u/', '@')}
-                                            </span>
+                                        <div className="mt-auto flex flex-col gap-4">
+                                            <div className="flex items-center gap-2 text-gray-500 text-xs">
+                                                <span className="font-mono bg-[#1a1a1a] px-2 py-1 rounded truncate max-w-full">
+                                                    {post.author.replace('/u/', '@')}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="flex items-center justify-between mt-2 pt-4 border-t border-[#1a1a1a]">
+                                                {/* Left: Interactions */}
+                                                <NewsInteractions newsId={post.guid || post.link} />
+                                                
+                                                {/* Right: Read Post Button */}
+                                                <a 
+                                                    href={post.link}
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="bg-[#fbaa19] text-black border border-[#fbaa19] px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-yellow-500 transition-colors shrink-0"
+                                                >
+                                                    READ POST
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </a>
+                                </div>
                             );
                         })}
                     </div>
