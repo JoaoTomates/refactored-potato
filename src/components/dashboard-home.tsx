@@ -22,10 +22,10 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                 
                 {/* Profile Box */}
                 <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-6 md:p-8 flex flex-col items-center text-center shadow-lg relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-[#fbaa19]"></div>
+                    
                     
                     {/* AVATAR BIGGER, NO BORDER */}
-                    <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden mb-6 shadow-2xl">
+                    <div className="relative w-56 h-56 md:w-72 md:h-72 mb-6 shadow-2xl">
                         {/* Background IA */}
                         <img 
                             src={avatarUrl} 
