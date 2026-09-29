@@ -46,10 +46,7 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                     </h2>
                     
                     <div className="w-full flex flex-col gap-3 mt-6 text-left border-t border-black/10 dark:border-white/10 pt-6">
-                        <div className="flex justify-between items-center text-xs uppercase font-bold tracking-widest">
-                            <span className="text-gray-500">Team</span>
-                            <span className="text-black dark:text-white bg-black/5 dark:bg-white/5 px-2 py-1">To be assigned</span>
-                        </div>
+                        
                         <div className="flex justify-between items-center text-xs uppercase font-bold tracking-widest">
                             <span className="text-gray-500">Nat</span>
                             <span className="text-black dark:text-white bg-black/5 dark:bg-white/5 px-2 py-1">{profile?.nationality || '---'}</span>

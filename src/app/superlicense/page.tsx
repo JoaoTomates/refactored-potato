@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
+import Link from 'next/link';
+import Logo from '@/components/logo';
 
 export default function SuperlicensePage() {
     const { user, isLoading: authLoading } = useSupabaseAuth();
@@ -164,11 +166,11 @@ export default function SuperlicensePage() {
                             }}
                         />
 
-                        {/* Title Overlay */}
-                        <div className="absolute top-6 left-0 w-full text-center z-20">
-                            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-widest font-display text-white drop-shadow-lg">
-                                DRIVER <span className="text-[#fbaa19]">SETUP</span>
-                            </h1>
+                        {/* Logo Top Left */}
+                        <div className="absolute top-6 left-6 z-30">
+                            <Link href="/">
+                                <Logo isOnDarkBackground={true} />
+                            </Link>
                         </div>
                     </div>
 
