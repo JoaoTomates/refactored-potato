@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -59,11 +59,11 @@ export default function SuperlicensePage() {
         setLoadingAction(true);
 
         try {
-            // Tratamento básico para aceitar celular como "email falso" no Supabase por enquanto,
-            // já que "futuramente será necessário confirmar email ou celular".
+            // Tratamento bÃ¡sico para aceitar celular como "email falso" no Supabase por enquanto,
+            // jÃ¡ que "futuramente serÃ¡ necessÃ¡rio confirmar email ou celular".
             let emailToUse = contact.trim();
             if (!emailToUse.includes('@')) {
-                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; // fallback para números
+                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; // fallback para nÃºmeros
             }
 
             // 1. Criar conta no Supabase Auth
@@ -89,11 +89,11 @@ export default function SuperlicensePage() {
                     slug: slug
                 }).eq('id', authData.user.id);
 
-                // O trigger do Supabase às vezes leva milissegundos para criar a linha em 'profiles' após o signUp.
+                // O trigger do Supabase Ã s vezes leva milissegundos para criar a linha em 'profiles' apÃ³s o signUp.
                 // Se der erro de 'row not found', fazemos um upsert.
                 if (profileError) {
                     console.error("Profile update error:", profileError);
-                    // Tentativa de upsert forçado
+                    // Tentativa de upsert forÃ§ado
                     await supabase.from('profiles').upsert({
                         id: authData.user.id,
                         first_name: cleanInitial,
@@ -150,15 +150,15 @@ export default function SuperlicensePage() {
                     <div className="relative w-full h-64 md:h-80 bg-black overflow-hidden shadow-2xl flex items-center justify-center">
                         {/* Background Layer (For future AI generated image) */}
                         {/* If no AI image, it uses a subtle pattern or dark gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
+                        <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: `linear-gradient(to bottom, ${ocr}, black)` }}></div>
                         
                         {/* Foreground Layer (Helmet PNG with transparent background) */}
                         <img 
-                            src="/helmet.png" 
+                            src="/avatar-overlay.png" 
                             alt="Driver Helmet" 
                             className="relative z-10 w-full h-full object-contain drop-shadow-2xl scale-110 object-bottom"
                             onError={(e) => {
-                                // Fallback se a imagem não existir ainda na pasta public
+                                // Fallback se a imagem nÃ£o existir ainda na pasta public
                                 (e.target as HTMLImageElement).src = 'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/motorcycle.svg'; 
                                 (e.target as HTMLImageElement).className = "relative z-10 w-32 h-32 opacity-20 filter invert object-contain";
                             }}
