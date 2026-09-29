@@ -1,3 +1,6 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Social Media' };
 ﻿import React from 'react';
 
 import Link from 'next/link';

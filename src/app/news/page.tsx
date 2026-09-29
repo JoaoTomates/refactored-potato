@@ -1,3 +1,6 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'News' };
 ﻿import React from 'react';
 import NewsInteractions from '@/components/news-interactions';
 import Image from 'next/image';
