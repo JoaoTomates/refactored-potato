@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { F1_TEAMS } from '@/lib/teams';
-import Navigation from '@/components/navigation';
+
 
 export default function PitwallPage() {
     
@@ -24,7 +24,7 @@ export default function PitwallPage() {
 
     return (
         <main className="w-full min-h-screen bg-[#050505] flex flex-col font-sans">
-            <Navigation />
+            
             
             {/* Header Title outside grid */}
             <div className="w-full bg-[#0a0a0a] border-b border-white/10 p-4 px-8 flex items-center justify-between z-10 shrink-0 shadow-xl">

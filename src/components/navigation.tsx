@@ -61,16 +61,7 @@ const Navigation = () => {
                             >
                                 Bet
                             </Link>
-                            {user && (
-                            <Link 
-                                href="/teamwork" 
-                                title="Teamwork & Leagues (Available for Draft)"
-                                className="relative bg-transparent text-white border border-white/20 w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-sm hover:border-[#fbaa19] hover:text-[#fbaa19] transition-colors group cursor-pointer mr-2 md:mr-4"
-                            >
-                                <span className="font-black text-xs md:text-sm">T</span>
-                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 border border-[#0a0a0a] rounded-full animate-pulse"></span>
-                            </Link>
-                        )}
+                            
                         <Link 
                             href="/superlicense" 
                             className="bg-transparent text-white border border-white/20 px-3 py-1.5 md:px-5 md:py-2 text-[10px] md:text-sm font-bold uppercase tracking-wider rounded-sm hover:border-[#fbaa19] hover:text-[#fbaa19] transition-colors truncate max-w-[150px]"
