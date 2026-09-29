@@ -147,16 +147,16 @@ export default function SuperlicensePage() {
                 <div className="w-full flex flex-col items-center">
                     
                     {/* EXPANDED AVATAR / HELMET HEADER */}
-                    <div className="relative w-full h-64 md:h-80 bg-black overflow-hidden shadow-2xl flex items-center justify-center">
+                    <div className="relative w-full h-72 md:h-[400px] bg-black overflow-hidden shadow-2xl flex items-center justify-center">
                         {/* Background Layer (For future AI generated image) */}
                         {/* If no AI image, it uses a subtle pattern or dark gradient */}
-                        <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: `linear-gradient(to bottom, ${ocr}, black)` }}></div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
                         
                         {/* Foreground Layer (Helmet PNG with transparent background) */}
                         <img 
                             src="/avatar-overlay.png" 
                             alt="Driver Helmet" 
-                            className="relative z-10 w-full h-full object-contain drop-shadow-2xl scale-110 object-bottom"
+                            className="relative z-10 w-full h-full object-contain drop-shadow-2xl scale-[1.30] origin-bottom"
                             onError={(e) => {
                                 // Fallback se a imagem nÃ£o existir ainda na pasta public
                                 (e.target as HTMLImageElement).src = 'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/motorcycle.svg'; 
