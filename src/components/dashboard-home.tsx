@@ -1,7 +1,9 @@
 ﻿"use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/utils/supabase';
+
 
 interface DashboardHomeProps {
     profile: any;

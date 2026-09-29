@@ -1,132 +1,143 @@
 "use client";
-
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { F1_TEAMS } from '@/lib/teams';
+import Navigation from '@/components/navigation';
 
 export default function PitwallPage() {
-    const containerRef = useRef<HTMLDivElement>(null);
     
-    // Group the teams by their group property
-    const groupedTeams = F1_TEAMS.reduce((acc, team) => {
-        if (!acc[team.group]) {
-            acc[team.group] = [];
-        }
-        acc[team.group].push(team);
-        return acc;
-    }, {} as Record<number, typeof F1_TEAMS>);
-
-    const groups = Object.keys(groupedTeams).map(Number).sort((a, b) => a - b);
-
-    const scrollToNextGroup = () => {
-        if (containerRef.current) {
-            // Scroll down by roughly one box height (e.g., 400px)
-            containerRef.current.scrollBy({ top: 400, behavior: 'smooth' });
-        }
+    // Mock user data for the matrix
+    const generateMockDriver = (teamName: string, index: number, driverNum: number) => {
+        const statuses = ['bg-green-500', 'bg-yellow-500', 'bg-red-500'];
+        const getDot = () => statuses[Math.floor(Math.random() * statuses.length)];
+        
+        return {
+            id: index,
+            name: `DRIVER ${driverNum}`,
+            number: Math.floor(Math.random() * 99) + 1,
+            masterPos: `P${Math.floor(Math.random() * 20) + 1}`,
+            performance: [getDot(), getDot(), getDot(), getDot(), getDot()],
+            milesimusPts: Math.floor(Math.random() * 2000) + 500,
+            milesimusPos: `P${Math.floor(Math.random() * 50) + 1}`,
+        };
     };
 
     return (
-        <main className="w-full h-screen bg-[#111] flex flex-col overflow-hidden font-rajdhani">
-            {/* Header */}
-            <div className="w-full bg-[#0a0a0a] border-b border-white/10 p-4 flex items-center justify-between z-10 shrink-0 shadow-xl">
-                <div className="flex items-center gap-4">
-                    <Link href="/superlicense" className="text-white hover:text-[#fbaa19] transition-colors p-2">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-black uppercase tracking-widest text-white">
-                            PIT<span className="text-[#fbaa19]">WALL</span>
-                        </h1>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest">Live Aerial Garage Feed</p>
-                    </div>
+        <main className="w-full min-h-screen bg-[#050505] flex flex-col font-sans">
+            <Navigation />
+            
+            {/* Header Title outside grid */}
+            <div className="w-full bg-[#0a0a0a] border-b border-white/10 p-4 px-8 flex items-center justify-between z-10 shrink-0 shadow-xl">
+                <div>
+                    <h1 className="text-2xl md:text-3xl font-black uppercase tracking-widest text-white font-display">
+                        PIT<span className="text-[#fbaa19]">WALL</span>
+                    </h1>
+                    <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest">Global Matrix</p>
                 </div>
-
-                <button 
-                    onClick={scrollToNextGroup}
-                    className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 hover:bg-[#fbaa19] hover:text-black hover:border-[#fbaa19] transition-all text-white text-xs font-bold uppercase tracking-widest group"
-                >
-                    <span>Next Box</span>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" className="group-hover:translate-y-1 transition-transform">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </button>
             </div>
 
-            {/* Aerial View Container */}
-            <div 
-                ref={containerRef}
-                className="flex-1 overflow-y-auto w-full relative bg-[#1a1a1a]"
-                style={{ 
-                    // Asphalt texture
-                    backgroundImage: 'radial-gradient(#333 1px, transparent 1px)',
-                    backgroundSize: '20px 20px'
-                }}
-            >
-                {/* Pit Lane Path Line */}
-                <div className="absolute left-8 md:left-24 top-0 bottom-0 w-2 border-l-4 border-dashed border-[#fbaa19] opacity-50 z-0"></div>
-
-                <div className="max-w-4xl mx-auto py-12 px-4 flex flex-col gap-24 relative z-10">
+            {/* Matrix Container */}
+            <div className="flex-1 w-full overflow-x-auto relative custom-scrollbar">
+                {/* 6 Columns Grid */}
+                <div className="min-w-[1200px] w-full grid grid-cols-6 h-full min-h-[800px] border-b border-[#333]">
                     
-                    {groups.map((groupId) => {
-                        const boxTeams = groupedTeams[groupId];
+                    {/* Coluna 1: Vazia / Asfalto */}
+                    <div className="col-span-1 bg-[#0a0a0a] border-r border-[#1a1a1a] relative flex items-center justify-center overflow-hidden">
+                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
+                        <div className="absolute right-4 top-0 bottom-0 w-1 border-r-2 border-dashed border-[#fbaa19] opacity-30"></div>
+                        <span className="transform -rotate-90 text-white/10 font-black text-6xl md:text-8xl tracking-widest uppercase pointer-events-none whitespace-nowrap">
+                            PITLANE
+                        </span>
+                    </div>
+
+                    {/* Coluna 2: A Matriz de Equipes (44 rows ou dinâmico) */}
+                    <div className="col-span-2 flex flex-col border-r-4 border-black bg-[#111] shadow-2xl relative z-10">
                         
-                        return (
-                            <div key={groupId} className="flex flex-col md:flex-row gap-8 md:gap-16 items-center">
-                                
-                                {/* Pit Box Indicator */}
-                                <div className="w-16 h-16 shrink-0 bg-black border-2 border-white/20 text-white font-black text-2xl flex items-center justify-center transform rotate-45 shadow-lg">
-                                    <div className="transform -rotate-45 flex flex-col items-center">
-                                        <span className="text-[10px] text-gray-500 uppercase tracking-widest leading-none">Box</span>
-                                        <span>{groupId}</span>
-                                    </div>
-                                </div>
+                        {/* Header da Coluna 2 */}
+                        <div className="grid grid-cols-5 bg-black text-white/50 text-[9px] uppercase tracking-widest font-black text-center border-b border-[#222]">
+                            <div className="p-2 border-r border-[#222]">ID</div>
+                            <div className="p-2 border-r border-[#222]">DRIVER</div>
+                            <div className="p-2 border-r border-[#222]">MASTER</div>
+                            <div className="p-2 border-r border-[#222]">FORM</div>
+                            <div className="p-2">MILESIMUS</div>
+                        </div>
 
-                                {/* Garage / Pit Area */}
-                                <div className="flex-1 w-full bg-gradient-to-b from-[#0a0a0a] to-[#111] border border-white/5 shadow-2xl p-6 md:p-12 relative flex gap-4 md:gap-12 justify-center">
-                                    
-                                    {/* Roof texture overlay */}
-                                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 2px, transparent 2px, transparent 8px)' }}></div>
-                                    
-                                    {boxTeams.map((team, idx) => (
-                                        <div key={team.id} className="relative flex flex-col items-center gap-4 w-full max-w-[200px]">
-                                            
-                                            {/* Pit Stop Markings (The box lines on the floor) */}
-                                            <div className="absolute -top-12 w-full h-10 border-x-4 border-t-4 border-yellow-500/30"></div>
+                        {/* Corpo: Lista de Equipes e Pilotos */}
+                        <div className="flex flex-col">
+                            {F1_TEAMS.map((team, idx) => {
+                                const driver1 = generateMockDriver(team.name, (idx * 2) + 1, 1);
+                                const driver2 = generateMockDriver(team.name, (idx * 2) + 2, 2);
 
-                                            {/* Aerial Car/Team Rectangle */}
-                                            <div 
-                                                className="w-full aspect-[1/2] rounded-md shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center relative overflow-hidden transition-transform hover:scale-105 cursor-pointer border border-white/10"
-                                                style={{ backgroundColor: team.color }}
-                                            >
-                                                {/* Carbon Fiber subtle texture */}
-                                                <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                                                
-                                                {/* Team Logo / Initial */}
-                                                <div className="w-12 h-12 rounded-full bg-black/50 border border-white/20 flex items-center justify-center backdrop-blur-sm z-10 shadow-inner">
-                                                    <span className="text-white font-black text-lg tracking-wider">{team.logo}</span>
-                                                </div>
-
-                                                <div className="absolute bottom-4 left-0 w-full text-center z-10 bg-black/80 py-2 backdrop-blur-sm">
-                                                    <span className="text-white text-[10px] md:text-xs font-bold uppercase tracking-widest">{team.name}</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Garage Door Line */}
-                                            <div className="w-[120%] h-2 bg-black border-t border-white/10 mt-4 rounded shadow-lg"></div>
+                                return (
+                                    <React.Fragment key={team.id}>
+                                        {/* Linha 1: Nome da Equipe */}
+                                        <div 
+                                            className="w-full bg-[#1a1a1a] py-1.5 px-4 border-y border-black text-white font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-between"
+                                            style={{ borderLeft: `6px solid ${team.color}` }}
+                                        >
+                                            <span className="drop-shadow-md">{team.name}</span>
+                                            <span className="text-white/20">{team.logo}</span>
                                         </div>
-                                    ))}
-                                    
-                                </div>
-                            </div>
-                        );
-                    })}
 
-                    {/* End of pitlane marker */}
-                    <div className="flex justify-center mt-12 pb-24">
-                        <div className="bg-black/50 px-8 py-4 border border-white/10 text-white/50 text-xs font-black uppercase tracking-widest">
-                            End of Pitlane
+                                        {/* Linha 2: Piloto 1 */}
+                                        <div className="grid grid-cols-5 bg-[#0a0a0a] hover:bg-[#151515] transition-colors border-b border-[#1a1a1a] text-white min-h-[44px] items-stretch text-[10px] text-center group cursor-default">
+                                            {/* Seq */}
+                                            <div className="border-r border-[#1a1a1a] flex items-center justify-center font-bold text-gray-600 bg-black/20 group-hover:text-[#fbaa19] transition-colors">{driver1.id}</div>
+                                            {/* Driver Name & # */}
+                                            <div className="border-r border-[#1a1a1a] flex flex-col items-center justify-center px-1">
+                                                <span className="font-black uppercase tracking-wider truncate w-full">{driver1.name}</span>
+                                                <span className="text-[#fbaa19] font-bold">#{driver1.number}</span>
+                                            </div>
+                                            {/* Master Position */}
+                                            <div className="border-r border-[#1a1a1a] flex items-center justify-center font-black text-gray-300 text-xs">{driver1.masterPos}</div>
+                                            {/* Form (5 Dots) */}
+                                            <div className="border-r border-[#1a1a1a] flex items-center justify-center gap-1 px-2">
+                                                {driver1.performance.map((dotColor, i) => (
+                                                    <span key={i} className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${dotColor} shadow-sm`}></span>
+                                                ))}
+                                            </div>
+                                            {/* Milesimus */}
+                                            <div className="flex flex-col items-center justify-center bg-black/10">
+                                                <span className="text-[#fbaa19] font-black text-xs">{driver1.milesimusPts}</span>
+                                                <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{driver1.milesimusPos}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Linha 3: Piloto 2 */}
+                                        <div className="grid grid-cols-5 bg-[#0a0a0a] hover:bg-[#151515] transition-colors border-b border-[#222] text-white min-h-[44px] items-stretch text-[10px] text-center group cursor-default">
+                                            <div className="border-r border-[#1a1a1a] flex items-center justify-center font-bold text-gray-600 bg-black/20 group-hover:text-[#fbaa19] transition-colors">{driver2.id}</div>
+                                            <div className="border-r border-[#1a1a1a] flex flex-col items-center justify-center px-1">
+                                                <span className="font-black uppercase tracking-wider truncate w-full">{driver2.name}</span>
+                                                <span className="text-[#fbaa19] font-bold">#{driver2.number}</span>
+                                            </div>
+                                            <div className="border-r border-[#1a1a1a] flex items-center justify-center font-black text-gray-300 text-xs">{driver2.masterPos}</div>
+                                            <div className="border-r border-[#1a1a1a] flex items-center justify-center gap-1 px-2">
+                                                {driver2.performance.map((dotColor, i) => (
+                                                    <span key={i} className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${dotColor} shadow-sm`}></span>
+                                                ))}
+                                            </div>
+                                            <div className="flex flex-col items-center justify-center bg-black/10">
+                                                <span className="text-[#fbaa19] font-black text-xs">{driver2.milesimusPts}</span>
+                                                <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{driver2.milesimusPos}</span>
+                                            </div>
+                                        </div>
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Colunas 3, 4, 5, 6: Vazias com Estilização */}
+                    <div className="col-span-3 bg-gradient-to-br from-[#0a0a0a] to-[#050505] p-8 relative flex items-center justify-center overflow-hidden border-r border-[#1a1a1a]">
+                        {/* Grade de fundo abstrata */}
+                        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+                        <div className="text-center relative z-10">
+                            <div className="w-32 h-32 md:w-48 md:h-48 border-4 border-[#1a1a1a] rounded-full flex items-center justify-center mb-6 mx-auto shadow-2xl relative">
+                                <div className="absolute inset-0 border-4 border-dashed border-[#333] rounded-full animate-spin-slow"></div>
+                                <svg className="w-12 h-12 text-[#333]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+                            </div>
+                            <h3 className="text-white/20 font-black text-2xl uppercase tracking-[0.5em] font-display">Awaiting Link</h3>
+                            <p className="text-white/10 font-bold uppercase tracking-widest text-xs mt-2 max-w-xs mx-auto">Live Telemetry & Garage Feeds will be projected here.</p>
                         </div>
                     </div>
 
