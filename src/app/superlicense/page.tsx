@@ -32,6 +32,7 @@ function SuperlicenseForm() {
 
     // UI State
     const [errorMsg, setErrorMsg] = useState("");
+    const [showRegistrationHint, setShowRegistrationHint] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
 
     useEffect(() => {
@@ -116,6 +117,7 @@ function SuperlicenseForm() {
     const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMsg("");
+        setShowRegistrationHint(false);
         setLoadingAction(true);
 
         try {
@@ -123,7 +125,12 @@ function SuperlicenseForm() {
             if (error) throw error;
             window.location.reload();
         } catch (err: any) {
-            setErrorMsg(err.message || "Login failed.");
+            let msg = err.message || "Login failed.";
+            if (msg.toLowerCase().includes("invalid login credentials")) {
+                msg = "Piloto não encontrado ou credenciais inválidas.";
+                setShowRegistrationHint(true);
+            }
+            setErrorMsg(msg);
             setLoadingAction(false);
         }
     };
@@ -273,8 +280,19 @@ function SuperlicenseForm() {
                         <p className="text-xs text-gray-500 uppercase tracking-widest mb-8">Enter your credentials</p>
 
                         {errorMsg && (
-                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
-                                {errorMsg}
+                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 flex flex-col gap-3 text-center animate-fade-in">
+                                <span className="text-red-500 text-xs font-bold uppercase tracking-widest leading-relaxed">
+                                    {errorMsg}
+                                </span>
+                                {showRegistrationHint && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => { setErrorMsg(""); setShowRegistrationHint(false); setMode("setup"); }}
+                                        className="mt-2 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/40 px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-colors shadow-lg"
+                                    >
+                                        Emitir Nova Super Licença
+                                    </button>
+                                )}
                             </div>
                         )}
 
