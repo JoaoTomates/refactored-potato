@@ -22,56 +22,111 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
             {/* LEFT COLUMN: AVATAR, CREDENTIALS, HONORS, HISTORY */}
             <div className="w-full xl:w-[22rem] shrink-0 flex flex-col gap-6">
                 
-                {/* Profile Box */}
-                <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-6 md:p-8 flex flex-col items-center text-center shadow-lg relative overflow-hidden group">
+                {/* TRADING CARD (Profile Box) */}
+                <div className="w-full relative rounded-2xl border border-white/20 bg-[#0a0a0a] shadow-[0_0_40px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col aspect-[2.4/4] max-h-[600px] shrink-0 group">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
                     
-                    
-                    {/* AVATAR BIGGER, NO BORDER */}
-                    <div className="relative w-56 h-56 md:w-72 md:h-72 mb-6 shadow-2xl">
-                        {/* Background IA */}
+                    {/* TOP: Card Header / Artwork */}
+                    <div className="relative h-[55%] w-full flex items-end justify-center bg-gradient-to-t from-[#050505] via-[#111] to-[#222] overflow-hidden border-b-2 border-[#fbaa19]/20 z-10">
+                        {/* Background IA Image */}
                         <img 
                             src={avatarUrl} 
                             alt="Driver Avatar Background" 
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-screen scale-110 group-hover:scale-105 transition-transform duration-700"
                         />
-                        {/* Overlay Capacete PNG */}
+                        {/* Helmet overlay */}
                         <img 
                             src="/avatar-overlay.png" 
                             alt="Helmet overlay" 
-                            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-2xl scale-[1.05]"
+                            className="relative z-10 w-[95%] h-[95%] object-contain drop-shadow-2xl scale-[1.15] origin-bottom group-hover:scale-[1.2] transition-transform duration-500"
                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
-                    </div>
-                    
-                    <h2 className="text-3xl font-black uppercase tracking-widest font-display text-black dark:text-white">
-                        {driverName} <span className="text-[#fbaa19]">#{driverNumber}</span>
-                    </h2>
-                    
-                    <div className="w-full flex flex-col gap-3 mt-6 text-left border-t border-black/10 dark:border-white/10 pt-6">
                         
-                        <div className="flex justify-between items-center text-xs uppercase font-bold tracking-widest">
-                            <span className="text-gray-500">Nat</span>
-                            <span className="text-black dark:text-white bg-black/5 dark:bg-white/5 px-2 py-1">{profile?.nationality || '---'}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs uppercase font-bold tracking-widest">
-                            <span className="text-gray-500">Org</span>
-                            <span className="text-black dark:text-white bg-black/5 dark:bg-white/5 px-2 py-1 truncate max-w-[120px]">{profile?.org_color || '---'}</span>
+                        {/* Teamwork "T" Button */}
+                        <button 
+                            onClick={() => setActiveView("teamworks")} 
+                            className="absolute top-4 right-4 w-10 h-10 bg-black border-2 border-[#fbaa19] rounded-full flex items-center justify-center text-[#fbaa19] font-black font-display text-xl shadow-[0_0_15px_rgba(251,170,25,0.4)] z-20 hover:scale-110 hover:bg-[#fbaa19] hover:text-black transition-all"
+                            title="Teamwork (Pit Crew)"
+                        >
+                            T
+                        </button>
+
+                        {/* Driver Number Badge */}
+                        <div className="absolute top-4 left-4 w-10 h-10 bg-white border border-white/20 text-black rounded-sm flex items-center justify-center font-black font-display text-xl z-20 shadow-lg">
+                            {driverNumber}
                         </div>
                     </div>
+                    
+                    {/* BOTTOM: Info & Stats Slider */}
+                    <div className="relative h-[45%] w-full flex flex-col bg-[#050505] z-10 p-0">
+                        
+                        {/* Static Header: Name & Basic Info */}
+                        <div className="p-4 text-center border-b border-white/5 pb-4 z-20 bg-gradient-to-b from-black to-transparent shadow-sm">
+                            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest font-display leading-none text-white drop-shadow-lg">
+                                {driverName}
+                            </h2>
+                            <div className="flex items-center justify-center gap-2 mt-2">
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-black bg-[#fbaa19] px-2 py-0.5 rounded-sm truncate max-w-[120px]">
+                                    {profile?.org_color || 'FREE AGENT'}
+                                </span>
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-white bg-white/20 px-2 py-0.5 rounded-sm border border-white/10">
+                                    {profile?.nationality || 'UNK'}
+                                </span>
+                            </div>
+                        </div>
 
-                    {/* HONORS DISCRETE (SAME BOX) */}
-                    <div className="w-full mt-6 border-t border-black/10 dark:border-white/10 pt-4 text-left">
-                        <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-2 block">Driver Honors</span>
-                        <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-black dark:text-white">
-                                <span className="text-[#fbaa19]">ðŸ†</span> CampeÃ£o Poletime 2025
+                        {/* Interactive Stats Slider (Swipeable) */}
+                        <div className="flex-1 w-full relative overflow-x-auto snap-x snap-mandatory flex scrollbar-width-none [&::-webkit-scrollbar]:hidden">
+                            
+                            {/* Slide 1: MLS (Milésimos) */}
+                            <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-4">
+                                <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">VoltGrid Currency</span>
+                                <div className="flex items-baseline gap-1 drop-shadow-[0_0_10px_rgba(251,170,25,0.3)]">
+                                    <span className="text-4xl md:text-5xl font-black font-display tracking-tighter text-[#fbaa19]">000.000</span>
+                                    <span className="text-sm font-bold text-[#fbaa19]">mls</span>
+                                </div>
+                                <div className="mt-3 flex gap-2 text-[8px] md:text-[9px] uppercase font-bold text-gray-400 tracking-widest w-full justify-center">
+                                    <span className="bg-white/5 px-2 py-1.5 rounded text-center border border-white/10">Perf: 000.000</span>
+                                    <span className="bg-[#fbaa19]/10 text-[#fbaa19] px-2 py-1.5 rounded text-center border border-[#fbaa19]/30">Bonus: 000.000</span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-black dark:text-white">
-                                <span className="text-gray-400">ðŸ¥‡</span> Vencedor Etapa JapÃ£o
+
+                            {/* Slide 2: Honors */}
+                            <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-6">
+                                <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-2 block">Driver Honors</span>
+                                <div className="flex flex-col gap-2 w-full">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
+                                        <span className="text-[#fbaa19]">🏆</span> Campeão Poletime 25
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
+                                        <span className="text-gray-400">🥈</span> Vencedor Etapa Japão
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-black dark:text-white">
-                                <span className="text-red-500">ðŸŽï¸</span> 1Âº Lugar Silly Season Ferrari
+
+                            {/* Slide 3: Detailed Stats */}
+                            <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-6">
+                                <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-3 block">Performance</span>
+                                <div className="grid grid-cols-2 gap-2 w-full">
+                                    <div className="bg-white/5 border border-white/10 p-3 rounded flex flex-col items-center text-center">
+                                        <span className="text-xl font-black text-white font-display">42</span>
+                                        <span className="text-[8px] uppercase font-bold text-gray-400 tracking-widest">Races</span>
+                                    </div>
+                                    <div className="bg-[#fbaa19]/10 border border-[#fbaa19]/30 p-3 rounded flex flex-col items-center text-center">
+                                        <span className="text-xl font-black text-[#fbaa19] font-display">8</span>
+                                        <span className="text-[8px] uppercase font-bold text-[#fbaa19] tracking-widest">Podiums</span>
+                                    </div>
+                                </div>
                             </div>
+                            
+                        </div>
+                        
+                        {/* Visual Dots for slider */}
+                        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#fbaa19]"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/30"></div>
                         </div>
                     </div>
                 </div>
