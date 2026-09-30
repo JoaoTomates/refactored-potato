@@ -48,8 +48,12 @@ function SuperlicenseForm() {
                 
                 if (data?.slug) {
                     router.replace(`/${data.slug}`);
-                } else {
+                } else if (data) {
                     router.replace(`/${user.id}`);
+                } else {
+                    // Se não existe na tabela profiles, volta para setup
+                    setMode("setup");
+                    setVerifying(false);
                 }
             } else {
                 setVerifying(false);

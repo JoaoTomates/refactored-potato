@@ -31,15 +31,10 @@ export default function SuperlicensePage() {
         if (user) {
             setLoadingProfile(true);
             supabase.from('profiles').select('*').eq('id', user.id).single()
-                .then(async ({ data, error }) => {
+                .then(({ data, error }) => {
                     if (error || !data) {
-                        // Tratar cenário onde o banco foi resetado, mas o usuário do auth.users ainda existe.
-                        const { data: newProfile } = await supabase.from('profiles').insert({
-                            id: user.id,
-                            email: user.email,
-                            setup_completed: false
-                        }).select().single();
-                        setProfile(newProfile);
+                        // If profile is completely missing (e.g. wiped DB), force them back to setup.
+                        router.replace('/superlicense?mode=setup');
                     } else {
                         setProfile(data);
                     }
@@ -48,7 +43,7 @@ export default function SuperlicensePage() {
         } else {
             setProfile(null);
         }
-    }, [user]);
+    }, [user, router]);
 
     // Superlicense states
     const [activeView, setActiveView] = useState<"menu" | "settings" | "setup" | "calendar" | "report" | "silly_season">("menu");
