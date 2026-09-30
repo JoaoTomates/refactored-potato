@@ -55,7 +55,8 @@ const Navigation = () => {
                     {/* RIGHT: Buttons & Hamburger Control */}
                     <div className="flex items-center gap-4">
                         {/* Action Buttons */}
-                        <div className={`flex items-center transition-all duration-300 gap-2 md:gap-4 ${(isScrolled || forceCollapsed) ? 'scale-90 origin-right' : 'scale-100 origin-right'}`}>
+                        {!forceCollapsed && (
+                            <div className={`flex items-center transition-all duration-300 gap-2 md:gap-4 ${(isScrolled || forceCollapsed) ? 'scale-90 origin-right' : 'scale-100 origin-right'}`}>
                             <Link 
                                 href="/bet" 
                                 className="hidden sm:flex bg-[#fbaa19] text-black border border-[#fbaa19] px-4 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-bold uppercase tracking-wider rounded-sm hover:bg-yellow-500 transition-colors"
@@ -70,6 +71,7 @@ const Navigation = () => {
                                 {user ? (user.user_metadata?.first_name ? user.user_metadata.first_name : user.email) : "Superlicense"}
                             </Link>
                         </div>
+                        )}
 
                         {/* Hamburger Menu Toggle (ALWAYS VISIBLE for testing "navbar colapsado" on desktop) */}
                         <div className="flex items-center ml-2">
