@@ -87,7 +87,12 @@ export default function NasdaqTicker() {
                         .animate-marquee-pause {
                             display: inline-block;
                             white-space: nowrap;
-                            animation: marquee-disappear 60s linear infinite;
+                            animation: marquee-disappear 25s linear infinite;
+                        }
+                        @media (min-width: 768px) {
+                            .animate-marquee-pause {
+                                animation: marquee-disappear 60s linear infinite;
+                            }
                             will-change: transform;
                         }
                     `}} />
