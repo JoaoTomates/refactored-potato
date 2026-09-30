@@ -35,9 +35,12 @@ function SuperlicenseForm() {
     const [showRegistrationHint, setShowRegistrationHint] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
 
+    // Bloqueia redirecionamento automático se estivermos no meio de um submit
+    const isSubmitting = React.useRef(false);
+
     useEffect(() => {
         async function routeUser() {
-            if (authLoading) return;
+            if (authLoading || isSubmitting.current) return;
             
             if (user) {
                 const { data } = await supabase
@@ -63,6 +66,7 @@ function SuperlicenseForm() {
     }, [user, authLoading, router]);
 
     const handleSetupSubmit = async (e: React.FormEvent) => {
+        isSubmitting.current = true;
         e.preventDefault();
         setErrorMsg("");
         setLoadingAction(true);
@@ -108,7 +112,7 @@ function SuperlicenseForm() {
                     });
                 }
 
-                router.push('/academy');
+                window.location.href = '/academy';
             }
 
         } catch (err: any) {
@@ -119,6 +123,7 @@ function SuperlicenseForm() {
     };
 
     const handleLoginSubmit = async (e: React.FormEvent) => {
+        isSubmitting.current = true;
         e.preventDefault();
         setErrorMsg("");
         setShowRegistrationHint(false);
