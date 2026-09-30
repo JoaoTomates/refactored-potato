@@ -90,8 +90,8 @@ const Top10Finish = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHea
 
                                 {/* Custom Dropdown Menu */}
                                 {isOpen && (
-                                    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-black/90 backdrop-blur-md md:bg-transparent md:backdrop-blur-none md:absolute md:top-[calc(100%+4px)] md:inset-auto md:p-0 md:left-0 md:w-full md:block" onClick={() => setOpenDropdownIndex(null)}>
-                                        <div className="w-full w-full max-w-sm md:max-w-none bg-gray-50 dark:bg-[#0a0a0a] border border-[#fbaa19] max-h-[85vh] md:max-h-[500px] overflow-y-auto shadow-2xl shadow-black/50 flex flex-col relative rounded-sm md:rounded-none" onClick={(e) => e.stopPropagation()}>
+                                    <div className="fixed inset-0 z-[99999] flex flex-col justify-end bg-black/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none md:absolute md:top-[calc(100%+4px)] md:justify-start md:inset-auto md:p-0 md:left-0 md:w-full md:block" onClick={() => setOpenDropdownIndex(null)}>
+                                        <div className="w-full bg-[#111] md:bg-gray-50 md:dark:bg-[#0a0a0a] border-t-4 md:border border-[#fbaa19] max-h-[75vh] md:max-h-[500px] overflow-y-auto flex flex-col relative animate-slide-up md:animate-none shadow-[0_-20px_50px_rgba(0,0,0,0.8)] md:shadow-2xl md:rounded-none" onClick={(e) => e.stopPropagation()}>
                                             
                                             {/* Mobile Header */}
                                             <div className="md:hidden sticky top-0 z-10 flex justify-between items-center p-4 bg-[#fbaa19] text-black font-black uppercase tracking-widest shadow-md">
@@ -116,17 +116,17 @@ const Top10Finish = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHea
                                                                 setOpenDropdownIndex(null);
                                                             }
                                                         }}
-                                                        className={`px-4 py-3 uppercase font-bold tracking-wider flex items-center justify-between transition-colors ${
+                                                        className={`px-5 py-4 md:px-4 md:py-3 uppercase font-bold tracking-wider flex items-center justify-between transition-colors border-b border-white/5 md:border-transparent ${
                                                             isPickedHere 
                                                                 ? 'bg-[#fbaa19] text-black' 
                                                                 : isPickedElsewhere 
-                                                                    ? 'text-[#333] cursor-not-allowed line-through decoration-[#fbaa19]/30' 
-                                                                    : 'text-black dark:text-white hover:bg-gray-200 dark:hover:bg-[#1a1a1a] hover:text-[#fbaa19] cursor-pointer'
+                                                                    ? 'text-[#444] cursor-not-allowed line-through decoration-[#fbaa19]/30 bg-[#0a0a0a] md:bg-transparent' 
+                                                                    : 'text-white md:text-black md:dark:text-white hover:bg-white/10 md:hover:bg-gray-200 md:dark:hover:bg-[#1a1a1a] hover:text-[#fbaa19] md:hover:text-[#fbaa19] cursor-pointer bg-[#111] md:bg-transparent'
                                                         }`}
                                                     >
                                                         <div className="flex flex-col leading-tight">
-                                                            <span className="text-lg md:text-xl font-black uppercase tracking-widest">{driverDetails.name} <span className={isPickedHere ? "text-black/70" : "text-[#fbaa19]"}># {driverDetails.num}</span></span>
-                                                            <span className={`text-[10px] sm:text-xs mt-0.5 ${isPickedHere ? "text-black/70" : "text-gray-500"}`}>{driverDetails.team}</span>
+                                                            <span className="text-xl md:text-xl font-black uppercase tracking-widest leading-none">{driverDetails.name} <span className={isPickedHere ? "text-black/70" : "text-[#fbaa19]"}># {driverDetails.num}</span></span>
+                                                            <span className={`text-[11px] sm:text-xs uppercase tracking-[0.2em] leading-tight ${isPickedHere ? "text-black/70" : "text-gray-400 md:text-gray-500"}`}>{driverDetails.team}</span>
                                                         </div>
                                                         {isPickedElsewhere && (
                                                             <span className="text-[10px] tracking-widest text-[#555] font-black">SELECTED</span>

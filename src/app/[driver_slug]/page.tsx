@@ -31,7 +31,19 @@ export default function SuperlicensePage() {
         if (user) {
             setLoadingProfile(true);
             supabase.from('profiles').select('*').eq('id', user.id).single()
-                .then(({ data }) => setProfile(data))
+                .then(async ({ data, error }) => {
+                    if (error || !data) {
+                        // Tratar cenário onde o banco foi resetado, mas o usuário do auth.users ainda existe.
+                        const { data: newProfile } = await supabase.from('profiles').insert({
+                            id: user.id,
+                            email: user.email,
+                            setup_completed: false
+                        }).select().single();
+                        setProfile(newProfile);
+                    } else {
+                        setProfile(data);
+                    }
+                })
                 .finally(() => setLoadingProfile(false));
         } else {
             setProfile(null);
