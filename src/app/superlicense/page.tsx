@@ -108,7 +108,7 @@ export default function SuperlicensePage() {
                 }
 
                 // 3. Redirecionar para o Dashboard
-                router.push(`/${slug}`);
+                router.push('/academy');
             }
 
         } catch (err: any) {
