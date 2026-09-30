@@ -15,7 +15,8 @@ function SuperlicenseForm() {
     const [verifying, setVerifying] = useState(true);
 
     // Modes
-    const [mode, setMode] = useState<"setup" | "login">("setup");
+    const modeParam = searchParams.get('mode') as "setup" | "login";
+    const [mode, setMode] = useState<"setup" | "login">(modeParam === "login" ? "login" : "setup");
 
     // Setup Form State
     const [initial, setInitial] = useState("");
@@ -136,7 +137,7 @@ function SuperlicenseForm() {
     }
 
     return (
-        <div className="w-full max-w-[1200px] mx-auto flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+        <div className="w-full max-w-5xl mx-auto px-4 md:px-8 bg-black flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
             
             {mode === 'setup' ? (
                 <>
