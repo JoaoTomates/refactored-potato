@@ -81,7 +81,15 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={() => setDigits([0,0,0,0,0,0])}
+                                onClick={() => {
+                                    const m = 1;
+                                    const s1 = Math.floor(Math.random() * 2) + 2; // 2 or 3
+                                    const s2 = Math.floor(Math.random() * 10);
+                                    const ms1 = Math.floor(Math.random() * 10);
+                                    const ms2 = Math.floor(Math.random() * 10);
+                                    const ms3 = Math.floor(Math.random() * 10);
+                                    setDigits([m, s1, s2, ms1, ms2, ms3]);
+                                }}
                                 disabled={isSubmitting || isSuccess || digits.every(d => d === 0)}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >

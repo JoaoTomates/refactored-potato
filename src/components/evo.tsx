@@ -150,7 +150,10 @@ const Evo = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: bo
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={() => setPicks(Array(5).fill(''))}
+                                onClick={() => {
+                                    const shuffled = [...F1_DRIVERS].sort(() => 0.5 - Math.random());
+                                    setPicks(shuffled.slice(0, 5));
+                                }}
                                 disabled={isSubmitting || isSuccess || picks.every(p => p === '')}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >

@@ -78,7 +78,13 @@ const HeadToHead = (props: React.HTMLAttributes<HTMLDivElement>) => {
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={() => setPicks({})}
+                                onClick={() => {
+                                    const randomPicks = {} as Record<string, string>;
+                                    F1_MATCHUPS.forEach(match => {
+                                        randomPicks[match.id] = Math.random() > 0.5 ? match.d1.num : match.d2.num;
+                                    });
+                                    setPicks(randomPicks);
+                                }}
                                 disabled={isSubmitting || isSuccess || countPicks === 0}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >
