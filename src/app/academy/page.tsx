@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 
 const DIALOG_LINES = [
-    { speaker: 'AGENT', text: "Welcome to the Paddock. I'm your agent. We've been watching your junior career..." },
-    { speaker: 'AGENT', text: "You've got raw speed, but raw speed isn't enough to survive in Formula 1." },
-    { speaker: 'AGENT', text: "To get a seat on the grid, we need to align you with a Driver Academy. This will dictate the technical partnerships and the teams that will offer you a contract." },
-    { speaker: 'AGENT', text: "There are 3 major alliances in the Paddock right now. Read them carefully." },
+    { speaker: 'AGENT', text: "Welcome to the Paddock. We've been analyzing your recent predictions..." },
+    { speaker: 'AGENT', text: "You are a brilliant strategist, but raw talent alone doesn't survive in F1." },
+    { speaker: 'AGENT', text: "To gain inside access and exclusive contracts, you must align with a Constructor Alliance." },
+    { speaker: 'AGENT', text: "There are 3 major powers on the grid right now. Choose wisely." },
 ];
 
 export default function AcademyPage() {
@@ -74,10 +74,11 @@ export default function AcademyPage() {
             // For now, redirecting to the root, which handles auth redirect to dashboard.
             
             if (session?.user) {
-                const slug = session.user.user_metadata?.slug || session.user.id;
-                router.push(`/${slug}`);
+                const { data } = await supabase.from('profiles').select('slug').eq('id', session.user.id).single();
+                const slug = data?.slug || session.user.id;
+                window.location.href = `/${slug}`;
             } else {
-                router.push('/');
+                window.location.href = '/';
             }
 
         } catch (error) {
@@ -171,7 +172,7 @@ export default function AcademyPage() {
 
             {/* Dialog Box */}
             {!showOptions && dialogIndex < DIALOG_LINES.length && (
-                <div className="absolute bottom-8 left-4 right-4 md:left-24 md:right-24 z-10 flex flex-col items-center">
+                <div className="absolute top-1/2 left-4 right-4 md:left-24 md:right-24 z-10 flex flex-col items-center -translate-y-1/2">
                     <div className="w-full max-w-4xl bg-black/80 border border-white/20 p-6 md:p-8 backdrop-blur-md shadow-[0_0_50px_rgba(0,0,0,0.8)] relative">
                         {/* Decorative corners */}
                         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#fbaa19]"></div>
