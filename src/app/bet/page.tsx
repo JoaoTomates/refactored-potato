@@ -12,7 +12,7 @@ import PredictionTabs from '@/components/prediction-tabs'
 const BetPage = () => {
     return (
         <div className="w-full flex flex-col items-center">
-            <main className="w-full max-w-6xl mx-auto p-4 md:p-8 pt-12 pb-24 transition-colors">
+            <main className="w-full max-w-5xl mx-auto p-4 md:p-8 pt-12 pb-24 transition-colors">
                 <section className="flex flex-col w-full gap-8">
                     <PredictionTabs />
                     <p className="text-center mt-4 text-sm text-gray-500 font-medium uppercase tracking-widest max-w-lg mx-auto">

@@ -12,17 +12,19 @@ export const useTeamworkAuto = () => {
     const autoTop10 = async (): Promise<string[]> => {
         setIsAutoLoading(true);
         try {
-            const { data } = await supabase.from('top_10_predictions').select('picks').eq('round', activeRound);
+            const { data } = await supabase.from('predictions').select('top10').eq('round', activeRound);
             let finalPicks: string[] = [];
             
             if (data && data.length > 0) {
                 const positionCounts = Array(10).fill(0).map(() => ({} as Record<string, number>));
                 data.forEach(row => {
-                    row.picks.forEach((driver: string, idx: number) => {
-                        if (driver) {
-                            positionCounts[idx][driver] = (positionCounts[idx][driver] || 0) + 1;
-                        }
-                    });
+                    if (row.top10 && Array.isArray(row.top10)) {
+                        row.top10.forEach((driver: string, idx: number) => {
+                            if (driver) {
+                                positionCounts[idx][driver] = (positionCounts[idx][driver] || 0) + 1;
+                            }
+                        });
+                    }
                 });
                 
                 const usedDrivers = new Set<string>();
@@ -50,7 +52,6 @@ export const useTeamworkAuto = () => {
                 console.log(`[TEAMWORK] Top 10 influenced by ${data.length} friends/users.`);
             } else {
                 finalPicks = shuffle(F1_DRIVERS).slice(0, 10);
-                console.log(`[TEAMWORK] No friends data. Using Smart Random.`);
             }
             return finalPicks;
         } catch (e) {
@@ -63,13 +64,15 @@ export const useTeamworkAuto = () => {
     const autoEvo = async (): Promise<string[]> => {
         setIsAutoLoading(true);
         try {
-            const { data } = await supabase.from('evo_predictions').select('picks').eq('round', activeRound);
+            const { data } = await supabase.from('predictions').select('evo').eq('round', activeRound);
             if (data && data.length > 0) {
                 const driverCounts: Record<string, number> = {};
                 data.forEach(row => {
-                    row.picks.forEach((driver: string) => {
-                        if (driver) driverCounts[driver] = (driverCounts[driver] || 0) + 1;
-                    });
+                    if (row.evo && Array.isArray(row.evo)) {
+                        row.evo.forEach((driver: string) => {
+                            if (driver) driverCounts[driver] = (driverCounts[driver] || 0) + 1;
+                        });
+                    }
                 });
                 
                 const sorted = Object.entries(driverCounts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
@@ -92,16 +95,18 @@ export const useTeamworkAuto = () => {
     const autoH2H = async (): Promise<Record<string, string>> => {
         setIsAutoLoading(true);
         try {
-            const { data } = await supabase.from('h2h_predictions').select('picks').eq('round', activeRound);
+            const { data } = await supabase.from('predictions').select('h2h').eq('round', activeRound);
             const finalPicks: Record<string, string> = {};
             
             if (data && data.length > 0) {
                 const matchupCounts: Record<string, Record<string, number>> = {};
                 data.forEach(row => {
-                    Object.entries(row.picks).forEach(([matchId, driverNum]) => {
-                        if (!matchupCounts[matchId]) matchupCounts[matchId] = {};
-                        matchupCounts[matchId][driverNum as string] = (matchupCounts[matchId][driverNum as string] || 0) + 1;
-                    });
+                    if (row.h2h && typeof row.h2h === 'object') {
+                        Object.entries(row.h2h).forEach(([matchId, driverNum]) => {
+                            if (!matchupCounts[matchId]) matchupCounts[matchId] = {};
+                            matchupCounts[matchId][driverNum as string] = (matchupCounts[matchId][driverNum as string] || 0) + 1;
+                        });
+                    }
                 });
                 
                 F1_MATCHUPS.forEach(match => {
@@ -135,7 +140,7 @@ export const useTeamworkAuto = () => {
     const autoPoletime = async (): Promise<number[]> => {
         setIsAutoLoading(true);
         try {
-            const { data } = await supabase.from('poletime_predictions').select('time_string').eq('round', activeRound);
+            const { data } = await supabase.from('predictions').select('poletime').eq('round', activeRound);
             
             const m = 1;
             let s1 = Math.floor(Math.random() * 2) + 2; 
@@ -148,8 +153,8 @@ export const useTeamworkAuto = () => {
                 let totalMs = 0;
                 let validCount = 0;
                 data.forEach(row => {
-                    const timeStr = row.time_string;
-                    if (timeStr && timeStr.includes(':') && timeStr.includes('.')) {
+                    const timeStr = row.poletime;
+                    if (timeStr && typeof timeStr === 'string' && timeStr.includes(':') && timeStr.includes('.')) {
                         const [mins, rest] = timeStr.split(':');
                         const [secs, millis] = rest.split('.');
                         const total = parseInt(mins) * 60000 + parseInt(secs) * 1000 + parseInt(millis);

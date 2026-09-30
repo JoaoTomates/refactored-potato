@@ -27,7 +27,7 @@ export default function F1ResultsPage({ params }: { params: { round: string } })
     }
 
     return (
-        <main className="w-full max-w-6xl mx-auto p-4 md:p-8 pt-12 pb-24 flex flex-col items-center justify-start min-h-screen">
+        <main className="w-full max-w-5xl mx-auto p-4 md:p-8 pt-12 pb-24 flex flex-col items-center justify-start min-h-screen">
             {/* Selected Option 2: Horizontal Remote Control (with opacity & arrows) */}
             <div className="w-full mb-8">
                 <RaceRemoteControl activeRound={currentRace.round} />
