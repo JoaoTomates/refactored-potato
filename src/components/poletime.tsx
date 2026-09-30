@@ -1,5 +1,6 @@
 ﻿"use client";
 import React, { useState } from 'react';
+import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 
@@ -15,6 +16,7 @@ const DigitButton = ({ value, onClick }: { value: number, onClick: () => void })
 
 const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: boolean }) => {
     const digits = usePredictionStore(state => state.poletime);
+    const { autoPoletime, isAutoLoading } = useTeamworkAuto();
     const setDigits = usePredictionStore(state => state.setPoletime);
     const { submit: handleSubmit, isSubmitting, isSuccess } = useSubmitPrediction();
 
@@ -81,23 +83,18 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={() => {
-                                    const m = 1;
-                                    const s1 = Math.floor(Math.random() * 2) + 2; // 2 or 3
-                                    const s2 = Math.floor(Math.random() * 10);
-                                    const ms1 = Math.floor(Math.random() * 10);
-                                    const ms2 = Math.floor(Math.random() * 10);
-                                    const ms3 = Math.floor(Math.random() * 10);
-                                    setDigits([m, s1, s2, ms1, ms2, ms3]);
+                                onClick={async () => {
+                                    const picks = await autoPoletime();
+                                    setDigits(picks);
                                 }}
-                                disabled={isSubmitting || isSuccess || digits.every(d => d === 0)}
+                                disabled={isAutoLoading || isSubmitting || isSuccess || digits.every(d => d === 0)}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 CLEAR
                             </button>
                             <button 
                                 type="button" 
-                                disabled={isSubmitting || isSuccess}
+                                disabled={isAutoLoading || isSubmitting || isSuccess}
                                 className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black transition-colors border border-[#fbaa19] p-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -108,7 +105,7 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
 <button 
                             type="button" 
                             onClick={() => handleSubmit(false)}
-                            disabled={isSubmitting || isSuccess}
+                            disabled={isAutoLoading || isSubmitting || isSuccess}
                             className="w-full md:w-auto order-1 md:order-2 f1-submit-picks bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-6 py-3 font-bold uppercase tracking-widest text-xs md:text-sm transition-colors hover:bg-gray-200 dark:hover:bg-black hover:text-[#fbaa19] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'SUBMITTING...' : isSuccess ? 'âœ” SAVED' : 'SUBMIT PREDICTION'}

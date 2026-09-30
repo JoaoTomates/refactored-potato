@@ -1,11 +1,13 @@
 "use client";
 import React, { useState } from 'react';
 import { F1_DRIVERS, getDriverDetails } from '@/api/f1-data';
+import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 
 const Evo = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: boolean }) => {
     const picks = usePredictionStore(state => state.evo);
+    const { autoEvo, isAutoLoading } = useTeamworkAuto();
     const setPicks = usePredictionStore(state => state.setEvo);
     const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(null);
     const { submit: handleSubmit, isSubmitting, isSuccess } = useSubmitPrediction();
@@ -150,18 +152,18 @@ const Evo = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: bo
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={() => {
-                                    const shuffled = [...F1_DRIVERS].sort(() => 0.5 - Math.random());
-                                    setPicks(shuffled.slice(0, 5));
+                                onClick={async () => {
+                                    const picks = await autoEvo();
+                                    setPicks(picks);
                                 }}
-                                disabled={isSubmitting || isSuccess || picks.every(p => p === '')}
+                                disabled={isAutoLoading || isSubmitting || isSuccess || picks.every(p => p === '')}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 CLEAR
                             </button>
                             <button 
                                 type="button" 
-                                disabled={isSubmitting || isSuccess}
+                                disabled={isAutoLoading || isSubmitting || isSuccess}
                                 className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black transition-colors border border-[#fbaa19] p-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -172,7 +174,7 @@ const Evo = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader?: bo
 <button 
                             type="button" 
                             onClick={() => handleSubmit(false)}
-                            disabled={picks.some(p => p === '') || isSubmitting || isSuccess}
+                            disabled={isAutoLoading || picks.some(p => p === '') || isSubmitting || isSuccess}
                             className="w-full md:w-auto order-1 md:order-2 f1-submit-picks bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-6 py-3 font-bold uppercase tracking-widest text-xs md:text-sm transition-colors hover:bg-gray-200 dark:hover:bg-black hover:text-[#fbaa19] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'SUBMITTING...' : isSuccess ? '✔ SAVED' : 'SUBMIT PREDICTION'}

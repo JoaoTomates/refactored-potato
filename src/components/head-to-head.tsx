@@ -1,11 +1,13 @@
 "use client";
 import React from 'react';
 import { F1_MATCHUPS } from '@/api/f1-data';
+import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 import { useState } from 'react';
 const HeadToHead = (props: React.HTMLAttributes<HTMLDivElement>) => {
     const picks = usePredictionStore(state => state.h2h);
+    const { autoH2H, isAutoLoading } = useTeamworkAuto();
     const setPicks = usePredictionStore(state => state.setH2H);
     const { submit: handleSubmit, isSubmitting, isSuccess } = useSubmitPrediction();
 
@@ -78,21 +80,18 @@ const HeadToHead = (props: React.HTMLAttributes<HTMLDivElement>) => {
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={() => {
-                                    const randomPicks = {} as Record<string, string>;
-                                    F1_MATCHUPS.forEach(match => {
-                                        randomPicks[match.id] = Math.random() > 0.5 ? match.d1.num : match.d2.num;
-                                    });
-                                    setPicks(randomPicks);
+                                onClick={async () => {
+                                    const picks = await autoH2H();
+                                    setPicks(picks);
                                 }}
-                                disabled={isSubmitting || isSuccess || countPicks === 0}
+                                disabled={isAutoLoading || isSubmitting || isSuccess || countPicks === 0}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 CLEAR
                             </button>
                             <button 
                                 type="button" 
-                                disabled={isSubmitting || isSuccess}
+                                disabled={isAutoLoading || isSubmitting || isSuccess}
                                 className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black transition-colors border border-[#fbaa19] p-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -103,7 +102,7 @@ const HeadToHead = (props: React.HTMLAttributes<HTMLDivElement>) => {
 <button 
                             type="button" 
                             onClick={() => handleSubmit(false)}
-                            disabled={countPicks !== F1_MATCHUPS.length || isSubmitting || isSuccess}
+                            disabled={isAutoLoading || countPicks !== F1_MATCHUPS.length || isSubmitting || isSuccess}
                             className="w-full md:w-auto order-1 md:order-2 f1-submit-picks bg-[#fbaa19] text-black border-2 border-[#fbaa19] px-6 py-3 font-bold uppercase tracking-widest text-xs md:text-sm transition-colors hover:bg-gray-200 dark:hover:bg-black hover:text-[#fbaa19] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'SUBMITTING...' : isSuccess ? '✔ SAVED' : 'SUBMIT PREDICTION'}
