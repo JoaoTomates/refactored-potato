@@ -63,6 +63,14 @@ export default function Home() {
                         
                         {/* Action Buttons */}
                         <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+                            {!user && (
+                                <Link 
+                                    href="/superlicense?mode=login"
+                                    className="w-full sm:w-auto bg-transparent text-white hover:text-black hover:bg-white border-[3px] border-white rounded-[3px] px-8 py-4 flex items-center justify-center transition-colors shadow-lg font-black uppercase tracking-widest text-xs sm:text-sm"
+                                >
+                                    <span>Login</span>
+                                </Link>
+                            )}
                             <Link 
                                 href={buttonLink}
                                 className="w-full sm:w-auto bg-[#fbaa19] text-black border-[3px] border-[#fbaa19] rounded-[3px] px-8 py-4 flex items-center justify-center transition-colors shadow-[0_0_20px_rgba(251,170,25,0.4)] hover:bg-white hover:border-white font-black uppercase tracking-widest text-xs sm:text-sm"
@@ -75,6 +83,14 @@ export default function Home() {
                             >
                                 <span>Explore Competition</span>
                             </button>
+                            {user && (
+                                <Link 
+                                    href="/bet"
+                                    className="w-full sm:w-auto bg-transparent text-white hover:text-black hover:bg-white border-[3px] border-white rounded-[3px] px-8 py-4 flex items-center justify-center transition-colors shadow-lg font-black uppercase tracking-widest text-xs sm:text-sm"
+                                >
+                                    <span>Bet</span>
+                                </Link>
+                            )}
                         </div>
                     </div>
 
