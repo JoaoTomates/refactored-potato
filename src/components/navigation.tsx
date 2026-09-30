@@ -7,7 +7,8 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 const Navigation = () => {
     const pathname = usePathname();
-    if (pathname === '/' || pathname === '/superlicense') return null;
+    if (pathname === '/' || pathname === '/academy') return null;
+    const forceCollapsed = pathname === '/superlicense';
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -35,16 +36,16 @@ const Navigation = () => {
 
     return (
         <>
-            <nav className={`sticky top-0 z-50 w-full bg-[#0a0a0a] transition-all duration-300 ease-in-out border-b ${isScrolled ? 'border-white/10 shadow-lg' : 'border-transparent'}`}>
+            <nav className={`sticky top-0 z-50 w-full bg-[#0a0a0a] transition-all duration-300 ease-in-out border-b ${(isScrolled || forceCollapsed) ? 'border-white/10 shadow-lg' : 'border-transparent'}`}>
                 {/* Background texture overlay */}
                 <div className="absolute inset-0 z-0 opacity-10 pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("https://images.pexels.com/photos/6159693/pexels-photo-6159693.jpeg?auto=compress&cs=tinysrgb&h=650&w=940")', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
                 
                 {/* Dynamic Height Container */}
-                <div className={`relative z-10 flex items-center justify-between w-full max-w-5xl mx-auto px-4 md:px-8 transition-all duration-300 ease-in-out ${isScrolled ? 'h-12 md:h-12' : 'h-16 md:h-20'}`}>
+                <div className={`relative z-10 flex items-center justify-between w-full max-w-5xl mx-auto px-4 md:px-8 transition-all duration-300 ease-in-out ${(isScrolled || forceCollapsed) ? 'h-12 md:h-12' : 'h-16 md:h-20'}`}>
                     
                     {/* LEFT: Logo */}
                     <div className="flex items-center">
-                        <Link href="/" className={`flex items-center transition-all duration-300 ease-in-out ${isScrolled ? 'scale-75 origin-left' : 'scale-100 origin-left'}`}>
+                        <Link href="/" className={`flex items-center transition-all duration-300 ease-in-out ${(isScrolled || forceCollapsed) ? 'scale-75 origin-left' : 'scale-100 origin-left'}`}>
                             <div className="flex items-center h-full">
                                 <Logo isOnDarkBackground={true} />
                             </div>
@@ -54,7 +55,7 @@ const Navigation = () => {
                     {/* RIGHT: Buttons & Hamburger Control */}
                     <div className="flex items-center gap-4">
                         {/* Action Buttons */}
-                        <div className={`flex items-center transition-all duration-300 gap-2 md:gap-4 ${isScrolled ? 'scale-90 origin-right' : 'scale-100 origin-right'}`}>
+                        <div className={`flex items-center transition-all duration-300 gap-2 md:gap-4 ${(isScrolled || forceCollapsed) ? 'scale-90 origin-right' : 'scale-100 origin-right'}`}>
                             <Link 
                                 href="/bet" 
                                 className="hidden sm:flex bg-[#fbaa19] text-black border border-[#fbaa19] px-4 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-bold uppercase tracking-wider rounded-sm hover:bg-yellow-500 transition-colors"
@@ -74,7 +75,7 @@ const Navigation = () => {
                         <div className="flex items-center ml-2">
                             <button
                                 aria-label="Open menu"
-                                className={`text-white transition-all duration-300 ${isScrolled ? 'p-1' : 'p-2'} hover:text-[#fbaa19]`}
+                                className={`text-white transition-all duration-300 ${(isScrolled || forceCollapsed) ? 'p-1' : 'p-2'} hover:text-[#fbaa19]`}
                                 onClick={() => setIsMobileMenuOpen(true)}
                             >
                                 <svg fill="none" width={isScrolled ? "24" : "28"} height={isScrolled ? "24" : "28"} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" className="transition-all duration-300">

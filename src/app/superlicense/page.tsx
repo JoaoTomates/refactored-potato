@@ -149,7 +149,7 @@ export default function SuperlicensePage() {
                 <div className="w-full flex flex-col items-center">
                     
                     {/* EXPANDED AVATAR / HELMET HEADER */}
-                    <div className="relative w-full h-[340px] md:h-[480px] bg-black overflow-hidden shadow-2xl flex items-end justify-center pt-12 md:pt-16 pb-4">
+                    <div className="relative w-full h-[200px] md:h-[280px] bg-black overflow-hidden shadow-2xl flex items-end justify-center pt-4 pb-2">
                         {/* Background Layer (For future AI generated image) */}
                         {/* If no AI image, it uses a subtle pattern or dark gradient */}
                         <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
@@ -166,12 +166,7 @@ export default function SuperlicensePage() {
                             }}
                         />
 
-                        {/* Logo Top Left */}
-                        <div className="absolute top-6 left-6 z-30">
-                            <Link href="/">
-                                <Logo isOnDarkBackground={true} />
-                            </Link>
-                        </div>
+                        
                     </div>
 
                     {/* FORM SECTION */}
