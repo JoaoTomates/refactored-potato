@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { F1_TEAMS, type TeamData } from '@/lib/teams';
+
 
 
 interface DashboardHomeProps {
@@ -76,52 +79,74 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                             </div>
                         </div>
 
-                        {/* Interactive Stats Slider (Swipeable) */}
-                        <div className="flex-1 w-full relative overflow-x-auto snap-x snap-mandatory flex scrollbar-width-none [&::-webkit-scrollbar]:hidden">
-                            
-                            {/* Slide 1: MLS (Milésimos) */}
-                            <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-4">
-                                <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">VoltGrid Currency</span>
-                                <div className="flex items-baseline gap-1 drop-shadow-[0_0_10px_rgba(251,170,25,0.3)]">
-                                    <span className="text-4xl md:text-5xl font-black font-display tracking-tighter text-[#fbaa19]">000.000</span>
-                                    <span className="text-sm font-bold text-[#fbaa19]">mls</span>
-                                </div>
-                                <div className="mt-3 flex gap-2 text-[8px] md:text-[9px] uppercase font-bold text-gray-400 tracking-widest w-full justify-center">
-                                    <span className="bg-white/5 px-2 py-1.5 rounded text-center border border-white/10">Perf: 000.000</span>
-                                    <span className="bg-[#fbaa19]/10 text-[#fbaa19] px-2 py-1.5 rounded text-center border border-[#fbaa19]/30">Bonus: 000.000</span>
+                        {/* Interactive Stats Slider OR Contract Offer */}
+                        {needsContract && offeredTeams.length === 2 ? (
+                            <div className="absolute inset-0 z-50 bg-[#fbaa19] flex flex-col items-center justify-center p-4 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]">
+                                <h3 className="text-black font-black uppercase tracking-widest text-lg font-display text-center mb-1">Contract Offer</h3>
+                                <p className="text-black/80 font-bold uppercase tracking-widest text-[9px] text-center mb-4 leading-tight">Choose your academy destination</p>
+                                
+                                <div className="flex flex-col gap-2 w-full max-w-[220px]">
+                                    <button 
+                                        onClick={() => handleAcceptContract(offeredTeams[0])}
+                                        className="w-full bg-black text-white py-2 px-3 flex flex-col items-center border-[3px] border-black hover:bg-white hover:text-black hover:border-black transition-all shadow-xl group"
+                                    >
+                                        <span className="font-black font-display tracking-widest uppercase text-sm group-hover:scale-105 transition-transform">{offeredTeams[0].name}</span>
+                                    </button>
+                                    <div className="text-center font-black text-black/50 text-[10px]">OR</div>
+                                    <button 
+                                        onClick={() => handleAcceptContract(offeredTeams[1])}
+                                        className="w-full bg-black text-white py-2 px-3 flex flex-col items-center border-[3px] border-black hover:bg-white hover:text-black hover:border-black transition-all shadow-xl group"
+                                    >
+                                        <span className="font-black font-display tracking-widest uppercase text-sm group-hover:scale-105 transition-transform">{offeredTeams[1].name}</span>
+                                    </button>
                                 </div>
                             </div>
+                        ) : (
+                            <div className="flex-1 w-full relative overflow-x-auto snap-x snap-mandatory flex scrollbar-width-none [&::-webkit-scrollbar]:hidden">
+                                
+                                {/* Slide 1: MLS (Milésimos) */}
+                                <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-4">
+                                    <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">VoltGrid Currency</span>
+                                    <div className="flex items-baseline gap-1 drop-shadow-[0_0_10px_rgba(251,170,25,0.3)]">
+                                        <span className="text-4xl md:text-5xl font-black font-display tracking-tighter text-[#fbaa19]">000.000</span>
+                                        <span className="text-sm font-bold text-[#fbaa19]">mls</span>
+                                    </div>
+                                    <div className="mt-3 flex gap-2 text-[8px] md:text-[9px] uppercase font-bold text-gray-400 tracking-widest w-full justify-center">
+                                        <span className="bg-white/5 px-2 py-1.5 rounded text-center border border-white/10">Perf: 000.000</span>
+                                        <span className="bg-[#fbaa19]/10 text-[#fbaa19] px-2 py-1.5 rounded text-center border border-[#fbaa19]/30">Bonus: 000.000</span>
+                                    </div>
+                                </div>
 
-                            {/* Slide 2: Honors */}
-                            <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-6">
-                                <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-2 block">Driver Honors</span>
-                                <div className="flex flex-col gap-2 w-full">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
-                                        <span className="text-[#fbaa19]">🏆</span> Campeão Poletime 25
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
-                                        <span className="text-gray-400">🥈</span> Vencedor Etapa Japão
+                                {/* Slide 2: Honors */}
+                                <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-6">
+                                    <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-2 block">Driver Honors</span>
+                                    <div className="flex flex-col gap-2 w-full">
+                                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
+                                            <span className="text-[#fbaa19]">🏆</span> Campeão Poletime 25
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
+                                            <span className="text-gray-400">🥈</span> Vencedor Etapa Japão
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Slide 3: Detailed Stats */}
-                            <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-6">
-                                <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-3 block">Performance</span>
-                                <div className="grid grid-cols-2 gap-2 w-full">
-                                    <div className="bg-white/5 border border-white/10 p-3 rounded flex flex-col items-center text-center">
-                                        <span className="text-xl font-black text-white font-display">42</span>
-                                        <span className="text-[8px] uppercase font-bold text-gray-400 tracking-widest">Races</span>
-                                    </div>
-                                    <div className="bg-[#fbaa19]/10 border border-[#fbaa19]/30 p-3 rounded flex flex-col items-center text-center">
-                                        <span className="text-xl font-black text-[#fbaa19] font-display">8</span>
-                                        <span className="text-[8px] uppercase font-bold text-[#fbaa19] tracking-widest">Podiums</span>
+                                {/* Slide 3: Detailed Stats */}
+                                <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-6">
+                                    <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-3 block">Performance</span>
+                                    <div className="grid grid-cols-2 gap-2 w-full">
+                                        <div className="bg-white/5 border border-white/10 p-3 rounded flex flex-col items-center text-center">
+                                            <span className="text-xl font-black text-white font-display">42</span>
+                                            <span className="text-[8px] uppercase font-bold text-gray-400 tracking-widest">Races</span>
+                                        </div>
+                                        <div className="bg-[#fbaa19]/10 border border-[#fbaa19]/30 p-3 rounded flex flex-col items-center text-center">
+                                            <span className="text-xl font-black text-[#fbaa19] font-display">8</span>
+                                            <span className="text-[8px] uppercase font-bold text-[#fbaa19] tracking-widest">Podiums</span>
+                                        </div>
                                     </div>
                                 </div>
+                                
                             </div>
-                            
-                        </div>
-                        
+                        )}
                         {/* Visual Dots for slider */}
                         <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#fbaa19]"></div>
