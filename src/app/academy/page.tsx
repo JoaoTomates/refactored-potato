@@ -72,7 +72,14 @@ export default function AcademyPage() {
             // Redirect to dashboard where the draft/contract offer will happen
             // We'll use a generic /dashboard or if they have a slug, we might need to fetch it.
             // For now, redirecting to the root, which handles auth redirect to dashboard.
-            router.push('/');
+            
+            if (session?.user) {
+                const slug = session.user.user_metadata?.slug || session.user.id;
+                router.push(`/${slug}`);
+            } else {
+                router.push('/');
+            }
+
         } catch (error) {
             console.error("Error saving academy:", error);
             setSaving(false);
