@@ -3,6 +3,27 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+
+const LOGOS: Record<string, string> = {
+    MCL: "https://upload.wikimedia.org/wikipedia/en/thumb/6/66/McLaren_Racing_logo.svg/320px-McLaren_Racing_logo.svg.png",
+    MER: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Mercedes_AMG_Petronas_F1_Logo.svg/320px-Mercedes_AMG_Petronas_F1_Logo.svg.png",
+    WIL: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Williams_Racing_2024_logo.svg/320px-Williams_Racing_2024_logo.svg.png",
+    AST: "https://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Aston_Martin_Aramco_Cognizant_F1.svg/320px-Aston_Martin_Aramco_Cognizant_F1.svg.png",
+    ALP: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Alpine_F1_Team_Logo.svg/320px-Alpine_F1_Team_Logo.svg.png",
+    FER: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c0/Scuderia_Ferrari_Logo.svg/320px-Scuderia_Ferrari_Logo.svg.png",
+    HAA: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Haas_F1_Team_logo.svg/320px-Haas_F1_Team_logo.svg.png",
+    AUD: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Audi_logo_2016.svg/320px-Audi_logo_2016.svg.png",
+    CAD: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Cadillac_logo_2021.svg/320px-Cadillac_logo_2021.svg.png",
+    RBR: "https://upload.wikimedia.org/wikipedia/en/thumb/0/07/Red_Bull_Racing_logo.svg/320px-Red_Bull_Racing_logo.svg.png",
+    RBA: "https://upload.wikimedia.org/wikipedia/en/thumb/2/23/Visa_Cash_App_RB_F1_Team_logo.svg/320px-Visa_Cash_App_RB_F1_Team_logo.svg.png"
+};
+
+const LogoBadge = ({ code }: { code: string }) => (
+    <div className="bg-white rounded-md p-1.5 w-12 h-8 flex items-center justify-center shrink-0 shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+        <img src={LOGOS[code]} alt={code} className="max-w-full max-h-full object-contain" />
+    </div>
+);
+
 const DIALOG_LINES = [
     { text: "HELLO, OBSERVER. WE HAVE BEEN WATCHING YOU FOR A WHILE. YOUR PREDICTIONS FOR THE GRID HAVE CAUGHT OUR EYE." },
     { text: "BUT GUESSING THE PODIUM IS ONE THING. LUCK ALONE IS NOT ENOUGH TO SUCCEED IN THIS PADDOCK." },
@@ -110,23 +131,40 @@ export default function InvitePage() {
                             <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6">Select a technical partnership group to receive contract offers.</p>
                             
                             <div className="grid grid-cols-1 gap-3">
-                                <button 
+                                                                <button 
                                     onClick={() => handleSelectGroup(1)}
-                                    className="w-full bg-[#111] border border-white/10 hover:border-[#fbaa19] hover:bg-[#fbaa19] hover:text-black text-white p-4 transition-all uppercase tracking-widest font-bold text-sm md:text-base group"
+                                    className="w-full bg-[#111] border border-white/10 hover:border-[#fbaa19] hover:bg-[#fbaa19]/10 text-white p-4 transition-all flex flex-col md:flex-row items-center justify-between gap-4 group"
                                 >
-                                    Alliance 1 (MCL, MER, WIL, AST, ALP)
+                                    <span className="uppercase tracking-widest font-bold text-sm md:text-base group-hover:text-[#fbaa19] transition-colors">Alliance 1</span>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        <LogoBadge code="MCL" />
+                                        <LogoBadge code="MER" />
+                                        <LogoBadge code="WIL" />
+                                        <LogoBadge code="AST" />
+                                        <LogoBadge code="ALP" />
+                                    </div>
                                 </button>
-                                <button 
+                                                                <button 
                                     onClick={() => handleSelectGroup(2)}
-                                    className="w-full bg-[#111] border border-white/10 hover:border-red-500 hover:bg-red-500 hover:text-white text-white p-4 transition-all uppercase tracking-widest font-bold text-sm md:text-base group"
+                                    className="w-full bg-[#111] border border-white/10 hover:border-red-500 hover:bg-red-500/10 text-white p-4 transition-all flex flex-col md:flex-row items-center justify-between gap-4 group"
                                 >
-                                    Alliance 2 (FER, HAA, AUD, CAD)
+                                    <span className="uppercase tracking-widest font-bold text-sm md:text-base group-hover:text-red-500 transition-colors">Alliance 2</span>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        <LogoBadge code="FER" />
+                                        <LogoBadge code="HAA" />
+                                        <LogoBadge code="AUD" />
+                                        <LogoBadge code="CAD" />
+                                    </div>
                                 </button>
-                                <button 
+                                                                <button 
                                     onClick={() => handleSelectGroup(3)}
-                                    className="w-full bg-[#111] border border-white/10 hover:border-blue-500 hover:bg-blue-500 hover:text-white text-white p-4 transition-all uppercase tracking-widest font-bold text-sm md:text-base group"
+                                    className="w-full bg-[#111] border border-white/10 hover:border-blue-500 hover:bg-blue-500/10 text-white p-4 transition-all flex flex-col md:flex-row items-center justify-between gap-4 group"
                                 >
-                                    Alliance 3 (RBR, RBA)
+                                    <span className="uppercase tracking-widest font-bold text-sm md:text-base group-hover:text-blue-500 transition-colors">Alliance 3</span>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        <LogoBadge code="RBR" />
+                                        <LogoBadge code="RBA" />
+                                    </div>
                                 </button>
                             </div>
                         </div>
