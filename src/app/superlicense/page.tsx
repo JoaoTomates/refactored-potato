@@ -19,8 +19,8 @@ function SuperlicenseForm() {
     const [mode, setMode] = useState<"setup" | "login">(modeParam === "login" ? "login" : "setup");
 
     // Setup Form State
-    const [initial, setInitial] = useState("");
-    const [surname, setSurname] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [country, setCountry] = useState(""); 
     const [orgRef, setOrgRef] = useState(refParam || ""); 
     const [contact, setContact] = useState(""); // Email ou celular
@@ -85,16 +85,15 @@ function SuperlicenseForm() {
             if (authError) throw authError;
 
             if (authData.user) {
-                const cleanInitial = initial.charAt(0).toUpperCase();
-                const cleanSurname = surname.trim().toUpperCase();
-                const slug = `@${cleanInitial.toLowerCase()}${cleanSurname.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+                const cleanFirstName = firstName.trim().toUpperCase();
+                const cleanLastName = lastName.trim().toUpperCase();
+                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 
-                // In a real app we'd also link `orgRef` directly into a pending invite table here.
                 const { error: profileError } = await supabase.from('profiles').update({
-                    first_name: cleanInitial,
-                    last_name: cleanSurname,
+                    first_name: cleanFirstName,
+                    last_name: cleanLastName,
                     nationality: country.toUpperCase(),
-                    org_color: '#000000', // Defaulted or handled elsewhere
+                    org_color: '#000000',
                     setup_completed: true,
                     slug: slug
                 }).eq('id', authData.user.id);
@@ -103,8 +102,8 @@ function SuperlicenseForm() {
                     console.error("Profile update error:", profileError);
                     await supabase.from('profiles').upsert({
                         id: authData.user.id,
-                        first_name: cleanInitial,
-                        last_name: cleanSurname,
+                        first_name: cleanFirstName,
+                        last_name: cleanLastName,
                         nationality: country.toUpperCase(),
                         org_color: '#000000',
                         setup_completed: true,
@@ -112,7 +111,22 @@ function SuperlicenseForm() {
                     });
                 }
 
-                window.location.href = '/academy';
+                // Check for guest onboarding data
+                const groupId = localStorage.getItem('voltgrid_guest_group');
+                if (groupId) {
+                    await supabase.auth.updateUser({
+                        data: { academy_group: parseInt(groupId) }
+                    });
+                }
+
+                const teamParam = searchParams.get('team');
+                if (teamParam) {
+                    // Sign initial contract if they came from the guest dashboard
+                    await supabase.rpc('sign_initial_contract', { p_team_id: teamParam });
+                    window.location.href = `/${slug}`;
+                } else {
+                    window.location.href = '/academy';
+                }
             }
 
         } catch (err: any) {
@@ -190,19 +204,18 @@ function SuperlicenseForm() {
                                         <div className="flex gap-2">
                                             <input 
                                                 type="text" 
-                                                maxLength={1}
-                                                placeholder="A"
+                                                placeholder="FIRST NAME"
                                                 required
-                                                value={initial}
-                                                onChange={(e) => setInitial(e.target.value)}
-                                                className="w-12 md:w-14 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase text-center focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                                value={firstName}
+                                                onChange={(e) => setFirstName(e.target.value)}
+                                                className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                             />
                                             <input 
                                                 type="text" 
-                                                placeholder="SENNA"
+                                                placeholder="LAST NAME"
                                                 required
-                                                value={surname}
-                                                onChange={(e) => setSurname(e.target.value)}
+                                                value={lastName}
+                                                onChange={(e) => setLastName(e.target.value)}
                                                 className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                             />
                                         </div>

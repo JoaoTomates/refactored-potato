@@ -7,7 +7,7 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 const Navigation = () => {
     const pathname = usePathname();
-    if (pathname === '/' || pathname === '/academy') return null;
+    if (pathname === '/' || pathname === '/academy' || pathname === '/invite') return null;
     const forceCollapsed = pathname === '/superlicense';
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
