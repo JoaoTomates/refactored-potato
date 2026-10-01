@@ -30,16 +30,22 @@ export default function SuperlicensePage() {
     useEffect(() => {
         if (user) {
             setLoadingProfile(true);
-            supabase.from('profiles').select('*').eq('id', user.id).single()
-                .then(({ data, error }) => {
-                    if (error || !data) {
-                        // If profile is completely missing (e.g. wiped DB), force them back to setup.
-                        router.replace('/superlicense?mode=setup');
-                    } else {
-                        setProfile(data);
+            Promise.all([
+                supabase.from('profiles').select('*').eq('id', user.id).single(),
+                supabase.from('contracts').select('team_id').eq('user_id', user.id).order('year', { ascending: false }).limit(1).maybeSingle()
+            ])
+            .then(([profileRes, contractRes]) => {
+                if (profileRes.error || !profileRes.data) {
+                    router.replace('/superlicense?mode=setup');
+                } else {
+                    const profileData = profileRes.data;
+                    if (contractRes.data) {
+                        profileData.team_id = contractRes.data.team_id;
                     }
-                })
-                .finally(() => setLoadingProfile(false));
+                    setProfile(profileData);
+                }
+            })
+            .finally(() => setLoadingProfile(false));
         } else {
             setProfile(null);
         }

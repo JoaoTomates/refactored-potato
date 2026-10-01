@@ -70,9 +70,18 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                                 {driverName}
                             </h2>
                             <div className="flex items-center justify-center gap-2 mt-2">
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-black bg-[#fbaa19] px-2 py-0.5 rounded-sm truncate max-w-[120px]">
-                                    {profile?.org_color || 'FREE AGENT'}
-                                </span>
+                                {currentTeam ? (
+                                    <div className="flex items-center gap-1.5 bg-white px-2 py-0.5 rounded-sm shadow-sm">
+                                        <img src={`https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/${currentTeam.logo}.png`} alt={currentTeam.logo} className="h-[10px] w-auto object-contain" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: currentTeam.color }}>
+                                            {currentTeam.name}
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-black bg-white px-2 py-0.5 rounded-sm truncate max-w-[120px]">
+                                        FREE AGENT
+                                    </span>
+                                )}
                                 <span className="text-[9px] font-bold uppercase tracking-widest text-white bg-white/20 px-2 py-0.5 rounded-sm border border-white/10">
                                     {profile?.nationality || 'UNK'}
                                 </span>
