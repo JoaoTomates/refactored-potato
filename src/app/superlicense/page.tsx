@@ -177,149 +177,137 @@ function SuperlicenseForm() {
 
     if (verifying || authLoading) {
         return (
-            <div className="w-full min-h-screen flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
+            <div className="w-full flex items-center justify-center p-12">
+                <div className="w-8 h-8 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
             </div>
         );
     }
 
     return (
-        <div className="w-full max-w-5xl mx-auto px-4 md:px-8 bg-black flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+        <div className="w-full h-full flex flex-col items-center justify-center p-4">
             
-            {mode === 'setup' ? (
-                <>
-                    {/* LEFT SIDE: Helmet */}
-                    <div className="w-full lg:w-1/2 h-[200px] sm:h-[300px] lg:h-auto flex items-center justify-center relative overflow-hidden bg-black lg:border-r border-[#333]">
-                        <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
-                        <img 
-                            src="/avatar-overlay.png" 
-                            alt="Driver Helmet" 
-                            className="relative z-10 w-[70%] h-[70%] lg:w-[90%] lg:h-[90%] object-contain drop-shadow-2xl"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/motorcycle.svg'; 
-                                (e.target as HTMLImageElement).className = "relative z-10 w-32 h-32 opacity-20 filter invert object-contain";
-                            }}
-                        />
-                    </div>
+            {/* Form Container (VoltGrid retro-tech style) */}
+            <div className="w-full max-w-lg bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-10 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-fade-in">
+                {/* Tech Corners */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#fbaa19]"></div>
+                <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#fbaa19]"></div>
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#fbaa19]"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#fbaa19]"></div>
 
-                    {/* RIGHT SIDE: Form */}
-                    <div className="w-full lg:w-1/2 flex items-center justify-center p-4 py-8 sm:p-8 md:p-12 bg-black relative z-30">
-                        <div className="w-full max-w-lg flex flex-col">
+                {mode === 'setup' ? (
+                    <>
+                        <h2 className="text-[#fbaa19] text-2xl font-black uppercase tracking-widest mb-2">Driver Profile</h2>
+                        <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-8">Establish your paddock identity</p>
+
+                        {errorMsg && (
+                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                                {errorMsg}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSetupSubmit} className="flex flex-col gap-6">
                             
-                            {errorMsg && (
-                                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
-                                    {errorMsg}
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSetupSubmit} className="flex flex-col gap-6">
-                                
-                                                                {/* Row 1: Driver Name & Race Number */}
-                                <div className="flex flex-col md:flex-row gap-6">
-                                    <div className="flex-[2] flex flex-col gap-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Driver Name</label>
-                                        <div className="flex flex-col sm:flex-row gap-2">
-                                            <input 
-                                                type="text" 
-                                                placeholder="FIRST NAME"
-                                                required
-                                                value={firstName}
-                                                onChange={(e) => setFirstName(e.target.value)}
-                                                className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
-                                            />
-                                            <input 
-                                                type="text" 
-                                                placeholder="LAST NAME"
-                                                required
-                                                value={lastName}
-                                                onChange={(e) => setLastName(e.target.value)}
-                                                className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 flex flex-col gap-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Race Number</label>
-                                        <input 
-                                            type="number" 
-                                            min="0"
-                                            max="99"
-                                            placeholder="Ex: 27"
-                                            required
-                                            value={raceNumber}
-                                            onChange={(e) => setRaceNumber(e.target.value)}
-                                            className="w-full bg-black border border-[#333] text-[#fbaa19] p-3 font-black text-center focus:outline-none focus:border-[#fbaa19] transition-colors"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 2: Organization Ref */}
-                                <div className="flex flex-col gap-2 mt-2 border-t border-white/5 pt-6">
-                                    <div className="flex justify-between items-center">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Organization Ref</label>
-                                        <span className="text-[9px] text-[#fbaa19] font-bold uppercase tracking-widest">Opcional</span>
-                                    </div>
-                                    <input 
-                                        type="text" 
-                                        placeholder="@username (Invite Link)"
-                                        value={orgRef}
-                                        onChange={(e) => setOrgRef(e.target.value)}
-                                        className="w-full bg-black border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-white transition-colors"
-                                    />
-                                </div>
-
-                                {/* Row 3: Contact & Security */}
-                                <div className="flex flex-col gap-2 mt-2 border-t border-white/5 pt-6">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Contact & Security</label>
-                                    <div className="flex flex-col md:flex-row gap-4">
+                            {/* Row 1: Driver Name & Race Number */}
+                            <div className="flex flex-col md:flex-row gap-6">
+                                <div className="flex-[2] flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Driver Name</label>
+                                    <div className="flex flex-col sm:flex-row gap-2">
                                         <input 
                                             type="text" 
-                                            placeholder="EMAIL OR CELLPHONE"
+                                            placeholder="FIRST NAME"
                                             required
-                                            value={contact}
-                                            onChange={(e) => setContact(e.target.value)}
-                                            className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            className="flex-1 bg-[#111] border border-white/10 text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
                                         />
                                         <input 
-                                            type="password" 
-                                            placeholder="SECRET PASSWORD"
+                                            type="text" 
+                                            placeholder="LAST NAME"
                                             required
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            className="flex-1 bg-[#111] border border-white/10 text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
                                         />
                                     </div>
                                 </div>
-
-                                {/* Submit Actions */}
-                                <div className="flex flex-col gap-4 mt-6">
-                                    <button 
-                                        type="submit" 
-                                        disabled={loadingAction}
-                                        className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-widest p-4 hover:bg-white transition-colors disabled:opacity-50"
-                                    >
-                                        {loadingAction ? 'Processing...' : 'Save & Enter'}
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        onClick={() => setMode('login')}
-                                        className="text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors text-center"
-                                    >
-                                        Already have a license? Login
-                                    </button>
+                                <div className="flex-1 flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Race Number</label>
+                                    <input 
+                                        type="number" 
+                                        min="0"
+                                        max="99"
+                                        placeholder="EX: 27"
+                                        required
+                                        value={raceNumber}
+                                        onChange={(e) => setRaceNumber(e.target.value)}
+                                        className="w-full bg-[#111] border border-[#fbaa19]/30 text-[#fbaa19] p-3 font-black text-center focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
+                                    />
                                 </div>
+                            </div>
 
-                            </form>
-                        </div>
-                    </div>
-                </>
-            ) : (
-                // --- LOGIN MODE ---
-                <div className="w-full flex items-center justify-center p-6 bg-black relative z-30 min-h-[60vh]">
-                    <div className="w-full max-w-md border border-[#333] shadow-2xl p-6 md:p-8 relative">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-[#fbaa19]"></div>
-                        
-                        <h2 className="text-2xl font-black uppercase tracking-widest text-white mb-2">Paddock Access</h2>
-                        <p className="text-xs text-gray-500 uppercase tracking-widest mb-8">Enter your credentials</p>
+                            {/* Row 2: Organization Ref */}
+                            <div className="flex flex-col gap-2 mt-2 border-t border-white/10 pt-6">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Organization Ref</label>
+                                    <span className="text-[9px] text-[#fbaa19] font-bold uppercase tracking-widest">Optional</span>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder="@username (Invite Link)"
+                                    value={orgRef}
+                                    onChange={(e) => setOrgRef(e.target.value)}
+                                    className="w-full bg-[#111] border border-white/10 text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
+                                />
+                            </div>
+
+                            {/* Row 3: Contact & Security */}
+                            <div className="flex flex-col gap-2 mt-2 border-t border-white/10 pt-6">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Contact & Security</label>
+                                <div className="flex flex-col md:flex-row gap-4">
+                                    <input 
+                                        type="text" 
+                                        placeholder="EMAIL OR CELLPHONE"
+                                        required
+                                        value={contact}
+                                        onChange={(e) => setContact(e.target.value)}
+                                        className="flex-1 bg-[#111] border border-white/10 text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
+                                    />
+                                    <input 
+                                        type="password" 
+                                        placeholder="SECRET PASSWORD"
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="flex-1 bg-[#111] border border-white/10 text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Submit Actions */}
+                            <div className="flex flex-col gap-4 mt-6">
+                                <button 
+                                    type="submit" 
+                                    disabled={loadingAction}
+                                    className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-widest p-4 hover:bg-white transition-colors disabled:opacity-50"
+                                >
+                                    {loadingAction ? 'Processing...' : 'Save & Enter'}
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setMode('login')}
+                                    className="text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-[#fbaa19] transition-colors text-center"
+                                >
+                                    Already have a license? Login
+                                </button>
+                            </div>
+
+                        </form>
+                    </>
+                ) : (
+                    // --- LOGIN MODE ---
+                    <>
+                        <h2 className="text-[#fbaa19] text-2xl font-black uppercase tracking-widest mb-2">Paddock Access</h2>
+                        <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-8">Enter your credentials</p>
 
                         {errorMsg && (
                             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 flex flex-col gap-3 text-center animate-fade-in">
@@ -330,7 +318,7 @@ function SuperlicenseForm() {
                                     <button 
                                         type="button"
                                         onClick={() => { setErrorMsg(""); setShowRegistrationHint(false); setMode("setup"); }}
-                                        className="mt-2 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/40 px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-colors shadow-lg"
+                                        className="mt-2 bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 hover:bg-[#fbaa19]/40 px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-colors shadow-lg"
                                     >
                                         Emitir Nova Super Licença
                                     </button>
@@ -346,7 +334,7 @@ function SuperlicenseForm() {
                                     required
                                     value={loginEmail}
                                     onChange={(e) => setLoginEmail(e.target.value)}
-                                    className="w-full bg-black border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    className="w-full bg-[#111] border border-white/10 text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
@@ -356,43 +344,48 @@ function SuperlicenseForm() {
                                     required
                                     value={loginPassword}
                                     onChange={(e) => setLoginPassword(e.target.value)}
-                                    className="w-full bg-black border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    className="w-full bg-[#111] border border-white/10 text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] focus:bg-black transition-all"
                                 />
                             </div>
 
                             <button 
                                 type="submit" 
                                 disabled={loadingAction}
-                                className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-widest p-4 mt-4 hover:bg-white transition-colors disabled:opacity-50"
+                                className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-widest p-4 mt-6 hover:bg-white transition-colors disabled:opacity-50"
                             >
                                 {loadingAction ? 'Authenticating...' : 'Login'}
                             </button>
                             <button 
                                 type="button" 
                                 onClick={() => setMode('setup')}
-                                className="text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors text-center mt-4"
+                                className="text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-[#fbaa19] transition-colors text-center mt-4"
                             >
                                 Need a Superlicense? Create One
                             </button>
                         </form>
-                    </div>
-                </div>
-            )}
-            
+                    </>
+                )}
+            </div>
         </div>
     );
 }
 
 export default function SuperlicensePage() {
     return (
-        <main className="w-full min-h-screen bg-black flex flex-col font-rajdhani pt-20 md:pt-24 pb-12">
-            <Suspense fallback={
-                <div className="w-full min-h-screen flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
-                </div>
-            }>
-                <SuperlicenseForm />
-            </Suspense>
+        <main className="w-full min-h-screen bg-black relative overflow-hidden flex flex-col font-rajdhani pt-16 md:pt-20">
+            {/* CRT Overlay Effects matching /invite */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]"></div>
+            <div className="absolute inset-0 z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90"></div>
+
+            <div className="relative z-10 flex-1 flex flex-col items-center justify-center pb-12">
+                <Suspense fallback={
+                    <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
+                    </div>
+                }>
+                    <SuperlicenseForm />
+                </Suspense>
+            </div>
         </main>
     );
 }
