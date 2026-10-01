@@ -86,7 +86,7 @@ function SuperlicenseForm() {
             if (authData.user) {
                 const cleanFirstName = firstName.trim().charAt(0).toUpperCase();
                 const cleanLastName = lastName.trim().toUpperCase();
-                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${raceNumber}`;
 
                 const { error: profileError } = await supabase.from('profiles').update({
                     first_name: cleanFirstName,
@@ -196,9 +196,9 @@ function SuperlicenseForm() {
 
                             <form onSubmit={handleSetupSubmit} className="flex flex-col gap-6">
                                 
-                                {/* Row 1: Driver Name & Country */}
+                                                                {/* Row 1: Driver Name & Race Number */}
                                 <div className="flex flex-col md:flex-row gap-6">
-                                    <div className="flex-1 flex flex-col gap-2">
+                                    <div className="flex-[2] flex flex-col gap-2">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Driver Name</label>
                                         <div className="flex gap-2">
                                             <input 
@@ -220,13 +220,16 @@ function SuperlicenseForm() {
                                         </div>
                                     </div>
                                     <div className="flex-1 flex flex-col gap-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Nationality</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-[#fbaa19]">Race Number</label>
                                         <input 
-                                            type="text" 
-                                            placeholder="BRAZILIAN"
-                                            value={country}
-                                            onChange={(e) => setCountry(e.target.value)}
-                                            className="w-full bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                            type="number" 
+                                            min="0"
+                                            max="99"
+                                            placeholder="Ex: 27"
+                                            required
+                                            value={raceNumber}
+                                            onChange={(e) => setRaceNumber(e.target.value)}
+                                            className="w-full bg-black border border-[#333] text-[#fbaa19] p-3 font-black text-center focus:outline-none focus:border-[#fbaa19] transition-colors"
                                         />
                                     </div>
                                 </div>
