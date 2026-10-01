@@ -21,8 +21,7 @@ function SuperlicenseForm() {
     // Setup Form State
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [country, setCountry] = useState(""); 
-    const [orgRef, setOrgRef] = useState(refParam || ""); 
+        const [orgRef, setOrgRef] = useState(refParam || ""); 
     const [contact, setContact] = useState(""); // Email ou celular
     const [password, setPassword] = useState("");
 
@@ -85,14 +84,14 @@ function SuperlicenseForm() {
             if (authError) throw authError;
 
             if (authData.user) {
-                const cleanFirstName = firstName.trim().toUpperCase();
+                const cleanFirstName = firstName.trim().charAt(0).toUpperCase();
                 const cleanLastName = lastName.trim().toUpperCase();
                 const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 
                 const { error: profileError } = await supabase.from('profiles').update({
                     first_name: cleanFirstName,
                     last_name: cleanLastName,
-                    nationality: country.toUpperCase(),
+                    nationality: null,
                     org_color: '#000000',
                     setup_completed: true,
                     slug: slug
@@ -104,7 +103,7 @@ function SuperlicenseForm() {
                         id: authData.user.id,
                         first_name: cleanFirstName,
                         last_name: cleanLastName,
-                        nationality: country.toUpperCase(),
+                        nationality: null,
                         org_color: '#000000',
                         setup_completed: true,
                         slug: slug
@@ -172,7 +171,7 @@ function SuperlicenseForm() {
             {mode === 'setup' ? (
                 <>
                     {/* LEFT SIDE: Helmet */}
-                    <div className="w-full lg:w-1/2 h-[300px] lg:h-auto flex items-center justify-center relative overflow-hidden bg-black lg:border-r border-[#1a1a1a]">
+                    <div className="w-full lg:w-1/2 h-[300px] lg:h-auto flex items-center justify-center relative overflow-hidden bg-black lg:border-r border-[#333]">
                         <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
                         <img 
                             src="/avatar-overlay.png" 
@@ -208,7 +207,7 @@ function SuperlicenseForm() {
                                                 required
                                                 value={firstName}
                                                 onChange={(e) => setFirstName(e.target.value)}
-                                                className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                                className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                             />
                                             <input 
                                                 type="text" 
@@ -216,7 +215,7 @@ function SuperlicenseForm() {
                                                 required
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
-                                                className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                                className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                             />
                                         </div>
                                     </div>
@@ -227,7 +226,7 @@ function SuperlicenseForm() {
                                             placeholder="BRAZILIAN"
                                             value={country}
                                             onChange={(e) => setCountry(e.target.value)}
-                                            className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                            className="w-full bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                         />
                                     </div>
                                 </div>
@@ -243,7 +242,7 @@ function SuperlicenseForm() {
                                         placeholder="@username (Invite Link)"
                                         value={orgRef}
                                         onChange={(e) => setOrgRef(e.target.value)}
-                                        className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-white transition-colors"
+                                        className="w-full bg-black border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-white transition-colors"
                                     />
                                 </div>
 
@@ -257,7 +256,7 @@ function SuperlicenseForm() {
                                             required
                                             value={contact}
                                             onChange={(e) => setContact(e.target.value)}
-                                            className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                            className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                         />
                                         <input 
                                             type="password" 
@@ -265,7 +264,7 @@ function SuperlicenseForm() {
                                             required
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            className="flex-1 bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                            className="flex-1 bg-black border border-[#333] text-white p-3 font-bold uppercase focus:outline-none focus:border-[#fbaa19] transition-colors"
                                         />
                                     </div>
                                 </div>
@@ -295,7 +294,7 @@ function SuperlicenseForm() {
             ) : (
                 // --- LOGIN MODE ---
                 <div className="w-full flex items-center justify-center p-6 bg-black relative z-30 min-h-[60vh]">
-                    <div className="w-full max-w-md border border-[#1a1a1a] shadow-2xl p-6 md:p-8 relative">
+                    <div className="w-full max-w-md border border-[#333] shadow-2xl p-6 md:p-8 relative">
                         <div className="absolute top-0 left-0 w-full h-1 bg-[#fbaa19]"></div>
                         
                         <h2 className="text-2xl font-black uppercase tracking-widest text-white mb-2">Paddock Access</h2>
@@ -326,7 +325,7 @@ function SuperlicenseForm() {
                                     required
                                     value={loginEmail}
                                     onChange={(e) => setLoginEmail(e.target.value)}
-                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    className="w-full bg-black border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] transition-colors"
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
@@ -336,7 +335,7 @@ function SuperlicenseForm() {
                                     required
                                     value={loginPassword}
                                     onChange={(e) => setLoginPassword(e.target.value)}
-                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] transition-colors"
+                                    className="w-full bg-black border border-[#333] text-white p-3 font-bold focus:outline-none focus:border-[#fbaa19] transition-colors"
                                 />
                             </div>
 
