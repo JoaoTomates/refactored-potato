@@ -45,12 +45,23 @@ function SuperlicenseForm() {
             if (user) {
                 const { data } = await supabase
                     .from('profiles')
-                    .select('slug')
+                    .select('slug, org_color')
                     .eq('id', user.id)
                     .single();
                 
+                const teamParam = searchParams.get('team');
+                
                 if (data?.slug) {
-                    router.replace(`/${data.slug}`);
+                    if (teamParam && data.org_color === '#000000') {
+                        const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamParam });
+                        if (rpcError) {
+                            console.error('RPC Error:', rpcError);
+                            setErrorMsg("Contract Error: " + (rpcError.message || JSON.stringify(rpcError)));
+                            setVerifying(false);
+                            return;
+                        }
+                    }
+                    window.location.href = `/${data.slug}`;
                 } else if (data) {
                     router.replace(`/${user.id}`);
                 } else {
