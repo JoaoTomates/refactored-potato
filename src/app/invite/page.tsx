@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation';
 
 
 const LOGOS: Record<string, string> = {
-    MCL: "https://upload.wikimedia.org/wikipedia/en/thumb/6/66/McLaren_Racing_logo.svg/320px-McLaren_Racing_logo.svg.png",
-    MER: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Mercedes_AMG_Petronas_F1_Logo.svg/320px-Mercedes_AMG_Petronas_F1_Logo.svg.png",
-    WIL: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Williams_Racing_2024_logo.svg/320px-Williams_Racing_2024_logo.svg.png",
-    AST: "https://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Aston_Martin_Aramco_Cognizant_F1.svg/320px-Aston_Martin_Aramco_Cognizant_F1.svg.png",
-    ALP: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Alpine_F1_Team_Logo.svg/320px-Alpine_F1_Team_Logo.svg.png",
-    FER: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c0/Scuderia_Ferrari_Logo.svg/320px-Scuderia_Ferrari_Logo.svg.png",
-    HAA: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Haas_F1_Team_logo.svg/320px-Haas_F1_Team_logo.svg.png",
-    AUD: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Audi_logo_2016.svg/320px-Audi_logo_2016.svg.png",
-    CAD: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Cadillac_logo_2021.svg/320px-Cadillac_logo_2021.svg.png",
-    RBR: "https://upload.wikimedia.org/wikipedia/en/thumb/0/07/Red_Bull_Racing_logo.svg/320px-Red_Bull_Racing_logo.svg.png",
-    RBA: "https://upload.wikimedia.org/wikipedia/en/thumb/2/23/Visa_Cash_App_RB_F1_Team_logo.svg/320px-Visa_Cash_App_RB_F1_Team_logo.svg.png"
+    MCL: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/MCL.png",
+    MER: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/MER.png",
+    WIL: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/WIL.png",
+    AST: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/AST.png",
+    ALP: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/ALP.png",
+    FER: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/FER.png",
+    HAA: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/HAA.png",
+    AUD: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/AUD.png",
+    CAD: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/CAD.png",
+    RBR: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/RBR.png",
+    RBA: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/RBA.png"
 };
 
 const LogoBadge = ({ code }: { code: string }) => (
