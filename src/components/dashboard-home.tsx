@@ -111,10 +111,10 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                                     <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 mb-2 block">Driver Honors</span>
                                     <div className="flex flex-col gap-2 w-full">
                                         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
-                                            <span className="text-[#fbaa19]">🏆</span> Campeão Poletime 25
+                                            <span className="text-[#fbaa19]">🏆</span> NO HONORS YET
                                         </div>
                                         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-white/5 p-2 rounded border border-white/5">
-                                            <span className="text-gray-400">🥈</span> Vencedor Etapa Japão
+                                            <span className="text-gray-400">🥈</span> --
                                         </div>
                                     </div>
                                 </div>
@@ -192,10 +192,10 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                         
                         <div className="flex flex-col gap-2 w-full md:w-auto">
                             <div className="text-[10px] md:text-xs font-bold uppercase tracking-widest bg-white/5 border border-white/10 px-3 py-2 text-white">
-                                <span className="text-[#fbaa19]">G.Farina:</span> Ferrari (100 pts)
+                                <span className="text-gray-500">No champions yet</span>
                             </div>
                             <div className="text-[10px] md:text-xs font-bold uppercase tracking-widest bg-white/5 border border-white/10 px-3 py-2 text-white">
-                                <span className="text-[#fbaa19]">A.Ascari:</span> Aston Martin (130 pts)
+                                <span className="text-gray-500">No champions yet</span>
                             </div>
                         </div>
                     </div>
@@ -206,22 +206,22 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                     <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-5 shadow-md flex flex-col justify-between group hover:border-[#fbaa19] transition-colors cursor-pointer">
                         <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2 group-hover:text-[#fbaa19]">Poletime</span>
                         <div className="flex flex-col">
-                            <span className="text-3xl font-black uppercase tracking-tighter">678 <span className="text-sm tracking-widest text-gray-400">PTS</span></span>
-                            <span className="text-xs font-bold uppercase text-green-500 mt-1">8Âº LUGAR</span>
+                            <span className="text-3xl font-black uppercase tracking-tighter">-- <span className="text-sm tracking-widest text-gray-400">PTS</span></span>
+                            <span className="text-xs font-bold uppercase text-green-500 mt-1">UNRANKED</span>
                         </div>
                     </div>
                     <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-5 shadow-md flex flex-col justify-between group hover:border-[#fbaa19] transition-colors cursor-pointer">
                         <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2 group-hover:text-[#fbaa19]">Master</span>
                         <div className="flex flex-col">
-                            <span className="text-3xl font-black uppercase tracking-tighter">69 <span className="text-sm tracking-widest text-gray-400">PTS</span></span>
-                            <span className="text-xs font-bold uppercase text-blue-500 mt-1">20Âº (J.Fangio)</span>
+                            <span className="text-3xl font-black uppercase tracking-tighter">-- <span className="text-sm tracking-widest text-gray-400">PTS</span></span>
+                            <span className="text-xs font-bold uppercase text-blue-500 mt-1">UNRANKED</span>
                         </div>
                     </div>
                     <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-5 shadow-md flex flex-col justify-between group hover:border-[#fbaa19] transition-colors cursor-pointer">
                         <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2 group-hover:text-[#fbaa19]">Milesimus</span>
                         <div className="flex flex-col">
-                            <span className="text-3xl font-black uppercase tracking-tighter">1420 <span className="text-sm tracking-widest text-gray-400">PTS</span></span>
-                            <span className="text-xs font-bold uppercase text-[#fbaa19] mt-1">112Âº GLOBAL</span>
+                            <span className="text-3xl font-black uppercase tracking-tighter">-- <span className="text-sm tracking-widest text-gray-400">PTS</span></span>
+                            <span className="text-xs font-bold uppercase text-[#fbaa19] mt-1">UNRANKED</span>
                         </div>
                     </div>
                 </div>
