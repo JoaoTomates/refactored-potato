@@ -21,6 +21,7 @@ function SuperlicenseForm() {
     // Setup Form State
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const [raceNumber, setRaceNumber] = useState("");
         const [orgRef, setOrgRef] = useState(refParam || ""); 
     const [contact, setContact] = useState(""); // Email ou celular
     const [password, setPassword] = useState("");
