@@ -19,7 +19,7 @@ const LOGOS: Record<string, string> = {
 };
 
 const LogoBadge = ({ code }: { code: string }) => (
-    <div className="bg-white rounded-md p-1.5 w-12 h-8 flex items-center justify-center shrink-0 shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+    <div className="bg-white rounded-md p-1 w-16 h-8 flex items-center justify-center shrink-0 shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
         <img src={LOGOS[code]} alt={code} className="max-w-full max-h-full object-contain" />
     </div>
 );

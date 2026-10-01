@@ -89,24 +89,25 @@ function SuperlicenseForm() {
                 const cleanLastName = lastName.trim().toUpperCase();
                 const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${raceNumber}`;
 
+                const teamParam = searchParams.get('team');
+                
                 const { error: profileError } = await supabase.from('profiles').update({
                     first_name: cleanFirstName,
                     last_name: cleanLastName,
                     nationality: null,
                     org_color: '#000000',
-                    setup_completed: true,
+                    setup_completed: !teamParam, // If joining a team, RPC sets this to true
                     slug: slug
                 }).eq('id', authData.user.id);
 
                 if (profileError) {
-                    console.error("Profile update error:", profileError);
                     await supabase.from('profiles').upsert({
                         id: authData.user.id,
                         first_name: cleanFirstName,
                         last_name: cleanLastName,
                         nationality: null,
                         org_color: '#000000',
-                        setup_completed: true,
+                        setup_completed: !teamParam,
                         slug: slug
                     });
                 }
@@ -119,10 +120,14 @@ function SuperlicenseForm() {
                     });
                 }
 
-                const teamParam = searchParams.get('team');
                 if (teamParam) {
                     // Sign initial contract if they came from the guest dashboard
-                    await supabase.rpc('sign_initial_contract', { p_team_id: teamParam });
+                    const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamParam });
+                    if (rpcError) {
+                        console.error('RPC Error:', rpcError);
+                        // Force setup_completed to true so they aren't stuck, even if allocation failed
+                        await supabase.from('profiles').update({ setup_completed: true }).eq('id', authData.user.id);
+                    }
                     window.location.href = `/${slug}`;
                 } else {
                     window.location.href = '/academy';
