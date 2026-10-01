@@ -80,28 +80,7 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                         </div>
 
                         {/* Interactive Stats Slider OR Contract Offer */}
-                        {needsContract && offeredTeams.length === 2 ? (
-                            <div className="absolute inset-0 z-50 bg-[#fbaa19] flex flex-col items-center justify-center p-4 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]">
-                                <h3 className="text-black font-black uppercase tracking-widest text-lg font-display text-center mb-1">Contract Offer</h3>
-                                <p className="text-black/80 font-bold uppercase tracking-widest text-[9px] text-center mb-4 leading-tight">Choose your academy destination</p>
-                                
-                                <div className="flex flex-col gap-2 w-full max-w-[220px]">
-                                    <button 
-                                        onClick={() => handleAcceptContract(offeredTeams[0])}
-                                        className="w-full bg-black text-white py-2 px-3 flex flex-col items-center border-[3px] border-black hover:bg-white hover:text-black hover:border-black transition-all shadow-xl group"
-                                    >
-                                        <span className="font-black font-display tracking-widest uppercase text-sm group-hover:scale-105 transition-transform">{offeredTeams[0].name}</span>
-                                    </button>
-                                    <div className="text-center font-black text-black/50 text-[10px]">OR</div>
-                                    <button 
-                                        onClick={() => handleAcceptContract(offeredTeams[1])}
-                                        className="w-full bg-black text-white py-2 px-3 flex flex-col items-center border-[3px] border-black hover:bg-white hover:text-black hover:border-black transition-all shadow-xl group"
-                                    >
-                                        <span className="font-black font-display tracking-widest uppercase text-sm group-hover:scale-105 transition-transform">{offeredTeams[1].name}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
+                        
                             <div className="flex-1 w-full relative overflow-x-auto snap-x snap-mandatory flex scrollbar-width-none [&::-webkit-scrollbar]:hidden">
                                 
                                 {/* Slide 1: MLS (Milésimos) */}
@@ -146,8 +125,7 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                                 </div>
                                 
                             </div>
-                        )}
-                        {/* Visual Dots for slider */}
+                        ){/* Visual Dots for slider */}
                         <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#fbaa19]"></div>
                             <div className="w-1.5 h-1.5 rounded-full bg-white/30"></div>
