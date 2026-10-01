@@ -50,7 +50,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             if (rpcError) throw rpcError;
             
             // Successfully signed!
-            onComplete();
+            window.location.reload();
         } catch (err: any) {
             console.error("Error signing contract:", err);
             setError(err.message || "Failed to sign contract.");
