@@ -172,7 +172,7 @@ function SuperlicenseForm() {
             {mode === 'setup' ? (
                 <>
                     {/* LEFT SIDE: Helmet */}
-                    <div className="w-full lg:w-1/2 h-[300px] lg:h-auto flex items-center justify-center relative overflow-hidden bg-black lg:border-r border-[#333]">
+                    <div className="w-full lg:w-1/2 h-[200px] sm:h-[300px] lg:h-auto flex items-center justify-center relative overflow-hidden bg-black lg:border-r border-[#333]">
                         <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-black z-0"></div>
                         <img 
                             src="/avatar-overlay.png" 
@@ -186,7 +186,7 @@ function SuperlicenseForm() {
                     </div>
 
                     {/* RIGHT SIDE: Form */}
-                    <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 bg-black relative z-30">
+                    <div className="w-full lg:w-1/2 flex items-center justify-center p-4 py-8 sm:p-8 md:p-12 bg-black relative z-30">
                         <div className="w-full max-w-lg flex flex-col">
                             
                             {errorMsg && (
@@ -201,7 +201,7 @@ function SuperlicenseForm() {
                                 <div className="flex flex-col md:flex-row gap-6">
                                     <div className="flex-[2] flex flex-col gap-2">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Driver Name</label>
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-col sm:flex-row gap-2">
                                             <input 
                                                 type="text" 
                                                 placeholder="FIRST NAME"
@@ -368,7 +368,7 @@ function SuperlicenseForm() {
 
 export default function SuperlicensePage() {
     return (
-        <main className="w-full min-h-screen bg-black flex flex-col font-rajdhani">
+        <main className="w-full min-h-screen bg-black flex flex-col font-rajdhani pt-20 md:pt-24 pb-12">
             <Suspense fallback={
                 <div className="w-full min-h-screen flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
