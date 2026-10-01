@@ -18,6 +18,7 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
     const driverName = profile?.first_name ? `${profile.first_name.charAt(0)}. ${profile.last_name}` : 'NEW DRIVER';
     const driverNumber = profile?.driver_number || '99';
     const avatarUrl = profile?.avatar_url || 'https://images.unsplash.com/photo-1541348263662-e06836264be8?q=80&w=200&auto=format&fit=crop';
+    const currentTeam = profile?.team_id ? F1_TEAMS.find(t => t.id === profile.team_id) : null;
     
     return (
         <div className="w-full flex flex-col xl:flex-row gap-6 md:gap-8 animate-fade-in mt-4 md:mt-8">
