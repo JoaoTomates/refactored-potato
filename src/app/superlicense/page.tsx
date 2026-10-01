@@ -125,8 +125,9 @@ function SuperlicenseForm() {
                     const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamParam });
                     if (rpcError) {
                         console.error('RPC Error:', rpcError);
-                        // Force setup_completed to true so they aren't stuck, even if allocation failed
-                        await supabase.from('profiles').update({ setup_completed: true }).eq('id', authData.user.id);
+                        setErrorMsg("Contract Error: " + (rpcError.message || JSON.stringify(rpcError)));
+                        setLoadingAction(false);
+                        return; // DO NOT redirect, let the user see the error!
                     }
                     window.location.href = `/${slug}`;
                 } else {
