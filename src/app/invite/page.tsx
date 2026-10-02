@@ -6,7 +6,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { INVITE_LOCALE, Locale } from '@/locales/invite';
 
-type Step = 'LOADING' | 'DIALOG1' | 'GROUP_SELECT' | 'DIALOG2' | 'TEAM_SELECT' | 'AUTH' | 'PROFILE' | 'PROCESSING';
+type Step = 'LOADING' | 'DIALOG' | 'GROUP_SELECT' | 'TEAM_SELECT' | 'AUTH' | 'PROFILE' | 'PROCESSING';
 
 const LOGOS: Record<string, string> = {
     MCL: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/MCL.png",
@@ -66,7 +66,7 @@ function InviteFlow() {
                     return;
                 }
             }
-            setStep('DIALOG1');
+            setStep('DIALOG');
         };
         
         checkUserStatus();
@@ -74,9 +74,9 @@ function InviteFlow() {
 
     const dict = INVITE_LOCALE[lang];
 
-    const pickRandom = (arr: any[], count: number) => {
+    const pickTwoRandom = (arr: any[]) => {
         const shuffled = [...arr].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
+        return shuffled.slice(0, 2);
     };
 
     const handleSelectGroup = async (groupId: number) => {
@@ -87,31 +87,14 @@ function InviteFlow() {
             const { data, error } = await supabase.from('teams').select('*').eq('is_available', true);
             if (error) throw error;
             
-            let chosenCodes: string[] = [];
-            let otherCodes: string[] = [];
-            
-            if (groupId === 1) {
-                chosenCodes = ['MCL', 'MER', 'WIL'];
-                otherCodes = ['FER', 'HAA', 'AUD', 'CAD', 'RBR', 'RBA', 'AST', 'ALP'];
-            } else if (groupId === 2) {
-                chosenCodes = ['FER', 'HAA', 'AUD', 'CAD'];
-                otherCodes = ['MCL', 'MER', 'WIL', 'RBR', 'RBA', 'AST', 'ALP'];
-            } else if (groupId === 3) {
-                chosenCodes = ['RBR', 'RBA', 'AST', 'ALP'];
-                otherCodes = ['MCL', 'MER', 'WIL', 'FER', 'HAA', 'AUD', 'CAD'];
-            }
+            let codes: string[] = [];
+            if (groupId === 1) codes = ['MCL', 'MER', 'WIL'];
+            else if (groupId === 2) codes = ['FER', 'HAA', 'AUD', 'CAD'];
+            else if (groupId === 3) codes = ['RBR', 'RBA', 'AST', 'ALP'];
 
-            const chosenGroupTeams = data.filter(t => chosenCodes.includes(t.code));
-            const otherGroupTeams = data.filter(t => otherCodes.includes(t.code));
-            
-            const twoFromChosen = pickRandom(chosenGroupTeams, 2);
-            const oneFromOther = pickRandom(otherGroupTeams, 1);
-            
-            // Mistura as 3 opções para não ficar óbvio qual é a intrusa
-            const finalOptions = pickRandom([...twoFromChosen, ...oneFromOther], 3);
-            
-            setTeams(finalOptions);
-            setStep('DIALOG2');
+            const groupTeams = data.filter(t => codes.includes(t.code));
+            setTeams(pickTwoRandom(groupTeams));
+            setStep('TEAM_SELECT');
         } catch (err) {
             console.error(err);
             setErrorMsg(dict.error_fallback);
@@ -192,9 +175,11 @@ function InviteFlow() {
             const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamId });
             if (rpcError) throw rpcError;
             
+            // Redirect to dashboard
             if (slug) {
                 window.location.href = `/${slug}`;
             } else {
+                // Se j era logado, busca o slug atual para redirecionar
                 const { data } = await supabase.from('profiles').select('slug').eq('id', user!.id).single();
                 window.location.href = `/${data?.slug || 'superlicense'}`;
             }
@@ -207,11 +192,11 @@ function InviteFlow() {
 
     return (
         <main className="w-full min-h-screen relative bg-black overflow-hidden select-none flex flex-col font-rajdhani pt-12 md:pt-20">
-            {/* Pixel Art Background V3 (Fantasy Sport RPG) */}
+            {/* Pixel Art Background V2 (VoltGrid Mature) */}
             <div 
                 className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-[10s] ease-out scale-100 opacity-60 md:opacity-80"
                 style={{ 
-                    backgroundImage: 'url("/pixel_invite_bg_v3.jpg")',
+                    backgroundImage: 'url("/pixel_invite_bg_v2.jpg")',
                     imageRendering: 'pixelated'
                 }}
             ></div>
@@ -235,7 +220,7 @@ function InviteFlow() {
                     </div>
                 )}
 
-                {step === 'DIALOG1' && (
+                {step === 'DIALOG' && (
                     <div 
                         className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative cursor-pointer hover:bg-black transition-colors"
                         onClick={() => setStep('GROUP_SELECT')}
@@ -243,11 +228,11 @@ function InviteFlow() {
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
                         <p className="text-[#fbaa19] text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-4">INCOMING TRANSMISSION...</p>
                         <p className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
-                            "{dict.dialog1[0]}"
+                            "{dict.dialog[0]}"
                         </p>
                         <div className="mt-6 flex justify-end">
                             <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.3em] animate-pulse">
-                                [ {dict.btn_continue} ]
+                                [ CLICK TO CONTINUE ]
                             </span>
                         </div>
                     </div>
@@ -273,48 +258,31 @@ function InviteFlow() {
                     </div>
                 )}
 
-                {step === 'DIALOG2' && (
-                    <div 
-                        className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative cursor-pointer hover:bg-black transition-colors"
-                        onClick={() => setStep('TEAM_SELECT')}
-                    >
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
-                        <p className="text-[#fbaa19] text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-4">INCOMING TRANSMISSION...</p>
-                        <p className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
-                            "{dict.dialog2[0]}"
-                        </p>
-                        <div className="mt-6 flex justify-end">
-                            <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.3em] animate-pulse">
-                                [ {dict.btn_continue} ]
-                            </span>
-                        </div>
-                    </div>
-                )}
-
                 {step === 'TEAM_SELECT' && (
                     <div className="w-full animate-fade-in flex flex-col gap-4">
                         <div className="bg-black/80 border border-[#fbaa19] p-4 mb-2 text-center shadow-[0_0_20px_rgba(251,170,25,0.1)]">
                             <h2 className="text-[#fbaa19] font-black uppercase tracking-widest text-lg">{dict.team_prompt}</h2>
                         </div>
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {teams.map(team => (
                                 <button
                                     key={team.id}
                                     onClick={() => handleSelectTeam(team.id)}
-                                    className="group bg-[#0a0a0a]/95 border-2 border-white/10 hover:border-[#fbaa19] p-6 shadow-xl hover:shadow-[0_0_40px_rgba(251,170,25,0.2)] transition-all flex items-center justify-between"
+                                    className="group bg-[#0a0a0a]/95 border-2 border-white/10 hover:border-[#fbaa19] p-6 shadow-xl hover:shadow-[0_0_40px_rgba(251,170,25,0.2)] transition-all flex flex-col"
                                 >
-                                    <div className="flex items-center gap-6">
+                                    <div className="flex justify-between items-start mb-4">
                                         <LogoBadge code={team.code} />
-                                        <div className="flex flex-col items-start">
-                                            <h3 className="text-xl font-black text-white uppercase tracking-widest text-left mb-1">{team.name}</h3>
-                                            <p className="text-xs text-gray-500 font-bold tracking-widest text-left uppercase">{team.code}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex flex-col items-end gap-2">
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: team.color }}></div>
-                                        <span className={`text-[10px] font-bold uppercase tracking-widest ${team.is_available ? 'text-green-500' : 'text-red-500'}`}>
+                                    </div>
+                                    <h3 className="text-xl font-black text-white uppercase tracking-widest text-left mb-1">{team.name}</h3>
+                                    <p className="text-xs text-gray-500 font-bold tracking-widest text-left uppercase mb-4">{team.code}</p>
+                                    
+                                    <div className="mt-auto flex justify-between items-end w-full">
+                                        <span className={`text-xs font-bold uppercase tracking-widest ${team.is_available ? 'text-green-500' : 'text-red-500'}`}>
                                             {team.is_available ? `${2 - team.spots_taken} Vagas` : 'Lotado'}
+                                        </span>
+                                        <span className="text-[10px] text-gray-600 group-hover:text-[#fbaa19] uppercase tracking-widest font-black transition-colors">
+                                            SELECT
                                         </span>
                                     </div>
                                 </button>
