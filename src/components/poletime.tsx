@@ -83,10 +83,7 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto order-2 md:order-1">
                             <button 
                                 type="button" 
-                                onClick={async () => {
-                                    const picks = await autoPoletime();
-                                    setDigits(picks);
-                                }}
+                                onClick={() => setDigits([0,0,0,0,0,0])}
                                 disabled={isAutoLoading || isSubmitting || isSuccess || digits.every(d => d === 0)}
                                 className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors border border-black/10 dark:border-white/10 md:border-transparent p-3 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -94,6 +91,10 @@ const Poletime = ({ hideSubmit, hideHeader }: { hideSubmit?: boolean, hideHeader
                             </button>
                             <button 
                                 type="button" 
+                                onClick={async () => {
+                                    const generated = await autoPoletime();
+                                    setDigits(generated);
+                                }}
                                 disabled={isAutoLoading || isSubmitting || isSuccess}
                                 className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black transition-colors border border-[#fbaa19] p-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
