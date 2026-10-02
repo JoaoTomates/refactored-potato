@@ -9,9 +9,9 @@ export const INVITE_LOCALE = {
     ],
     career_prompt: "Which path would you take?",
     groups: [
-      { id: 1, title: "Apex Predators", desc: "MCL / MER / WIL", hint: "High stakes, massive budgets." },
-      { id: 2, title: "Scuderia Veloce", desc: "FER / HAA / AUD / CAD", hint: "Passion, history, and raw speed." },
-      { id: 3, title: "Neon Racing", desc: "RBR / RBA / AST / ALP", hint: "Disruptors and pure performance." }
+      { id: 1, title: "ALIANÇA MERCEDES", teams: ["MER", "MCL", "ALP", "WIL"], hint: "Foco em dados, potência de fábrica estabelecida e consistência de pontuação." },
+      { id: 2, title: "BLOCO FERRARI", teams: ["FER", "HAA", "CAD"], hint: "Tradição de Maranello, forte integração técnica e a nova força americana no grid." },
+      { id: 3, title: "A VANGUARDA (FORD, HONDA & AUDI)", teams: ["RBR", "RBA", "AST", "AUD"], hint: "Motores inéditos, alto risco e ambição máxima das novas fabricantes." }
     ],
     dialog2: [
       "I understand perfectly. Well, since we are a Fantasy RPG and contracts are dynamic, I have these two invitations from your chosen path... plus a third, unexpected option."
@@ -37,9 +37,9 @@ export const INVITE_LOCALE = {
     ],
     career_prompt: "Qual caminho seguiria?",
     groups: [
-      { id: 1, title: "Predadores", desc: "MCL / MER / WIL", hint: "Orçamentos gigantes e muita pressão." },
-      { id: 2, title: "Scuderia Veloce", desc: "FER / HAA / AUD / CAD", hint: "Paixão, história e velocidade bruta." },
-      { id: 3, title: "Neon Racing", desc: "RBR / RBA / AST / ALP", hint: "Disruptores de alta performance." }
+      { id: 1, title: "ALIANÇA MERCEDES", teams: ["MER", "MCL", "ALP", "WIL"], hint: "Foco em dados, potência de fábrica estabelecida e consistência de pontuação." },
+      { id: 2, title: "BLOCO FERRARI", teams: ["FER", "HAA", "CAD"], hint: "Tradição de Maranello, forte integração técnica e a nova força americana no grid." },
+      { id: 3, title: "A VANGUARDA (FORD, HONDA & AUDI)", teams: ["RBR", "RBA", "AST", "AUD"], hint: "Motores inéditos, alto risco e ambição máxima das novas fabricantes." }
     ],
     dialog2: [
       "Entendo perfeitamente. Bem, somos um Fantasy RPG. Consegui esses dois convites da sua escolha... e mais uma terceira opção inusitada."

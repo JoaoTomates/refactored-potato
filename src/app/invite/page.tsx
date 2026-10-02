@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -22,11 +22,39 @@ const LOGOS: Record<string, string> = {
     RBA: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/RBA.png"
 };
 
+const TEAM_COLORS: Record<string, string> = {
+    MCL: '#FF8000', MER: '#00D2BE', WIL: '#005AFF', ALP: '#FD4BC7',
+    FER: '#DC0000', HAA: '#FFFFFF', CAD: '#C8A2C8',
+    RBR: '#0600EF', RBA: '#2B4562', AST: '#229971', AUD: '#F50537'
+};
+
 const LogoBadge = ({ code }: { code: string }) => (
     <div className="bg-white rounded-md p-2 h-12 flex items-center justify-center shrink-0 shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
         <img src={LOGOS[code]} alt={code} className="max-w-full max-h-full object-contain" />
     </div>
 );
+
+function TypewriterLine({ text, onComplete, onReadyForNext }: { text: string, onComplete?: () => void, onReadyForNext?: () => void }) {
+    const [displayed, setDisplayed] = useState("");
+    
+    useEffect(() => {
+        let i = 0;
+        const timer = setInterval(() => {
+            setDisplayed(text.slice(0, i + 1));
+            i++;
+            if (i >= text.length) {
+                clearInterval(timer);
+                if (onReadyForNext) onReadyForNext();
+                if (onComplete) {
+                    setTimeout(onComplete, 800); // 800ms delay after finishing
+                }
+            }
+        }, 25);
+        return () => clearInterval(timer);
+    }, [text, onComplete, onReadyForNext]);
+    
+    return <span>{displayed}</span>;
+}
 
 function InviteFlow() {
     const router = useRouter();
@@ -36,8 +64,9 @@ function InviteFlow() {
     const [lang, setLang] = useState<Locale>('en');
     const [step, setStep] = useState<Step>('LOADING');
     const [dialogIndex, setDialogIndex] = useState(0);
-    const [teams, setTeams] = useState<any[]>([]);
+    const [typingComplete, setTypingComplete] = useState(false);
     
+    const [teams, setTeams] = useState<any[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     
@@ -48,7 +77,6 @@ function InviteFlow() {
     const [raceNumber, setRaceNumber] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
-    // Initialize Language
     useEffect(() => {
         const urlLang = searchParams.get('lang') as Locale;
         if (urlLang === 'pt' || urlLang === 'en') {
@@ -89,9 +117,9 @@ function InviteFlow() {
             if (error) throw error;
             
             let codes: string[] = [];
-            if (groupId === 1) codes = ['MCL', 'MER', 'WIL'];
-            else if (groupId === 2) codes = ['FER', 'HAA', 'AUD', 'CAD'];
-            else if (groupId === 3) codes = ['RBR', 'RBA', 'AST', 'ALP'];
+            if (groupId === 1) codes = ['MCL', 'MER', 'WIL', 'ALP'];
+            else if (groupId === 2) codes = ['FER', 'HAA', 'CAD'];
+            else if (groupId === 3) codes = ['RBR', 'RBA', 'AST', 'AUD'];
 
             const groupTeams = data.filter(t => codes.includes(t.code));
             setTeams(pickTwoRandom(groupTeams));
@@ -176,11 +204,9 @@ function InviteFlow() {
             const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamId });
             if (rpcError) throw rpcError;
             
-            // Redirect to dashboard
             if (slug) {
                 window.location.href = `/${slug}`;
             } else {
-                // Se j era logado, busca o slug atual para redirecionar
                 const { data } = await supabase.from('profiles').select('slug').eq('id', user!.id).single();
                 window.location.href = `/${data?.slug || 'superlicense'}`;
             }
@@ -223,12 +249,11 @@ function InviteFlow() {
 
                 {step === 'DIALOG' && (
                     <div 
-                        className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative cursor-pointer hover:bg-black transition-colors"
+                        className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative hover:bg-black transition-colors"
                         onClick={() => {
-                            if (dialogIndex < dict.dialog.length - 1) {
+                            if (typingComplete && dialogIndex < dict.dialog.length - 1) {
                                 setDialogIndex(prev => prev + 1);
-                            } else {
-                                setStep('GROUP_SELECT');
+                                setTypingComplete(false);
                             }
                         }}
                     >
@@ -236,17 +261,31 @@ function InviteFlow() {
                         <p className="text-[#fbaa19] text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-6">INCOMING TRANSMISSION...</p>
                         
                         <div className="flex flex-col gap-4">
-                            {dict.dialog.slice(0, dialogIndex + 1).map((text, i) => (
-                                <p key={i} className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed animate-fade-in">
-                                    "{text}"
-                                </p>
-                            ))}
+                            {dict.dialog.slice(0, dialogIndex + 1).map((text, i) => {
+                                const isLastInSequence = i === dict.dialog.length - 1;
+                                const isCurrent = i === dialogIndex;
+                                return (
+                                    <p key={i} className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
+                                        {isCurrent ? (
+                                            <TypewriterLine 
+                                                text={text} 
+                                                onReadyForNext={() => setTypingComplete(true)}
+                                                onComplete={isLastInSequence ? () => setStep('GROUP_SELECT') : undefined}
+                                            />
+                                        ) : (
+                                            <span>{text}</span>
+                                        )}
+                                    </p>
+                                );
+                            })}
                         </div>
 
-                        <div className="mt-8 flex justify-end">
-                            <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.3em] animate-pulse">
-                                [ {dialogIndex < dict.dialog.length - 1 ? dict.btn_continue : 'MAKE YOUR CHOICE >'} ]
-                            </span>
+                        <div className="mt-8 flex justify-end h-6">
+                            {typingComplete && dialogIndex < dict.dialog.length - 1 && (
+                                <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.3em] animate-pulse cursor-pointer">
+                                    [ CLICK TO CONTINUE ]
+                                </span>
+                            )}
                         </div>
                     </div>
                 )}
@@ -256,7 +295,7 @@ function InviteFlow() {
                         <div className="bg-black/80 border border-white/10 p-4 mb-2 text-center">
                             <h2 className="text-[#fbaa19] font-black uppercase tracking-widest text-lg">{dict.career_prompt}</h2>
                         </div>
-                        {dict.groups.map(g => (
+                        {dict.groups.map((g: any) => (
                             <button
                                 key={g.id}
                                 onClick={() => handleSelectGroup(g.id)}
@@ -264,7 +303,13 @@ function InviteFlow() {
                             >
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#fbaa19]/10 rounded-bl-full group-hover:bg-[#fbaa19]/20 transition-colors"></div>
                                 <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest mb-1 group-hover:text-[#fbaa19]">{g.title}</h3>
-                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-3">{g.desc}</p>
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {g.teams.map((tCode: string) => (
+                                        <span key={tCode} className="text-[10px] md:text-xs font-black px-2 py-0.5 rounded-sm bg-white/5 border border-white/10" style={{ color: TEAM_COLORS[tCode] }}>
+                                            {tCode}
+                                        </span>
+                                    ))}
+                                </div>
                                 <p className="text-sm text-gray-300 italic">{g.hint}</p>
                             </button>
                         ))}
@@ -288,7 +333,7 @@ function InviteFlow() {
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: team.color }}></div>
                                     </div>
                                     <h3 className="text-xl font-black text-white uppercase tracking-widest text-left mb-1">{team.name}</h3>
-                                    <p className="text-xs text-gray-500 font-bold tracking-widest text-left uppercase mb-4">{team.code}</p>
+                                    <p className="text-xs text-gray-500 font-bold tracking-widest text-left uppercase mb-4" style={{ color: TEAM_COLORS[team.code] || '#999' }}>{team.code}</p>
                                     
                                     <div className="mt-auto flex justify-between items-end w-full">
                                         <span className={`text-xs font-bold uppercase tracking-widest ${team.is_available ? 'text-green-500' : 'text-red-500'}`}>
