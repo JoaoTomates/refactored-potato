@@ -1,56 +1,46 @@
-﻿"use client";
+"use client";
 import { usePathname } from 'next/navigation';
 import React from 'react'
 import Link from 'next/link'
 
-
-
 import Logo from './logo'
-// css imported globally
 
 const Footer = () => {
     const pathname = usePathname();
-    if (pathname === '/' || pathname === '/superlicense') return null;
+    if (pathname === '/' || pathname === '/superlicense' || pathname === '/invite') return null;
 
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => {
         const t = setTimeout(() => setMounted(true), 0);
         return () => clearTimeout(t);
     }, []);
-    // Try to safely access the store outside of SSR to prevent hydration issues,
-    // though for simple props it's often fine. We'll use a local var or require the hook.
-    // Instead of importing the hook (which might conflict if I don't have it), let's just use CSS injection to hide/show the logos
+
     return (
-        <footer className="w-full bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-[#ffffff3d] mt-16 transition-colors">
-            <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 md:py-12">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex flex-col items-center md:items-start gap-4">
+        <footer className="w-full bg-transparent border-t border-white/5 mt-16 transition-colors opacity-30 hover:opacity-100 focus-within:opacity-100">
+            <div className="max-w-5xl mx-auto px-4 py-6">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center gap-4">
                         <Link href="/">
-                            <div className="scale-75 md:scale-100 origin-left">
-                                {/* Use both logos and hide/show them via CSS to avoid hydration mismatch with useThemeStore */}
+                            <div className="scale-50 origin-left opacity-50 grayscale">
                                 <div className="block dark:hidden"><Logo isOnDarkBackground={false} /></div>
                                 <div className="hidden dark:block"><Logo isOnDarkBackground={true} /></div>
                             </div>
                         </Link>
-                        <div className="flex items-center gap-2 text-gray-500 text-sm">
-                            <svg fill="none" width="14" height="14" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                <circle r="10" cx="12" cy="12"></circle>
-                                <path d="M14.83 14.83a4 4 0 1 1 0-5.66"></path>
-                            </svg>
-                            <span>{new Date().getFullYear()} VoltGrid Telemetry. All rights reserved.</span>
+                        <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                            © {new Date().getFullYear()} VoltGrid
                         </div>
                     </div>
                     
                     <nav aria-label="Legal navigation">
-                        <ul className="flex flex-wrap justify-center gap-6 text-sm font-bold uppercase tracking-wider text-black dark:text-gray-400">
+                        <ul className="flex flex-wrap justify-center gap-4 text-[9px] font-bold uppercase tracking-widest text-gray-500">
                             <li>
-                                <span className="cursor-not-allowed opacity-50 hover:opacity-100 transition-opacity">Asset Registry</span>
+                                <span className="cursor-not-allowed opacity-50">Assets</span>
                             </li>
                             <li>
-                                <Link href="/terms-conditions" className="hover:text-[#fbaa19] transition-colors">Terms of Service</Link>
+                                <Link href="/terms-conditions" className="hover:text-[#fbaa19] transition-colors">Terms</Link>
                             </li>
                             <li>
-                                <Link href="/terms-conditions" className="hover:text-[#fbaa19] transition-colors">Privacy Policy</Link>
+                                <Link href="/terms-conditions" className="hover:text-[#fbaa19] transition-colors">Privacy</Link>
                             </li>
                         </ul>
                     </nav>
@@ -61,4 +51,3 @@ const Footer = () => {
 };
 
 export default Footer
-
