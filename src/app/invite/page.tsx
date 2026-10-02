@@ -39,21 +39,41 @@ function TypewriterLine({ text, onComplete, onReadyForNext }: { text: string, on
     
     useEffect(() => {
         let i = 0;
-        const timer = setInterval(() => {
-            setDisplayed(text.slice(0, i + 1));
-            i++;
-            if (i >= text.length) {
-                clearInterval(timer);
+        let timeoutId: NodeJS.Timeout;
+        let isCancelled = false;
+        
+        const typeNext = () => {
+            if (isCancelled) return;
+            if (i < text.length) {
+                setDisplayed(text.slice(0, i + 1));
+                const char = text.charAt(i);
+                i++;
+                
+                // organic typing speed
+                let delay = 35 + Math.random() * 20; // 35-55ms
+                
+                // pauses for punctuation
+                if (char === '.' || char === '!' || char === '?') delay = 400;
+                else if (char === ',') delay = 200;
+                
+                timeoutId = setTimeout(typeNext, delay);
+            } else {
                 if (onReadyForNext) onReadyForNext();
                 if (onComplete) {
-                    setTimeout(onComplete, 800); // 800ms delay after finishing
+                    setTimeout(onComplete, 1200); 
                 }
             }
-        }, 25);
-        return () => clearInterval(timer);
+        };
+        
+        timeoutId = setTimeout(typeNext, 200); // initial delay before starting
+        
+        return () => {
+            isCancelled = true;
+            clearTimeout(timeoutId);
+        };
     }, [text, onComplete, onReadyForNext]);
     
-    return <span>{displayed}</span>;
+    return <span className="opacity-90">{displayed}</span>;
 }
 
 function InviteFlow() {
@@ -249,13 +269,7 @@ function InviteFlow() {
 
                 {step === 'DIALOG' && (
                     <div 
-                        className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative hover:bg-black transition-colors"
-                        onClick={() => {
-                            if (typingComplete && dialogIndex < dict.dialog.length - 1) {
-                                setDialogIndex(prev => prev + 1);
-                                setTypingComplete(false);
-                            }
-                        }}
+                        className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative transition-colors"
                     >
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
                         <p className="text-[#fbaa19] text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-6">INCOMING TRANSMISSION...</p>
@@ -265,15 +279,21 @@ function InviteFlow() {
                                 const isLastInSequence = i === dict.dialog.length - 1;
                                 const isCurrent = i === dialogIndex;
                                 return (
-                                    <p key={i} className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
+                                    <p key={i} className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed animate-fade-in">
                                         {isCurrent ? (
                                             <TypewriterLine 
                                                 text={text} 
-                                                onReadyForNext={() => setTypingComplete(true)}
+                                                onReadyForNext={() => {
+                                                    if (!isLastInSequence) {
+                                                        setTimeout(() => {
+                                                            setDialogIndex(prev => prev + 1);
+                                                        }, 1500); // 1.5s pause between sentences
+                                                    }
+                                                }}
                                                 onComplete={isLastInSequence ? () => setStep('GROUP_SELECT') : undefined}
                                             />
                                         ) : (
-                                            <span>{text}</span>
+                                            <span className="opacity-70">{text}</span>
                                         )}
                                     </p>
                                 );
@@ -281,11 +301,9 @@ function InviteFlow() {
                         </div>
 
                         <div className="mt-8 flex justify-end h-6">
-                            {typingComplete && dialogIndex < dict.dialog.length - 1 && (
-                                <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.3em] animate-pulse cursor-pointer">
-                                    [ CLICK TO CONTINUE ]
-                                </span>
-                            )}
+                            <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.3em] opacity-50">
+                                {dialogIndex < dict.dialog.length - 1 ? 'LISTENING...' : '...'}
+                            </span>
                         </div>
                     </div>
                 )}
