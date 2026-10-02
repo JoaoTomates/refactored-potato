@@ -34,7 +34,7 @@ const LogoBadge = ({ code }: { code: string }) => (
     </div>
 );
 
-function TypewriterLine({ text, onComplete, onReadyForNext }: { text: string, onComplete?: () => void, onReadyForNext?: () => void }) {
+function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
     const [displayed, setDisplayed] = useState("");
     const [isTyping, setIsTyping] = useState(true);
     
@@ -67,13 +67,13 @@ function TypewriterLine({ text, onComplete, onReadyForNext }: { text: string, on
             }
         };
         
-        timeoutId = setTimeout(typeNext, 300); // initial delay before starting
+        timeoutId = setTimeout(typeNext, startDelay); // initial delay before starting
         
         return () => {
             isCancelled = true;
             clearTimeout(timeoutId);
         };
-    }, [text, onComplete, onReadyForNext]);
+    }, [text, onComplete, onReadyForNext, startDelay]);
     
     return (
         <span className="opacity-90 leading-relaxed relative">
@@ -92,13 +92,14 @@ function InviteFlow() {
     const [step, setStep] = useState<Step>('LOADING');
     const [dialogIndex, setDialogIndex] = useState(0);
     const [typingComplete, setTypingComplete] = useState(false);
+    const [showGroups, setShowGroups] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     
     useEffect(() => {
         if (step === 'DIALOG' && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
-    }, [dialogIndex, step]);
+    }, [dialogIndex, step, showGroups]);
     
     const [teams, setTeams] = useState<any[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -296,14 +297,15 @@ function InviteFlow() {
                                         {isCurrent ? (
                                             <TypewriterLine 
                                                 text={text} 
+                                                startDelay={i === 0 ? 1500 : 500} 
                                                 onReadyForNext={() => {
                                                     if (!isLastInSequence) {
                                                         setTimeout(() => {
                                                             setDialogIndex(prev => prev + 1);
-                                                        }, 1500); 
+                                                        }, 2500); 
                                                     }
                                                 }}
-                                                onComplete={isLastInSequence ? () => setStep('GROUP_SELECT') : undefined}
+                                                onComplete={isLastInSequence ? () => setShowGroups(true) : undefined}
                                             />
                                         ) : (
                                             <span className="opacity-70">{text}</span>
@@ -312,33 +314,33 @@ function InviteFlow() {
                                 </div>
                             );
                         })}
-                        <div ref={messagesEndRef} className="h-2 w-full" />
-                    </div>
-                )}
-
-                {step === 'GROUP_SELECT' && (
-                    <div className="w-full animate-fade-in flex flex-col gap-4">
-                        <div className="bg-black/80 border border-white/10 p-4 mb-2 text-center">
-                            <h2 className="text-[#fbaa19] font-black uppercase tracking-widest text-lg">{dict.career_prompt}</h2>
-                        </div>
-                        {dict.groups.map((g: any) => (
-                            <button
-                                key={g.id}
-                                onClick={() => handleSelectGroup(g.id)}
-                                className="group w-full bg-[#0a0a0a]/95 border-2 border-white/10 hover:border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] hover:shadow-[0_0_40px_rgba(251,170,25,0.15)] transition-all flex flex-col items-start relative overflow-hidden"
-                            >
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#fbaa19]/10 rounded-bl-full group-hover:bg-[#fbaa19]/20 transition-colors"></div>
-                                <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest mb-1 group-hover:text-[#fbaa19]">{g.title}</h3>
-                                <div className="flex flex-wrap gap-2 mb-3">
-                                    {g.teams.map((tCode: string) => (
-                                        <span key={tCode} className="text-[10px] md:text-xs font-black px-2 py-0.5 rounded-sm bg-white/5 border border-white/10" style={{ color: TEAM_COLORS[tCode] }}>
-                                            {tCode}
-                                        </span>
-                                    ))}
+                        
+                        {showGroups && (
+                            <div className="w-full animate-fade-in flex flex-col gap-4 mt-4">
+                                <div className="bg-[#0a0a0a]/95 border-2 border-white/10 p-4 mb-2 text-center shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                                    <h2 className="text-[#fbaa19] font-black uppercase tracking-widest text-lg">{dict.career_prompt}</h2>
                                 </div>
-                                <p className="text-sm text-gray-300 italic">{g.hint}</p>
-                            </button>
-                        ))}
+                                {dict.groups.map((g: any) => (
+                                    <button
+                                        key={g.id}
+                                        onClick={() => handleSelectGroup(g.id)}
+                                        className="group w-full bg-[#0a0a0a]/95 border-2 border-white/10 hover:border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] hover:shadow-[0_0_40px_rgba(251,170,25,0.15)] transition-all flex flex-col items-start relative overflow-hidden"
+                                    >
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#fbaa19]/10 rounded-bl-full group-hover:bg-[#fbaa19]/20 transition-colors"></div>
+                                        <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest mb-1 group-hover:text-[#fbaa19]">{g.title}</h3>
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {g.teams.map((tCode: string) => (
+                                                <span key={tCode} className="text-[10px] md:text-xs font-black px-2 py-0.5 rounded-sm bg-white/5 border border-white/10" style={{ color: TEAM_COLORS[tCode] }}>
+                                                    {tCode}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <p className="text-sm text-gray-300 italic">{g.hint}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} className="h-2 w-full" />
                     </div>
                 )}
 
