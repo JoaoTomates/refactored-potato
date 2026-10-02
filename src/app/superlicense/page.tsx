@@ -107,7 +107,7 @@ function SuperlicenseForm() {
                     last_name: cleanLastName,
                     nationality: null,
                     org_color: '#000000',
-                    setup_completed: !teamParam, // If joining a team, RPC sets this to true
+                    setup_completed: false, // Always false initially, RPC handles setting it to true if teamParam exists // If joining a team, RPC sets this to true
                     slug: slug
                 }).eq('id', authData.user.id);
 
@@ -118,7 +118,7 @@ function SuperlicenseForm() {
                         last_name: cleanLastName,
                         nationality: null,
                         org_color: '#000000',
-                        setup_completed: !teamParam,
+                        setup_completed: false, // Always false initially, RPC handles setting it to true if teamParam exists
                         slug: slug
                     });
                 }

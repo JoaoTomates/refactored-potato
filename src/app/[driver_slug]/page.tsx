@@ -8,7 +8,6 @@ import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
-import Onboarding from "@/components/onboarding";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { supabase } from "@/utils/supabase";
 
@@ -71,7 +70,10 @@ export default function SuperlicensePage() {
                     <p className="text-[#fbaa19] font-bold uppercase tracking-widest text-xs">LOADING PROFILE...</p>
                 </div>
             ) : profile && profile.setup_completed === false ? (
-                <Onboarding onComplete={() => setProfile({ ...profile, setup_completed: true })} />
+                <div className="flex flex-col items-center justify-center p-12 w-full">
+                    <p className="text-[#fbaa19] font-bold uppercase tracking-widest text-xs">REDIRECTING TO DRAFT...</p>
+                    {typeof window !== "undefined" && window.location.replace("/invite")}
+                </div>
             ) : activeView === "menu" ? (
                 <DashboardHome profile={profile} setActiveView={setActiveView} logout={logout} />
             ) : (
