@@ -3,7 +3,9 @@ export type Locale = 'en' | 'pt';
 export const INVITE_LOCALE = {
   en: {
     dialog: [
-      "Hello. We are a Fantasy Sport. Your numbers crossed my desk and they are impressive. But you know that in F1, raw talent alone isn't enough. So, first things first, would you answer a question for me?"
+      "Pull up a chair and close the door. Your reports crossed my desk and the numbers are impressive.",
+      "But no one wins alone. The new engine regulations turned the game upside down, and you need to pick a side in this war.",
+      "So, where are you placing your chips?"
     ],
     career_prompt: "Which path would you take?",
     groups: [
@@ -29,7 +31,9 @@ export const INVITE_LOCALE = {
   },
   pt: {
     dialog: [
-      "Olá. Somos um Fantasy. Seus números caíram na minha mesa e são impressionantes. Mas você sabe que na F1 só talento não é suficiente. Portanto, antes de mais nada, me responderia uma pergunta?"
+      "Puxe uma cadeira e feche a porta. Os seus relatórios caíram na minha mesa e os números são impressionantes.",
+      "Mas ninguém vence sozinho. E o novo regulamento de motores virou o jogo de ponta-cabeça e você precisa escolher seu lado nessa guerra.",
+      "Então, onde você vai colocar suas fichas?"
     ],
     career_prompt: "Qual caminho seguiria?",
     groups: [
