@@ -57,10 +57,20 @@ function InviteFlow() {
             if (browserLang.startsWith('pt')) setLang('pt');
         }
         
-        if (!authLoading) {
+        const checkUserStatus = async () => {
+            if (authLoading) return;
+            if (user) {
+                const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).single();
+                if (data?.setup_completed && data?.slug) {
+                    window.location.replace(`/${data.slug}`);
+                    return;
+                }
+            }
             setStep('DIALOG');
-        }
-    }, [searchParams, authLoading]);
+        };
+        
+        checkUserStatus();
+    }, [searchParams, authLoading, user]);
 
     const dict = INVITE_LOCALE[lang];
 
