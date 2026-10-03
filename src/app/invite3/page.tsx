@@ -313,7 +313,7 @@ function InviteFlow3() {
     };
 
     return (
-                <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center justify-center">
+                <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center justify-end pb-8 md:pb-16">
             
             {/* Pixel Art Background (Fixed Jitter) */}
             <img 
@@ -328,7 +328,7 @@ function InviteFlow3() {
             <div className="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90" style={{ transform: 'translateZ(0)' }}></div>
             
             {/* Widescreen terminal box */}
-            <div className="relative z-10 w-[85%] md:w-[85%] max-w-6xl aspect-video bg-black shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden border-2 border-[#111]">
+            <div className="relative z-10 w-[85%] md:w-[75%] max-w-6xl aspect-video bg-[rgba(0,0,0,0.97)] shadow-[0_50px_100px_rgba(0,0,0,1),0_80px_160px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden border-2 border-[#111]">
                 
             </div>
         </main>
