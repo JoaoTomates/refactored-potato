@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { GlobalProvider } from "../../global-context";
-import Navigation from "../components/navigation";
-import NasdaqTicker from "../components/nasdaq-ticker";
-import Footer from "../components/footer";
+import AppLayoutWrapper from "../components/AppLayoutWrapper";
 import { Analytics } from "@vercel/analytics/next";
 
 
