@@ -256,7 +256,7 @@ function InviteFlow() {
         <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-rajdhani pt-12 md:pt-20">
             {/* Pixel Art Background V2 (VoltGrid Mature) */}
             <div 
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-[10s] ease-out scale-100 opacity-60 md:opacity-80"
+                className="fixed inset-0 z-0 bg-cover bg-center opacity-60 md:opacity-80"
                 style={{ 
                     backgroundImage: 'url("/pixel_invite_bg_v2.jpg")',
                     imageRendering: 'pixelated'
@@ -264,8 +264,8 @@ function InviteFlow() {
             ></div>
 
             {/* CRT Overlay Effects */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]"></div>
-            <div className="absolute inset-0 z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90"></div>
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]"></div>
+            <div className="fixed inset-0 z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90"></div>
             
             <div className="relative z-10 w-full max-w-xl mx-auto px-4 flex flex-col justify-end h-full mb-12 flex-1">
                 

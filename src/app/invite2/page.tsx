@@ -298,7 +298,7 @@ function InviteFlow2() {
         <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-rajdhani pt-12 md:pt-20">
             {/* Pixel Art Background V2 (VoltGrid Mature) */}
             <div 
-                className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-[10s] ease-out scale-100 opacity-60 md:opacity-80"
+                className="fixed inset-0 z-0 bg-cover bg-center opacity-60 md:opacity-80"
                 style={{ 
                     backgroundImage: 'url("/pixel_invite_bg_v2.jpg")',
                     imageRendering: 'pixelated'
