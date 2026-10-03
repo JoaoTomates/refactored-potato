@@ -6,7 +6,23 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { INVITE_LOCALE, Locale } from '@/locales/invite';
 
-type Step = 'LOADING' | 'DIALOG' | 'GROUP_SELECT' | 'TEAM_SELECT' | 'AUTH' | 'PROFILE' | 'PROCESSING';
+type Step = 'LOADING' | 'DIALOG' | 'GROUP_SELECT' | 'TEAM_SELECT' | 'AUTH' | 'PROFILE' | 'ENLIST' | 'PROCESSING';
+
+
+const bossResponses: Record<number, { name: string, quote: string }> = {
+    1: {
+        name: "BLOCO A: ALIANÇA DA ESTRELA",
+        quote: "“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”"
+    },
+    2: {
+        name: "BLOCO B: O IMPÉRIO DE MARANELLO",
+        quote: "“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”"
+    },
+    3: {
+        name: "BLOCO C: A VANGUARDA TECNOLÓGICA",
+        quote: "“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”"
+    }
+};
 
 const LOGOS: Record<string, string> = {
     MCL: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/MCL.png",
@@ -126,6 +142,7 @@ function InviteFlow3() {
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     
+    const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -238,12 +255,7 @@ function InviteFlow3() {
         }
     };
 
-    const handleAuthSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setStep('PROFILE');
-    };
-
-    const handleProfileSubmit = async (e: React.FormEvent) => {
+    const handleEnlistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStep('PROCESSING');
         setErrorMsg("");
@@ -254,17 +266,24 @@ function InviteFlow3() {
                 emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
             }
 
+            const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
+
             const { data: authData, error: authError } = await supabase.auth.signUp({ 
                 email: emailToUse, 
-                password 
+                password: autoPassword 
             });
 
             if (authError) throw authError;
 
             if (authData.user && selectedTeamId) {
-                const cleanFirstName = firstName.trim().charAt(0).toUpperCase();
-                const cleanLastName = lastName.trim().toUpperCase();
-                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${raceNumber}`;
+                const nameParts = fullName.trim().split(' ');
+                const rawFirst = nameParts[0] || 'Rookie';
+                const rawLast = nameParts.slice(1).join(' ') || 'Strategist';
+
+                const cleanFirstName = rawFirst.charAt(0).toUpperCase();
+                const cleanLastName = rawLast.toUpperCase();
+                const generatedNumber = Math.floor(Math.random() * 99) + 1;
+                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
 
                 const { error: profileError } = await supabase.from('profiles').update({
                     first_name: cleanFirstName,
@@ -292,7 +311,7 @@ function InviteFlow3() {
         } catch (err: any) {
             console.error(err);
             setErrorMsg(err.message || dict.error_fallback);
-            setStep('PROFILE');
+            setStep('ENLIST');
         }
     };
 
@@ -464,123 +483,48 @@ function InviteFlow3() {
                             </div>
                         )}
 
-                        {step === 'TEAM_SELECT' && (
-                            <div className="w-full animate-fade-in flex flex-col gap-6 text-white text-left uppercase">
-                                <p className="opacity-80 text-[#fbaa19] mb-4 text-sm md:text-base font-bold tracking-[0.2em]">&gt;_ SELECIONE O SEU CONTRATO:</p>
-                                <div className="flex flex-col gap-6 w-full">
-                                    {teams.map((t: any) => (
-                                        <div 
-                                            key={t.id} 
-                                            className="border-l-[3px] border-white/20 pl-6 py-4 hover:bg-white/5 hover:border-[#fbaa19] cursor-pointer transition-all duration-300 group" 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleSelectTeam(t.id);
-                                            }}
-                                        >
-                                            <div className="flex items-center gap-6">
-                                                <LogoBadge code={t.code} />
-                                                <div>
-                                                    <h3 className="text-xl md:text-3xl font-black" style={{color: TEAM_COLORS[t.code]}}>{t.name}</h3>
-                                                    <p className="text-[10px] md:text-xs opacity-70 tracking-[0.2em] mt-2 group-hover:text-white transition-colors">[{t.code}] ASSINAR ACORDO</p>
-                                                </div>
-                                            </div>
+                        {step === 'ENLIST' && selectedGroup && (
+                            <div className="w-full animate-fade-in flex flex-col gap-8 text-white text-left uppercase mt-4">
+                                <div>
+                                    <p className="text-[#fbaa19] font-bold tracking-[0.2em] mb-4 text-sm md:text-base">&gt;_ COMANDANTE: {bossResponses[selectedGroup].name}</p>
+                                    <div className="text-base md:text-xl font-bold tracking-widest leading-relaxed border-l-[3px] border-[#fbaa19] pl-6 py-2">
+                                        <TypewriterLine text={bossResponses[selectedGroup].quote} startDelay={300} onComplete={() => setTypingComplete(true)} />
+                                    </div>
+                                </div>
+                                
+                                <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full relative z-10 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                    <div className="flex flex-col md:flex-row gap-6">
+                                        <div className="relative w-full md:w-1/2">
+                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
+                                            <input 
+                                                type="text" 
+                                                required
+                                                placeholder="NOME E SOBRENOME"
+                                                value={fullName}
+                                                onChange={e => setFullName(e.target.value)}
+                                                className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
+                                            />
                                         </div>
-                                    ))}
-                                </div>
+                                        <div className="relative w-full md:w-1/2">
+                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
+                                            <input 
+                                                type="email" 
+                                                required
+                                                placeholder="E-MAIL"
+                                                value={email}
+                                                onChange={e => setEmail(e.target.value)}
+                                                className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" className="group relative w-full bg-[#fbaa19] border-2 border-[#fbaa19] text-black font-black uppercase tracking-[0.3em] p-5 hover:bg-white hover:border-white transition-colors overflow-hidden mt-4">
+                                        <span className="relative z-10 flex items-center justify-center gap-2">
+                                            [ ASSINAR CONTRATO E ACESSAR PITWALL ]
+                                        </span>
+                                    </button>
+                                </form>
                             </div>
-                        )}
-
-                        {/* Rendering AUTH inside Terminal */}
-                        {step === 'AUTH' && (
-                            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-6 w-full relative z-10 animate-fade-in text-white uppercase">
-                                <div className="mb-4">
-                                    <p className="text-[#fbaa19] text-lg md:text-xl font-bold tracking-widest leading-relaxed">
-                                        <span className="opacity-50 mr-4 text-[#fbaa19]">&gt;_</span>
-                                        <TypewriterLine text={dict.contact_prompt} startDelay={300} />
-                                    </p>
-                                </div>
-                                <div className="flex flex-col gap-6">
-                                    <div className="relative">
-                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
-                                        <input 
-                                            type="text" 
-                                            required
-                                            placeholder={dict.email_placeholder}
-                                            value={email}
-                                            onChange={e => setEmail(e.target.value)}
-                                            className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
-                                        />
-                                    </div>
-                                    <div className="relative">
-                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
-                                        <input 
-                                            type="password" 
-                                            required
-                                            placeholder={dict.password_placeholder}
-                                            value={password}
-                                            onChange={e => setPassword(e.target.value)}
-                                            className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
-                                        />
-                                    </div>
-                                </div>
-                                <button type="submit" className="group relative w-full border-2 border-white/30 text-white font-black uppercase tracking-[0.3em] p-5 hover:bg-white hover:text-black hover:border-white transition-colors overflow-hidden mt-6">
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        [ {dict.btn_continue} ]
-                                    </span>
-                                </button>
-                            </form>
-                        )}
-
-                        {step === 'PROFILE' && (
-                            <form onSubmit={handleProfileSubmit} className="flex flex-col gap-6 w-full relative z-10 animate-fade-in text-white uppercase">
-                                <div className="mb-4">
-                                    <p className="text-[#fbaa19] text-lg md:text-xl font-bold tracking-widest leading-relaxed">
-                                        <span className="opacity-50 mr-4 text-[#fbaa19]">&gt;_</span>
-                                        <TypewriterLine text={dict.profile_prompt} startDelay={300} />
-                                    </p>
-                                </div>
-                                <div className="flex gap-6">
-                                    <div className="relative w-1/2">
-                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
-                                        <input 
-                                            type="text" 
-                                            required
-                                            placeholder={dict.first_name_placeholder}
-                                            value={firstName}
-                                            onChange={e => setFirstName(e.target.value)}
-                                            className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
-                                        />
-                                    </div>
-                                    <div className="relative w-1/2">
-                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
-                                        <input 
-                                            type="text" 
-                                            required
-                                            placeholder={dict.last_name_placeholder}
-                                            value={lastName}
-                                            onChange={e => setLastName(e.target.value)}
-                                            className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="relative w-full">
-                                    <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xl font-bold">&gt;_</span>
-                                    <input 
-                                        type="number" 
-                                        required
-                                        min="0" max="99"
-                                        placeholder={dict.number_placeholder}
-                                        value={raceNumber}
-                                        onChange={e => setRaceNumber(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-white/20 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all placeholder-white/20"
-                                    />
-                                </div>
-                                <button type="submit" className="group relative w-full bg-[#fbaa19] border-2 border-[#fbaa19] text-black font-black uppercase tracking-[0.3em] p-5 hover:bg-white hover:border-white transition-colors overflow-hidden mt-6">
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        [ {dict.btn_sign} ]
-                                    </span>
-                                </button>
-                            </form>
                         )}
 
                         {step === 'PROCESSING' && (
