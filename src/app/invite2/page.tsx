@@ -313,7 +313,7 @@ function InviteFlow2() {
             <div className="fixed inset-0 z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]"></div>
             <div className="fixed inset-0 z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90"></div>
             
-            <div className="relative z-10 w-full max-w-xl mx-auto px-4 flex flex-col justify-end h-full mb-12 flex-1">
+            <div className={`relative z-10 w-full ${step === 'GROUP_SELECT' || step === 'TEAM_SELECT' ? 'max-w-5xl' : 'max-w-xl'} mx-auto px-4 flex flex-col justify-end h-full mb-12 flex-1`}>
                 
                 {step === 'LOADING' && (
                     <div className="w-full flex items-center justify-center p-12">
@@ -409,7 +409,7 @@ function InviteFlow2() {
                                         return (
                                         <div
                                             key={g.id}
-                                            className="group w-full bg-[#0a0a0a]/95 border-2 border-white/10 p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col text-left relative overflow-hidden animate-slide-up"
+                                            className="group w-full bg-[#0a0a0a]/95 border-[3px] border-white/20 md:border-4 md:border-white/20 p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] flex flex-col text-left relative overflow-hidden animate-slide-up min-h-[320px] md:aspect-[5/7]"
                                             style={{ animationDelay: `${idx * 300 + 1500}ms`, animationFillMode: 'both' }}
                                         >
                                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-70"></div>
