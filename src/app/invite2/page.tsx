@@ -345,7 +345,7 @@ function InviteFlow2() {
                                                 text={text} 
                                                 startDelay={i === 0 ? 1500 : 500} 
                                                 onReadyForNext={() => {
-                                                    if (i === 3) {
+                                                    if (i === 0 || i === 3) {
                                                         setWaitingForClick(true);
                                                     } else if (!isLastInSequence) {
                                                         setTimeout(() => {
@@ -360,13 +360,14 @@ function InviteFlow2() {
                                         )}
                                     </div>
                                     
-                                    {/* Inline Click to Continue for the fourth box */}
-                                    {i === 3 && waitingForClick && (
-                                        <div className="mt-6 flex justify-end">
+                                    {/* Inline Click to Continue for the first and fourth box */}
+                                    {(i === 0 || i === 3) && waitingForClick && (
+                                        <div className="mt-2 flex justify-end">
                                             <button 
                                                 onClick={() => {
                                                     setWaitingForClick(false);
-                                                    setStep('GROUP_SELECT');
+                                                    if (i === 0) setDialogIndex(prev => prev + 1);
+                                                    if (i === 3) setStep('GROUP_SELECT');
                                                 }}
                                                 className="text-[#fbaa19] text-[10px] md:text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse flex items-center gap-2"
                                             >
@@ -378,7 +379,12 @@ function InviteFlow2() {
                             );
                         })}
                         
-                        {step === 'GROUP_SELECT' && (
+                        
+                        <div ref={messagesEndRef} className="h-2 w-full" />
+                    </div>
+                )}
+
+                {step === 'GROUP_SELECT' && (
                             <div className="w-full animate-fade-in flex flex-col gap-6">
                                 <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
@@ -451,11 +457,6 @@ function InviteFlow2() {
                                 </div>
                             </div>
                         )}
-                        
-
-                        <div ref={messagesEndRef} className="h-2 w-full" />
-                    </div>
-                )}
 
                 {step === 'TEAM_SELECT' && (
                     <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
