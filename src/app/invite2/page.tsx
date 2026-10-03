@@ -37,6 +37,11 @@ const LogoBadge = ({ code }: { code: string }) => (
 function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
     const [displayed, setDisplayed] = useState("");
     const [isTyping, setIsTyping] = useState(true);
+    const callbacksRef = useRef({ onComplete, onReadyForNext });
+
+    useEffect(() => {
+        callbacksRef.current = { onComplete, onReadyForNext };
+    }, [onComplete, onReadyForNext]);
     
     useEffect(() => {
         let i = 0;
@@ -60,9 +65,9 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: 
                 timeoutId = setTimeout(typeNext, delay);
             } else {
                 setIsTyping(false);
-                if (onReadyForNext) onReadyForNext();
-                if (onComplete) {
-                    setTimeout(onComplete, 1500); 
+                if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
+                if (callbacksRef.current.onComplete) {
+                    setTimeout(callbacksRef.current.onComplete, 1500); 
                 }
             }
         };
@@ -73,7 +78,7 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: 
             isCancelled = true;
             clearTimeout(timeoutId);
         };
-    }, [text, onComplete, onReadyForNext, startDelay]);
+    }, [text, startDelay]);
     
     return (
         <span className="opacity-90 leading-relaxed relative">
