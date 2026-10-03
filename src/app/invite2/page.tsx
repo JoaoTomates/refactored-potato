@@ -102,6 +102,7 @@ function InviteFlow2() {
     const [showCards, setShowCards] = useState(false);
     const [revealedCards, setRevealedCards] = useState(0);
     const [showQuestion, setShowQuestion] = useState(false);
+    const [showActionButtons, setShowActionButtons] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     
     useEffect(() => {
@@ -477,23 +478,25 @@ function InviteFlow2() {
                                                     [ AWAITING DECISION ]
                                                 </p>
                                                 <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest text-center mb-6">
-                                                    <TypewriterLine text="E ai, onde voce irá colocar sua ficha ?" startDelay={300} />
+                                                    <TypewriterLine text="E ai, onde voce irá colocar sua ficha ?" startDelay={300} onComplete={() => setShowActionButtons(true)} />
                                                 </div>
                                                 
-                                                <div className="flex justify-center gap-4">
-                                                    {dict.groups.map((g: any, idx: number) => {
-                                                        const letters = ['A', 'B', 'C'];
-                                                        return (
-                                                            <button
-                                                                key={`btn-${g.id}`}
-                                                                onClick={() => handleSelectGroup(g.id)}
-                                                                className="w-16 h-16 md:w-20 md:h-20 bg-[#0a0a0a] border-2 border-[#fbaa19] text-[#fbaa19] font-black text-2xl md:text-3xl uppercase hover:bg-[#fbaa19] hover:text-black transition-all shadow-[0_0_20px_rgba(251,170,25,0.2)] hover:shadow-[0_0_30px_rgba(251,170,25,0.6)] flex items-center justify-center animate-pulse"
-                                                            >
-                                                                {letters[idx]}
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
+                                                {showActionButtons && (
+                                                    <div className="flex justify-center gap-4 animate-fade-in">
+                                                        {dict.groups.map((g: any, idx: number) => {
+                                                            const letters = ['A', 'B', 'C'];
+                                                            return (
+                                                                <button
+                                                                    key={`btn-${g.id}`}
+                                                                    onClick={() => handleSelectGroup(g.id)}
+                                                                    className="w-16 h-16 md:w-20 md:h-20 bg-[#0a0a0a] border-2 border-[#fbaa19] text-[#fbaa19] font-black text-2xl md:text-3xl uppercase hover:bg-[#fbaa19] hover:text-black transition-all shadow-[0_0_20px_rgba(251,170,25,0.2)] hover:shadow-[0_0_30px_rgba(251,170,25,0.6)] flex items-center justify-center animate-pulse"
+                                                                >
+                                                                    {letters[idx]}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </>
