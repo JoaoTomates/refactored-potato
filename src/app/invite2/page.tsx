@@ -143,7 +143,7 @@ function InviteFlow2() {
         "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
         "Você lê o traçado antes das luzes apagarem",
         "Mas na F1 talento sozinho não garante contrato — você precisa saber onde colocar sua ficha.",
-        "Tenho três propostas na mesa para a temporada, e cada garagem exige um tipo de estrategista. Onde você vai assinar?"
+        "Tenho três propostas na mesa para a temporada, e cada garagem exige um tipo de estrategista."
     ],
     career_prompt: "CHOOSE YOUR PATH",
     groups: [
@@ -398,6 +398,16 @@ function InviteFlow2() {
                                         </div>
                                     </button>
                                 ))}
+                                
+                                <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up mt-2" style={{ animationDelay: `${dict.groups.length * 150}ms` }}>
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                                    <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                                        [ AWAITING DECISION ]
+                                    </p>
+                                    <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest">
+                                        <TypewriterLine text="Onde você vai assinar?" startDelay={1000} />
+                                    </div>
+                                </div>
                             </div>
                         )}
                         
