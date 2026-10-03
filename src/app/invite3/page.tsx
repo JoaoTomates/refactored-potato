@@ -313,8 +313,16 @@ function InviteFlow3() {
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center justify-center">
+                <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center justify-center">
             
+            {/* Pixel Art Background (Fixed Jitter) */}
+            <img 
+                src="/pixel_invite_bg_v2.jpg"
+                alt=""
+                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
+                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+            />
+
             {/* CRT Overlay Effects */}
             <div className="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]" style={{ transform: 'translateZ(0)' }}></div>
             <div className="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90" style={{ transform: 'translateZ(0)' }}></div>
