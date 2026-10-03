@@ -313,14 +313,9 @@ function InviteFlow3() {
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-rajdhani pt-12 md:pt-20">
+        <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono text-[#fbaa19] bg-black pt-12 md:pt-20">
             {/* Pixel Art Background (Fixed Jitter) */}
-            <img 
-                src="/pixel_invite_bg_v2.jpg"
-                alt=""
-                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
-                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
-            />
+            
 
             {/* CRT Overlay Effects */}
             <div className="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]" style={{ transform: 'translateZ(0)' }}></div>
@@ -330,89 +325,142 @@ function InviteFlow3() {
                 
                 {step === 'LOADING' && (
                     <div className="w-full flex items-center justify-center p-12">
-                        <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
+                        <div className="w-12 h-12 rounded-full border-4 border-none border-t-transparent animate-spin"></div>
                     </div>
                 )}
 
                 {step === 'PROCESSING' && (
-                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin mb-4"></div>
+                    <div className="w-full bg-transparent border-none border-none p-8 shadow-none flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-full border-4 border-none border-t-transparent animate-spin mb-4"></div>
                         <p className="text-[#fbaa19] font-black uppercase tracking-widest animate-pulse">{dict.processing}</p>
                     </div>
                 )}
 
                 {step === 'DIALOG' && (
-                    <div className="w-full flex flex-col gap-6 relative">
+                    <div className="w-full flex flex-col gap-2 relative h-full">
                         
-                        {(() => {
-                            const startIndex = dialogIndex >= 3 ? 3 : 0;
-                            const visibleDialogs = dict.dialog.slice(startIndex, dialogIndex + 1);
-                            
-                            return visibleDialogs.map((text, idx) => {
-                                const i = startIndex + idx;
-                                const isLastInSequence = i === dict.dialog.length - 1;
-                                const isCurrent = i === dialogIndex;
-                                return (
-                                    <div key={i} className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
-                                        <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                                            {isCurrent ? "INCOMING TRANSMISSION..." : "TRANSMISSION SECURED."}
-                                        </p>
-                                        <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest">
-                                            {isCurrent ? (
-                                                <TypewriterLine 
-                                                    text={text} 
-                                                    startDelay={i === 0 ? 1500 : 500} 
-                                                    onReadyForNext={() => {
-                                                        if (i === 0 || i === 3) {
-                                                            setWaitingForClick(true);
-                                                        } else if (!isLastInSequence) {
-                                                            const pause = i === 2 ? 4500 : 2500;
-                                                            setTimeout(() => {
-                                                                setDialogIndex(prev => prev + 1);
-                                                            }, pause); 
-                                                        }
-                                                    }}
-                                                />
-                                            ) : (
-                                                <span className="opacity-70">{text}</span>
-                                            )}
-                                        </div>
-                                        
-                                        {/* Inline Click to Continue for the first and fourth box */}
-                                        {(i === 0 || i === 3) && waitingForClick && (
-                                            <div className="mt-2 flex justify-end">
-                                                <button 
-                                                    onClick={() => {
-                                                        setWaitingForClick(false);
-                                                        if (i === 0) setDialogIndex(prev => prev + 1);
-                                                        if (i === 3) setStep('GROUP_SELECT');
-                                                    }}
-                                                    className="text-[#fbaa19] text-[10px] md:text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse flex items-center gap-2"
-                                                >
-                                                    [ CLICK TO CONTINUE ] <span className="text-lg leading-none">»</span>
-                                                </button>
-                                            </div>
-                                        )}
+                        {/* BOX 0 (Raw Terminal Text) */}
+                        {dialogIndex === 0 && (
+                            <div className="w-full bg-transparent p-2 animate-slide-up mt-auto mb-8">
+                                <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                                    INCOMING TRANSMISSION...
+                                </p>
+                                <div className="text-[#fbaa19] text-lg md:text-xl font-bold uppercase tracking-widest">
+                                    <TypewriterLine 
+                                        text={dict.dialog[0]} 
+                                        startDelay={1500} 
+                                        onReadyForNext={() => setWaitingForClick(true)}
+                                    />
+                                </div>
+                                {waitingForClick && (
+                                    <div className="mt-4 flex justify-end">
+                                        <button 
+                                            onClick={() => {
+                                                setWaitingForClick(false);
+                                                setDialogIndex(1);
+                                            }}
+                                            className="text-[#fbaa19] text-[10px] md:text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse flex items-center gap-2"
+                                        >
+                                            Press ANY KEY to continue <span className="text-lg leading-none">»</span>
+                                        </button>
                                     </div>
-                                );
-                            });
-                        })()}
-                        
+                                )}
+                            </div>
+                        )}
+
+                        {/* TERMINAL SCREEN UI (dialogIndex >= 1) */}
+                        {dialogIndex >= 1 && (
+                            <div className="w-full max-w-xl mx-auto mt-auto mb-8 animate-zoom-in flex flex-col items-center drop-shadow-[0_30px_30px_rgba(0,0,0,1)] z-20">
+                                {/* Monitor Shell (Beige/Gray plastic) */}
+                                <div className="w-full aspect-[4/3] bg-[#d4d4d8] rounded-[32px] p-4 shadow-[inset_0_-10px_20px_rgba(0,0,0,0.3),_0_30px_60px_rgba(0,0,0,0.8)] relative flex flex-col justify-center border border-white/50">
+                                    
+                                    {/* Monitor Inner Frame (Lead Gray "Chumbo") */}
+                                    <div className="w-full h-full bg-black rounded-[20px] border-[16px] border-[#3f3f46] p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,1)]">
+                                        
+                                        {/* Screen Glare */}
+                                        <div className="absolute top-[-20%] left-[-10%] w-[150%] h-[150%] bg-gradient-to-br from-white/10 via-white/5 to-transparent rotate-[30deg] pointer-events-none"></div>
+
+                                        {/* CRT Screen curve shadow & scanlines */}
+                                        <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,1)] pointer-events-none z-10"></div>
+                                        <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.3)_50%)] bg-[length:100%_4px] pointer-events-none z-10"></div>
+
+                                        {/* Terminal Content */}
+                                        <div className="w-full h-full flex flex-col justify-center text-center relative z-20">
+                                            {(() => {
+                                                const startIndex = dialogIndex >= 3 ? 3 : 1;
+                                                const visibleDialogs = dict.dialog.slice(startIndex, dialogIndex + 1);
+                                                
+                                                return visibleDialogs.map((text, idx) => {
+                                                    const i = startIndex + idx;
+                                                    const isLastInSequence = i === dict.dialog.length - 1;
+                                                    const isCurrent = i === dialogIndex;
+                                                    return (
+                                                        <div key={i} className="w-full bg-transparent p-2 animate-slide-up mb-2">
+                                                            <div className="text-[#22c55e] text-base md:text-xl font-mono uppercase tracking-widest text-center drop-shadow-[0_0_8px_rgba(34,197,94,0.6)]">
+                                                                {isCurrent ? (
+                                                                    <TypewriterLine 
+                                                                        text={text} 
+                                                                        startDelay={500} 
+                                                                        onReadyForNext={() => {
+                                                                            if (i === 3) {
+                                                                                setWaitingForClick(true);
+                                                                            } else if (!isLastInSequence) {
+                                                                                const pause = i === 2 ? 4500 : 2500;
+                                                                                setTimeout(() => {
+                                                                                    setDialogIndex(prev => prev + 1);
+                                                                                }, pause); 
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <span className="opacity-50">{text}</span>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {/* Inline Click to Continue for fourth box */}
+                                                            {i === 3 && waitingForClick && (
+                                                                <div className="mt-6 flex justify-center">
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            setWaitingForClick(false);
+                                                                            setStep('GROUP_SELECT');
+                                                                        }}
+                                                                        className="text-[#22c55e] text-[10px] md:text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse flex items-center gap-2 bg-[#22c55e]/10 px-4 py-2 rounded border border-[#22c55e]/30"
+                                                                    >
+                                                                        [ PRESS ENTER ]
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                });
+                                            })()}
+                                        </div>
+                                    </div>
+
+                                    {/* Brand / Details on the monitor bezel */}
+                                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-4">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e] animate-pulse"></div>
+                                        <div className="w-6 h-0.5 bg-zinc-400"></div>
+                                        <div className="w-6 h-0.5 bg-zinc-400"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         
                         <div ref={messagesEndRef} className="h-2 w-full" />
                     </div>
                 )}
 
                 {step === 'GROUP_SELECT' && (
-                            <div className="w-full animate-fade-in flex flex-col gap-6">
+                            <div className="w-full animate-fade-in flex flex-col gap-2">
                                 {introVisible && (
-                                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                                    <div className="w-full bg-transparent border-none border-none p-2 shadow-none relative animate-slide-up">
+                                        
                                         <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                                            [ SECURE TRANSMISSION ]
+                                            &gt;_ INCOMING SECURE TRANSMISSION...
                                         </p>
-                                        <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest">
+                                        <div className="text-[#fbaa19] text-lg md:text-xl font-bold uppercase tracking-widest">
                                             <TypewriterLine text={dict.proposals_intro} startDelay={300} onComplete={() => {
                                                 setTimeout(() => {
                                                     setIntroVisible(false);
@@ -425,22 +473,22 @@ function InviteFlow3() {
 
                                 {showCards && (
                                     <>
-                                        <div className="flex flex-col gap-6 w-full mt-2 animate-fade-in">
+                                        <div className="flex flex-col gap-2 w-full mt-2 animate-fade-in">
                                             {dict.groups.map((g: any, idx: number) => {
                                                 const letters = ['A', 'B', 'C'];
                                                 return (
                                                 <div
                                                     key={g.id}
-                                                    className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up"
+                                                    className="w-full bg-transparent border-none border-none p-2 shadow-none relative animate-slide-up"
                                                     style={{ animationDelay: `${idx * 400 + 1000}ms`, animationFillMode: 'both' }}
                                                 >
-                                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                                                    
                                                     <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
                                                         [ OPÇÃO ${letters[idx]} ]
                                                     </p>
                                                     
                                                     <div className="flex flex-col gap-4 relative z-10 w-full">
-                                                        <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-widest transition-colors">
+                                                        <h3 className="text-2xl md:text-3xl font-black text-[#fbaa19] uppercase tracking-widest transition-colors">
                                                             {g.title}
                                                         </h3>
                                                         
@@ -453,7 +501,7 @@ function InviteFlow3() {
                                                                 </div>
                                                             ))}
                                                         </div>
-                                                        <p className="text-sm md:text-base text-gray-300 font-bold uppercase tracking-widest leading-relaxed">
+                                                        <p className="text-sm md:text-base text-[#fbaa19]/80 font-bold uppercase tracking-widest leading-relaxed">
                                                             {g.hint}
                                                         </p>
                                                     </div>
@@ -462,12 +510,12 @@ function InviteFlow3() {
                                         </div>
                                         
                                         {showQuestion && (
-                                            <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up mt-4">
-                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                                            <div className="w-full bg-transparent border-none border-none p-2 shadow-none relative animate-slide-up mt-4">
+                                                
                                                 <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                                                    [ AWAITING DECISION ]
+                                                    &gt;_ AWAITING USER INPUT...
                                                 </p>
-                                                <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest text-center mb-6">
+                                                <div className="text-[#fbaa19] text-lg md:text-xl font-bold uppercase tracking-widest text-center mb-6">
                                                     <TypewriterLine text="E ai, onde voce irá colocar sua ficha ?" startDelay={300} onComplete={() => setShowActionButtons(true)} />
                                                 </div>
                                                 
@@ -479,7 +527,7 @@ function InviteFlow3() {
                                                                 <button
                                                                     key={`btn-${g.id}`}
                                                                     onClick={() => handleSelectGroup(g.id)}
-                                                                    className="w-16 h-16 md:w-20 md:h-20 bg-[#0a0a0a] border-2 border-[#fbaa19] text-[#fbaa19] font-black text-2xl md:text-3xl uppercase hover:bg-[#fbaa19] hover:text-black transition-all shadow-[0_0_20px_rgba(251,170,25,0.2)] hover:shadow-[0_0_30px_rgba(251,170,25,0.6)] flex items-center justify-center animate-pulse"
+                                                                    className="w-16 h-16 md:w-20 md:h-20 bg-[#0a0a0a] border-none border-none text-[#fbaa19] font-black text-2xl md:text-3xl uppercase hover:bg-[#fbaa19] hover:text-black transition-all shadow-[0_0_20px_rgba(251,170,25,0.2)] hover:shadow-[0_0_30px_rgba(251,170,25,0.6)] flex items-center justify-center animate-pulse"
                                                                 >
                                                                     {letters[idx]}
                                                                 </button>
@@ -495,8 +543,8 @@ function InviteFlow3() {
                         )}
 
                 {step === 'TEAM_SELECT' && (
-                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                    <div className="w-full bg-transparent border-none border-none p-2 shadow-none relative animate-slide-up">
+                        
                         
                         <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-6">
                             [ AWAITING INPUT : {dict.team_prompt} ]
@@ -507,7 +555,7 @@ function InviteFlow3() {
                                 <button
                                     key={team.id}
                                     onClick={() => handleSelectTeam(team.id)}
-                                    className="group w-full bg-[#0a0a0a]/95 border-2 border-white/10 hover:border-[#fbaa19] p-6 hover:bg-[#1a1a1a]/95 transition-all flex flex-col text-left relative overflow-hidden animate-slide-up"
+                                    className="group w-full bg-transparent border-none border-white/10 hover:border-none p-2 hover:bg-[#1a1a1a]/95 transition-all flex flex-col text-left relative overflow-hidden animate-slide-up"
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -518,7 +566,7 @@ function InviteFlow3() {
                                     </div>
                                     
                                     <div className="relative z-10 w-full flex flex-col flex-1">
-                                        <h3 className="text-xl font-black text-white uppercase tracking-widest mb-1 group-hover:text-[#fbaa19] transition-colors">{team.name}</h3>
+                                        <h3 className="text-xl font-black text-[#fbaa19] uppercase tracking-widest mb-1 group-hover:text-[#fbaa19] transition-colors">{team.name}</h3>
                                         <p className="text-xs font-bold tracking-widest uppercase mb-6" style={{ color: TEAM_COLORS[team.code] || '#999' }}>{team.code}</p>
                                         
                                         <div className="mt-auto flex justify-between items-end w-full">
@@ -542,8 +590,8 @@ function InviteFlow3() {
                 )}
 
                 {(step === 'AUTH' || step === 'PROFILE') && (
-                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                    <div className="w-full bg-transparent border-none border-none p-2 shadow-none relative animate-slide-up">
+                        
                         
                         <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-6">
                             [ CREDENTIALS REQUIRED : {step === 'AUTH' ? 'SECURE CHANNEL' : 'PILOT REGISTRATION'} ]
@@ -558,9 +606,9 @@ function InviteFlow3() {
                         )}
 
                         {step === 'AUTH' && (
-                            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-6 relative z-10">
+                            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-2 relative z-10">
                                 <div className="mb-2">
-                                    <p className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
+                                    <p className="text-[#fbaa19] text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
                                         <TypewriterLine text={dict.contact_prompt} startDelay={300} />
                                     </p>
                                 </div>
@@ -573,7 +621,7 @@ function InviteFlow3() {
                                             placeholder={dict.email_placeholder}
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
-                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                            className="w-full bg-black/50 border-none border-white/10 text-[#fbaa19] p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-none focus:bg-[#0a0a0a] transition-all placeholder-white/20"
                                         />
                                     </div>
                                     <div className="relative">
@@ -584,11 +632,11 @@ function InviteFlow3() {
                                             placeholder={dict.password_placeholder}
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
-                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                            className="w-full bg-black/50 border-none border-white/10 text-[#fbaa19] p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-none focus:bg-[#0a0a0a] transition-all placeholder-white/20"
                                         />
                                     </div>
                                 </div>
-                                <button type="submit" className="group relative w-full bg-[#0a0a0a] border-2 border-[#fbaa19] text-[#fbaa19] font-black uppercase tracking-[0.3em] p-5 hover:bg-[#fbaa19] hover:text-black transition-colors overflow-hidden mt-2">
+                                <button type="submit" className="group relative w-full bg-[#0a0a0a] border-none border-none text-[#fbaa19] font-black uppercase tracking-[0.3em] p-5 hover:bg-[#fbaa19] hover:text-black transition-colors overflow-hidden mt-2">
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         [ {dict.btn_continue} ]
                                     </span>
@@ -597,9 +645,9 @@ function InviteFlow3() {
                         )}
 
                         {step === 'PROFILE' && (
-                            <form onSubmit={handleProfileSubmit} className="flex flex-col gap-6 relative z-10">
+                            <form onSubmit={handleProfileSubmit} className="flex flex-col gap-2 relative z-10">
                                 <div className="mb-2">
-                                    <p className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
+                                    <p className="text-[#fbaa19] text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
                                         <TypewriterLine text={dict.profile_prompt} startDelay={300} />
                                     </p>
                                 </div>
@@ -612,7 +660,7 @@ function InviteFlow3() {
                                             placeholder={dict.first_name_placeholder}
                                             value={firstName}
                                             onChange={e => setFirstName(e.target.value)}
-                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                            className="w-full bg-black/50 border-none border-white/10 text-[#fbaa19] p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-none focus:bg-[#0a0a0a] transition-all placeholder-white/20"
                                         />
                                     </div>
                                     <div className="relative w-1/2">
@@ -623,7 +671,7 @@ function InviteFlow3() {
                                             placeholder={dict.last_name_placeholder}
                                             value={lastName}
                                             onChange={e => setLastName(e.target.value)}
-                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                            className="w-full bg-black/50 border-none border-white/10 text-[#fbaa19] p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-none focus:bg-[#0a0a0a] transition-all placeholder-white/20"
                                         />
                                     </div>
                                 </div>
@@ -636,10 +684,10 @@ function InviteFlow3() {
                                         placeholder={dict.number_placeholder}
                                         value={raceNumber}
                                         onChange={e => setRaceNumber(e.target.value)}
-                                        className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                        className="w-full bg-black/50 border-none border-white/10 text-[#fbaa19] p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-none focus:bg-[#0a0a0a] transition-all placeholder-white/20"
                                     />
                                 </div>
-                                <button type="submit" className="group relative w-full bg-[#fbaa19] border-2 border-[#fbaa19] text-black font-black uppercase tracking-[0.3em] p-5 hover:bg-white hover:border-white transition-colors overflow-hidden mt-2">
+                                <button type="submit" className="group relative w-full bg-[#fbaa19] border-none border-none text-black font-black uppercase tracking-[0.3em] p-5 hover:bg-white hover:border-white transition-colors overflow-hidden mt-2">
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         [ {dict.btn_sign} ]
                                     </span>
