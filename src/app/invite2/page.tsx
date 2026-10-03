@@ -298,7 +298,7 @@ function InviteFlow2() {
         <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-rajdhani pt-12 md:pt-20">
             {/* Pixel Art Background V2 (VoltGrid Mature) */}
             <div 
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-[10s] ease-out scale-100 opacity-60 md:opacity-80"
+                className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-[10s] ease-out scale-100 opacity-60 md:opacity-80"
                 style={{ 
                     backgroundImage: 'url("/pixel_invite_bg_v2.jpg")',
                     imageRendering: 'pixelated'
@@ -306,8 +306,8 @@ function InviteFlow2() {
             ></div>
 
             {/* CRT Overlay Effects */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]"></div>
-            <div className="absolute inset-0 z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90"></div>
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]"></div>
+            <div className="fixed inset-0 z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90"></div>
             
             <div className="relative z-10 w-full max-w-xl mx-auto px-4 flex flex-col justify-end h-full mb-12 flex-1">
                 
@@ -361,13 +361,13 @@ function InviteFlow2() {
                         
                         {showGroups && (
                             <div className="w-full animate-fade-in flex flex-col gap-6 mt-2">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                                <div className="flex flex-col gap-6 w-full">
                                     {dict.groups.map((g: any, idx: number) => (
                                         <button
                                             key={g.id}
                                             onClick={() => handleSelectGroup(g.id)}
-                                            className="group w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] hover:bg-[#1a1a1a]/95 transition-all flex flex-col text-left relative overflow-hidden"
-                                            style={{ animationDelay: `${idx * 150}ms` }}
+                                            className="group w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] hover:bg-[#1a1a1a]/95 transition-all flex flex-col text-left relative overflow-hidden animate-slide-up"
+                                            style={{ animationDelay: `${idx * 600}ms`, animationFillMode: 'both' }}
                                         >
                                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0 group-hover:opacity-100 opacity-70 transition-opacity"></div>
                                             
@@ -375,9 +375,9 @@ function InviteFlow2() {
                                                 [ OPTION {idx + 1} : {g.title.split(' ')[0]} ]
                                             </p>
                                             
-                                            <div className="flex flex-col gap-2 relative z-10 w-full h-full">
-                                                <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest mb-2 group-hover:text-[#fbaa19] transition-colors min-h-[64px]">
-                                                    <TypewriterLine text={g.title} startDelay={idx * 300 + 500} />
+                                            <div className="flex flex-col gap-2 relative z-10 w-full">
+                                                <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest mb-2 group-hover:text-[#fbaa19] transition-colors">
+                                                    {g.title}
                                                 </h3>
                                                 
                                                 <div className="flex flex-wrap gap-2 mb-3">
@@ -387,11 +387,11 @@ function InviteFlow2() {
                                                         </span>
                                                     ))}
                                                 </div>
-                                                <p className="text-sm md:text-base text-gray-300 font-bold uppercase tracking-widest leading-relaxed group-hover:text-white transition-colors mb-6">
-                                                    <TypewriterLine text={g.hint} startDelay={idx * 300 + 1500} />
+                                                <p className="text-sm md:text-base text-gray-300 font-bold uppercase tracking-widest leading-relaxed group-hover:text-white transition-colors mb-2">
+                                                    {g.hint}
                                                 </p>
                                                 
-                                                <div className="mt-auto pt-4 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="mt-2 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <span className="text-[#fbaa19] text-[10px] font-bold tracking-widest uppercase animate-pulse">
                                                         [ SELECT ]
                                                     </span>
@@ -401,13 +401,13 @@ function InviteFlow2() {
                                     ))}
                                 </div>
                                 
-                                <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up mt-2" style={{ animationDelay: `${dict.groups.length * 150}ms` }}>
+                                <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up mt-2" style={{ animationDelay: `${dict.groups.length * 600}ms`, animationFillMode: 'both' }}>
                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
                                     <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
                                         [ AWAITING DECISION ]
                                     </p>
                                     <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest text-center">
-                                        <TypewriterLine text="Onde você vai assinar?" startDelay={2500} />
+                                        <TypewriterLine text="Onde você vai assinar?" startDelay={dict.groups.length * 600 + 500} />
                                     </div>
                                 </div>
                             </div>
