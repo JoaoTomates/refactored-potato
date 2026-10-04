@@ -7,7 +7,7 @@ import Footer from './footer';
 
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isHiddenRoute = pathname === '/invite' || pathname === '/invite2' || pathname === '/invite3' || pathname === '/invite4' || pathname === '/academy';
+    const isHiddenRoute = pathname === '/invite' || pathname === '/invite2' || pathname === '/invite3' || pathname === '/invite4' || pathname === '/academy' || pathname === '/headquarters';
 
     return (
         <div className="flex flex-col min-h-screen w-full">

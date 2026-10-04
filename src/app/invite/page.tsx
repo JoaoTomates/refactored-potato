@@ -225,8 +225,7 @@ function InviteFlow() {
                 throw new Error("Não há equipes cadastradas para esse bloco.");
             }
             
-            const randomTeam = groupTeams[Math.floor(Math.random() * groupTeams.length)];
-            setSelectedTeamId(randomTeam.id);
+            localStorage.setItem('draft_alliance', groupId);
             setPhase('ENLIST');
         } catch (err: any) {
             console.error(err);
@@ -274,7 +273,7 @@ function InviteFlow() {
 
             if (authError) throw authError;
 
-            if (authData.user && selectedTeamId) {
+            if (authData.user) {
                 const nameParts = fullName.trim().split(' ');
                 const rawFirst = nameParts[0] || 'Rookie';
                 const rawLast = nameParts.slice(1).join(' ') || 'Strategist';
@@ -289,7 +288,7 @@ function InviteFlow() {
                     last_name: cleanLastName,
                     nationality: null,
                     org_color: '#000000',
-                    setup_completed: true, 
+                    setup_completed: false, 
                     slug: slug
                 }).eq('id', authData.user.id);
 
@@ -300,12 +299,12 @@ function InviteFlow() {
                         last_name: cleanLastName,
                         nationality: null,
                         org_color: '#000000',
-                        setup_completed: true,
+                        setup_completed: false,
                         slug: slug
                     });
                 }
                 
-                await signInitialContract(selectedTeamId, slug);
+                window.location.href = '/headquarters';
             }
         } catch (err: any) {
             console.error(err);
