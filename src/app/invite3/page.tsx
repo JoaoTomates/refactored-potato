@@ -44,7 +44,7 @@ class PitWallSoundEngine {
 
 const retroSound = new PitWallSoundEngine();
 
-type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'ENLIST' | 'PROCESSING';
+type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'FETCHING_TEAM' | 'ENLIST' | 'SUBMITTING_ENLIST';
 
 const TEAM_COLORS: Record<string, string> = {
     MCL: '#FF8000', MER: '#00D2BE', WIL: '#005AFF', ALP: '#FD4BC7',
@@ -155,7 +155,7 @@ function InviteFlow3() {
     const [phase, setPhase] = useState<Phase>('LOADING');
     const [introReady, setIntroReady] = useState(false);
     const [autoIndex, setAutoIndex] = useState(1);
-    const [groupIndex, setGroupIndex] = useState(0); // 0: A, 1: B, 2: C
+    const [groupIndex, setGroupIndex] = useState(0); 
     
     const [readyFlags, setReadyFlags] = useState<Record<number, boolean>>({});
     const [groupReadyFlags, setGroupReadyFlags] = useState<Record<string, boolean>>({});
@@ -196,7 +196,7 @@ function InviteFlow3() {
     const startAutoDialog = () => {
         retroSound.init();
         setPhase('AUTO_DIALOG');
-        setAutoIndex(1); // Starts at box index 1
+        setAutoIndex(1);
     };
 
     const startGroupSelect = () => {
@@ -206,25 +206,35 @@ function InviteFlow3() {
     };
 
     const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
-        if (!groupReadyFlags[groupId]) return; // prevent click before typing finishes
+        if (!groupReadyFlags[groupId]) return; 
         
         retroSound.init();
         setSelectedGroup(groupId);
-        setPhase('PROCESSING');
+        setPhase('FETCHING_TEAM');
+        setErrorMsg("");
         
         try {
-            const { data, error } = await supabase.from('teams').select('*').eq('is_available', true);
+            const { data, error } = await supabase.from('teams').select('*');
             if (error) throw error;
             
             const groupData = ENGINE_FACTIONS[groupId];
-            const groupTeams = data.filter(t => groupData.teams.includes(t.code));
+            
+            // Tenta pegar equipes disponíveis, se nenhuma, pega qualquer uma do grupo.
+            let groupTeams = data.filter(t => groupData.teams.includes(t.code) && t.is_available);
+            if (groupTeams.length === 0) {
+                groupTeams = data.filter(t => groupData.teams.includes(t.code));
+            }
+            
+            if (groupTeams.length === 0) {
+                throw new Error("Não há equipes cadastradas para esse bloco.");
+            }
             
             const randomTeam = groupTeams[Math.floor(Math.random() * groupTeams.length)];
             setSelectedTeamId(randomTeam.id);
             setPhase('ENLIST');
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setErrorMsg("ERRO NA CONEXÃO");
+            setErrorMsg(err.message || "ERRO NA CONEXÃO");
             setPhase('GROUP_SELECT');
         }
     };
@@ -250,7 +260,7 @@ function InviteFlow3() {
     const handleEnlistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         retroSound.init();
-        setPhase('PROCESSING');
+        setPhase('SUBMITTING_ENLIST');
         setErrorMsg("");
 
         try {
@@ -318,7 +328,6 @@ function InviteFlow3() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            {/* INTRO PHASE: Box 1 */}
             {phase === 'INTRO' && (
                 <div className="absolute bottom-[25%] md:bottom-[30%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
@@ -339,11 +348,9 @@ function InviteFlow3() {
                 </div>
             )}
 
-            {/* AUTO_DIALOG PHASE */}
             {phase === 'AUTO_DIALOG' && (
                 <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
                     {customDialogs.map((dialog, idx) => {
-                        // Skip idx 0
                         if (idx === 0) return null;
                         
                         if (idx <= autoIndex) {
@@ -381,12 +388,17 @@ function InviteFlow3() {
                 </div>
             )}
 
-            {/* GROUP SELECT PHASE */}
             {phase === 'GROUP_SELECT' && (
                 <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 mb-16 px-4">
                     <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-3 shadow-2xl text-[10px] md:text-xs mb-1 animate-fade-in">
                         DECODIFICANDO DADOS DE ALIANÇAS...
                     </p>
+                    
+                    {errorMsg && (
+                        <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in">
+                            [ERRO] {errorMsg}
+                        </div>
+                    )}
                     
                     {(['A', 'B', 'C'] as const).map((groupId, idx) => {
                         if (idx > groupIndex) return null;
@@ -431,8 +443,16 @@ function InviteFlow3() {
                 </div>
             )}
 
-            {/* ENLIST BOX */}
-            {(phase === 'ENLIST' || phase === 'PROCESSING') && selectedGroup && (
+            {phase === 'FETCHING_TEAM' && (
+                <div className="relative z-10 w-full flex flex-col items-center justify-center gap-6 mt-32 px-4">
+                    <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs md:text-sm">
+                        &gt;_ NEGOCIANDO CONTRATO...
+                    </p>
+                </div>
+            )}
+
+            {(phase === 'ENLIST' || phase === 'SUBMITTING_ENLIST') && selectedGroup && (
                 <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4">
                     <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
                         <div>
@@ -451,7 +471,7 @@ function InviteFlow3() {
                                 </div>
                             )}
                             
-                            {phase === 'PROCESSING' ? (
+                            {phase === 'SUBMITTING_ENLIST' ? (
                                 <div className="flex flex-col items-center justify-center gap-6 py-8">
                                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
                                     <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ INICIALIZANDO SUPERLICENÇA...</p>
