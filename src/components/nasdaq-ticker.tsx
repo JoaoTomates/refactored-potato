@@ -1,120 +1,161 @@
-﻿"use client";
+"use client";
+
+import React, { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import { fetchNextEvent, type F1Event } from '@/api/f1-data';
+import Link from 'next/link';
+import { supabase } from '@/utils/supabase';
+import { F1_TEAMS } from '@/lib/teams';
 
-export default function NasdaqTicker() {
-    const pathname = usePathname();
-    if (pathname === '/' || pathname === '/superlicense' || pathname === '/invite') return null;
-
-    const [event, setEvent] = useState<F1Event | null>(null);
-    const [currentTime, setCurrentTime] = useState(new Date());
-
-    useEffect(() => {
-        fetchNextEvent().then(setEvent);
-        
-        // Update time every minute to check if race goes live while user is on page
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 60000);
-        return () => clearInterval(timer);
-    }, []);
-
-    if (!event) return null;
-
-    // The deadline is typically the start of Qualifying
-    const qualiTimeStr = event.qualiDate && event.qualiTime 
-        ? (() => {
-            const date = new Date(`${event.qualiDate}T${event.qualiTime}`);
-            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
-            const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            return `${dayOfWeek} ${time}`;
-        })()
-        : "TBA";
-
-    const tickerText = `MKT: ${event.status} | RND ${event.round} | EVT ${event.name} | LOC ${event.circuit} | RACE ${event.date} ${event.time}`;
-
-    // Dynamic Label Logic
-    let leftLabelText = "RACE WEEK";
-    let isLive = false;
-
-    if (event.rawDate && event.rawTime) {
-        // Race start time object
-        const raceDate = new Date(`${event.rawDate}T${event.rawTime}`);
-        
-        // Check if today is race day (comparing local calendar dates)
-        if (currentTime.toDateString() === raceDate.toDateString()) {
-            leftLabelText = "RACE TODAY";
-            
-            // Check if it is currently Race Time (assuming a window of ~2.5 hours for the race)
-            const raceStartMs = raceDate.getTime();
-            const nowMs = currentTime.getTime();
-            const twoAndHalfHoursMs = 2.5 * 60 * 60 * 1000;
-            
-            // Allow up to 10 minutes before the race to show LIVE
-            if (nowMs >= (raceStartMs - 10 * 60000) && nowMs <= (raceStartMs + twoAndHalfHoursMs)) {
-                leftLabelText = "RACE LIVE";
-                isLive = true;
-            }
-        }
+/* ---------- Pseudo-random determinístico ---------- */
+function hashString(s: string) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
     }
+    return h >>> 0;
+}
 
+function seeded(seed: number) {
+    let a = seed;
+    return () => {
+        a |= 0;
+        a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function buildSeries(key: string, n = 24, base = 100, vol = 0.12) {
+    const rnd = seeded(hashString(key));
+    const out: number[] = [];
+    let v = base * (0.7 + rnd() * 0.6);
+    for (let i = 0; i < n; i++) {
+        v = Math.max(15, v * (1 + (rnd() - 0.46) * vol));
+        out.push(+v.toFixed(2));
+    }
+    return out;
+}
+
+const pct = (a: number, b: number) => (b === 0 ? 0 : ((a - b) / b) * 100);
+const fmt = (v: number) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+interface Strategist {
+    id: string;
+    slug: string | null;
+    name: string;
+    series: number[];
+}
+
+const DEMO_NAMES = [
+    'M. KOVAC', 'J. TANAKA', 'R. SILVA', 'A. BERG', 'L. MOREAU',
+    'D. OKAFOR', 'I. PETROVA', 'C. VEGA', 'T. NAKAMURA', 'H. LINDQVIST'
+];
+
+function makeStrategist(id: string, name: string, slug: string | null): Strategist {
+    return {
+        id,
+        slug,
+        name,
+        series: buildSeries(id),
+    };
+}
+
+function Delta({ value, className = '' }: { value: number; className?: string }) {
+    const up = value >= 0;
     return (
-        <div className="w-full border-t border-[#1a1a1a] bg-[#050505]"><a href="/telemetry" className="block max-w-5xl mx-auto bg-[#0a0a0a] h-8 flex items-center justify-center relative overflow-hidden hover:bg-[#111] transition-colors cursor-pointer group">
-            {/* Wrapper matching Navbar width */}
-            <div className="w-full max-w-5xl mx-auto px-4 md:px-8 flex items-center justify-between h-full relative gap-4">
-                
-                {/* Left Fixed Label */}
-                <div className="z-20 bg-[#0a0a0a] pr-3 py-1 flex items-center shrink-0">
-                    <span className={`font-black tracking-widest uppercase text-[9px] sm:text-[10px] ${isLive ? 'text-red-500 animate-pulse' : 'text-[#00ff00]'}`}>
-                        {leftLabelText}
-                    </span>
-                </div>
-
-                {/* Marquee area */}
-                <div className="flex-1 overflow-hidden relative h-full flex items-center">
-                    {/* Gradient masks */}
-                    <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-[#0a0a0a] to-transparent z-10 pointer-events-none"></div>
-                    <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-[#0a0a0a] to-transparent z-10 pointer-events-none"></div>
-                    
-                    <style dangerouslySetInnerHTML={{__html: `
-                        @keyframes marquee-disappear {
-                            0% { transform: translateX(100%); opacity: 1; }
-                            35% { transform: translateX(-100%); opacity: 1; }
-                            36% { opacity: 0; }
-                            100% { transform: translateX(-100%); opacity: 0; }
-                        }
-                        .animate-marquee-pause {
-                            display: inline-block;
-                            white-space: nowrap;
-                            animation: marquee-disappear 25s linear infinite;
-                        }
-                        @media (min-width: 768px) {
-                            .animate-marquee-pause {
-                                animation: marquee-disappear 60s linear infinite;
-                            }
-                            will-change: transform;
-                        }
-                    `}} />
-
-                    <div className="w-full relative h-full flex items-center">
-                        <div className="absolute w-full animate-marquee-pause text-[#00ff00] text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.2em] uppercase whitespace-nowrap">
-                            {tickerText}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Fixed Label (Deadline) */}
-                <div className="z-20 bg-[#0a0a0a] pl-3 py-1 flex items-center shrink-0">
-                    <span className="text-red-500 font-bold tracking-widest uppercase text-[9px] sm:text-[10px] flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                        Q-DEADLINE: {qualiTimeStr}
-                    </span>
-                </div>
-
-            </div>
-        </a></div>
+        <span className={`${up ? 'text-emerald-400' : 'text-red-400'} font-bold tabular-nums ${className}`}>
+            {up ? '▲' : '▼'} {Math.abs(value).toFixed(2)}%
+        </span>
     );
 }
 
+export default function NasdaqTicker() {
+    const pathname = usePathname();
 
+    // Do not show on onboarding or inside playground (where it already has its own embedded ticker)
+    if (
+        pathname === '/' ||
+        pathname === '/superlicense' ||
+        pathname === '/invite' ||
+        pathname === '/invite4' ||
+        pathname === '/playground' ||
+        pathname === '/academy'
+    ) {
+        return null;
+    }
+
+    const [field, setField] = useState<Strategist[]>([]);
+
+    useEffect(() => {
+        let isMounted = true;
+        const loadStrategists = async () => {
+            try {
+                const { data: contracts } = await supabase
+                    .from('contracts')
+                    .select('user_id, profiles(slug, first_name, last_name)');
+
+                if (!isMounted) return;
+
+                const real: Strategist[] = (contracts || []).map((c: any) => {
+                    const p = c.profiles || {};
+                    const name = p.first_name ? `${p.first_name.charAt(0)}. ${p.last_name || ''}`.trim() : 'ESTRATEGISTA';
+                    return makeStrategist(c.user_id, name.toUpperCase(), p.slug || null);
+                });
+
+                const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
+                setField(real.length >= 4 ? real : [...real, ...demos]);
+            } catch (err) {
+                console.error("Erro ao carregar cotações do Ticker:", err);
+                const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
+                if (isMounted) setField(demos);
+            }
+        };
+
+        loadStrategists();
+        return () => { isMounted = false; };
+    }, []);
+
+    const tickerItems = useMemo(() => {
+        const list = field.length ? field : DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
+        return list.map(s => ({
+            sym: `$${(s.slug || s.name).replace(/[@.\s]/g, '').toUpperCase()}`,
+            price: s.series[s.series.length - 1],
+            chg: pct(s.series[s.series.length - 1], s.series[s.series.length - 2]),
+            slug: s.slug,
+        }));
+    }, [field]);
+
+    return (
+        <div className="w-full overflow-hidden border-b border-white/5 bg-black/60 font-mono relative z-30 select-none">
+            <style>{`
+                @keyframes vg-marquee-global {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(-50%); }
+                }
+                .vg-marquee-global {
+                    animation: vg-marquee-global 45s linear infinite;
+                }
+                .vg-marquee-global:hover {
+                    animation-play-state: paused;
+                }
+            `}</style>
+
+            <div className="vg-marquee-global flex w-max whitespace-nowrap py-2 cursor-pointer">
+                {[...tickerItems, ...tickerItems].map((t, i) => (
+                    <Link
+                        key={i}
+                        href={t.slug ? `/${t.slug.startsWith('@') ? t.slug : `@${t.slug}`}` : '/playground'}
+                        className="flex items-center gap-2 px-5 text-[11px] tracking-widest border-r border-white/5 hover:bg-white/5 transition-colors"
+                        title={`Ver cotação de ${t.sym}`}
+                    >
+                        <span className="text-white/80 font-bold">{t.sym}</span>
+                        <span className="text-white/50 tabular-nums">{fmt(t.price)}</span>
+                        <Delta value={t.chg} className="text-[10px]" />
+                    </Link>
+                ))}
+            </div>
+        </div>
+    );
+}
