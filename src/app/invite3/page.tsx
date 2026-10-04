@@ -4,93 +4,37 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { INVITE_LOCALE, Locale } from '@/locales/invite';
 
-// --- PitWall Sound Engine ---
-class PitWallSoundEngine {
-  ctx: AudioContext | null = null;
-  enabled: boolean = true;
+type Step = 'LOADING' | 'DIALOG' | 'GROUP_SELECT' | 'TEAM_SELECT' | 'AUTH' | 'PROFILE' | 'PROCESSING';
 
-  init() {
-    if (typeof window === 'undefined') return;
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  playKeyClick(char = 'a') {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      const code = char.charCodeAt(0) || 65;
-      const freq = 380 + (code % 28) * 14;
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.028);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.03);
-    } catch (_) {}
-  }
-}
-
-const retroSound = new PitWallSoundEngine();
-
-type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'FETCHING_TEAM' | 'ENLIST' | 'SUBMITTING_ENLIST';
-
-const customDialogs = [
-    "Puxe uma cadeira e feche a porta.",
-    "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
-    "Você lê o traçado antes das luzes apagarem.",
-    "Mas você sabe que o novo regulamento de motores deflagrou uma verdadeira guerra fria nos bastidores. As fronteiras foram desenhadas e três grandes alianças se formaram no grid.",
-    "Chegou a hora de escolher o seu lado e buscar uma vaga no pitwall entre os melhores."
-];
-
-const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
-  A: {
-    id: 'A',
-    badge: 'BLOCO A',
-    title: 'CONSÓRCIO DA ESTRELA',
-    sub: 'Confiabilidade de Aço & Domínio de Frota',
-    engineSpec: 'Mercedes V6 Hybrid',
-    teamsString: 'Mercedes-AMG • McLaren • Alpine • Williams',
-    teams: ['MER', 'MCL', 'ALP', 'WIL'],
-    fantasyPerk: '+15% XP em previsões de consistência.',
-    directorResponse: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
-  },
-  B: {
-    id: 'B',
-    badge: 'BLOCO B',
-    title: 'A DINASTIA DE MARANELLO',
-    sub: 'Potência de Pico & A Frente Americana',
-    engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
-    teamsString: 'Scuderia Ferrari • Haas • Cadillac',
-    teams: ['FER', 'HAA', 'CAD'],
-    fantasyPerk: '2x XP em apostas arriscadas de pole.',
-    directorResponse: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”'
-  },
-  C: {
-    id: 'C',
-    badge: 'BLOCO C',
-    title: 'OS DESAFIANTES',
-    sub: 'Risco Tecnológico & Ambição',
-    engineSpec: 'Ford / Honda / Audi PU',
-    teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
-    teams: ['RBR', 'RBA', 'AST', 'AUD'],
-    fantasyPerk: '+25% XP ao prever cenários de caos.',
-    directorResponse: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
-  }
+const LOGOS: Record<string, string> = {
+    MCL: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/MCL.png",
+    MER: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/MER.png",
+    WIL: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/WIL.png",
+    AST: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/AST.png",
+    ALP: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/ALP.png",
+    FER: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/FER.png",
+    HAA: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/HAA.png",
+    AUD: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/AUD.png",
+    CAD: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/CAD.png",
+    RBR: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/RBR.png",
+    RBA: "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/teams/RBA.png"
 };
 
-function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300, fastMode = false }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number, fastMode?: boolean }) {
+const TEAM_COLORS: Record<string, string> = {
+    MCL: '#FF8000', MER: '#00D2BE', WIL: '#005AFF', ALP: '#FD4BC7',
+    FER: '#DC0000', HAA: '#FFFFFF', CAD: '#C8A2C8',
+    RBR: '#0600EF', RBA: '#2B4562', AST: '#229971', AUD: '#F50537'
+};
+
+const LogoBadge = ({ code }: { code: string }) => (
+    <div className="bg-white rounded-md p-2 h-12 flex items-center justify-center shrink-0 shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+        <img src={LOGOS[code]} alt={code} className="max-w-full max-h-full object-contain" />
+    </div>
+);
+
+function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
     const [displayed, setDisplayed] = useState("");
     const [isTyping, setIsTyping] = useState(true);
     const callbacksRef = useRef({ onComplete, onReadyForNext });
@@ -109,37 +53,35 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300, fa
             if (i < text.length) {
                 setDisplayed(text.slice(0, i + 1));
                 const char = text.charAt(i);
-                
-                if (char !== ' ' && char !== '\n') {
-                    retroSound.playKeyClick(char);
-                }
-                
                 i++;
                 
-                let delay = fastMode ? (10 + Math.random() * 10) : (40 + Math.random() * 30); 
-                if (char === '.' || char === '!' || char === '?') delay = fastMode ? 100 : 400;
-                else if (char === ',' || char === '\n') delay = fastMode ? 50 : 200;
+                // organic typing speed (slower)
+                let delay = 50 + Math.random() * 30; // 50-80ms
+                
+                // pauses for punctuation
+                if (char === '.' || char === '!' || char === '?') delay = 600;
+                else if (char === ',') delay = 300;
                 
                 timeoutId = setTimeout(typeNext, delay);
             } else {
                 setIsTyping(false);
                 if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
                 if (callbacksRef.current.onComplete) {
-                    setTimeout(callbacksRef.current.onComplete, 1000); 
+                    setTimeout(callbacksRef.current.onComplete, 1500); 
                 }
             }
         };
         
-        timeoutId = setTimeout(typeNext, startDelay);
+        timeoutId = setTimeout(typeNext, startDelay); // initial delay before starting
         
         return () => {
             isCancelled = true;
             clearTimeout(timeoutId);
         };
-    }, [text, startDelay, fastMode]);
+    }, [text, startDelay]);
     
     return (
-        <span className="opacity-90 leading-relaxed relative whitespace-pre-wrap">
+        <span className="opacity-90 leading-relaxed relative">
             {displayed}
             {isTyping && <span className="text-[#fbaa19] animate-pulse ml-1 inline-block translate-y-[2px]">■</span>}
         </span>
@@ -147,28 +89,43 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300, fa
 }
 
 function InviteFlow3() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const { user, isLoading: authLoading } = useSupabaseAuth();
     
-    const [phase, setPhase] = useState<Phase>('LOADING');
-    const [introReady, setIntroReady] = useState(false);
-    const [autoIndex, setAutoIndex] = useState(1);
-    const [groupIndex, setGroupIndex] = useState(0); 
-    
-    const [readyFlags, setReadyFlags] = useState<Record<number, boolean>>({});
-    const [groupReadyFlags, setGroupReadyFlags] = useState<Record<string, boolean>>({});
-    
+    const [lang, setLang] = useState<Locale>('en');
+    const [step, setStep] = useState<Step>('LOADING');
+    const [dialogIndex, setDialogIndex] = useState(0);
     const [typingComplete, setTypingComplete] = useState(false);
+    const [showGroups, setShowGroups] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     
-    const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
+    useEffect(() => {
+        if (step === 'DIALOG' && messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+    }, [dialogIndex, step, showGroups]);
+    
+    const [teams, setTeams] = useState<any[]>([]);
+    const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     
-    const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [raceNumber, setRaceNumber] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-    
-    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const urlLang = searchParams.get('lang') as Locale;
+        if (urlLang === 'pt' || urlLang === 'en') {
+            setLang(urlLang);
+        } else {
+            const browserLang = navigator.language.toLowerCase();
+            if (browserLang.startsWith('pt')) setLang('pt');
+        }
+        
         const checkUserStatus = async () => {
             if (authLoading) return;
             if (user) {
@@ -178,85 +135,60 @@ function InviteFlow3() {
                     return;
                 }
             }
-            setPhase('INTRO');
+            setStep('DIALOG');
         };
         
         checkUserStatus();
-    }, [authLoading, user]);
+    }, [searchParams, authLoading, user]);
 
-    useEffect(() => {
-        if (messagesEndRef.current && phase !== 'INTRO') {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-    }, [autoIndex, groupIndex, phase, groupReadyFlags]);
+    const dict = INVITE_LOCALE[lang];
 
-    const startAutoDialog = () => {
-        retroSound.init();
-        setPhase('AUTO_DIALOG');
-        setAutoIndex(1);
+    const pickTwoRandom = (arr: any[]) => {
+        const shuffled = [...arr].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, 2);
     };
 
-    const startGroupSelect = () => {
-        retroSound.init();
-        setPhase('GROUP_SELECT');
-        setGroupIndex(0);
-    };
-
-    const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
-        if (!groupReadyFlags[groupId]) return; 
-        
-        retroSound.init();
+    const handleSelectGroup = async (groupId: number) => {
         setSelectedGroup(groupId);
-        setPhase('FETCHING_TEAM');
-        setErrorMsg("");
+        setStep('LOADING');
         
         try {
-            const { data, error } = await supabase.from('teams').select('*');
+            const { data, error } = await supabase.from('teams').select('*').eq('is_available', true);
             if (error) throw error;
             
-            const groupData = ENGINE_FACTIONS[groupId];
-            
-            let groupTeams = data.filter(t => groupData.teams.includes(t.code) && t.is_available);
-            if (groupTeams.length === 0) {
-                groupTeams = data.filter(t => groupData.teams.includes(t.code));
-            }
-            
-            if (groupTeams.length === 0) {
-                throw new Error("Não há equipes cadastradas para esse bloco.");
-            }
-            
-            const randomTeam = groupTeams[Math.floor(Math.random() * groupTeams.length)];
-            setSelectedTeamId(randomTeam.id);
-            setPhase('ENLIST');
-        } catch (err: any) {
+            let codes: string[] = [];
+            if (groupId === 1) codes = ['MCL', 'MER', 'WIL', 'ALP'];
+            else if (groupId === 2) codes = ['FER', 'HAA', 'CAD'];
+            else if (groupId === 3) codes = ['RBR', 'RBA', 'AST', 'AUD'];
+
+            const groupTeams = data.filter(t => codes.includes(t.code));
+            setTeams(pickTwoRandom(groupTeams));
+            setStep('TEAM_SELECT');
+        } catch (err) {
             console.error(err);
-            setErrorMsg(err.message || "ERRO NA CONEXÃO");
-            setPhase('GROUP_SELECT');
+            setErrorMsg(dict.error_fallback);
+            setStep('GROUP_SELECT');
         }
     };
 
-    const signInitialContract = async (teamId: string, slug?: string) => {
-        try {
-            const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamId });
-            if (rpcError) throw rpcError;
-            
-            if (slug) {
-                window.location.href = `/${slug}`;
-            } else {
-                const { data } = await supabase.from('profiles').select('slug').eq('id', user!.id).single();
-                window.location.href = `/${data?.slug || 'superlicense'}`;
-            }
-        } catch (err: any) {
-            console.error('RPC Error:', err);
-            setErrorMsg("FALHA NA ASSINATURA");
-            setPhase('ENLIST');
+    const handleSelectTeam = (teamId: string) => {
+        setSelectedTeamId(teamId);
+        if (user) {
+            setStep('PROCESSING');
+            signInitialContract(teamId);
+        } else {
+            setStep('AUTH');
         }
     };
 
-    const handleEnlistSubmit = async (e: React.FormEvent) => {
+    const handleAuthSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        retroSound.init();
-        setPhase('SUBMITTING_ENLIST');
+        setStep('PROFILE');
+    };
+
+    const handleProfileSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep('PROCESSING');
         setErrorMsg("");
 
         try {
@@ -265,24 +197,17 @@ function InviteFlow3() {
                 emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
             }
 
-            const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
-
             const { data: authData, error: authError } = await supabase.auth.signUp({ 
                 email: emailToUse, 
-                password: autoPassword 
+                password 
             });
 
             if (authError) throw authError;
 
             if (authData.user && selectedTeamId) {
-                const nameParts = fullName.trim().split(' ');
-                const rawFirst = nameParts[0] || 'Rookie';
-                const rawLast = nameParts.slice(1).join(' ') || 'Strategist';
-
-                const cleanFirstName = rawFirst.charAt(0).toUpperCase();
-                const cleanLastName = rawLast.toUpperCase();
-                const generatedNumber = Math.floor(Math.random() * 99) + 1;
-                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
+                const cleanFirstName = firstName.trim().charAt(0).toUpperCase();
+                const cleanLastName = lastName.trim().toUpperCase();
+                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${raceNumber}`;
 
                 const { error: profileError } = await supabase.from('profiles').update({
                     first_name: cleanFirstName,
@@ -309,14 +234,32 @@ function InviteFlow3() {
             }
         } catch (err: any) {
             console.error(err);
-            setErrorMsg(err.message || "ERRO CRÍTICO");
-            setPhase('ENLIST');
+            setErrorMsg(err.message || dict.error_fallback);
+            setStep('PROFILE');
+        }
+    };
+
+    const signInitialContract = async (teamId: string, slug?: string) => {
+        try {
+            const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamId });
+            if (rpcError) throw rpcError;
+            
+            if (slug) {
+                window.location.href = `/${slug}`;
+            } else {
+                const { data } = await supabase.from('profiles').select('slug').eq('id', user!.id).single();
+                window.location.href = `/${data?.slug || 'superlicense'}`;
+            }
+        } catch (err: any) {
+            console.error('RPC Error:', err);
+            setErrorMsg(dict.error_fallback);
+            setStep('TEAM_SELECT');
         }
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center">
-            
+        <main className="w-full min-h-screen relative bg-black overflow-y-auto overflow-x-hidden select-none flex flex-col font-rajdhani pt-12 md:pt-20">
+            {/* Pixel Art Background (Fixed Jitter) */}
             <img 
                 src="/pixel_invite_bg_v2.jpg"
                 alt=""
@@ -324,171 +267,258 @@ function InviteFlow3() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            {phase === 'INTRO' && (
-                <div className="absolute bottom-[25%] md:bottom-[30%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
-                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
-                        <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                        <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
-                        
-                        {introReady && (
-                            <div className="mt-5 flex justify-end animate-fade-in">
-                                <button 
-                                    onClick={startAutoDialog}
-                                    className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
-                                >
-                                    [ CONTINUAR ] »
-                                </button>
-                            </div>
-                        )}
+            {/* CRT Overlay Effects */}
+            <div className="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none opacity-30 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.8)_50%)] bg-[length:100%_4px]" style={{ transform: 'translateZ(0)' }}></div>
+            <div className="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none bg-radial-gradient from-transparent via-black/40 to-black/90" style={{ transform: 'translateZ(0)' }}></div>
+            
+            <div className="relative z-10 w-full max-w-xl mx-auto px-4 flex flex-col justify-end h-full mb-12 flex-1">
+                
+                {step === 'LOADING' && (
+                    <div className="w-full flex items-center justify-center p-12">
+                        <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin"></div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {phase === 'AUTO_DIALOG' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
-                    {customDialogs.map((dialog, idx) => {
-                        if (idx === 0) return null;
-                        
-                        if (idx <= autoIndex) {
+                {step === 'PROCESSING' && (
+                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin mb-4"></div>
+                        <p className="text-[#fbaa19] font-black uppercase tracking-widest animate-pulse">{dict.processing}</p>
+                    </div>
+                )}
+
+                {step === 'DIALOG' && (
+                    <div className="w-full flex flex-col gap-6 relative">
+                        {dict.dialog.slice(0, dialogIndex + 1).map((text, i) => {
+                            const isLastInSequence = i === dict.dialog.length - 1;
+                            const isCurrent = i === dialogIndex;
                             return (
-                                <div key={idx} className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
-                                    <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine 
-                                        text={dialog} 
-                                        startDelay={150} 
-                                        onReadyForNext={() => {
-                                            if (idx < customDialogs.length - 1) {
-                                                setTimeout(() => setAutoIndex(idx + 1), 1000);
-                                            } else {
-                                                setReadyFlags(prev => ({ ...prev, [idx]: true }));
-                                            }
-                                        }} 
-                                    />
-                                    
-                                    {readyFlags[idx] && idx === customDialogs.length - 1 && (
-                                        <div className="mt-5 flex justify-end animate-fade-in">
-                                            <button 
-                                                onClick={startGroupSelect}
-                                                className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
-                                            >
-                                                [ ACESSAR ALIANÇAS ] »
-                                            </button>
-                                        </div>
-                                    )}
+                                <div key={i} className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                                    <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                                        {isCurrent ? "INCOMING TRANSMISSION..." : "TRANSMISSION SECURED."}
+                                    </p>
+                                    <div className="text-white text-lg md:text-xl font-bold uppercase tracking-widest">
+                                        {isCurrent ? (
+                                            <TypewriterLine 
+                                                text={text} 
+                                                startDelay={i === 0 ? 1500 : 500} 
+                                                onReadyForNext={() => {
+                                                    if (!isLastInSequence) {
+                                                        setTimeout(() => {
+                                                            setDialogIndex(prev => prev + 1);
+                                                        }, 2500); 
+                                                    }
+                                                }}
+                                                onComplete={isLastInSequence ? () => setShowGroups(true) : undefined}
+                                            />
+                                        ) : (
+                                            <span className="opacity-70">{text}</span>
+                                        )}
+                                    </div>
                                 </div>
                             );
-                        }
-                        return null;
-                    })}
-                    <div ref={messagesEndRef} className="h-4 w-full" />
-                </div>
-            )}
-
-            {phase === 'GROUP_SELECT' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
-                    {errorMsg && (
-                        <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in">
-                            [ERRO] {errorMsg}
-                        </div>
-                    )}
-                    
-                    {(['A', 'B', 'C'] as const).map((groupId, idx) => {
-                        if (idx > groupIndex) return null;
+                        })}
                         
-                        const g = ENGINE_FACTIONS[groupId];
-                        // Integramos os nomes das equipes diretamente no texto typewriter para manter tudo no mesmo padrão limpo
-                        const fullText = `[${g.badge}] ${g.title}\n> ${g.sub}\n> EQUIPES: ${g.teamsString}\n> SPEC: ${g.engineSpec}\n> PERK: ${g.fantasyPerk}`;
-                        const isReady = groupReadyFlags[groupId];
-
-                        return (
-                            <div 
-                                key={g.id} 
-                                className={`w-full bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl p-4 md:p-5 animate-fade-in transition-all ${isReady ? 'cursor-pointer border-[#fbaa19]/30 hover:border-[#fbaa19] hover:bg-black/90 group' : 'border-white/10'}`}
-                                onClick={() => handleSelectGroup(groupId)}
-                            >
-                                <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed">
-                                    <TypewriterLine 
-                                        text={fullText} 
-                                        startDelay={100} 
-                                        fastMode={true}
-                                        onReadyForNext={() => {
-                                            setGroupReadyFlags(prev => ({...prev, [groupId]: true}));
-                                            if (idx < 2) {
-                                                setTimeout(() => setGroupIndex(idx + 1), 400);
-                                            }
-                                        }}
-                                    />
-                                </div>
+                        {showGroups && (
+                            <div className="w-full animate-fade-in flex flex-col gap-6 mt-2">
+                                {dict.groups.map((g: any, idx: number) => (
+                                    <button
+                                        key={g.id}
+                                        onClick={() => handleSelectGroup(g.id)}
+                                        className="group w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] hover:bg-[#1a1a1a]/95 transition-all flex flex-col text-left relative overflow-hidden"
+                                        style={{ animationDelay: `${idx * 150}ms` }}
+                                    >
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0 group-hover:opacity-100 opacity-70 transition-opacity"></div>
+                                        
+                                        <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                                            [ OPTION {idx + 1} : {g.title.split(' ')[0]} ]
+                                        </p>
+                                        
+                                        <div className="flex flex-col gap-2 relative z-10 w-full">
+                                            <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest mb-2 group-hover:text-[#fbaa19] transition-colors">
+                                                {g.title}
+                                            </h3>
+                                            
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {g.teams.map((tCode: string) => (
+                                                    <span key={tCode} className="text-[10px] md:text-xs font-black px-2 py-0.5 rounded-sm bg-black/50 border border-[#fbaa19]/30" style={{ color: TEAM_COLORS[tCode] }}>
+                                                        {tCode}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <p className="text-sm md:text-base text-gray-300 font-bold uppercase tracking-widest leading-relaxed group-hover:text-white transition-colors">
+                                                {g.hint}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="text-[#fbaa19] text-[10px] font-bold tracking-widest uppercase animate-pulse">
+                                                [ SELECT ]
+                                            </span>
+                                        </div>
+                                    </button>
+                                ))}
                             </div>
-                        );
-                    })}
-                    <div ref={messagesEndRef} className="h-4 w-full" />
-                </div>
-            )}
+                        )}
+                        <div ref={messagesEndRef} className="h-2 w-full" />
+                    </div>
+                )}
 
-            {phase === 'FETCHING_TEAM' && (
-                <div className="relative z-10 w-full flex flex-col items-center justify-center gap-6 mt-32 px-4">
-                    <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs md:text-sm">
-                        &gt;_ NEGOCIANDO CONTRATO...
-                    </p>
-                </div>
-            )}
-
-            {(phase === 'ENLIST' || phase === 'SUBMITTING_ENLIST') && selectedGroup && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4">
-                    <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
-                        <div>
-                            <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-3 uppercase">
-                                RESPOSTA DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
-                            </p>
-                            <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
-                                <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={300} onReadyForNext={() => setTypingComplete(true)} />
-                            </div>
-                        </div>
+                {step === 'TEAM_SELECT' && (
+                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
                         
-                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full mt-4 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                            {errorMsg && (
-                                <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
-                                    [ERRO] {errorMsg}
+                        <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                            [ AWAITING INPUT : {dict.team_prompt} ]
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {teams.map((team, idx) => (
+                                <button
+                                    key={team.id}
+                                    onClick={() => handleSelectTeam(team.id)}
+                                    className="group w-full bg-[#0a0a0a]/95 border-2 border-white/10 hover:border-[#fbaa19] p-6 hover:bg-[#1a1a1a]/95 transition-all flex flex-col text-left relative overflow-hidden animate-slide-up"
+                                    style={{ animationDelay: `${idx * 150}ms` }}
+                                >
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    
+                                    <div className="flex justify-between items-start mb-4 w-full relative z-10">
+                                        <LogoBadge code={team.code} />
+                                        <div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: team.color }}></div>
+                                    </div>
+                                    
+                                    <div className="relative z-10 w-full flex flex-col flex-1">
+                                        <h3 className="text-xl font-black text-white uppercase tracking-widest mb-1 group-hover:text-[#fbaa19] transition-colors">{team.name}</h3>
+                                        <p className="text-xs font-bold tracking-widest uppercase mb-6" style={{ color: TEAM_COLORS[team.code] || '#999' }}>{team.code}</p>
+                                        
+                                        <div className="mt-auto flex justify-between items-end w-full">
+                                            <span className={`text-xs font-bold uppercase tracking-widest ${team.is_available ? 'text-green-500' : 'text-red-500'}`}>
+                                                {team.is_available ? `${2 - team.spots_taken} VAGAS LIVRES` : 'CONTRATO FECHADO'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {team.is_available && (
+                                        <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="text-[#fbaa19] text-[10px] font-bold tracking-widest uppercase animate-pulse">
+                                                [ SELECT ]
+                                            </span>
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {(step === 'AUTH' || step === 'PROFILE') && (
+                    <div className="w-full bg-[#0a0a0a]/95 border-2 border-[#fbaa19] p-6 md:p-8 shadow-[0_0_40px_rgba(251,170,25,0.15)] relative animate-slide-up">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0"></div>
+                        
+                        <p className="text-[#fbaa19] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                            [ CREDENTIALS REQUIRED : {step === 'AUTH' ? 'SECURE CHANNEL' : 'PILOT REGISTRATION'} ]
+                        </p>
+                        
+                        {errorMsg && (
+                            <div className="mb-6 p-4 bg-red-500/10 border-l-2 border-red-500 flex items-center">
+                                <span className="text-red-500 text-xs font-bold uppercase tracking-widest w-full">
+                                    ERR: {errorMsg}
+                                </span>
+                            </div>
+                        )}
+
+                        {step === 'AUTH' && (
+                            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-6 relative z-10">
+                                <div className="mb-2">
+                                    <p className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
+                                        <TypewriterLine text={dict.contact_prompt} startDelay={300} />
+                                    </p>
                                 </div>
-                            )}
-                            
-                            {phase === 'SUBMITTING_ENLIST' ? (
-                                <div className="flex flex-col items-center justify-center gap-6 py-8">
-                                    <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ INICIALIZANDO SUPERLICENÇA...</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex flex-col md:flex-row gap-4">
+                                <div className="flex flex-col gap-4">
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xs font-bold">{">"}</span>
                                         <input 
                                             type="text" 
                                             required
-                                            placeholder="NOME E SOBRENOME"
-                                            value={fullName}
-                                            onChange={e => setFullName(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
-                                        />
-                                        <input 
-                                            type="email" 
-                                            required
-                                            placeholder="E-MAIL"
+                                            placeholder={dict.email_placeholder}
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
+                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
                                         />
                                     </div>
-                                    
-                                    <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
-                                        [ ASSINAR CONTRATO E ACESSAR PITWALL ]
-                                    </button>
-                                </>
-                            )}
-                        </form>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xs font-bold">{">"}</span>
+                                        <input 
+                                            type="password" 
+                                            required
+                                            placeholder={dict.password_placeholder}
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
+                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                        />
+                                    </div>
+                                </div>
+                                <button type="submit" className="group relative w-full bg-[#0a0a0a] border-2 border-[#fbaa19] text-[#fbaa19] font-black uppercase tracking-[0.3em] p-5 hover:bg-[#fbaa19] hover:text-black transition-colors overflow-hidden mt-2">
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        [ {dict.btn_continue} ]
+                                    </span>
+                                </button>
+                            </form>
+                        )}
+
+                        {step === 'PROFILE' && (
+                            <form onSubmit={handleProfileSubmit} className="flex flex-col gap-6 relative z-10">
+                                <div className="mb-2">
+                                    <p className="text-white text-lg md:text-xl font-bold uppercase tracking-widest leading-relaxed">
+                                        <TypewriterLine text={dict.profile_prompt} startDelay={300} />
+                                    </p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="relative w-1/2">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xs font-bold">{">"}</span>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            placeholder={dict.first_name_placeholder}
+                                            value={firstName}
+                                            onChange={e => setFirstName(e.target.value)}
+                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                        />
+                                    </div>
+                                    <div className="relative w-1/2">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xs font-bold">{">"}</span>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            placeholder={dict.last_name_placeholder}
+                                            value={lastName}
+                                            onChange={e => setLastName(e.target.value)}
+                                            className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="relative w-full">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#fbaa19] text-xs font-bold">{">"}</span>
+                                    <input 
+                                        type="number" 
+                                        required
+                                        min="0" max="99"
+                                        placeholder={dict.number_placeholder}
+                                        value={raceNumber}
+                                        onChange={e => setRaceNumber(e.target.value)}
+                                        className="w-full bg-black/50 border-2 border-white/10 text-white p-4 pl-10 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] focus:bg-[#0a0a0a] transition-all placeholder-white/20"
+                                    />
+                                </div>
+                                <button type="submit" className="group relative w-full bg-[#fbaa19] border-2 border-[#fbaa19] text-black font-black uppercase tracking-[0.3em] p-5 hover:bg-white hover:border-white transition-colors overflow-hidden mt-2">
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        [ {dict.btn_sign} ]
+                                    </span>
+                                </button>
+                            </form>
+                        )}
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </main>
     );
 }
