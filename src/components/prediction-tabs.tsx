@@ -1,45 +1,128 @@
-﻿"use client";
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import F1BetRemoteControl from './f1-bet-remote-control';
 import HeadToHead from './head-to-head';
 import Top10Finish from './top-10-finish';
-
 import Poletime from './poletime';
 import Evo from './evo';
 import Misc from './misc';
+import Link from 'next/link';
 
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSwipe } from '@/hooks/useSwipe';
 import { useRouter } from 'next/navigation';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
-
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
-
 const TABS_ORDER = ['all-forms', 'poletime', 'master', 'evo', 'head-to-head', 'misc'];
+
+interface PilotProfile {
+    name: string;
+    slug: string | null;
+    driverNumber: string | null;
+    teamName: string | null;
+    teamColor: string | null;
+    avatarUrl: string | null;
+}
 
 const PredictionTabs = () => {
     const [activeId, setActiveId] = useState('all-forms');
     const [isMounted, setIsMounted] = useState(false);
+    const { user } = useSupabaseAuth();
+    const [pilot, setPilot] = useState<PilotProfile | null>(null);
+    const [hasSyncedFromDb, setHasSyncedFromDb] = useState(false);
 
     // Global validation for ALL forms
     const { top10, evo, h2h, misc, poletime, setPoletime, setTop10, setEvo, setH2H, setMisc } = usePredictionStore();
+    const { submit: handleSubmitAll, isSubmitting, isSuccess } = useSubmitPrediction();
 
-        const { submit: handleSubmitAll, isSubmitting, isSuccess } = useSubmitPrediction();
+    // 1. Fetch pilot profile and official team contract
+    useEffect(() => {
+        if (!user) {
+            setPilot(null);
+            return;
+        }
 
-    const handleClearAll = () => {
-        setPoletime([0,0,0,0,0,0]);
-        setTop10(Array(10).fill(''));
-        setEvo(Array(5).fill(''));
-        setH2H({});
-        setMisc({});
-    };
+        let isSubscribed = true;
+        const fetchPilotDetails = async () => {
+            try {
+                const [profRes, contractRes] = await Promise.all([
+                    supabase.from('profiles').select('first_name, last_name, username, slug, driver_number, avatar_url').eq('id', user.id).maybeSingle(),
+                    supabase.from('contracts').select('group_id, teams(name, color)').eq('user_id', user.id).maybeSingle()
+                ]);
 
-    const handleAIAssistAll = () => {
-        // TODO: AI logic for all forms
-        console.log("AUTO All triggered");
-    };
+                if (!isSubscribed) return;
+
+                const prof = profRes.data;
+                const contract = contractRes.data;
+                const teamInfo = contract?.teams ? (Array.isArray(contract.teams) ? contract.teams[0] : contract.teams) : null;
+
+                const displayName = prof?.first_name && prof?.last_name 
+                    ? `${prof.first_name} ${prof.last_name}`
+                    : (prof?.username || prof?.slug || user.email?.split('@')[0] || 'PILOTO');
+
+                setPilot({
+                    name: displayName,
+                    slug: prof?.slug || null,
+                    driverNumber: prof?.driver_number ? String(prof.driver_number) : null,
+                    teamName: teamInfo?.name || null,
+                    teamColor: teamInfo?.color || '#fbaa19',
+                    avatarUrl: prof?.avatar_url || null
+                });
+            } catch (err) {
+                console.error("Erro ao obter dados do piloto:", err);
+            }
+        };
+
+        fetchPilotDetails();
+        return () => { isSubscribed = false; };
+    }, [user]);
+
+    // 2. Fetch and restore predictions saved in Supabase
+    useEffect(() => {
+        if (!user) return;
+
+        let isSubscribed = true;
+        const loadSavedPredictions = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('predictions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('round', 'current')
+                    .maybeSingle();
+
+                if (!error && data && isSubscribed) {
+                    if (data.poletime && typeof data.poletime === 'string') {
+                        const digits = data.poletime.replace(/[^0-9]/g, '');
+                        if (digits.length === 6) {
+                            setPoletime(digits.split('').map((d: string) => parseInt(d, 10)));
+                        }
+                    }
+                    if (Array.isArray(data.top10) && data.top10.length === 10) {
+                        setTop10(data.top10);
+                    }
+                    if (Array.isArray(data.evo) && data.evo.length === 5) {
+                        setEvo(data.evo);
+                    }
+                    if (data.h2h && typeof data.h2h === 'object') {
+                        setH2H(data.h2h);
+                    }
+                    if (data.misc && typeof data.misc === 'object') {
+                        setMisc(data.misc);
+                    }
+                    setHasSyncedFromDb(true);
+                }
+            } catch (err) {
+                console.error("Erro ao restaurar palpites:", err);
+            }
+        };
+
+        loadSavedPredictions();
+        return () => { isSubscribed = false; };
+    }, [user, setPoletime, setTop10, setEvo, setH2H, setMisc]);
+
     const isTop10Valid = top10.every(p => p !== '');
     const isEvoValid = evo.every(p => p !== '');
     const isH2HValid = Object.keys(h2h).length === 11; // F1_MATCHUPS.length
@@ -58,7 +141,7 @@ const PredictionTabs = () => {
         }
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         const t = setTimeout(() => setIsMounted(true), 0);
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
@@ -91,7 +174,75 @@ const PredictionTabs = () => {
         <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="w-full">
             <F1BetRemoteControl activeId={activeId} setActiveId={setActiveId} />
             
-            <header className="mt-8 mb-8 md:mb-12 border-b-4 border-[#fbaa19] pb-6 md:pb-8 flex flex-col gap-4">
+            {/* USER SUPERLICENSE BADGE / GRID STATUS */}
+            <div className="mt-6 mb-4 p-4 rounded-xl border border-white/10 bg-[#0a0a0a] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+                {user ? (
+                    <div className="flex items-center gap-3">
+                        <div 
+                            className="w-11 h-11 rounded-full border-2 overflow-hidden bg-black shrink-0 flex items-center justify-center text-xs font-black shadow-lg"
+                            style={{ borderColor: pilot?.teamColor || '#fbaa19' }}
+                        >
+                            {pilot?.avatarUrl ? (
+                                <img src={pilot.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-[#fbaa19] font-black text-sm">
+                                    {pilot?.name?.charAt(0) || 'P'}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-black text-white text-sm md:text-base uppercase tracking-wider">
+                                    {pilot?.name || 'PILOTO OFICIAL'}
+                                </span>
+                                {pilot?.driverNumber && (
+                                    <span className="bg-[#fbaa19] text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow">
+                                        #{pilot.driverNumber}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                                <span 
+                                    className="font-bold uppercase tracking-wider"
+                                    style={{ color: pilot?.teamColor || '#fbaa19' }}
+                                >
+                                    {pilot?.teamName || 'EQUIPE INDEPENDENTE'}
+                                </span>
+                                <span>•</span>
+                                <span className="text-emerald-400 font-mono font-medium">
+                                    {hasSyncedFromDb ? '● SINCRONIZADO COM O GRID' : '● PRONTO PARA SALVAR'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full border-2 border-yellow-500/40 bg-yellow-500/10 flex items-center justify-center text-yellow-500 text-sm font-bold">
+                            !
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-bold text-white text-xs md:text-sm uppercase tracking-wider">
+                                Modo Convidado
+                            </span>
+                            <span className="text-xs text-gray-400">
+                                Faça login com sua Superlicença para vincular suas apostas à sua equipe oficial.
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
+                    <Link
+                        href="/telemetry"
+                        className="text-xs uppercase tracking-wider font-bold px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded border border-white/10 transition-colors flex items-center gap-1.5"
+                    >
+                        <span>Ver Telemetria Geral</span>
+                        <span>&rarr;</span>
+                    </Link>
+                </div>
+            </div>
+
+            <header className="mt-4 mb-8 md:mb-12 border-b-4 border-[#fbaa19] pb-6 md:pb-8 flex flex-col gap-4">
                 <p className="text-[#fbaa19] text-sm md:text-base font-bold uppercase tracking-[0.2em] font-display">F1 // PREDICTIONS</p>
                 <h1 className="text-black dark:text-white text-5xl md:text-7xl font-black uppercase tracking-widest font-display mb-2">{currentHeader.title}</h1>
                 <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-2xl">
@@ -137,12 +288,3 @@ const PredictionTabs = () => {
 };
 
 export default PredictionTabs;
-
-
-
-
-
-
-
-
-
