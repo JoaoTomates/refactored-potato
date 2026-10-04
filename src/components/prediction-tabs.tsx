@@ -7,6 +7,7 @@ import Poletime from './poletime';
 import Evo from './evo';
 import Misc from './misc';
 import Link from 'next/link';
+import { PilotAvatar } from './pilot-avatar';
 
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSwipe } from '@/hooks/useSwipe';
@@ -179,15 +180,20 @@ const PredictionTabs = () => {
                 {user ? (
                     <div className="flex items-center gap-3">
                         <div 
-                            className="w-11 h-11 rounded-full border-2 overflow-hidden bg-black shrink-0 flex items-center justify-center text-xs font-black shadow-lg"
-                            style={{ borderColor: pilot?.teamColor || '#fbaa19' }}
+                            className="w-11 h-11 rounded-full overflow-hidden shrink-0 flex items-center justify-center text-xs font-black shadow-lg relative"
                         >
                             {pilot?.avatarUrl ? (
-                                <img src={pilot.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                <img src={pilot.avatarUrl} alt="Avatar" className="w-full h-full object-cover border-2 rounded-full" style={{ borderColor: pilot?.teamColor || '#fbaa19' }} />
                             ) : (
-                                <span className="text-[#fbaa19] font-black text-sm">
-                                    {pilot?.name?.charAt(0) || 'P'}
-                                </span>
+                                <PilotAvatar
+                                    teamColor={pilot?.teamColor || '#fbaa19'}
+                                    driverNumber={pilot?.driverNumber}
+                                    variant="team"
+                                    size="custom"
+                                    showHUD={true}
+                                    showBadge={false}
+                                    className="w-full h-full"
+                                />
                             )}
                         </div>
                         <div className="flex flex-col">

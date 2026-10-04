@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { fetchNextEvent, F1Event, F1_MATCHUPS, getDriverDetails } from '@/api/f1-data';
+import { PilotAvatar } from '@/components/pilot-avatar';
 
 interface UserTeam {
     name: string;
@@ -423,15 +424,20 @@ export default function TelemetryPage() {
                                                     <div className="flex items-center gap-3">
                                                         {/* Avatar */}
                                                         <div 
-                                                            className="w-9 h-9 rounded-full overflow-hidden border-2 bg-black shrink-0 flex items-center justify-center shadow-md"
-                                                            style={{ borderColor: teamColor }}
+                                                            className="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center shadow-md relative"
                                                         >
                                                             {prof?.avatar_url ? (
-                                                                <img src={prof.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                                                <img src={prof.avatar_url} alt="Avatar" className="w-full h-full object-cover border-2 rounded-full" style={{ borderColor: teamColor }} />
                                                             ) : (
-                                                                <span className="text-[11px] font-black text-white/80">
-                                                                    {driverName.charAt(0)}
-                                                                </span>
+                                                                <PilotAvatar
+                                                                    teamColor={teamColor}
+                                                                    driverNumber={driverNum}
+                                                                    variant="team"
+                                                                    size="custom"
+                                                                    showHUD={true}
+                                                                    showBadge={false}
+                                                                    className="w-full h-full"
+                                                                />
                                                             )}
                                                         </div>
 

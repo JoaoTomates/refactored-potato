@@ -7,6 +7,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { F1_TEAMS } from '@/lib/teams';
 import { getChampionGroupName } from '@/lib/champions';
+import { PilotAvatar, AvatarVariant } from '@/components/pilot-avatar';
 
 /* ============================================================
  * PLAYGROUND — Terminal do Estrategista Multi-Painel
@@ -253,38 +254,57 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 /* ---------- Credencial / Capacete ---------- */
 function CredentialCard({ me, number, allianceId }: { me: Strategist; number: string; allianceId: AllianceId }) {
     const last = me.series[me.series.length - 1];
-    const maskStyle: React.CSSProperties = {
-        WebkitMaskImage: 'url(/avatar-overlay.png)', maskImage: 'url(/avatar-overlay.png)',
-        WebkitMaskSize: 'contain', maskSize: 'contain',
-        WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
-        WebkitMaskPosition: 'center', maskPosition: 'center',
-    };
+    const [avatarVariant, setAvatarVariant] = useState<AvatarVariant>('team');
 
     return (
         <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" accentColor={me.teamColor}>
-            <div className="relative aspect-[5/4] overflow-hidden bg-[#070604]">
-                {/* Glow da equipe */}
-                <div className="absolute inset-0 opacity-40" style={{ background: `radial-gradient(circle at 50% 60%, ${me.teamColor} 0%, transparent 65%)` }} />
-                <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: `linear-gradient(${me.teamColor} 1px, transparent 1px), linear-gradient(90deg, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '18px 18px' }} />
-
-                {/* Capacete: imagem + tinta da equipe recortada pela própria imagem */}
-                <div className="absolute inset-[8%] top-[12%]">
-                    <img src="/avatar-overlay.png" alt="Capacete" className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]" />
-                    <div className="absolute inset-0 mix-blend-multiply" style={{ ...maskStyle, background: me.teamColor }} />
+            <div className="relative aspect-[5/4] overflow-hidden bg-[#070604] flex items-center justify-center p-4">
+                {/* Capacete F1 Vetorial Zero Bala com Variações de Fundo */}
+                <div className="w-full h-full max-h-[220px] flex items-center justify-center relative">
+                    <PilotAvatar
+                        teamColor={me.teamColor}
+                        teamName={me.teamName}
+                        driverNumber={number}
+                        variant={avatarVariant}
+                        size="custom"
+                        className="w-full h-full max-h-[220px]"
+                        showBadge={false}
+                    />
                 </div>
 
-                <div className="absolute inset-0 pointer-events-none opacity-30" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)' }} />
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent" />
+                <div className="absolute top-3 left-3 min-w-10 h-10 px-2 bg-white text-black flex items-center justify-center font-black text-xl rounded-sm shadow-lg z-20">
+                    {number}
+                </div>
 
-                <div className="absolute top-3 left-3 min-w-10 h-10 px-2 bg-white text-black flex items-center justify-center font-black text-xl rounded-sm shadow-lg">{number}</div>
-                <div className="absolute top-3 right-3 text-[9px] font-bold tracking-widest border px-2 py-1 rounded-sm bg-black/70" style={{ borderColor: `${me.teamColor}70`, color: me.teamColor }}>BLOCO {allianceId}</div>
-                <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
+                {/* Seletor de Variações de Fundo do Avatar */}
+                <div className="absolute top-3 right-3 flex items-center gap-1 z-20">
+                    {(['team', 'carbon', 'neon', 'champion'] as AvatarVariant[]).map((v) => (
+                        <button
+                            key={v}
+                            type="button"
+                            onClick={() => setAvatarVariant(v)}
+                            title={`Fundo ${v.toUpperCase()}`}
+                            className={`text-[8px] uppercase font-mono px-1.5 py-0.5 rounded border transition-colors ${
+                                avatarVariant === v 
+                                    ? 'bg-white text-black font-black border-white shadow' 
+                                    : 'bg-black/70 text-white/50 border-white/20 hover:text-white hover:border-white/40'
+                            }`}
+                        >
+                            {v.charAt(0)}
+                        </button>
+                    ))}
+                    <span className="text-[9px] font-bold tracking-widest border px-2 py-1 rounded-sm bg-black/80 ml-1 shadow" style={{ borderColor: `${me.teamColor}70`, color: me.teamColor }}>
+                        BLOCO {allianceId}
+                    </span>
+                </div>
+
+                <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 flex items-end justify-between bg-gradient-to-t from-black via-black/80 to-transparent z-20">
                     <div>
-                        <p className="text-[9px] tracking-[0.3em] text-white/50">ESTRATEGISTA</p>
-                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none">{me.name}</h2>
+                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">ESTRATEGISTA</p>
+                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">{me.name}</h2>
                     </div>
                     <div className="text-right">
-                        <p className="text-[9px] tracking-[0.3em] text-white/50">RATING</p>
+                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">RATING</p>
                         <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>{ratingFor(last)}</p>
                     </div>
                 </div>
