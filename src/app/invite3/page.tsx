@@ -18,7 +18,8 @@ const customDialogs = [
     "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
     "Você lê o traçado antes das luzes apagarem.",
     "Mas na F1 talento sozinho não garante contrato — você precisa saber onde colocar suas fichas.",
-    "O novo regulamento deflagrou uma guerra de motores nos bastidores e três grandes alianças se formaram. Chegou a hora de escolher o seu lado."
+    "O novo regulamento deflagrou uma guerra de motores nos bastidores e três grandes alianças se formaram.",
+    "Chegou a hora de escolher o seu lado e buscar uma vaga no pitwall entre os melhores."
 ];
 
 const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
@@ -75,9 +76,10 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: 
                 const char = text.charAt(i);
                 i++;
                 
-                let delay = 30 + Math.random() * 20;
-                if (char === '.' || char === '!' || char === '?') delay = 400;
-                else if (char === ',') delay = 200;
+                // Slowed down typing effect
+                let delay = 60 + Math.random() * 40; 
+                if (char === '.' || char === '!' || char === '?') delay = 500;
+                else if (char === ',') delay = 300;
                 
                 timeoutId = setTimeout(typeNext, delay);
             } else {
@@ -111,6 +113,7 @@ function InviteFlow3() {
     const [phase, setPhase] = useState<Phase>('LOADING');
     const [introReady, setIntroReady] = useState(false);
     const [autoIndex, setAutoIndex] = useState(1);
+    const [readyFlags, setReadyFlags] = useState<Record<number, boolean>>({});
     const [typingComplete, setTypingComplete] = useState(false);
     
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
@@ -258,9 +261,9 @@ function InviteFlow3() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            {/* INTRO PHASE: Box 1 at the bottom */}
+            {/* INTRO PHASE: Box 1 positioned higher than before (between center and bottom) */}
             {phase === 'INTRO' && (
-                <div className="absolute bottom-12 w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
+                <div className="absolute bottom-[25%] md:bottom-[30%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                         <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                         <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
@@ -283,7 +286,7 @@ function InviteFlow3() {
             {phase !== 'INTRO' && phase !== 'LOADING' && (
                 <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
                     
-                    {/* Auto Dialogue Sequence (Boxes 2 to 5) */}
+                    {/* Auto Dialogue Sequence (Boxes 2 to 6) */}
                     {(phase === 'AUTO_DIALOG' || phase === 'GROUP_SELECT' || phase === 'ENLIST') && customDialogs.map((dialog, idx) => {
                         // Skip the first box (idx === 0) completely from this view
                         if (idx === 0) return null;
@@ -299,13 +302,27 @@ function InviteFlow3() {
                                         onReadyForNext={() => {
                                             if (phase === 'AUTO_DIALOG' && idx === autoIndex) {
                                                 if (idx < customDialogs.length - 1) {
-                                                    setTimeout(() => setAutoIndex(idx + 1), 1000); // 1s pause between dialogues
+                                                    // Auto advance to next box
+                                                    setTimeout(() => setAutoIndex(idx + 1), 1000);
                                                 } else {
-                                                    setTimeout(() => setPhase('GROUP_SELECT'), 1500); // 1.5s pause before options
+                                                    // Last box, wait for user click to show groups
+                                                    setReadyFlags(prev => ({ ...prev, [idx]: true }));
                                                 }
                                             }
                                         }} 
                                     />
+                                    
+                                    {/* Show continue button only on the very last dialogue box */}
+                                    {readyFlags[idx] && idx === customDialogs.length - 1 && phase === 'AUTO_DIALOG' && (
+                                        <div className="mt-5 flex justify-end animate-fade-in">
+                                            <button 
+                                                onClick={() => setPhase('GROUP_SELECT')}
+                                                className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
+                                            >
+                                                [ ACESSAR ALIANÇAS ] »
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             );
                         }
