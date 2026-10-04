@@ -46,22 +46,50 @@ export default function SetupForm() {
         fetchProfile();
     }, [user]);
 
+    const isValidNamePart = (val: string) => {
+        const trimmed = val.trim();
+        return trimmed.length >= 2 && /^[\p{L}'-]+$/u.test(trimmed);
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        // Auto-split if user types full name in first_name
+        if (name === 'first_name' && value.includes(' ') && !formData.last_name) {
+            const parts = value.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                setFormData(prev => ({
+                    ...prev,
+                    first_name: parts[0],
+                    last_name: parts.slice(1).join(' ')
+                }));
+                return;
+            }
+        }
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return;
+
+        const cleanFirst = formData.first_name.trim();
+        const cleanLast = formData.last_name.trim();
+
+        if (!isValidNamePart(cleanFirst)) {
+            alert("Nome inválido: O primeiro nome deve conter pelo menos 2 letras (sem números).");
+            return;
+        }
+
+        if (!isValidNamePart(cleanLast)) {
+            alert("Sobrenome obrigatório: Para a Superlicença Oficial, é obrigatório preencher nome e sobrenome válidos (mínimo de 2 letras).");
+            return;
+        }
         
         setSaving(true);
         setSuccess(false);
 
         try {
-            const { error } = await supabase
-                .from('profiles')
-                // Fetch existing profile to check if we already have a slug/number
+            // Fetch existing profile to check if we already have a slug/number
             const { data: currentProfile } = await supabase.from('profiles').select('driver_number, slug').eq('id', user.id).single();
             
             let driverNumber = currentProfile?.driver_number;
@@ -71,18 +99,21 @@ export default function SetupForm() {
                 // Temporary logic: assign a random number between 23 and 99
                 driverNumber = Math.floor(Math.random() * (99 - 23 + 1)) + 23;
             }
-            if (!slug && formData.first_name && formData.last_name) {
+            if (!slug && cleanFirst && cleanLast) {
                 // e.g. "Ayrton Senna" -> "a.senna99"
-                const firstInitial = formData.first_name.charAt(0).toLowerCase();
-                const lastName = formData.last_name.toLowerCase().replace(/\s+/g, '');
+                const firstInitial = cleanFirst.charAt(0).toLowerCase();
+                const lastName = cleanLast.toLowerCase().replace(/\s+/g, '');
                 slug = `${firstInitial}.${lastName}${driverNumber}`;
             }
+
+            const formattedFirstName = cleanFirst.charAt(0).toUpperCase() + cleanFirst.slice(1).toLowerCase();
+            const formattedLastName = cleanLast.toUpperCase();
 
             const { error: profileUpdateError } = await supabase
                 .from('profiles')
                 .update({
-                    first_name: formData.first_name,
-                    last_name: formData.last_name,
+                    first_name: formattedFirstName,
+                    last_name: formattedLastName,
                     nationality: formData.nationality,
                     org_color: formData.org_color,
                     driver_number: driverNumber,
@@ -200,8 +231,13 @@ export default function SetupForm() {
             <form onSubmit={handleSubmit} className="p-6 md:p-8 flex flex-col gap-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="first_name" className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                            First Name
+                        <label htmlFor="first_name" className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center justify-between">
+                            <span>First Name *</span>
+                            {formData.first_name.trim() && (
+                                <span className={isValidNamePart(formData.first_name) ? "text-emerald-500 text-[10px]" : "text-amber-500 text-[10px]"}>
+                                    {isValidNamePart(formData.first_name) ? "✓ Valid" : "Min. 2 letters"}
+                                </span>
+                            )}
                         </label>
                         <input
                             type="text"
@@ -210,14 +246,23 @@ export default function SetupForm() {
                             value={formData.first_name}
                             onChange={handleChange}
                             required
-                            className="bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 p-3 text-black dark:text-white uppercase font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-colors"
+                            className={`bg-black/5 dark:bg-white/5 border p-3 text-black dark:text-white uppercase font-bold tracking-wider focus:outline-none transition-colors ${
+                                formData.first_name.trim()
+                                    ? isValidNamePart(formData.first_name) ? "border-emerald-500/50 focus:border-emerald-500" : "border-amber-500/60 focus:border-amber-500"
+                                    : "border-black/20 dark:border-white/20 focus:border-[#fbaa19]"
+                            }`}
                             placeholder="Ayrton"
                         />
                     </div>
                     
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="last_name" className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                            Last Name
+                        <label htmlFor="last_name" className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center justify-between">
+                            <span>Last Name *</span>
+                            {formData.last_name.trim() && (
+                                <span className={isValidNamePart(formData.last_name) ? "text-emerald-500 text-[10px]" : "text-amber-500 text-[10px]"}>
+                                    {isValidNamePart(formData.last_name) ? "✓ Valid" : "Min. 2 letters"}
+                                </span>
+                            )}
                         </label>
                         <input
                             type="text"
@@ -226,11 +271,22 @@ export default function SetupForm() {
                             value={formData.last_name}
                             onChange={handleChange}
                             required
-                            className="bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 p-3 text-black dark:text-white uppercase font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-colors"
+                            className={`bg-black/5 dark:bg-white/5 border p-3 text-black dark:text-white uppercase font-bold tracking-wider focus:outline-none transition-colors ${
+                                formData.last_name.trim()
+                                    ? isValidNamePart(formData.last_name) ? "border-emerald-500/50 focus:border-emerald-500" : "border-amber-500/60 focus:border-amber-500"
+                                    : "border-black/20 dark:border-white/20 focus:border-[#fbaa19]"
+                            }`}
                             placeholder="Senna"
                         />
                     </div>
                 </div>
+
+                {(!isValidNamePart(formData.first_name) || !isValidNamePart(formData.last_name)) && (
+                    <p className="text-[11px] text-amber-500/90 font-mono flex items-center gap-1.5 -mt-2">
+                        <span>⚠</span>
+                        <span>Superlicense registration requires two distinct names (Valid First and Last name).</span>
+                    </p>
+                )}
 
                 <div className="flex flex-col gap-2">
                     <label htmlFor="nationality" className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
