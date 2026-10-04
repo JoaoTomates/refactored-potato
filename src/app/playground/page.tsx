@@ -2,19 +2,27 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { F1_TEAMS } from '@/lib/teams';
 import { getChampionGroupName } from '@/lib/champions';
 
 /* ============================================================
- * PLAYGROUND — Terminal do Estrategista
- * Integrado com as 4 Competições Oficiais VoltGrid:
- * 1. Poletime (Precisão da Pole & Quali)
- * 2. Master (Previsões de Corrida & Pódio)
- * 3. Milesimus (Moeda MLS & Consistência de Décimos)
- * 4. Teamwork (Duplas e Construtores no Grid)
- * + Activity History adaptado em feed de telemetria.
+ * PLAYGROUND — Terminal do Estrategista Multi-Painel
+ * Integrado com:
+ * 1. Poletime (Qualify & Grid)
+ * 2. Master (Previsões de Corrida)
+ * 3. Milesimus (MLS Currency)
+ * 4. Teamwork (Duplas e Construtores)
+ * Painel Central Multifuncional com Tabs dinâmicas:
+ *  - Cotação do Estrategista (Gráfico Interativo)
+ *  - Book de Previsões (Mercados e Apostas)
+ *  - Rádio do Diretor (Live Transmissions)
+ *  - Histórico de Telemetria (Log de Atividades)
+ *  - Gestão de Teamwork (Pit Crew & Grid 22)
+ * Barra de Comandos / Operações (Setup, Report, Calendar, Silly Season,
+ * Settings, Telemetry, Pitwall, Superlicense e Logout).
  * ============================================================ */
 
 const ALLIANCES = {
@@ -71,6 +79,8 @@ interface Strategist {
     series: number[];
     isDemo?: boolean;
 }
+
+type MainTab = 'quotes' | 'book' | 'radio' | 'history' | 'teamwork';
 
 const DEMO_NAMES = ['M. KOVAC', 'J. TANAKA', 'R. SILVA', 'A. BERG', 'L. MOREAU', 'D. OKAFOR', 'I. PETROVA', 'C. VEGA', 'T. NAKAMURA', 'H. LINDQVIST'];
 
@@ -168,7 +178,7 @@ function Sparkline({ data, width = 90, height = 26, strokeColor }: { data: numbe
     );
 }
 
-function TypewriterText({ text, speed = 28 }: { text: string; speed?: number }) {
+function TypewriterText({ text, speed = 24 }: { text: string; speed?: number }) {
     const [shown, setShown] = useState('');
     useEffect(() => {
         let i = 0;
@@ -301,7 +311,8 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
  * Página Principal
  * ============================================================ */
 export default function PlaygroundPage() {
-    const { user, isLoading } = useSupabaseAuth();
+    const router = useRouter();
+    const { user, isLoading, logout } = useSupabaseAuth();
     const now = useNow();
 
     const [loading, setLoading] = useState(true);
@@ -310,6 +321,9 @@ export default function PlaygroundPage() {
     const [field, setField] = useState<Strategist[]>([]);
     const [range, setRange] = useState<5 | 10 | 24>(10);
     const [feedIdx, setFeedIdx] = useState(0);
+
+    // Estado da Tab ativa no Painel Central Multifuncional
+    const [activeTab, setActiveTab] = useState<MainTab>('quotes');
 
     useEffect(() => {
         if (isLoading) return;
@@ -418,9 +432,16 @@ export default function PlaygroundPage() {
                 desc: '+45.000 mls por consistência de voltas rápidas.',
                 badge: 'MILESIMUS',
                 color: '#fbaa19'
+            },
+            {
+                time: '4 dias atrás',
+                title: 'Aliança Confirmada no Bloco',
+                desc: `Entrada autorizada na ${ALLIANCES[allianceId].name}.`,
+                badge: 'ALIANÇA',
+                color: teamColor
             }
         ];
-    }, [me, teamColor, last]);
+    }, [me, teamColor, last, allianceId]);
 
     const tickerItems = useMemo(() => {
         const list = field.length ? field : [];
@@ -488,6 +509,16 @@ export default function PlaygroundPage() {
         countdown = `${String(d).padStart(2, '0')}D ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
+    const handleLogout = async () => {
+        try {
+            if (logout) await logout();
+            router.push('/');
+        } catch (_) {
+            await supabase.auth.signOut();
+            router.push('/');
+        }
+    };
+
     if (isLoading || loading || !me) {
         return (
             <div className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono gap-4">
@@ -526,8 +557,8 @@ export default function PlaygroundPage() {
                         <span className="flex items-center gap-1.5 text-emerald-400 font-bold"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />MERCADO ABERTO</span>
                         <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: teamColor }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
-                        <Link href={`/${meProfile?.slug || ''}`} className="hover:text-white transition-colors" style={{ color: teamColor }}>[ DASHBOARD ]</Link>
-                        <Link href="/" className="text-white/40 hover:text-white transition-colors">[ SAIR ]</Link>
+                        <Link href={`/${meProfile?.slug || ''}`} className="hover:text-white transition-colors" style={{ color: teamColor }}>[ SUPERLICENÇA ]</Link>
+                        <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
                     </div>
                 </header>
 
@@ -556,91 +587,61 @@ export default function PlaygroundPage() {
                 {/* Grid Principal */}
                 <div className="max-w-[1500px] mx-auto px-3 md:px-6 py-4 md:py-6 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
 
-                    {/* COLUNA ESQUERDA: Credencial + Rádio do Diretor */}
+                    {/* COLUNA ESQUERDA: Credencial + Briefing Oficial */}
                     <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
                         <CredentialCard me={me} number={String(meProfile?.driver_number || '00')} allianceId={allianceId} />
 
-                        <Panel title="Rádio do Diretor" tag={<span style={{ color: teamColor }}>● AO VIVO</span>} accentColor={teamColor}>
-                            <div className="text-xs md:text-[13px] leading-relaxed text-white/90 min-h-[96px] border-l-2 pl-3" style={{ borderLeftColor: teamColor }}>
-                                <TypewriterText key={feedIdx} text={feed[feedIdx]} />
+                        {/* Card Briefing de Garagem */}
+                        <Panel title="Briefing do Paddock" tag="TRANSMISSÃO" accentColor={teamColor}>
+                            <div className="flex flex-col gap-3">
+                                <div className="text-xs leading-relaxed text-white/90 border-l-2 pl-3" style={{ borderLeftColor: teamColor }}>
+                                    <TypewriterText key={feedIdx} text={feed[feedIdx]} />
+                                </div>
+                                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[9px] text-white/50">
+                                    <span>CANAL: {me.teamCode}-SECURE</span>
+                                    <span className="text-emerald-400 font-bold">CRIPTOGRAFADO</span>
+                                </div>
                             </div>
                         </Panel>
 
-                        {/* Activity History Adaptado */}
-                        <Panel title="Histórico de Telemetria" tag="ATIVIDADES RECENTES" accentColor={teamColor}>
-                            <div className="flex flex-col gap-3 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/10">
-                                {activityHistory.map((act, i) => (
-                                    <div key={i} className="flex items-start gap-3 relative pl-4 text-[10px]">
-                                        <span 
-                                            className="absolute left-0 top-1.5 w-3 h-3 rounded-full border-2 border-black" 
-                                            style={{ backgroundColor: act.color, boxShadow: `0 0 8px ${act.color}88` }} 
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between gap-1 mb-0.5">
-                                                <span className="font-bold tracking-widest text-white truncate">{act.title}</span>
-                                                <span className="text-[8px] text-white/40 shrink-0">{act.time}</span>
-                                            </div>
-                                            <p className="text-white/60 text-[9px] leading-relaxed">{act.desc}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                        {/* Atalhos Rápidos da Superlicença */}
+                        <Panel title="Acesso Direto" accentColor={teamColor}>
+                            <div className="flex flex-col gap-2">
+                                <Link 
+                                    href={`/${meProfile?.slug || ''}`}
+                                    className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
+                                >
+                                    <span>SUPERLICENÇA PILOTO</span>
+                                    <span style={{ color: teamColor }}>{meProfile?.slug || 'PERFIL'} »</span>
+                                </Link>
+                                <Link 
+                                    href="/pitwall"
+                                    className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
+                                >
+                                    <span>PITWALL GLOBAL</span>
+                                    <span style={{ color: teamColor }}>GRID »</span>
+                                </Link>
+                                <Link 
+                                    href="/bet"
+                                    className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
+                                >
+                                    <span>CENTRAL DE APOSTAS</span>
+                                    <span style={{ color: teamColor }}>ODDS »</span>
+                                </Link>
                             </div>
                         </Panel>
                     </section>
 
-                    {/* COLUNA CENTRAL: Cotação + 4 Competições Oficiais + Book de Previsões */}
+                    {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
                     <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
                         
-                        {/* Gráfico do Ativo */}
-                        <Panel title="Cotação do Estrategista" tag="SIMULADA · VGC" accentColor={teamColor}>
-                            <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
-                                <div>
-                                    <p className="text-[10px] tracking-[0.3em] text-white/40 mb-1">${(me.slug || me.name).replace(/[@.\s]/g, '').toUpperCase()}</p>
-                                    <div className="flex items-baseline gap-3">
-                                        <span className="text-3xl md:text-5xl font-black tabular-nums tracking-tight">{fmt(last)}</span>
-                                        <Delta value={pct(last, prev)} className="text-sm" />
-                                    </div>
-                                </div>
-                                <div className="flex gap-1">
-                                    {([5, 10, 24] as const).map(r => (
-                                        <button
-                                            key={r}
-                                            onClick={() => setRange(r)}
-                                            className={`text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-sm border transition-colors ${range === r ? 'text-black' : 'border-white/15 text-white/50 hover:text-white hover:border-white/40'}`}
-                                            style={{ 
-                                                backgroundColor: range === r ? teamColor : 'transparent',
-                                                borderColor: range === r ? teamColor : undefined
-                                            }}
-                                        >
-                                            {r === 24 ? 'TEMP' : `${r}R`}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <PriceChart key={range} data={series} startRound={24 - range + 1} teamColor={teamColor} />
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-px mt-4 border border-white/5 rounded overflow-hidden text-[10px] tracking-widest" style={{ background: `${teamColor}15` }}>
-                                {[
-                                    ['ABERTURA', fmt(open)],
-                                    ['MÁXIMA', fmt(Math.max(...series))],
-                                    ['MÍNIMA', fmt(Math.min(...series))],
-                                    ['NO PERÍODO', <Delta key="d" value={pct(last, open)} />],
-                                ].map(([k, v], i) => (
-                                    <div key={i} className="bg-black/80 px-3 py-2.5">
-                                        <p className="text-white/40 mb-1">{k}</p>
-                                        <div className="text-white font-bold tabular-nums">{v}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </Panel>
-
-                        {/* QUATRO COMPETIÇÕES OFICIAIS (Poletime, Master, Milesimus, Teamwork) */}
+                        {/* 1. OS 4 BOTÕES / CARDS DE COMPETIÇÃO MOVIDOS PARA O TOPO (Clicáveis) */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            {/* 1. POLETIME */}
-                            <div 
-                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
-                                style={{ borderColor: 'rgba(34, 197, 94, 0.35)' }}
+                            {/* POLETIME */}
+                            <button 
+                                onClick={() => setActiveTab('book')}
+                                className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'book' ? 'ring-2 ring-emerald-500/50 scale-[1.02]' : 'hover:scale-[1.02]'}`}
+                                style={{ borderColor: 'rgba(34, 197, 94, 0.45)' }}
                             >
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Poletime</span>
@@ -653,12 +654,13 @@ export default function PlaygroundPage() {
                                         <span>{compStats?.poletime.accuracy}% ACC</span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
 
-                            {/* 2. MASTER */}
-                            <div 
-                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
-                                style={{ borderColor: 'rgba(59, 130, 246, 0.35)' }}
+                            {/* MASTER */}
+                            <button 
+                                onClick={() => setActiveTab('quotes')}
+                                className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'quotes' ? 'ring-2 ring-blue-500/50 scale-[1.02]' : 'hover:scale-[1.02]'}`}
+                                style={{ borderColor: 'rgba(59, 130, 246, 0.45)' }}
                             >
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">Master</span>
@@ -671,12 +673,13 @@ export default function PlaygroundPage() {
                                         <span>{compStats?.master.podiums} PÓDIOS</span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
 
-                            {/* 3. MILESIMUS */}
-                            <div 
-                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
-                                style={{ borderColor: `${teamColor}50` }}
+                            {/* MILESIMUS */}
+                            <button 
+                                onClick={() => setActiveTab('history')}
+                                className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'history' ? 'ring-2 scale-[1.02]' : 'hover:scale-[1.02]'}`}
+                                style={{ borderColor: `${teamColor}60`, ringColor: teamColor }}
                             >
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: teamColor }}>Milesimus</span>
@@ -690,12 +693,13 @@ export default function PlaygroundPage() {
                                         <span>{compStats?.milesimus.tier}</span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
 
-                            {/* 4. TEAMWORK */}
-                            <div 
-                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
-                                style={{ borderColor: 'rgba(251, 170, 25, 0.35)' }}
+                            {/* TEAMWORK */}
+                            <button 
+                                onClick={() => setActiveTab('teamwork')}
+                                className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'teamwork' ? 'ring-2 ring-[#fbaa19]/50 scale-[1.02]' : 'hover:scale-[1.02]'}`}
+                                style={{ borderColor: 'rgba(251, 170, 25, 0.45)' }}
                             >
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">Teamwork</span>
@@ -708,54 +712,356 @@ export default function PlaygroundPage() {
                                         <span className="truncate max-w-[50px]">{me.teamCode}</span>
                                     </div>
                                 </div>
+                            </button>
+                        </div>
+
+                        {/* 2. PAINEL MULTIFUNCIONAL MULTI-COISAS */}
+                        <div 
+                            className="relative bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300"
+                            style={{ borderColor: `${teamColor}35` }}
+                        >
+                            {/* Navegador de Abas do Painel Multifuncional */}
+                            <div 
+                                className="flex items-center justify-between gap-1 px-2 py-2 border-b overflow-x-auto scrollbar-none"
+                                style={{ 
+                                    borderBottomColor: `${teamColor}20`,
+                                    background: `linear-gradient(90deg, ${teamColor}0c, transparent)`
+                                }}
+                            >
+                                <div className="flex items-center gap-1">
+                                    {[
+                                        { id: 'quotes' as MainTab, label: 'COTAÇÃO', icon: '📈' },
+                                        { id: 'book' as MainTab, label: 'PREVISÕES', icon: '🎯' },
+                                        { id: 'radio' as MainTab, label: 'RÁDIO DIREÇÃO', icon: '📻' },
+                                        { id: 'history' as MainTab, label: 'HISTÓRICO', icon: '⏱' },
+                                        { id: 'teamwork' as MainTab, label: 'TEAMWORK', icon: '👥' },
+                                    ].map(tab => {
+                                        const isActive = activeTab === tab.id;
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => setActiveTab(tab.id)}
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold tracking-widest uppercase transition-all whitespace-nowrap cursor-pointer ${
+                                                    isActive 
+                                                        ? 'text-black shadow-md' 
+                                                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                                                }`}
+                                                style={{
+                                                    backgroundColor: isActive ? teamColor : 'transparent',
+                                                }}
+                                            >
+                                                <span>{tab.icon}</span>
+                                                <span>{tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <span className="text-[9px] tracking-widest text-white/40 uppercase hidden sm:inline px-2">
+                                    TERMINAL MULTI-MODAL
+                                </span>
+                            </div>
+
+                            {/* Conteúdo Dinâmico da Tab Ativa */}
+                            <div className="p-4 md:p-5">
+                                
+                                {/* ABA 1: COTAÇÃO DO ESTRATEGISTA */}
+                                {activeTab === 'quotes' && (
+                                    <div className="flex flex-col gap-4 animate-fade-in">
+                                        <div className="flex flex-wrap items-end justify-between gap-3">
+                                            <div>
+                                                <p className="text-[10px] tracking-[0.3em] text-white/40 mb-1">${(me.slug || me.name).replace(/[@.\s]/g, '').toUpperCase()}</p>
+                                                <div className="flex items-baseline gap-3">
+                                                    <span className="text-3xl md:text-5xl font-black tabular-nums tracking-tight">{fmt(last)}</span>
+                                                    <Delta value={pct(last, prev)} className="text-sm" />
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                {([5, 10, 24] as const).map(r => (
+                                                    <button
+                                                        key={r}
+                                                        onClick={() => setRange(r)}
+                                                        className={`text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-sm border transition-colors cursor-pointer ${range === r ? 'text-black font-black' : 'border-white/15 text-white/50 hover:text-white hover:border-white/40'}`}
+                                                        style={{ 
+                                                            backgroundColor: range === r ? teamColor : 'transparent',
+                                                            borderColor: range === r ? teamColor : undefined
+                                                        }}
+                                                    >
+                                                        {r === 24 ? 'TEMP' : `${r}R`}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <PriceChart key={range} data={series} startRound={24 - range + 1} teamColor={teamColor} />
+
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-px border border-white/5 rounded overflow-hidden text-[10px] tracking-widest" style={{ background: `${teamColor}15` }}>
+                                            {[
+                                                ['ABERTURA', fmt(open)],
+                                                ['MÁXIMA', fmt(Math.max(...series))],
+                                                ['MÍNIMA', fmt(Math.min(...series))],
+                                                ['NO PERÍODO', <Delta key="d" value={pct(last, open)} />],
+                                            ].map(([k, v], i) => (
+                                                <div key={i} className="bg-black/80 px-3 py-2.5">
+                                                    <p className="text-white/40 mb-1">{k}</p>
+                                                    <div className="text-white font-bold tabular-nums">{v}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ABA 2: BOOK DE PREVISÕES */}
+                                {activeTab === 'book' && (
+                                    <div className="flex flex-col gap-4 animate-fade-in">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-sm font-black uppercase tracking-widest text-white">Livro de Apostas & Ordens</h3>
+                                                <p className="text-[10px] text-white/40">Mercados abertos para a próxima etapa do campeonato</p>
+                                            </div>
+                                            <span className="text-[9px] px-2 py-0.5 rounded font-bold border" style={{ color: teamColor, borderColor: `${teamColor}40` }}>
+                                                ODDS AO VIVO
+                                            </span>
+                                        </div>
+
+                                        <div className="overflow-x-auto -mx-2 md:mx-0">
+                                            <table className="w-full min-w-[500px] text-[10px] md:text-[11px] tracking-widest">
+                                                <thead>
+                                                    <tr className="text-white/40 text-left border-b border-white/10">
+                                                        <th className="py-2 font-normal">MERCADO</th>
+                                                        <th className="py-2 font-normal">POSIÇÃO</th>
+                                                        <th className="py-2 font-normal text-right">ODD</th>
+                                                        <th className="py-2 font-normal pl-4">CONFIANÇA</th>
+                                                        <th className="py-2 font-normal text-right">P/L</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {positions.map((p, i) => (
+                                                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                                            <td className="py-2.5 text-white/70">{p.market}</td>
+                                                            <td className="py-2.5 font-bold">
+                                                                <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-3 rounded-sm" style={{ background: p.color }} />{p.pick}</span>
+                                                            </td>
+                                                            <td className="py-2.5 text-right tabular-nums font-bold" style={{ color: teamColor }}>{p.odd}x</td>
+                                                            <td className="py-2.5 pl-4">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
+                                                                        <div className="h-full" style={{ width: `${p.conf}%`, backgroundColor: teamColor }} />
+                                                                    </div>
+                                                                    <span className="text-white/50 tabular-nums">{p.conf}%</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="py-2.5 text-right"><Delta value={p.pl} /></td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
+                                            <span className="text-[9px] text-white/40 uppercase">Vinculado a Poletime (Pole) e Master (Corrida)</span>
+                                            <Link href="/bet" className="text-[10px] md:text-xs font-bold tracking-widest hover:text-white transition-colors animate-pulse" style={{ color: teamColor }}>
+                                                [ ABRIR NOVA POSIÇÃO NO PITWALL ] »
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ABA 3: RÁDIO DO DIRETOR */}
+                                {activeTab === 'radio' && (
+                                    <div className="flex flex-col gap-4 animate-fade-in">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-2.5 h-2.5 rounded-full animate-ping" style={{ backgroundColor: teamColor }} />
+                                                <h3 className="text-sm font-black uppercase tracking-widest text-white">Canal Oficial da Equipe</h3>
+                                            </div>
+                                            <span className="text-[9px] tracking-widest uppercase text-white/40">FREQUÊNCIA PIT-1</span>
+                                        </div>
+
+                                        <div className="bg-black/90 p-4 rounded-lg border border-white/10 flex flex-col gap-3 min-h-[140px] justify-center">
+                                            <p className="text-xs md:text-sm leading-relaxed text-white/90 border-l-2 pl-3 italic" style={{ borderLeftColor: teamColor }}>
+                                                <TypewriterText key={feedIdx} text={feed[feedIdx]} speed={20} />
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                                            <div className="p-3 bg-white/5 border border-white/5 rounded">
+                                                <span className="text-white/40 block mb-1">CHEFIA TÉCNICA</span>
+                                                <span className="font-bold text-white uppercase">{ALLIANCES[allianceId].name}</span>
+                                            </div>
+                                            <div className="p-3 bg-white/5 border border-white/5 rounded">
+                                                <span className="text-white/40 block mb-1">STATUS DE CONFIABILIDADE</span>
+                                                <span className="font-bold text-emerald-400">NOMINAL (99.4%)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ABA 4: HISTÓRICO DE ATIVIDADES / TELEMETRIA */}
+                                {activeTab === 'history' && (
+                                    <div className="flex flex-col gap-4 animate-fade-in">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-black uppercase tracking-widest text-white">Histórico de Telemetria e Transações</h3>
+                                            <span className="text-[9px] text-white/40 uppercase">LOG OFICIAL</span>
+                                        </div>
+
+                                        <div className="flex flex-col gap-3 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/10">
+                                            {activityHistory.map((act, i) => (
+                                                <div key={i} className="flex items-start gap-3 relative pl-6 text-[10px]">
+                                                    <span 
+                                                        className="absolute left-0.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-black flex items-center justify-center text-[7px] font-black" 
+                                                        style={{ backgroundColor: act.color, color: '#000', boxShadow: `0 0 8px ${act.color}88` }} 
+                                                    >
+                                                        ●
+                                                    </span>
+                                                    <div className="flex-1 min-w-0 bg-white/[0.03] p-3 rounded border border-white/5">
+                                                        <div className="flex items-center justify-between gap-1 mb-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[8px] px-1.5 py-0.5 rounded font-black uppercase" style={{ backgroundColor: `${act.color}25`, color: act.color }}>
+                                                                    {act.badge}
+                                                                </span>
+                                                                <span className="font-bold tracking-widest text-white">{act.title}</span>
+                                                            </div>
+                                                            <span className="text-[8px] text-white/40">{act.time}</span>
+                                                        </div>
+                                                        <p className="text-white/70 text-[10px] leading-relaxed">{act.desc}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ABA 5: TEAMWORK MANAGEMENT */}
+                                {activeTab === 'teamwork' && (
+                                    <div className="flex flex-col gap-4 animate-fade-in">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-sm font-black uppercase tracking-widest text-white">Gestão da Dupla (Teamwork)</h3>
+                                                <p className="text-[10px] text-white/40">Sincronização entre os dois carros da garagem da equipe</p>
+                                            </div>
+                                            <span className="text-[9px] px-2 py-0.5 rounded font-bold border" style={{ borderColor: 'rgba(251, 170, 25, 0.4)', color: '#fbaa19' }}>
+                                                GRID 22 DRIVERS
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col gap-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[10px] text-white/40 uppercase">CARRO #1 (TITULAR)</span>
+                                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: teamColor }} />
+                                                </div>
+                                                <h4 className="text-lg font-black tracking-widest" style={{ color: teamColor }}>{me.name}</h4>
+                                                <span className="text-[10px] text-white/70 font-bold">{me.teamName}</span>
+                                                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[9px] text-white/50">
+                                                    <span>STATUS: CONTRATO ATIVO</span>
+                                                    <span className="text-emerald-400 font-bold">ONLINE</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col gap-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[10px] text-white/40 uppercase">CARRO #2 (PARCEIRO)</span>
+                                                    <span className="w-2 h-2 rounded-full bg-white/30" />
+                                                </div>
+                                                <h4 className="text-lg font-black tracking-widest text-white/80">{compStats?.teamwork.partner}</h4>
+                                                <span className="text-[10px] text-white/50 font-bold">SINERGIA DE PIT STOP: {compStats?.teamwork.synergy}%</span>
+                                                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[9px] text-white/50">
+                                                    <span>VAGA CORRESPONDENTE</span>
+                                                    <Link href="/pitwall" className="hover:text-white transition-colors" style={{ color: teamColor }}>VER NO PITWALL »</Link>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-3 rounded bg-white/[0.02] border border-white/5 flex items-center justify-between text-[10px]">
+                                            <span className="text-white/60">Pontuação conjunta de construtores somada na rodada:</span>
+                                            <span className="font-black text-white">{compStats?.teamwork.teamScore} PTS</span>
+                                        </div>
+                                    </div>
+                                )}
+
                             </div>
                         </div>
 
-                        {/* Book de Previsões */}
-                        <Panel title="Book de Previsões" tag="PRÓXIMO GP" accentColor={teamColor}>
-                            <div className="overflow-x-auto -mx-4 px-4">
-                                <table className="w-full min-w-[520px] text-[10px] md:text-[11px] tracking-widest">
-                                    <thead>
-                                        <tr className="text-white/40 text-left border-b border-white/10">
-                                            <th className="py-2 font-normal">MERCADO</th>
-                                            <th className="py-2 font-normal">POSIÇÃO</th>
-                                            <th className="py-2 font-normal text-right">ODD</th>
-                                            <th className="py-2 font-normal pl-4">CONFIANÇA</th>
-                                            <th className="py-2 font-normal text-right">P/L</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {positions.map((p, i) => (
-                                            <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                                                <td className="py-2.5 text-white/70">{p.market}</td>
-                                                <td className="py-2.5 font-bold">
-                                                    <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-3 rounded-sm" style={{ background: p.color }} />{p.pick}</span>
-                                                </td>
-                                                <td className="py-2.5 text-right tabular-nums" style={{ color: teamColor }}>{p.odd}x</td>
-                                                <td className="py-2.5 pl-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
-                                                            <div className="h-full" style={{ width: `${p.conf}%`, backgroundColor: teamColor }} />
-                                                        </div>
-                                                        <span className="text-white/50 tabular-nums">{p.conf}%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="py-2.5 text-right"><Delta value={p.pl} /></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                        {/* 3. BARRA DE COMANDOS / OPERAÇÕES DO DASHBOARD (Harmonizada abaixo do painel) */}
+                        <div 
+                            className="bg-black/75 border rounded-lg p-3 md:p-4 shadow-xl"
+                            style={{ borderColor: `${teamColor}25` }}
+                        >
+                            <div className="flex items-center justify-between mb-3 px-1">
+                                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 flex items-center gap-1.5">
+                                    <span style={{ color: teamColor }}>⚡</span> AÇÕES & FERRAMENTAS DO ESTRATEGISTA
+                                </span>
+                                <span className="text-[9px] text-white/30 uppercase tracking-widest">SISTEMA VOLTGRID</span>
                             </div>
-                            <div className="flex justify-between items-center mt-4">
-                                <span className="text-[9px] text-white/40 uppercase">Previsões vinculadas ao Poletime & Master</span>
-                                <Link href="/bet" className="text-[10px] md:text-xs font-bold tracking-widest hover:text-white transition-colors animate-pulse" style={{ color: teamColor }}>
-                                    [ ABRIR NOVA POSIÇÃO ] »
+
+                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
+                                <Link 
+                                    href={`/${meProfile?.slug || ''}`}
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Setup
                                 </Link>
+                                <Link 
+                                    href={`/${meProfile?.slug || ''}`}
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Report
+                                </Link>
+                                <Link 
+                                    href={`/${meProfile?.slug || ''}`}
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Silly Season
+                                </Link>
+                                <Link 
+                                    href={`/${meProfile?.slug || ''}`}
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    F1 Calendar
+                                </Link>
+                                <Link 
+                                    href={`/${meProfile?.slug || ''}`}
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Settings
+                                </Link>
+                                <Link 
+                                    href="/telemetry"
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Telemetry
+                                </Link>
+                                <Link 
+                                    href="/pitwall"
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Pitwall
+                                </Link>
+                                <Link 
+                                    href="/race-control"
+                                    className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                >
+                                    Race Control
+                                </Link>
+                                <Link 
+                                    href="/superlicense"
+                                    className="p-2.5 rounded text-center transition-all border font-black text-black"
+                                    style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                >
+                                    Licença
+                                </Link>
+                                <button 
+                                    onClick={handleLogout}
+                                    className="p-2.5 rounded text-center transition-all border border-red-500/30 bg-red-950/20 text-red-400 hover:bg-red-900/40 cursor-pointer"
+                                >
+                                    Logout
+                                </button>
                             </div>
-                        </Panel>
+                        </div>
+
                     </section>
 
-                    {/* COLUNA DIREITA: Índices + Ranking do Grupo */}
+                    {/* COLUNA DIREITA: Índices das Alianças + Ranking do Grupo */}
                     <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
                         <Panel title="Índices das Alianças" bodyClass="p-0" accentColor={teamColor}>
                             {allianceIdx.map(a => (
@@ -802,7 +1108,7 @@ export default function PlaygroundPage() {
 
                 <footer className="max-w-[1500px] mx-auto px-3 md:px-6 pb-8 flex flex-wrap justify-between gap-2 text-[9px] tracking-[0.3em] text-white/25">
                     <span>SINAL: ESTÁVEL · CANAL CRIPTOGRAFADO</span>
-                    <span>VOLTGRID PLAYGROUND · INTEGRAÇÃO POLETIME / MASTER / MLS / TEAMWORK</span>
+                    <span>VOLTGRID PLAYGROUND · TERMINAL MULTI-MODAL COM AÇÕES INTEGRADAS</span>
                 </footer>
             </div>
         </main>
