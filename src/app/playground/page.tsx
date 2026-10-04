@@ -9,10 +9,12 @@ import { getChampionGroupName } from '@/lib/champions';
 
 /* ============================================================
  * PLAYGROUND — Terminal do Estrategista
- * Mistura a imersão "system box" do /invite com uma leitura de
- * mercado (bolsa de valores): cada estrategista é um ativo.
- * As cotações são SIMULADAS (determinísticas por usuário) até
- * existir o motor real de pontuação.
+ * Integrado com as 4 Competições Oficiais VoltGrid:
+ * 1. Poletime (Precisão da Pole & Quali)
+ * 2. Master (Previsões de Corrida & Pódio)
+ * 3. Milesimus (Moeda MLS & Consistência de Décimos)
+ * 4. Teamwork (Duplas e Construtores no Grid)
+ * + Activity History adaptado em feed de telemetria.
  * ============================================================ */
 
 const ALLIANCES = {
@@ -93,7 +95,6 @@ function useNow() {
 }
 
 function nextRaceStart(from: Date) {
-    // Placeholder: próximo domingo às 14:00 (horário local)
     const d = new Date(from);
     d.setHours(14, 0, 0, 0);
     const add = (7 - d.getDay()) % 7;
@@ -106,11 +107,39 @@ function nextRaceStart(from: Date) {
  * Componentes de UI
  * ============================================================ */
 
-function Panel({ title, tag, children, className = '', bodyClass = 'p-4' }: { title: string; tag?: React.ReactNode; children: React.ReactNode; className?: string; bodyClass?: string }) {
+function Panel({ 
+    title, 
+    tag, 
+    children, 
+    className = '', 
+    bodyClass = 'p-4',
+    accentColor = '#fbaa19'
+}: { 
+    title: string; 
+    tag?: React.ReactNode; 
+    children: React.ReactNode; 
+    className?: string; 
+    bodyClass?: string;
+    accentColor?: string;
+}) {
     return (
-        <div className={`relative bg-black/75 backdrop-blur-sm border border-[#fbaa19]/25 rounded-lg shadow-2xl overflow-hidden animate-fade-in ${className}`}>
-            <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-[#fbaa19]/15 bg-[#fbaa19]/[0.04]">
-                <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-[#fbaa19] uppercase truncate">&gt;_ {title}</span>
+        <div 
+            className={`relative bg-black/75 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300 ${className}`}
+            style={{ borderColor: `${accentColor}30` }}
+        >
+            <div 
+                className="flex items-center justify-between gap-2 px-4 py-2.5 border-b"
+                style={{ 
+                    borderBottomColor: `${accentColor}20`,
+                    background: `linear-gradient(90deg, ${accentColor}0a, transparent)`
+                }}
+            >
+                <span 
+                    className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase truncate flex items-center gap-1.5"
+                    style={{ color: accentColor }}
+                >
+                    <span className="opacity-60">&gt;_</span> {title}
+                </span>
                 {tag && <span className="text-[9px] tracking-widest text-white/40 uppercase shrink-0">{tag}</span>}
             </div>
             <div className={bodyClass}>{children}</div>
@@ -127,13 +156,14 @@ function Delta({ value, className = '' }: { value: number; className?: string })
     );
 }
 
-function Sparkline({ data, width = 90, height = 26 }: { data: number[]; width?: number; height?: number }) {
+function Sparkline({ data, width = 90, height = 26, strokeColor }: { data: number[]; width?: number; height?: number; strokeColor?: string }) {
     const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
     const pts = data.map((v, i) => `${(i / (data.length - 1)) * width},${height - ((v - min) / r) * height}`).join(' ');
     const up = data[data.length - 1] >= data[0];
+    const color = strokeColor || (up ? '#34d399' : '#f87171');
     return (
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
-            <polyline points={pts} fill="none" stroke={up ? '#34d399' : '#f87171'} strokeWidth="1.5" strokeLinejoin="round" />
+            <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
         </svg>
     );
 }
@@ -159,7 +189,7 @@ function TypewriterText({ text, speed = 28 }: { text: string; speed?: number }) 
 }
 
 /* ---------- Gráfico principal ---------- */
-function PriceChart({ data, startRound }: { data: number[]; startRound: number }) {
+function PriceChart({ data, startRound, teamColor }: { data: number[]; startRound: number; teamColor?: string }) {
     const [hover, setHover] = useState<number | null>(null);
     const W = 600, H = 220;
     const min = Math.min(...data), max = Math.max(...data);
@@ -169,8 +199,7 @@ function PriceChart({ data, startRound }: { data: number[]; startRound: number }
     const y = (v: number) => (1 - (v - lo) / (hi - lo)) * H;
     const line = data.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
     const area = `${line} L${W},${H} L0,${H} Z`;
-    const up = data[data.length - 1] >= data[0];
-    const stroke = up ? '#34d399' : '#f87171';
+    const stroke = teamColor || '#fbaa19';
     const idx = hover ?? data.length - 1;
 
     const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -189,17 +218,17 @@ function PriceChart({ data, startRound }: { data: number[]; startRound: number }
                     </linearGradient>
                 </defs>
                 {[0.25, 0.5, 0.75].map(g => (
-                    <line key={g} x1="0" x2={W} y1={H * g} y2={H * g} stroke="rgba(251,170,25,0.08)" strokeDasharray="4 6" vectorEffect="non-scaling-stroke" />
+                    <line key={g} x1="0" x2={W} y1={H * g} y2={H * g} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 6" vectorEffect="non-scaling-stroke" />
                 ))}
                 <path d={area} fill="url(#vgArea)" />
                 <path d={line} fill="none" stroke={stroke} strokeWidth="2" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
                 <line x1={x(idx)} x2={x(idx)} y1="0" y2={H} stroke="rgba(255,255,255,0.18)" vectorEffect="non-scaling-stroke" />
             </svg>
 
-            {/* Marcador (HTML para não distorcer com preserveAspectRatio) */}
+            {/* Marcador */}
             <div className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full border-2 border-black pointer-events-none" style={{ left: `${(x(idx) / W) * 100}%`, top: `${(y(data[idx]) / H) * 100}%`, background: stroke, boxShadow: `0 0 12px ${stroke}` }} />
 
-            <div className="absolute top-2 pointer-events-none text-[10px] font-bold tracking-widest bg-black/80 border border-[#fbaa19]/30 px-2 py-1 rounded" style={{ left: `clamp(0px, calc(${(x(idx) / W) * 100}% - 48px), calc(100% - 96px))` }}>
+            <div className="absolute top-2 pointer-events-none text-[10px] font-bold tracking-widest bg-black/80 border px-2 py-1 rounded" style={{ left: `clamp(0px, calc(${(x(idx) / W) * 100}% - 48px), calc(100% - 96px))`, borderColor: `${stroke}40` }}>
                 <span className="text-white/50">R{startRound + idx}</span> <span className="text-white">{fmt(data[idx])}</span>
             </div>
 
@@ -222,11 +251,11 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
     };
 
     return (
-        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0">
+        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" accentColor={me.teamColor}>
             <div className="relative aspect-[5/4] overflow-hidden bg-[#070604]">
                 {/* Glow da equipe */}
                 <div className="absolute inset-0 opacity-40" style={{ background: `radial-gradient(circle at 50% 60%, ${me.teamColor} 0%, transparent 65%)` }} />
-                <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'linear-gradient(#fbaa19 1px, transparent 1px), linear-gradient(90deg, #fbaa19 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
+                <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: `linear-gradient(${me.teamColor} 1px, transparent 1px), linear-gradient(90deg, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '18px 18px' }} />
 
                 {/* Capacete: imagem + tinta da equipe recortada pela própria imagem */}
                 <div className="absolute inset-[8%] top-[12%]">
@@ -238,7 +267,7 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent" />
 
                 <div className="absolute top-3 left-3 min-w-10 h-10 px-2 bg-white text-black flex items-center justify-center font-black text-xl rounded-sm shadow-lg">{number}</div>
-                <div className="absolute top-3 right-3 text-[9px] font-bold tracking-widest border border-[#fbaa19]/50 text-[#fbaa19] bg-black/70 px-2 py-1 rounded-sm">BLOCO {allianceId}</div>
+                <div className="absolute top-3 right-3 text-[9px] font-bold tracking-widest border px-2 py-1 rounded-sm bg-black/70" style={{ borderColor: `${me.teamColor}70`, color: me.teamColor }}>BLOCO {allianceId}</div>
                 <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
                     <div>
                         <p className="text-[9px] tracking-[0.3em] text-white/50">ESTRATEGISTA</p>
@@ -246,19 +275,19 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                     </div>
                     <div className="text-right">
                         <p className="text-[9px] tracking-[0.3em] text-white/50">RATING</p>
-                        <p className="text-xl font-black text-[#fbaa19] leading-none">{ratingFor(last)}</p>
+                        <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>{ratingFor(last)}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-[#fbaa19]/15">
+            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10">
                 {[
                     ['EQUIPE', <span key="t" className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />{me.teamName}</span>],
                     ['GRUPO', getChampionGroupName(me.groupId)],
                     ['ALIANÇA', ALLIANCES[allianceId].short],
                     ['TICKER', `$${(me.slug || me.name).replace(/[@.\s]/g, '').toUpperCase()}`],
                 ].map(([k, v], i) => (
-                    <div key={i} className={`px-4 py-3 ${i % 2 === 0 ? 'border-r' : ''} ${i < 2 ? 'border-b' : ''} border-[#fbaa19]/10`}>
+                    <div key={i} className={`px-4 py-3 ${i % 2 === 0 ? 'border-r' : ''} ${i < 2 ? 'border-b' : ''} border-white/5`}>
                         <p className="text-white/40 mb-1">{k}</p>
                         <div className="text-white font-bold uppercase truncate">{v}</div>
                     </div>
@@ -269,7 +298,7 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
 }
 
 /* ============================================================
- * Página
+ * Página Principal
  * ============================================================ */
 export default function PlaygroundPage() {
     const { user, isLoading } = useSupabaseAuth();
@@ -320,11 +349,78 @@ export default function PlaygroundPage() {
     }, [user, isLoading]);
 
     const allianceId = allianceForCode(me?.teamCode);
+    const teamColor = me?.teamColor || '#fbaa19';
     const series = me ? me.series.slice(-range) : [];
     const last = series[series.length - 1] ?? 0;
     const prev = me ? me.series[me.series.length - 2] : 0;
     const open = series[0] ?? 0;
     const isDemo = !user || !!me?.isDemo;
+
+    // Métricas das 4 competições baseadas no ID do usuário
+    const compStats = useMemo(() => {
+        if (!me) return null;
+        const seedVal = hashString(me.id);
+        const rnd = seeded(seedVal);
+        
+        return {
+            poletime: {
+                points: Math.floor(180 + rnd() * 640),
+                rank: `P${Math.floor(1 + rnd() * 12)}`,
+                accuracy: (91.2 + rnd() * 7.5).toFixed(1),
+            },
+            master: {
+                points: Math.floor(450 + rnd() * 1150),
+                rank: `P${Math.floor(1 + rnd() * 8)}`,
+                podiums: Math.floor(2 + rnd() * 7),
+            },
+            milesimus: {
+                points: Math.floor(125000 + rnd() * 650000),
+                currency: 'mls',
+                tier: rnd() > 0.4 ? 'DIVISÃO OURO' : 'DIVISÃO PRATA',
+            },
+            teamwork: {
+                duoRank: `P${Math.floor(1 + rnd() * 11)}`,
+                teamScore: Math.floor(1200 + rnd() * 2400),
+                partner: me.isDemo ? 'TELEMETRIA IA' : 'ASSENTO #2 DISPONÍVEL',
+                synergy: Math.floor(75 + rnd() * 23),
+            }
+        };
+    }, [me]);
+
+    // Histórico de atividades / telemetria de ordens
+    const activityHistory = useMemo(() => {
+        if (!me) return [];
+        return [
+            {
+                time: '18m atrás',
+                title: 'Ordem de Pit Stop Sincronizada',
+                desc: `Telemetria enviada para a garagem ${me.teamName}.`,
+                badge: 'PITWALL',
+                color: teamColor
+            },
+            {
+                time: '2h atrás',
+                title: 'Previsão Registrada em Poletime',
+                desc: 'Janela Q3 fechada: 1:28.412 alvo.',
+                badge: 'POLETIME',
+                color: '#22c55e'
+            },
+            {
+                time: 'Ontem',
+                title: 'Contrato Master Atualizado',
+                desc: `Rating ${ratingFor(last)} atribuído no ${getChampionGroupName(me.groupId)}.`,
+                badge: 'MASTER',
+                color: '#3b82f6'
+            },
+            {
+                time: '2 dias atrás',
+                title: 'Recompensa de Milésimos Creditada',
+                desc: '+45.000 mls por consistência de voltas rápidas.',
+                badge: 'MILESIMUS',
+                color: '#fbaa19'
+            }
+        ];
+    }, [me, teamColor, last]);
 
     const tickerItems = useMemo(() => {
         const list = field.length ? field : [];
@@ -351,7 +447,7 @@ export default function PlaygroundPage() {
     const positions = useMemo(() => {
         if (!me) return [];
         const rnd = seeded(hashString(`pos-${me.id}`));
-        const markets = ['POLE POSITION', 'VENCEDOR', 'PÓDIO', 'VOLTA MAIS RÁPIDA', 'SAFETY CAR'];
+        const markets = ['POLE POSITION (POLETIME)', 'VENCEDOR (MASTER)', 'PÓDIO DUPLO', 'VOLTA MAIS RÁPIDA (MLS)', 'SAFETY CAR'];
         return markets.map(m => {
             const team = F1_TEAMS[Math.floor(rnd() * F1_TEAMS.length)];
             const seat = rnd() > 0.5 ? 1 : 2;
@@ -371,7 +467,8 @@ export default function PlaygroundPage() {
         const chg = pct(me.series[me.series.length - 1], me.series[me.series.length - 2]);
         return [
             `Bom dia, ${me.name}. Sua cotação ${chg >= 0 ? 'subiu' : 'recuou'} ${Math.abs(chg).toFixed(2)}% desde o último GP.`,
-            `O ${ALLIANCES[allianceId].name} acompanha seus relatórios. Mantenha o rating ${ratingFor(me.series[me.series.length - 1])} ou melhore.`,
+            `O ${ALLIANCES[allianceId].name} acompanha seus relatórios. Mantenha o rating ${ratingFor(me.series[me.series.length - 1])} no Master.`,
+            `Competições ativas: Poletime, Master, Milesimus e Teamwork com inscrições sincronizadas.`,
             `O ${getChampionGroupName(me.groupId)} ainda tem assentos abertos. A concorrência no grid vai aumentar.`,
             `Lembre-se: quem prevê o caos, fatura o campeonato. Abra suas posições antes do fechamento do mercado.`,
         ];
@@ -394,8 +491,8 @@ export default function PlaygroundPage() {
     if (isLoading || loading || !me) {
         return (
             <div className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono gap-4">
-                <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
-                <p className="text-[#fbaa19] text-xs font-bold tracking-widest animate-pulse">&gt;_ CONECTANDO AO PITWALL...</p>
+                <div className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: teamColor, borderTopColor: 'transparent' }} />
+                <p className="text-xs font-bold tracking-widest animate-pulse" style={{ color: teamColor }}>&gt;_ CONECTANDO AO PITWALL...</p>
             </div>
         );
     }
@@ -408,30 +505,34 @@ export default function PlaygroundPage() {
                 .vg-marquee:hover { animation-play-state: paused; }
             `}</style>
 
-            {/* Fundo */}
+            {/* Fundo com aura personalizada da equipe */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 opacity-[0.12]" style={{ background: 'radial-gradient(circle at 50% 0%, #fbaa19 0%, transparent 55%)' }} />
-                <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(#fbaa19 1px, transparent 1px), linear-gradient(90deg, #fbaa19 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+                <div className="absolute inset-0 opacity-[0.14] transition-all duration-700" style={{ background: `radial-gradient(circle at 50% 0%, ${teamColor} 0%, transparent 60%)` }} />
+                <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(${teamColor} 1px, transparent 1px), linear-gradient(90deg, ${teamColor} 1px, transparent 1px)`, backgroundSize: '48px 48px' }} />
                 <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)' }} />
             </div>
 
             <div className="relative z-10">
-                {/* Barra superior */}
-                <header className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b border-[#fbaa19]/20 bg-black/80 backdrop-blur">
+                {/* Barra superior com acabamento da equipe */}
+                <header className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-black/80 backdrop-blur" style={{ borderBottomColor: `${teamColor}25` }}>
                     <div className="flex items-center gap-3">
-                        <span className="text-lg md:text-xl font-black tracking-widest">VOLT<span className="text-[#fbaa19]">GRID</span></span>
+                        <span className="text-lg md:text-xl font-black tracking-widest">VOLT<span style={{ color: teamColor }}>GRID</span></span>
                         <span className="hidden md:inline text-[10px] tracking-[0.3em] text-white/40">// TERMINAL DO ESTRATEGISTA</span>
+                        <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest hidden sm:inline border" style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}>
+                            {me.teamName}
+                        </span>
                     </div>
                     <div className="flex items-center gap-4 md:gap-6 text-[10px] tracking-widest">
                         <span className="flex items-center gap-1.5 text-emerald-400 font-bold"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />MERCADO ABERTO</span>
-                        <span className="text-white/50">PRÓXIMO GP <span className="text-[#fbaa19] font-bold tabular-nums">T-{countdown}</span></span>
+                        <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: teamColor }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
-                        <Link href="/" className="text-white/40 hover:text-[#fbaa19] transition-colors">[ SAIR ]</Link>
+                        <Link href={`/${meProfile?.slug || ''}`} className="hover:text-white transition-colors" style={{ color: teamColor }}>[ DASHBOARD ]</Link>
+                        <Link href="/" className="text-white/40 hover:text-white transition-colors">[ SAIR ]</Link>
                     </div>
                 </header>
 
                 {/* Fita de cotações */}
-                <div className="overflow-hidden border-b border-[#fbaa19]/15 bg-black/60">
+                <div className="overflow-hidden border-b border-white/5 bg-black/60">
                     <div className="vg-marquee flex w-max whitespace-nowrap py-2">
                         {[...tickerItems, ...tickerItems].map((t, i) => (
                             <span key={i} className="flex items-center gap-2 px-5 text-[11px] tracking-widest border-r border-white/5">
@@ -445,29 +546,53 @@ export default function PlaygroundPage() {
 
                 {isDemo && (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
-                        <div className="border border-[#fbaa19]/40 bg-[#fbaa19]/10 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest text-[#fbaa19] flex flex-wrap items-center justify-between gap-2">
+                        <div className="border bg-black/40 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${teamColor}40`, color: teamColor }}>
                             <span>[SISTEMA] MODO DEMONSTRAÇÃO — DADOS FICTÍCIOS.</span>
                             <Link href="/superlicense" className="font-bold hover:text-white transition-colors">ACESSAR MINHA CONTA »</Link>
                         </div>
                     </div>
                 )}
 
+                {/* Grid Principal */}
                 <div className="max-w-[1500px] mx-auto px-3 md:px-6 py-4 md:py-6 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
 
-                    {/* COLUNA ESQUERDA */}
+                    {/* COLUNA ESQUERDA: Credencial + Rádio do Diretor */}
                     <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
                         <CredentialCard me={me} number={String(meProfile?.driver_number || '00')} allianceId={allianceId} />
 
-                        <Panel title="Rádio do Diretor" tag={<span className="text-[#fbaa19]/70">● AO VIVO</span>}>
-                            <div className="text-xs md:text-[13px] leading-relaxed text-white/90 min-h-[96px] border-l-2 border-[#fbaa19] pl-3">
+                        <Panel title="Rádio do Diretor" tag={<span style={{ color: teamColor }}>● AO VIVO</span>} accentColor={teamColor}>
+                            <div className="text-xs md:text-[13px] leading-relaxed text-white/90 min-h-[96px] border-l-2 pl-3" style={{ borderLeftColor: teamColor }}>
                                 <TypewriterText key={feedIdx} text={feed[feedIdx]} />
+                            </div>
+                        </Panel>
+
+                        {/* Activity History Adaptado */}
+                        <Panel title="Histórico de Telemetria" tag="ATIVIDADES RECENTES" accentColor={teamColor}>
+                            <div className="flex flex-col gap-3 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/10">
+                                {activityHistory.map((act, i) => (
+                                    <div key={i} className="flex items-start gap-3 relative pl-4 text-[10px]">
+                                        <span 
+                                            className="absolute left-0 top-1.5 w-3 h-3 rounded-full border-2 border-black" 
+                                            style={{ backgroundColor: act.color, boxShadow: `0 0 8px ${act.color}88` }} 
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                                                <span className="font-bold tracking-widest text-white truncate">{act.title}</span>
+                                                <span className="text-[8px] text-white/40 shrink-0">{act.time}</span>
+                                            </div>
+                                            <p className="text-white/60 text-[9px] leading-relaxed">{act.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </Panel>
                     </section>
 
-                    {/* COLUNA CENTRAL */}
+                    {/* COLUNA CENTRAL: Cotação + 4 Competições Oficiais + Book de Previsões */}
                     <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
-                        <Panel title="Cotação do Estrategista" tag="SIMULADA · VGC">
+                        
+                        {/* Gráfico do Ativo */}
+                        <Panel title="Cotação do Estrategista" tag="SIMULADA · VGC" accentColor={teamColor}>
                             <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                                 <div>
                                     <p className="text-[10px] tracking-[0.3em] text-white/40 mb-1">${(me.slug || me.name).replace(/[@.\s]/g, '').toUpperCase()}</p>
@@ -481,7 +606,11 @@ export default function PlaygroundPage() {
                                         <button
                                             key={r}
                                             onClick={() => setRange(r)}
-                                            className={`text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-sm border transition-colors ${range === r ? 'bg-[#fbaa19] text-black border-[#fbaa19]' : 'border-white/15 text-white/50 hover:text-white hover:border-white/40'}`}
+                                            className={`text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-sm border transition-colors ${range === r ? 'text-black' : 'border-white/15 text-white/50 hover:text-white hover:border-white/40'}`}
+                                            style={{ 
+                                                backgroundColor: range === r ? teamColor : 'transparent',
+                                                borderColor: range === r ? teamColor : undefined
+                                            }}
                                         >
                                             {r === 24 ? 'TEMP' : `${r}R`}
                                         </button>
@@ -489,9 +618,9 @@ export default function PlaygroundPage() {
                                 </div>
                             </div>
 
-                            <PriceChart key={range} data={series} startRound={24 - range + 1} />
+                            <PriceChart key={range} data={series} startRound={24 - range + 1} teamColor={teamColor} />
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-px mt-4 bg-[#fbaa19]/10 border border-[#fbaa19]/10 rounded overflow-hidden text-[10px] tracking-widest">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-px mt-4 border border-white/5 rounded overflow-hidden text-[10px] tracking-widest" style={{ background: `${teamColor}15` }}>
                                 {[
                                     ['ABERTURA', fmt(open)],
                                     ['MÁXIMA', fmt(Math.max(...series))],
@@ -506,7 +635,84 @@ export default function PlaygroundPage() {
                             </div>
                         </Panel>
 
-                        <Panel title="Book de Previsões" tag="PRÓXIMO GP">
+                        {/* QUATRO COMPETIÇÕES OFICIAIS (Poletime, Master, Milesimus, Teamwork) */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {/* 1. POLETIME */}
+                            <div 
+                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
+                                style={{ borderColor: 'rgba(34, 197, 94, 0.35)' }}
+                            >
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Poletime</span>
+                                    <span className="text-[8px] px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-300 font-bold">QUALIFY</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.poletime.points} <span className="text-[10px] text-white/40">PTS</span></span>
+                                    <div className="flex items-center justify-between text-[8px] text-emerald-400/80 mt-1 uppercase font-bold">
+                                        <span>{compStats?.poletime.rank} GRID</span>
+                                        <span>{compStats?.poletime.accuracy}% ACC</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. MASTER */}
+                            <div 
+                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
+                                style={{ borderColor: 'rgba(59, 130, 246, 0.35)' }}
+                            >
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">Master</span>
+                                    <span className="text-[8px] px-1 py-0.2 rounded bg-blue-500/10 text-blue-300 font-bold">RACE</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.master.points} <span className="text-[10px] text-white/40">PTS</span></span>
+                                    <div className="flex items-center justify-between text-[8px] text-blue-400/80 mt-1 uppercase font-bold">
+                                        <span>{compStats?.master.rank} GERAL</span>
+                                        <span>{compStats?.master.podiums} PÓDIOS</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 3. MILESIMUS */}
+                            <div 
+                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
+                                style={{ borderColor: `${teamColor}50` }}
+                            >
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: teamColor }}>Milesimus</span>
+                                    <span className="text-[8px] px-1 py-0.2 rounded font-bold" style={{ backgroundColor: `${teamColor}15`, color: teamColor }}>CURRENCY</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xl md:text-2xl font-black tracking-tight" style={{ color: teamColor }}>
+                                        {(compStats?.milesimus.points || 0).toLocaleString()} <span className="text-[9px] opacity-75">mls</span>
+                                    </span>
+                                    <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold text-white/50">
+                                        <span>{compStats?.milesimus.tier}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 4. TEAMWORK */}
+                            <div 
+                                className="bg-black/75 border p-3.5 rounded-lg flex flex-col justify-between group hover:scale-[1.02] transition-all cursor-pointer"
+                                style={{ borderColor: 'rgba(251, 170, 25, 0.35)' }}
+                            >
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">Teamwork</span>
+                                    <span className="text-[8px] px-1 py-0.2 rounded bg-[#fbaa19]/10 text-[#fbaa19] font-bold">DUPLA</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.teamwork.duoRank} <span className="text-[10px] text-white/40">PAIR</span></span>
+                                    <div className="flex items-center justify-between text-[8px] text-[#fbaa19]/80 mt-1 uppercase font-bold truncate">
+                                        <span>{compStats?.teamwork.synergy}% SINC</span>
+                                        <span className="truncate max-w-[50px]">{me.teamCode}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Book de Previsões */}
+                        <Panel title="Book de Previsões" tag="PRÓXIMO GP" accentColor={teamColor}>
                             <div className="overflow-x-auto -mx-4 px-4">
                                 <table className="w-full min-w-[520px] text-[10px] md:text-[11px] tracking-widest">
                                     <thead>
@@ -520,16 +726,16 @@ export default function PlaygroundPage() {
                                     </thead>
                                     <tbody>
                                         {positions.map((p, i) => (
-                                            <tr key={i} className="border-b border-white/5 hover:bg-[#fbaa19]/5 transition-colors">
+                                            <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                                                 <td className="py-2.5 text-white/70">{p.market}</td>
                                                 <td className="py-2.5 font-bold">
                                                     <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-3 rounded-sm" style={{ background: p.color }} />{p.pick}</span>
                                                 </td>
-                                                <td className="py-2.5 text-right tabular-nums text-[#fbaa19]">{p.odd}x</td>
+                                                <td className="py-2.5 text-right tabular-nums" style={{ color: teamColor }}>{p.odd}x</td>
                                                 <td className="py-2.5 pl-4">
                                                     <div className="flex items-center gap-2">
                                                         <div className="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
-                                                            <div className="h-full bg-[#fbaa19]" style={{ width: `${p.conf}%` }} />
+                                                            <div className="h-full" style={{ width: `${p.conf}%`, backgroundColor: teamColor }} />
                                                         </div>
                                                         <span className="text-white/50 tabular-nums">{p.conf}%</span>
                                                     </div>
@@ -540,24 +746,25 @@ export default function PlaygroundPage() {
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="flex justify-end mt-4">
-                                <Link href="/bet" className="text-[10px] md:text-xs font-bold tracking-widest text-[#fbaa19] hover:text-white transition-colors animate-pulse">
+                            <div className="flex justify-between items-center mt-4">
+                                <span className="text-[9px] text-white/40 uppercase">Previsões vinculadas ao Poletime & Master</span>
+                                <Link href="/bet" className="text-[10px] md:text-xs font-bold tracking-widest hover:text-white transition-colors animate-pulse" style={{ color: teamColor }}>
                                     [ ABRIR NOVA POSIÇÃO ] »
                                 </Link>
                             </div>
                         </Panel>
                     </section>
 
-                    {/* COLUNA DIREITA */}
+                    {/* COLUNA DIREITA: Índices + Ranking do Grupo */}
                     <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
-                        <Panel title="Índices das Alianças" bodyClass="p-0">
+                        <Panel title="Índices das Alianças" bodyClass="p-0" accentColor={teamColor}>
                             {allianceIdx.map(a => (
-                                <div key={a.k} className={`flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 last:border-0 ${a.k === allianceId ? 'bg-[#fbaa19]/[0.07] border-l-2 border-l-[#fbaa19]' : ''}`}>
+                                <div key={a.k} className={`flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 last:border-0 ${a.k === allianceId ? 'border-l-2' : ''}`} style={{ backgroundColor: a.k === allianceId ? `${teamColor}12` : undefined, borderLeftColor: a.k === allianceId ? teamColor : undefined }}>
                                     <div className="min-w-0">
                                         <p className="text-[10px] tracking-widest text-white/40">IDX.{a.k}</p>
                                         <p className="text-[11px] font-bold tracking-widest truncate">{ALLIANCES[a.k].short}</p>
                                     </div>
-                                    <Sparkline data={a.s.slice(-12)} width={70} />
+                                    <Sparkline data={a.s.slice(-12)} width={70} strokeColor={a.k === allianceId ? teamColor : undefined} />
                                     <div className="text-right">
                                         <p className="text-[11px] font-bold tabular-nums">{fmt(a.v)}</p>
                                         <Delta value={a.c} className="text-[9px]" />
@@ -566,16 +773,16 @@ export default function PlaygroundPage() {
                             ))}
                         </Panel>
 
-                        <Panel title={`Ranking · ${getChampionGroupName(me.groupId)}`} tag={`${groupRanking.filter(r => !r.s.isDemo).length}/22`} bodyClass="p-0">
+                        <Panel title={`Ranking · ${getChampionGroupName(me.groupId)}`} tag={`${groupRanking.filter(r => !r.s.isDemo).length}/22`} bodyClass="p-0" accentColor={teamColor}>
                             <div className="max-h-[420px] overflow-y-auto">
                                 {groupRanking.map((r, i) => {
                                     const isMe = r.s.id === me.id;
                                     const row = (
-                                        <div className={`flex items-center gap-3 px-4 py-2.5 border-b border-white/5 text-[11px] tracking-widest transition-colors ${isMe ? 'bg-[#fbaa19]/10' : 'hover:bg-white/5'}`}>
-                                            <span className={`w-5 text-right tabular-nums ${i < 3 ? 'text-[#fbaa19] font-black' : 'text-white/40'}`}>{i + 1}</span>
+                                        <div className={`flex items-center gap-3 px-4 py-2.5 border-b border-white/5 text-[11px] tracking-widest transition-colors ${isMe ? 'border-l-2' : 'hover:bg-white/5'}`} style={{ backgroundColor: isMe ? `${teamColor}15` : undefined, borderLeftColor: isMe ? teamColor : undefined }}>
+                                            <span className={`w-5 text-right tabular-nums ${i < 3 ? 'font-black' : 'text-white/40'}`} style={{ color: i < 3 ? teamColor : undefined }}>{i + 1}</span>
                                             <span className="w-1 h-6 rounded-sm shrink-0" style={{ background: r.s.teamColor }} />
                                             <div className="flex-1 min-w-0">
-                                                <p className={`font-bold truncate ${isMe ? 'text-[#fbaa19]' : ''}`}>{r.s.name}{isMe && ' (VOCÊ)'}</p>
+                                                <p className={`font-bold truncate`} style={{ color: isMe ? teamColor : undefined }}>{r.s.name}{isMe && ' (VOCÊ)'}</p>
                                                 <p className="text-[9px] text-white/40">{r.s.teamCode}</p>
                                             </div>
                                             <div className="text-right">
@@ -595,7 +802,7 @@ export default function PlaygroundPage() {
 
                 <footer className="max-w-[1500px] mx-auto px-3 md:px-6 pb-8 flex flex-wrap justify-between gap-2 text-[9px] tracking-[0.3em] text-white/25">
                     <span>SINAL: ESTÁVEL · CANAL CRIPTOGRAFADO</span>
-                    <span>VOLTGRID PLAYGROUND · BUILD EXPERIMENTAL</span>
+                    <span>VOLTGRID PLAYGROUND · INTEGRAÇÃO POLETIME / MASTER / MLS / TEAMWORK</span>
                 </footer>
             </div>
         </main>
