@@ -46,17 +46,11 @@ const retroSound = new PitWallSoundEngine();
 
 type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'FETCHING_TEAM' | 'ENLIST' | 'SUBMITTING_ENLIST';
 
-const TEAM_COLORS: Record<string, string> = {
-    MCL: '#FF8000', MER: '#00D2BE', WIL: '#005AFF', ALP: '#FD4BC7',
-    FER: '#DC0000', HAA: '#FFFFFF', CAD: '#C8A2C8',
-    RBR: '#0600EF', RBA: '#2B4562', AST: '#229971', AUD: '#F50537'
-};
-
 const customDialogs = [
     "Puxe uma cadeira e feche a porta.",
     "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
     "Você lê o traçado antes das luzes apagarem.",
-    "O novo regulamento deflagrou uma guerra de motores nos bastidores e três grandes alianças se formaram.",
+    "Mas você sabe que o novo regulamento de motores deflagrou uma verdadeira guerra fria nos bastidores. As fronteiras foram desenhadas e três grandes alianças se formaram no grid.",
     "Chegou a hora de escolher o seu lado e buscar uma vaga no pitwall entre os melhores."
 ];
 
@@ -67,6 +61,7 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     title: 'CONSÓRCIO DA ESTRELA',
     sub: 'Confiabilidade de Aço & Domínio de Frota',
     engineSpec: 'Mercedes V6 Hybrid',
+    teamsString: 'Mercedes-AMG • McLaren • Alpine • Williams',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
     fantasyPerk: '+15% XP em previsões de consistência.',
     directorResponse: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
@@ -77,6 +72,7 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     title: 'A DINASTIA DE MARANELLO',
     sub: 'Potência de Pico & A Frente Americana',
     engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
+    teamsString: 'Scuderia Ferrari • Haas • Cadillac',
     teams: ['FER', 'HAA', 'CAD'],
     fantasyPerk: '2x XP em apostas arriscadas de pole.',
     directorResponse: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”'
@@ -87,6 +83,7 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     title: 'OS DESAFIANTES',
     sub: 'Risco Tecnológico & Ambição',
     engineSpec: 'Ford / Honda / Audi PU',
+    teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
     fantasyPerk: '+25% XP ao prever cenários de caos.',
     directorResponse: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
@@ -219,7 +216,6 @@ function InviteFlow3() {
             
             const groupData = ENGINE_FACTIONS[groupId];
             
-            // Tenta pegar equipes disponíveis, se nenhuma, pega qualquer uma do grupo.
             let groupTeams = data.filter(t => groupData.teams.includes(t.code) && t.is_available);
             if (groupTeams.length === 0) {
                 groupTeams = data.filter(t => groupData.teams.includes(t.code));
@@ -389,11 +385,7 @@ function InviteFlow3() {
             )}
 
             {phase === 'GROUP_SELECT' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 mb-16 px-4">
-                    <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-3 shadow-2xl text-[10px] md:text-xs mb-1 animate-fade-in">
-                        DECODIFICANDO DADOS DE ALIANÇAS...
-                    </p>
-                    
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
                     {errorMsg && (
                         <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in">
                             [ERRO] {errorMsg}
@@ -404,7 +396,8 @@ function InviteFlow3() {
                         if (idx > groupIndex) return null;
                         
                         const g = ENGINE_FACTIONS[groupId];
-                        const fullText = `[${g.badge}] ${g.title}\n> ${g.sub}\n> SPEC: ${g.engineSpec}\n> PERK: ${g.fantasyPerk}`;
+                        // Integramos os nomes das equipes diretamente no texto typewriter para manter tudo no mesmo padrão limpo
+                        const fullText = `[${g.badge}] ${g.title}\n> ${g.sub}\n> EQUIPES: ${g.teamsString}\n> SPEC: ${g.engineSpec}\n> PERK: ${g.fantasyPerk}`;
                         const isReady = groupReadyFlags[groupId];
 
                         return (
@@ -426,16 +419,6 @@ function InviteFlow3() {
                                         }}
                                     />
                                 </div>
-                                
-                                {isReady && (
-                                    <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-white/10 animate-fade-in">
-                                        {g.teams.map((tCode: string) => (
-                                            <div key={tCode} className="w-8 h-8 md:w-9 md:h-9 rounded-sm border border-white/20 flex items-center justify-center text-[10px] font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
-                                                {tCode}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
                         );
                     })}
