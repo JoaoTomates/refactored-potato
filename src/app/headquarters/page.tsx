@@ -10,19 +10,19 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     badge: 'BLOCO A',
     title: 'CONSÓRCIO DA ESTRELA',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
-    description: 'Você chamou a atenção da maior frota da Alemanha. Analise as ofertas e assine com sua nova garagem.'
+    description: 'Voce chamou a atencao da maior frota da Alemanha. Analise as ofertas e assine com sua nova garagem.'
   },
   B: {
     badge: 'BLOCO B',
     title: 'A DINASTIA DE MARANELLO',
     teams: ['FER', 'HAA', 'CAD'],
-    description: 'A paixão italiana e a agressividade americana querem você no pitwall. Onde você vai assinar?'
+    description: 'A paixao italiana e a agressividade americana querem voce no pitwall. Onde voce vai assinar?'
   },
   C: {
     badge: 'BLOCO C',
     title: 'OS DESAFIANTES',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
-    description: 'O caos é uma escada. As montadoras desafiantes enviaram propostas. Faça sua escolha.'
+    description: 'O caos e uma escada. As montadoras desafiantes enviaram propostas. Faca sua escolha.'
   }
 };
 
@@ -137,7 +137,7 @@ function HeadquartersFlow() {
                             "{allianceInfo?.description}"
                         </p>
                         <p className="text-[#fbaa19] text-xs uppercase tracking-widest font-bold">
-                            &gt; DIRETRIZ: Preenchimento prioritário do Grupo 1 (Giuseppe Farina). Há uma relação direta 1:1 para cada piloto real da F1. Assine com uma das {teams.length} ofertas abaixo para preencher sua vaga no grid.
+                            &gt; DIRETRIZ: Preenchimento prioritario do Grupo 1 (Giuseppe Farina). A relacao estrategica nao e atrelada diretamente aos pilotos, mas sim de ordem estrutural: cada vaga oficial nas garagens reais (Assento 1 e 2) possui uma correlacao direta 1:1 com a alocacao de estrategistas nos Grupos Fantasy. Analise as {teams.length} propostas abaixo e assuma o pitwall.
                         </p>
                     </div>
                 </div>
@@ -163,9 +163,9 @@ function HeadquartersFlow() {
                             </div>
 
                             <div className="flex-1 bg-[#111] border border-white/5 p-4 rounded text-xs text-gray-400 font-mono leading-relaxed">
-                                &gt; Nível de Acesso: TOTAL<br/>
+                                &gt; Nivel de Acesso: TOTAL<br/>
                                 &gt; Grupo Fantasy: GRUPO 1 (FARINA)<br/>
-                                &gt; Status de Integração: IMEDIATA<br/>
+                                &gt; Status de Integracao: IMEDIATA<br/>
                                 &gt; Contrato: TEMPORADA 2026
                             </div>
 
