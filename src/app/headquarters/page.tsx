@@ -57,7 +57,7 @@ function HeadquartersFlow() {
             }
 
             try {
-                const { data: contract } = await supabase.from('contracts').select('id').eq('profile_id', user.id).maybeSingle();
+                const { data: contract } = await supabase.from('contracts').select('id').eq('user_id', user.id).maybeSingle();
                 if (contract) {
                     const { data: profile } = await supabase.from('profiles').select('slug').eq('id', user.id).single();
                     if (profile?.slug) {
