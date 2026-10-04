@@ -56,7 +56,6 @@ const customDialogs = [
     "Puxe uma cadeira e feche a porta.",
     "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
     "Você lê o traçado antes das luzes apagarem.",
-    "Mas na F1 talento sozinho não garante contrato — você precisa saber onde colocar suas fichas.",
     "O novo regulamento deflagrou uma guerra de motores nos bastidores e três grandes alianças se formaram.",
     "Chegou a hora de escolher o seu lado e buscar uma vaga no pitwall entre os melhores."
 ];
@@ -64,37 +63,37 @@ const customDialogs = [
 const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
   A: {
     id: 'A',
-    badge: 'CONSORCIO A',
-    title: 'O Consórcio da Estrela',
-    sub: 'Engenharia Analítica, Confiabilidade de Aço & Domínio de Frota.',
-    engineSpec: 'Mercedes High Performance Powertrains 1.6L Hybrid',
+    badge: 'BLOCO A',
+    title: 'CONSÓRCIO DA ESTRELA',
+    sub: 'Confiabilidade de Aço & Domínio de Frota',
+    engineSpec: 'Mercedes V6 Hybrid',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
-    fantasyPerk: 'BÔNUS DE CONSISTÊNCIA: +15% de XP em previsões de bandeiras quadriculadas duplas e pit stops sincronizados.',
+    fantasyPerk: '+15% XP em previsões de consistência.',
     directorResponse: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
   },
   B: {
     id: 'B',
-    badge: 'CONSORCIO B',
-    title: 'A Dinastia de Maranello',
-    sub: 'Pressão Visceral, Potência de Pico & A Frente Americana.',
-    engineSpec: 'Scuderia Ferrari 067/3 Hybrid E-Turbo Architecture',
+    badge: 'BLOCO B',
+    title: 'A DINASTIA DE MARANELLO',
+    sub: 'Potência de Pico & A Frente Americana',
+    engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
     teams: ['FER', 'HAA', 'CAD'],
-    fantasyPerk: 'BÔNUS DE ÍMPETO: Pontuação dobrada em previsões arriscadas de pole position e voltas mais rápidas.',
+    fantasyPerk: '2x XP em apostas arriscadas de pole.',
     directorResponse: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”'
   },
   C: {
     id: 'C',
-    badge: 'CONSORCIO C',
-    title: 'A Vanguarda dos Desafiantes',
-    sub: 'Risco Tecnológico Máximo, Projetos Proprietários & Ambição Sem Freio.',
-    engineSpec: 'Red Bull-Ford Powertrains / Honda HRC / Audi F1 PU',
+    badge: 'BLOCO C',
+    title: 'OS DESAFIANTES',
+    sub: 'Risco Tecnológico & Ambição',
+    engineSpec: 'Ford / Honda / Audi PU',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
-    fantasyPerk: 'BÔNUS DE CAOS: +25% de prestígio ao acertar zebras de safety car, abandonos e ultrapassagens do pelotão intermediário.',
+    fantasyPerk: '+25% XP ao prever cenários de caos.',
     directorResponse: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
   }
 };
 
-function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
+function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300, fastMode = false }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number, fastMode?: boolean }) {
     const [displayed, setDisplayed] = useState("");
     const [isTyping, setIsTyping] = useState(true);
     const callbacksRef = useRef({ onComplete, onReadyForNext });
@@ -120,9 +119,9 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: 
                 
                 i++;
                 
-                let delay = 40 + Math.random() * 30; 
-                if (char === '.' || char === '!' || char === '?') delay = 400;
-                else if (char === ',' || char === '\n') delay = 200;
+                let delay = fastMode ? (10 + Math.random() * 10) : (40 + Math.random() * 30); 
+                if (char === '.' || char === '!' || char === '?') delay = fastMode ? 100 : 400;
+                else if (char === ',' || char === '\n') delay = fastMode ? 50 : 200;
                 
                 timeoutId = setTimeout(typeNext, delay);
             } else {
@@ -140,7 +139,7 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: 
             isCancelled = true;
             clearTimeout(timeoutId);
         };
-    }, [text, startDelay]);
+    }, [text, startDelay, fastMode]);
     
     return (
         <span className="opacity-90 leading-relaxed relative whitespace-pre-wrap">
@@ -319,7 +318,7 @@ function InviteFlow3() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            {/* INTRO PHASE: Box 1 positioned higher than before (between center and bottom) */}
+            {/* INTRO PHASE: Box 1 */}
             {phase === 'INTRO' && (
                 <div className="absolute bottom-[25%] md:bottom-[30%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
@@ -384,41 +383,42 @@ function InviteFlow3() {
 
             {/* GROUP SELECT PHASE */}
             {phase === 'GROUP_SELECT' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4">
-                    <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-4 shadow-2xl text-xs md:text-sm mb-2 animate-fade-in">
-                        CONEXÃO ESTABELECIDA. DESCRIPTOGRAFANDO DADOS DE ALIANÇAS...
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 mb-16 px-4">
+                    <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-3 shadow-2xl text-[10px] md:text-xs mb-1 animate-fade-in">
+                        DECODIFICANDO DADOS DE ALIANÇAS...
                     </p>
                     
                     {(['A', 'B', 'C'] as const).map((groupId, idx) => {
                         if (idx > groupIndex) return null;
                         
                         const g = ENGINE_FACTIONS[groupId];
-                        const fullText = `[${g.badge}] ${g.title}\n> ${g.sub}\n\n> SPEC: ${g.engineSpec}\n> PERK: ${g.fantasyPerk}`;
+                        const fullText = `[${g.badge}] ${g.title}\n> ${g.sub}\n> SPEC: ${g.engineSpec}\n> PERK: ${g.fantasyPerk}`;
                         const isReady = groupReadyFlags[groupId];
 
                         return (
                             <div 
                                 key={g.id} 
-                                className={`w-full bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl p-6 md:p-8 animate-fade-in transition-all ${isReady ? 'cursor-pointer border-[#fbaa19]/30 hover:border-[#fbaa19] hover:bg-black/90 group' : 'border-white/10'}`}
+                                className={`w-full bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl p-4 md:p-5 animate-fade-in transition-all ${isReady ? 'cursor-pointer border-[#fbaa19]/30 hover:border-[#fbaa19] hover:bg-black/90 group' : 'border-white/10'}`}
                                 onClick={() => handleSelectGroup(groupId)}
                             >
-                                <div className="text-white text-sm md:text-base font-bold tracking-widest leading-relaxed">
+                                <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed">
                                     <TypewriterLine 
                                         text={fullText} 
-                                        startDelay={200} 
+                                        startDelay={100} 
+                                        fastMode={true}
                                         onReadyForNext={() => {
                                             setGroupReadyFlags(prev => ({...prev, [groupId]: true}));
                                             if (idx < 2) {
-                                                setTimeout(() => setGroupIndex(idx + 1), 600);
+                                                setTimeout(() => setGroupIndex(idx + 1), 400);
                                             }
                                         }}
                                     />
                                 </div>
                                 
                                 {isReady && (
-                                    <div className="flex flex-wrap gap-2 mt-5 pt-5 border-t border-white/10 animate-fade-in">
+                                    <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-white/10 animate-fade-in">
                                         {g.teams.map((tCode: string) => (
-                                            <div key={tCode} className="w-8 h-8 md:w-10 md:h-10 rounded-sm border border-white/20 flex items-center justify-center text-[10px] md:text-xs font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
+                                            <div key={tCode} className="w-8 h-8 md:w-9 md:h-9 rounded-sm border border-white/20 flex items-center justify-center text-[10px] font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
                                                 {tCode}
                                             </div>
                                         ))}
