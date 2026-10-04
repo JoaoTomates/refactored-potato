@@ -7,21 +7,6 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 type Step = 'DIALOG' | 'GROUP_SELECT' | 'ENLIST' | 'PROCESSING';
 
-const bossResponses: Record<number, { name: string, quote: string }> = {
-    1: {
-        name: "BLOCO A: ALIANÇA DA ESTRELA",
-        quote: "“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”"
-    },
-    2: {
-        name: "BLOCO B: O IMPÉRIO DE MARANELLO",
-        quote: "“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”"
-    },
-    3: {
-        name: "BLOCO C: A VANGUARDA TECNOLÓGICA",
-        quote: "“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”"
-    }
-};
-
 const TEAM_COLORS: Record<string, string> = {
     MCL: '#FF8000', MER: '#00D2BE', WIL: '#005AFF', ALP: '#FD4BC7',
     FER: '#DC0000', HAA: '#FFFFFF', CAD: '#C8A2C8',
@@ -29,30 +14,45 @@ const TEAM_COLORS: Record<string, string> = {
 };
 
 const customDialogs = [
-    "Você conseguiu o assento. Puxe uma cadeira e feche a porta. O grid de 2026 não é mais sobre o carro, é sobre os algoritmos de previsão.",
-    "Nós interceptamos a telemetria bruta. Nossa IA precisa de mentes humanas para calibrar as decisões. Tenho três propostas na mesa para estrategistas da sua classe."
+    "Puxe uma cadeira e feche a porta.",
+    "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
+    "Você lê o traçado antes das luzes apagarem.",
+    "Mas na F1 talento sozinho não garante contrato — você precisa saber onde colocar suas fichas.",
+    "O novo regulamento deflagrou uma guerra de motores nos bastidores e três grandes alianças se formaram. Chegou a hora de escolher o seu lado."
 ];
 
-const dictGroups = [
-    { 
-        id: 1, 
-        title: "ALIANÇA DA ESTRELA", 
-        teams: ['MER', 'MCL', 'ALP', 'WIL'], 
-        hint: "A maior frota do grid. Domínio de engenharia e confiabilidade estabelecida." 
-    },
-    { 
-        id: 2, 
-        title: "O IMPÉRIO DE MARANELLO", 
-        teams: ['FER', 'HAA', 'CAD'], 
-        hint: "A fúria e o prestígio italiano unidos à nova força americana no grid." 
-    },
-    { 
-        id: 3, 
-        title: "VANGUARDA TECNOLÓGICA", 
-        teams: ['RBR', 'RBA', 'AST', 'AUD'], 
-        hint: "Motores inéditos, alto risco e a ousadia dos novos projetos de fábrica." 
-    }
-];
+const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
+  A: {
+    id: 'A',
+    badge: 'CONSORCIO A',
+    title: 'O Consórcio da Estrela (Bloco Mercedes)',
+    sub: 'Engenharia Analítica, Confiabilidade de Aço & Domínio de Frota',
+    engineSpec: 'Mercedes High Performance Powertrains 1.6L Hybrid',
+    teams: ['MER', 'MCL', 'ALP', 'WIL'],
+    fantasyPerk: 'BÔNUS DE CONSISTÊNCIA: +15% de XP em previsões de bandeiras quadriculadas duplas e pit stops sincronizados.',
+    directorResponse: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
+  },
+  B: {
+    id: 'B',
+    badge: 'CONSORCIO B',
+    title: 'A Dinastia de Maranello (Bloco Ferrari)',
+    sub: 'Pressão Visceral, Potência de Pico & A Frente Americana',
+    engineSpec: 'Scuderia Ferrari 067/3 Hybrid E-Turbo Architecture',
+    teams: ['FER', 'HAA', 'CAD'],
+    fantasyPerk: 'BÔNUS DE ÍMPETO: Pontuação dobrada em previsões arriscadas de pole position e voltas mais rápidas.',
+    directorResponse: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”'
+  },
+  C: {
+    id: 'C',
+    badge: 'CONSORCIO C',
+    title: 'A Vanguarda dos Desafiantes (Ford, Honda & Audi)',
+    sub: 'Risco Tecnológico Máximo, Projetos Proprietários & Ambição Sem Freio',
+    engineSpec: 'Red Bull-Ford Powertrains / Honda HRC / Audi F1 PU',
+    teams: ['RBR', 'RBA', 'AST', 'AUD'],
+    fantasyPerk: 'BÔNUS DE CAOS: +25% de prestígio ao acertar zebras de safety car, abandonos e ultrapassagens do pelotão intermediário.',
+    directorResponse: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
+  }
+};
 
 function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
     const [displayed, setDisplayed] = useState("");
@@ -110,10 +110,9 @@ function InviteFlow3() {
     
     const [step, setStep] = useState<Step>('LOADING');
     const [dialogIndex, setDialogIndex] = useState(0);
-    const [ready1, setReady1] = useState(false);
-    const [ready2, setReady2] = useState(false);
+    const [readyFlags, setReadyFlags] = useState<Record<number, boolean>>({});
     const [typingComplete, setTypingComplete] = useState(false);
-    const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+    const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     
     const [fullName, setFullName] = useState("");
@@ -144,7 +143,19 @@ function InviteFlow3() {
         }
     }, [dialogIndex, step]);
 
-    const handleSelectGroup = async (groupId: number) => {
+    const handleReadyForNext = (idx: number) => {
+        setReadyFlags(prev => ({ ...prev, [idx]: true }));
+    };
+
+    const handleNextDialog = (idx: number) => {
+        if (idx < customDialogs.length - 1) {
+            setDialogIndex(idx + 1);
+        } else {
+            setStep('GROUP_SELECT');
+        }
+    };
+
+    const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
         setSelectedGroup(groupId);
         setStep('PROCESSING');
         
@@ -152,12 +163,10 @@ function InviteFlow3() {
             const { data, error } = await supabase.from('teams').select('*').eq('is_available', true);
             if (error) throw error;
             
-            let codes: string[] = [];
-            if (groupId === 1) codes = ['MCL', 'MER', 'WIL', 'ALP'];
-            else if (groupId === 2) codes = ['FER', 'HAA', 'CAD'];
-            else if (groupId === 3) codes = ['RBR', 'RBA', 'AST', 'AUD'];
-
-            const groupTeams = data.filter(t => codes.includes(t.code));
+            const groupData = ENGINE_FACTIONS[groupId];
+            const groupTeams = data.filter(t => groupData.teams.includes(t.code));
+            
+            // Randomly select one team from the chosen alliance
             const randomTeam = groupTeams[Math.floor(Math.random() * groupTeams.length)];
             setSelectedTeamId(randomTeam.id);
             setStep('ENLIST');
@@ -247,7 +256,7 @@ function InviteFlow3() {
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center justify-center p-4">
+        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center p-4 pt-16 pb-16">
             
             <img 
                 src="/pixel_invite_bg_v2.jpg"
@@ -256,67 +265,79 @@ function InviteFlow3() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6">
+            <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4">
                 
-                {/* Box 1 */}
-                {step === 'DIALOG' && dialogIndex >= 0 && (
-                    <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
-                        <span className="opacity-50 mr-4 text-[#fbaa19]">&gt;_</span>
-                        <TypewriterLine text={customDialogs[0]} startDelay={300} onReadyForNext={() => setReady1(true)} />
-                        
-                        {ready1 && dialogIndex === 0 && (
-                            <div className="mt-6 flex justify-end animate-fade-in">
-                                <button onClick={() => setDialogIndex(1)} className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse">
-                                    [ CONTINUAR ] »
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                {/* Dialogue Sequence */}
+                {step === 'DIALOG' && customDialogs.map((dialog, idx) => (
+                    idx <= dialogIndex && (
+                        <div key={idx} className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                            <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                            <TypewriterLine text={dialog} startDelay={150} onReadyForNext={() => handleReadyForNext(idx)} />
+                            
+                            {readyFlags[idx] && dialogIndex === idx && (
+                                <div className="mt-5 flex justify-end animate-fade-in">
+                                    <button 
+                                        onClick={() => handleNextDialog(idx)} 
+                                        className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
+                                    >
+                                        {idx === customDialogs.length - 1 ? '[ ACESSAR ALIANÇAS ] »' : '[ CONTINUAR ] »'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )
+                ))}
 
-                {/* Box 2 */}
-                {step === 'DIALOG' && dialogIndex >= 1 && (
-                    <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest mt-4">
-                        <span className="opacity-50 mr-4 text-[#fbaa19]">&gt;_</span>
-                        <TypewriterLine text={customDialogs[1]} startDelay={300} onReadyForNext={() => setReady2(true)} />
-                        
-                        {ready2 && (
-                            <div className="mt-6 flex justify-end animate-fade-in">
-                                <button onClick={() => setStep('GROUP_SELECT')} className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse">
-                                    [ ACESSAR PROPOSTAS ] »
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* GROUP SELECT BOX */}
+                {/* GROUP SELECT BOXES */}
                 {step === 'GROUP_SELECT' && (
-                    <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
-                        <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center border-b border-[#fbaa19]/20 pb-4 text-sm md:text-base">
-                            CONEXÃO ESTABELECIDA. SELECIONE A SUA ALIANÇA:
+                    <div className="w-full flex flex-col gap-6 animate-fade-in">
+                        <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-4 shadow-2xl text-xs md:text-sm">
+                            CONEXÃO ESTABELECIDA. DECODIFICANDO DADOS DE ALIANÇA...
                         </p>
-                        <div className="flex flex-col gap-4">
-                            {dictGroups.map((g: any, idx: number) => (
+                        
+                        {(['A', 'B', 'C'] as const).map((groupId) => {
+                            const g = ENGINE_FACTIONS[groupId];
+                            return (
                                 <div 
                                     key={g.id} 
-                                    className="bg-black/60 border-l-[4px] border-black/0 border-y border-r border-white/10 p-4 hover:border-l-[#fbaa19] cursor-pointer transition-all duration-300 group rounded-r flex flex-col md:flex-row md:items-center justify-between gap-4" 
-                                    onClick={() => handleSelectGroup(idx + 1)}
+                                    className="w-full bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl p-6 md:p-8 cursor-pointer hover:border-[#fbaa19] hover:bg-black/90 transition-all group"
+                                    onClick={() => handleSelectGroup(groupId)}
                                 >
-                                    <div>
-                                        <h3 className="text-lg md:text-xl font-black text-white group-hover:text-[#fbaa19] transition-colors">{g.title}</h3>
-                                        <p className="text-xs text-white/50 mt-1 uppercase tracking-widest">{g.hint}</p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {g.teams.map((tCode: string) => (
-                                            <div key={tCode} className="w-8 h-8 rounded-sm border border-white/20 flex items-center justify-center text-[9px] font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
-                                                {tCode}
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex justify-between items-start gap-4">
+                                            <div>
+                                                <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase mb-1 block">
+                                                    [{g.badge}]
+                                                </span>
+                                                <h3 className="text-xl md:text-2xl font-black text-white group-hover:text-[#fbaa19] transition-colors">
+                                                    {g.title}
+                                                </h3>
                                             </div>
-                                        ))}
+                                            <div className="flex flex-wrap justify-end gap-2 shrink-0">
+                                                {g.teams.map((tCode: string) => (
+                                                    <div key={tCode} className="w-7 h-7 md:w-8 md:h-8 rounded-sm border border-white/20 flex items-center justify-center text-[9px] font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
+                                                        {tCode}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        
+                                        <p className="text-white/70 text-xs md:text-sm font-bold tracking-widest uppercase mt-2">
+                                            &gt;_ {g.sub}
+                                        </p>
+                                        
+                                        <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
+                                            <p className="text-[10px] md:text-xs text-[#fbaa19]/80 font-mono">
+                                                <strong className="text-white">SPEC:</strong> {g.engineSpec}
+                                            </p>
+                                            <p className="text-[10px] md:text-xs text-[#fbaa19]/80 font-mono">
+                                                <strong className="text-white">PERK:</strong> {g.fantasyPerk}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -324,9 +345,11 @@ function InviteFlow3() {
                 {step === 'ENLIST' && selectedGroup && (
                     <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
                         <div>
-                            <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-2 uppercase">COMANDANTE: {bossResponses[selectedGroup].name}</p>
+                            <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-3 uppercase">
+                                RESPOSTA DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
+                            </p>
                             <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
-                                <TypewriterLine text={bossResponses[selectedGroup].quote} startDelay={300} onReadyForNext={() => setTypingComplete(true)} />
+                                <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={300} onReadyForNext={() => setTypingComplete(true)} />
                             </div>
                         </div>
                         
