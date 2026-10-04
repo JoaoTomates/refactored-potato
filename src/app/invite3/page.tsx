@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
-type Step = 'DIALOG' | 'GROUP_SELECT' | 'ENLIST' | 'PROCESSING';
+type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'ENLIST' | 'PROCESSING';
 
 const TEAM_COLORS: Record<string, string> = {
     MCL: '#FF8000', MER: '#00D2BE', WIL: '#005AFF', ALP: '#FD4BC7',
@@ -108,10 +108,11 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 300 }: 
 function InviteFlow3() {
     const { user, isLoading: authLoading } = useSupabaseAuth();
     
-    const [step, setStep] = useState<Step>('LOADING');
-    const [dialogIndex, setDialogIndex] = useState(0);
-    const [readyFlags, setReadyFlags] = useState<Record<number, boolean>>({});
+    const [phase, setPhase] = useState<Phase>('LOADING');
+    const [introReady, setIntroReady] = useState(false);
+    const [autoIndex, setAutoIndex] = useState(1);
     const [typingComplete, setTypingComplete] = useState(false);
+    
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     
@@ -131,33 +132,26 @@ function InviteFlow3() {
                     return;
                 }
             }
-            setStep('DIALOG');
+            setPhase('INTRO');
         };
         
         checkUserStatus();
     }, [authLoading, user]);
 
     useEffect(() => {
-        if (messagesEndRef.current) {
+        if (messagesEndRef.current && phase !== 'INTRO') {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
-    }, [dialogIndex, step]);
+    }, [autoIndex, phase]);
 
-    const handleReadyForNext = (idx: number) => {
-        setReadyFlags(prev => ({ ...prev, [idx]: true }));
-    };
-
-    const handleNextDialog = (idx: number) => {
-        if (idx < customDialogs.length - 1) {
-            setDialogIndex(idx + 1);
-        } else {
-            setStep('GROUP_SELECT');
-        }
+    const startAutoDialog = () => {
+        setPhase('AUTO_DIALOG');
+        setAutoIndex(1); // Starts at box index 1
     };
 
     const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
         setSelectedGroup(groupId);
-        setStep('PROCESSING');
+        setPhase('PROCESSING');
         
         try {
             const { data, error } = await supabase.from('teams').select('*').eq('is_available', true);
@@ -166,14 +160,13 @@ function InviteFlow3() {
             const groupData = ENGINE_FACTIONS[groupId];
             const groupTeams = data.filter(t => groupData.teams.includes(t.code));
             
-            // Randomly select one team from the chosen alliance
             const randomTeam = groupTeams[Math.floor(Math.random() * groupTeams.length)];
             setSelectedTeamId(randomTeam.id);
-            setStep('ENLIST');
+            setPhase('ENLIST');
         } catch (err) {
             console.error(err);
             setErrorMsg("ERRO NA CONEXÃO");
-            setStep('GROUP_SELECT');
+            setPhase('GROUP_SELECT');
         }
     };
 
@@ -191,13 +184,13 @@ function InviteFlow3() {
         } catch (err: any) {
             console.error('RPC Error:', err);
             setErrorMsg("FALHA NA ASSINATURA");
-            setStep('ENLIST');
+            setPhase('ENLIST');
         }
     };
 
     const handleEnlistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setStep('PROCESSING');
+        setPhase('PROCESSING');
         setErrorMsg("");
 
         try {
@@ -251,12 +244,12 @@ function InviteFlow3() {
         } catch (err: any) {
             console.error(err);
             setErrorMsg(err.message || "ERRO CRÍTICO");
-            setStep('ENLIST');
+            setPhase('ENLIST');
         }
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center p-4 pt-16 pb-16">
+        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center">
             
             <img 
                 src="/pixel_invite_bg_v2.jpg"
@@ -265,136 +258,170 @@ function InviteFlow3() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4">
-                
-                {/* Dialogue Sequence */}
-                {step === 'DIALOG' && customDialogs.map((dialog, idx) => (
-                    idx <= dialogIndex && (
-                        <div key={idx} className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
-                            <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                            <TypewriterLine text={dialog} startDelay={150} onReadyForNext={() => handleReadyForNext(idx)} />
-                            
-                            {readyFlags[idx] && dialogIndex === idx && (
-                                <div className="mt-5 flex justify-end animate-fade-in">
-                                    <button 
-                                        onClick={() => handleNextDialog(idx)} 
-                                        className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
-                                    >
-                                        {idx === customDialogs.length - 1 ? '[ ACESSAR ALIANÇAS ] »' : '[ CONTINUAR ] »'}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )
-                ))}
-
-                {/* GROUP SELECT BOXES */}
-                {step === 'GROUP_SELECT' && (
-                    <div className="w-full flex flex-col gap-6 animate-fade-in">
-                        <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-4 shadow-2xl text-xs md:text-sm">
-                            CONEXÃO ESTABELECIDA. DECODIFICANDO DADOS DE ALIANÇA...
-                        </p>
+            {/* INTRO PHASE: Box 1 at the bottom */}
+            {phase === 'INTRO' && (
+                <div className="absolute bottom-12 w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
+                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                        <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                        <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
                         
-                        {(['A', 'B', 'C'] as const).map((groupId) => {
-                            const g = ENGINE_FACTIONS[groupId];
-                            return (
-                                <div 
-                                    key={g.id} 
-                                    className="w-full bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl p-6 md:p-8 cursor-pointer hover:border-[#fbaa19] hover:bg-black/90 transition-all group"
-                                    onClick={() => handleSelectGroup(groupId)}
+                        {introReady && (
+                            <div className="mt-5 flex justify-end animate-fade-in">
+                                <button 
+                                    onClick={startAutoDialog}
+                                    className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
                                 >
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex justify-between items-start gap-4">
-                                            <div>
-                                                <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase mb-1 block">
-                                                    [{g.badge}]
-                                                </span>
-                                                <h3 className="text-xl md:text-2xl font-black text-white group-hover:text-[#fbaa19] transition-colors">
-                                                    {g.title}
-                                                </h3>
-                                            </div>
-                                            <div className="flex flex-wrap justify-end gap-2 shrink-0">
-                                                {g.teams.map((tCode: string) => (
-                                                    <div key={tCode} className="w-7 h-7 md:w-8 md:h-8 rounded-sm border border-white/20 flex items-center justify-center text-[9px] font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
-                                                        {tCode}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        
-                                        <p className="text-white/70 text-xs md:text-sm font-bold tracking-widest uppercase mt-2">
-                                            &gt;_ {g.sub}
-                                        </p>
-                                        
-                                        <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
-                                            <p className="text-[10px] md:text-xs text-[#fbaa19]/80 font-mono">
-                                                <strong className="text-white">SPEC:</strong> {g.engineSpec}
-                                            </p>
-                                            <p className="text-[10px] md:text-xs text-[#fbaa19]/80 font-mono">
-                                                <strong className="text-white">PERK:</strong> {g.fantasyPerk}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    [ CONTINUAR ] »
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* AUTO_DIALOG, GROUP_SELECT & ENLIST PHASES */}
+            {phase !== 'INTRO' && phase !== 'LOADING' && (
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
+                    
+                    {/* Auto Dialogue Sequence (Boxes 2 to 5) */}
+                    {(phase === 'AUTO_DIALOG' || phase === 'GROUP_SELECT' || phase === 'ENLIST') && customDialogs.map((dialog, idx) => {
+                        // Skip the first box (idx === 0) completely from this view
+                        if (idx === 0) return null;
+                        
+                        // Render if it's within the autoIndex
+                        if (idx <= autoIndex || phase === 'GROUP_SELECT' || phase === 'ENLIST') {
+                            return (
+                                <div key={idx} className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                    <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                                    <TypewriterLine 
+                                        text={dialog} 
+                                        startDelay={150} 
+                                        onReadyForNext={() => {
+                                            if (phase === 'AUTO_DIALOG' && idx === autoIndex) {
+                                                if (idx < customDialogs.length - 1) {
+                                                    setTimeout(() => setAutoIndex(idx + 1), 1000); // 1s pause between dialogues
+                                                } else {
+                                                    setTimeout(() => setPhase('GROUP_SELECT'), 1500); // 1.5s pause before options
+                                                }
+                                            }
+                                        }} 
+                                    />
                                 </div>
                             );
-                        })}
-                    </div>
-                )}
+                        }
+                        return null;
+                    })}
 
-                {/* ENLIST BOX */}
-                {step === 'ENLIST' && selectedGroup && (
-                    <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
-                        <div>
-                            <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-3 uppercase">
-                                RESPOSTA DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
+                    {/* GROUP SELECT OPTIONS */}
+                    {phase === 'GROUP_SELECT' && (
+                        <div className="w-full flex flex-col gap-6 animate-fade-in mt-4">
+                            <p className="text-[#fbaa19] font-bold tracking-[0.2em] uppercase text-center bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-4 shadow-2xl text-xs md:text-sm">
+                                CONEXÃO ESTABELECIDA. DECODIFICANDO DADOS DE ALIANÇA...
                             </p>
-                            <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
-                                <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={300} onReadyForNext={() => setTypingComplete(true)} />
-                            </div>
+                            
+                            {(['A', 'B', 'C'] as const).map((groupId) => {
+                                const g = ENGINE_FACTIONS[groupId];
+                                return (
+                                    <div 
+                                        key={g.id} 
+                                        className="w-full bg-black/80 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl p-6 md:p-8 cursor-pointer hover:border-[#fbaa19] hover:bg-black/90 transition-all group"
+                                        onClick={() => handleSelectGroup(groupId)}
+                                    >
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex justify-between items-start gap-4">
+                                                <div>
+                                                    <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase mb-1 block">
+                                                        [{g.badge}]
+                                                    </span>
+                                                    <h3 className="text-xl md:text-2xl font-black text-white group-hover:text-[#fbaa19] transition-colors">
+                                                        {g.title}
+                                                    </h3>
+                                                </div>
+                                                <div className="flex flex-wrap justify-end gap-2 shrink-0">
+                                                    {g.teams.map((tCode: string) => (
+                                                        <div key={tCode} className="w-7 h-7 md:w-8 md:h-8 rounded-sm border border-white/20 flex items-center justify-center text-[9px] font-black shadow-inner" style={{backgroundColor: TEAM_COLORS[tCode] || '#333', color: '#fff'}}>
+                                                            {tCode}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            <p className="text-white/70 text-xs md:text-sm font-bold tracking-widest uppercase mt-2">
+                                                &gt;_ {g.sub}
+                                            </p>
+                                            
+                                            <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
+                                                <p className="text-[10px] md:text-xs text-[#fbaa19]/80 font-mono">
+                                                    <strong className="text-white">SPEC:</strong> {g.engineSpec}
+                                                </p>
+                                                <p className="text-[10px] md:text-xs text-[#fbaa19]/80 font-mono">
+                                                    <strong className="text-white">PERK:</strong> {g.fantasyPerk}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
-                        
-                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full mt-4 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                            {errorMsg && (
-                                <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
-                                    [ERRO] {errorMsg}
+                    )}
+
+                    {/* ENLIST BOX */}
+                    {(phase === 'ENLIST' || phase === 'PROCESSING') && selectedGroup && (
+                        <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6 mt-4">
+                            <div>
+                                <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-3 uppercase">
+                                    RESPOSTA DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
+                                </p>
+                                <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
+                                    <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={300} onReadyForNext={() => setTypingComplete(true)} />
                                 </div>
-                            )}
-                            <div className="flex flex-col md:flex-row gap-4">
-                                <input 
-                                    type="text" 
-                                    required
-                                    placeholder="NOME E SOBRENOME"
-                                    value={fullName}
-                                    onChange={e => setFullName(e.target.value)}
-                                    className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
-                                />
-                                <input 
-                                    type="email" 
-                                    required
-                                    placeholder="E-MAIL"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
-                                />
                             </div>
                             
-                            <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
-                                [ ASSINAR CONTRATO E ACESSAR PITWALL ]
-                            </button>
-                        </form>
-                    </div>
-                )}
+                            <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full mt-4 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                {errorMsg && (
+                                    <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
+                                        [ERRO] {errorMsg}
+                                    </div>
+                                )}
+                                
+                                {phase === 'PROCESSING' ? (
+                                    <div className="flex flex-col items-center justify-center gap-6 py-8">
+                                        <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ INICIALIZANDO SUPERLICENÇA...</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <input 
+                                                type="text" 
+                                                required
+                                                placeholder="NOME E SOBRENOME"
+                                                value={fullName}
+                                                onChange={e => setFullName(e.target.value)}
+                                                className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
+                                            />
+                                            <input 
+                                                type="email" 
+                                                required
+                                                placeholder="E-MAIL"
+                                                value={email}
+                                                onChange={e => setEmail(e.target.value)}
+                                                className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
+                                            />
+                                        </div>
+                                        
+                                        <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
+                                            [ ASSINAR CONTRATO E ACESSAR PITWALL ]
+                                        </button>
+                                    </>
+                                )}
+                            </form>
+                        </div>
+                    )}
 
-                {/* PROCESSING */}
-                {step === 'PROCESSING' && (
-                    <div className="w-full bg-black/80 p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col items-center justify-center gap-6 h-64">
-                        <div className="w-16 h-16 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ INICIALIZANDO SUPERLICENÇA...</p>
-                    </div>
-                )}
-
-                <div ref={messagesEndRef} className="h-4 w-full" />
-            </div>
+                    <div ref={messagesEndRef} className="h-4 w-full" />
+                </div>
+            )}
         </main>
     );
 }
