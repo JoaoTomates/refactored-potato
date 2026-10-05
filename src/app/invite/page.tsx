@@ -59,7 +59,7 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     id: 'A',
     badge: 'BLOCO A',
     title: 'CONSÓRCIO DA ESTRELA',
-    sub: '"Confiabilidade de Aço..."',
+    sub: '"Confiabilidade de Aço & Domínio de Frota"',
     engineSpec: 'Mercedes V6 Hybrid',
     teamsString: 'Mercedes-AMG • McLaren • Alpine • Williams',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
@@ -76,7 +76,7 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     id: 'B',
     badge: 'BLOCO B',
     title: 'A DINASTIA DE MARANELLO',
-    sub: '"Potencia de Pico..."',
+    sub: '"Potência de Pico & A Frente Americana"',
     engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
     teamsString: 'Scuderia Ferrari • Haas • Cadillac',
     teams: ['FER', 'HAA', 'CAD'],
@@ -400,18 +400,12 @@ function InviteFlow() {
             )}
 
             {phase === 'GROUP_SELECT' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4">
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
                     {errorMsg && (
                         <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in">
                             [ERRO] {errorMsg}
                         </div>
                     )}
-
-                    <div className="text-center mb-1 animate-fade-in">
-                        <p className="text-[#fbaa19] text-[10px] md:text-xs font-mono font-bold uppercase tracking-[0.25em]">
-                            // ESCOLHA SEU SINDICATO DE CONSTRUTORES
-                        </p>
-                    </div>
                     
                     {(['A', 'B', 'C'] as const).map((groupId, idx) => {
                         const g = ENGINE_FACTIONS[groupId];
@@ -419,67 +413,31 @@ function InviteFlow() {
                         return (
                             <div 
                                 key={g.id} 
-                                className="w-full bg-[#0a0a0a]/95 backdrop-blur-md border-2 border-[#fbaa19]/30 hover:border-[#fbaa19] rounded-lg shadow-[0_0_40px_rgba(0,0,0,0.85)] hover:shadow-[0_0_35px_rgba(251,170,25,0.2)] p-5 md:p-6 animate-fade-in transition-all relative overflow-hidden group cursor-pointer hover:bg-[#121212]/95"
-                                style={{ animationDelay: `${idx * 120}ms` }}
+                                className="w-full bg-black/80 backdrop-blur-sm border border-white/10 hover:border-[#fbaa19] rounded-lg shadow-2xl p-4 md:p-5 animate-fade-in transition-all cursor-pointer hover:bg-black/90 group"
                                 onClick={() => handleSelectGroup(groupId)}
                             >
-                                {/* Gradiente superior iluminado característico dos cards anteriores */}
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0 group-hover:opacity-100 opacity-60 transition-opacity"></div>
-
-                                <div className="flex flex-col gap-3 relative z-10 w-full text-left">
-                                    {/* Header do bloco */}
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[#fbaa19] text-[10px] md:text-xs font-mono font-bold tracking-[0.2em] uppercase">
-                                            [ OPTION {idx + 1} : {g.badge} ]
-                                        </span>
-                                        <span className="text-[10px] font-mono text-gray-400 group-hover:text-[#fbaa19] uppercase tracking-widest font-black transition-colors">
-                                            SELECIONAR &gt;
-                                        </span>
+                                <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed flex flex-col gap-1.5">
+                                    <div>
+                                        [{g.badge}] <span className="group-hover:text-[#fbaa19] transition-colors">{g.title}</span>
                                     </div>
-
-                                    {/* Título da aliança */}
-                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest group-hover:text-[#fbaa19] transition-colors">
-                                        {g.title}
-                                    </h3>
-
-                                    {/* Frase entre aspas (sem seta >) */}
-                                    <p className="text-sm md:text-base font-bold tracking-wider text-[#fbaa19] italic">
+                                    <div>
                                         {g.sub}
-                                    </p>
-
-                                    {/* Nomes das equipes coloridos para melhor destaque */}
-                                    <div className="flex flex-col gap-1.5 pt-1">
-                                        <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400 font-bold">
-                                            EQUIPES DA ALIANÇA:
-                                        </span>
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {g.teamDetails?.map((t: any) => (
-                                                <span 
-                                                    key={t.code}
-                                                    className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-sm border bg-black/60 shadow-sm transition-transform group-hover:scale-105"
-                                                    style={{ 
-                                                        color: t.color,
-                                                        borderColor: `${t.color}50`,
-                                                        backgroundColor: `${t.color}15`,
-                                                        boxShadow: `0 0 10px ${t.color}20`
-                                                    }}
-                                                >
+                                    </div>
+                                    <div>
+                                        EQUIPES: {g.teamDetails?.map((t: any, i: number) => (
+                                            <React.Fragment key={t.code}>
+                                                {i > 0 && <span className="text-white"> • </span>}
+                                                <span style={{ color: t.color }}>
                                                     {t.name}
                                                 </span>
-                                            ))}
-                                        </div>
+                                            </React.Fragment>
+                                        ))}
                                     </div>
-
-                                    {/* Detalhes de motor e perk fantasy */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono pt-3 border-t border-white/10 text-gray-400">
-                                        <div>
-                                            <span className="text-gray-500 block text-[9px] uppercase tracking-wider">MOTOR / ESPECIFICAÇÃO:</span>
-                                            <span className="text-gray-200 font-semibold">{g.engineSpec}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500 block text-[9px] uppercase tracking-wider">BÔNUS FANTASY:</span>
-                                            <span className="text-emerald-400 font-bold">{g.fantasyPerk}</span>
-                                        </div>
+                                    <div>
+                                        SPEC: {g.engineSpec}
+                                    </div>
+                                    <div>
+                                        PERK: {g.fantasyPerk}
                                     </div>
                                 </div>
                             </div>
