@@ -1,11 +1,44 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import Logo from "@/components/logo";
+import { supabase } from "@/utils/supabase";
 
 export default function Home() {
     const { user, isLoading } = useSupabaseAuth();
+    const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
+
+    useEffect(() => {
+        if (!user) {
+            setDashboardUrl('/superlicense');
+            return;
+        }
+
+        let isMounted = true;
+        const fetchUserSlug = async () => {
+            try {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('slug')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (!isMounted) return;
+                if (data?.slug) {
+                    const clean = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
+                    setDashboardUrl(`/${clean}`);
+                } else {
+                    setDashboardUrl('/playground');
+                }
+            } catch {
+                if (isMounted) setDashboardUrl('/playground');
+            }
+        };
+
+        fetchUserSlug();
+        return () => { isMounted = false; };
+    }, [user]);
 
     if (isLoading) {
         return (
@@ -15,7 +48,7 @@ export default function Home() {
         );
     }
 
-    const buttonLink = user ? `/${user.user_metadata?.slug || user.id}` : "/superlicense";
+    const buttonLink = user ? dashboardUrl : "/superlicense";
     const buttonText = user ? "BOX / GARAGE" : "SUPER LICENSE";
 
     const scrollToAbout = () => {

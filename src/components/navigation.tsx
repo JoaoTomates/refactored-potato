@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Logo from './logo';
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useSmartScroll } from '@/hooks/useSmartScroll';
+import { supabase } from '@/utils/supabase';
 
 const Navigation = () => {
     const pathname = usePathname();
@@ -13,6 +14,7 @@ const Navigation = () => {
     const { user } = useSupabaseAuth();
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
 
     // Hide navbar on onboarding pages
     if (pathname === '/' || pathname === '/academy' || pathname === '/invite' || pathname === '/invite4') {
@@ -23,6 +25,38 @@ const Navigation = () => {
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
+
+    // Fetch user dashboard target directly to avoid bouncing through login/superlicense
+    useEffect(() => {
+        if (!user) {
+            setDashboardUrl('/superlicense');
+            return;
+        }
+
+        let isMounted = true;
+        const fetchDashboardTarget = async () => {
+            try {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('slug')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (!isMounted) return;
+                if (data?.slug) {
+                    const cleanSlug = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
+                    setDashboardUrl(`/${cleanSlug}`);
+                } else {
+                    setDashboardUrl('/playground');
+                }
+            } catch {
+                if (isMounted) setDashboardUrl('/playground');
+            }
+        };
+
+        fetchDashboardTarget();
+        return () => { isMounted = false; };
+    }, [user]);
 
     return (
         <>
@@ -56,7 +90,7 @@ const Navigation = () => {
                             </Link>
                             
                             <Link 
-                                href="/superlicense" 
+                                href={user ? dashboardUrl : "/superlicense"} 
                                 className="bg-transparent text-white border border-white/20 px-3 py-1.5 md:px-5 md:py-2 text-[10px] md:text-sm font-bold uppercase tracking-wider rounded-sm hover:border-[#fbaa19] hover:text-[#fbaa19] transition-colors truncate max-w-[150px]"
                             >
                                 {user ? (user.user_metadata?.first_name ? user.user_metadata.first_name : user.email?.split('@')[0]) : "Superlicense"}
@@ -151,7 +185,7 @@ const Navigation = () => {
                             Bet
                         </Link>
                         <Link 
-                            href="/superlicense" 
+                            href={user ? dashboardUrl : "/superlicense"} 
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="bg-transparent text-white border-2 border-white/20 w-full md:w-auto text-center px-10 py-5 text-xl font-black uppercase tracking-wider rounded-sm hover:border-[#fbaa19] hover:text-[#fbaa19] transition-colors"
                         >
@@ -164,7 +198,13 @@ const Navigation = () => {
                         <span>VOLTGRID TELEMETRY SYSTEM © 2026</span>
                         <div className="flex items-center gap-4">
                             <Link href="/terms-conditions" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white">Termos & Condições</Link>
-                            <Link href="/superlicense" onClick={() => setIsMobileMenuOpen(false)} className="text-[#fbaa19] hover:underline font-bold">Minha Superlicença</Link>
+                            <Link 
+                                href={user ? dashboardUrl : "/superlicense"} 
+                                onClick={() => setIsMobileMenuOpen(false)} 
+                                className="text-[#fbaa19] hover:underline font-bold"
+                            >
+                                {user ? "Meu Dashboard" : "Minha Superlicença"}
+                            </Link>
                         </div>
                     </div>
                 </div>
