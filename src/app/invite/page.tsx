@@ -59,10 +59,16 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     id: 'A',
     badge: 'BLOCO A',
     title: 'CONSÓRCIO DA ESTRELA',
-    sub: 'Confiabilidade de Aço & Domínio de Frota',
+    sub: '"Confiabilidade de Aço..."',
     engineSpec: 'Mercedes V6 Hybrid',
     teamsString: 'Mercedes-AMG • McLaren • Alpine • Williams',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
+    teamDetails: [
+      { code: 'MER', name: 'Mercedes-AMG', color: '#00D2BE' },
+      { code: 'MCL', name: 'McLaren', color: '#FF8000' },
+      { code: 'ALP', name: 'Alpine', color: '#FD4BC7' },
+      { code: 'WIL', name: 'Williams', color: '#005AFF' }
+    ],
     fantasyPerk: '+15% XP em previsões de consistência.',
     directorResponse: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
   },
@@ -70,21 +76,32 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     id: 'B',
     badge: 'BLOCO B',
     title: 'A DINASTIA DE MARANELLO',
-    sub: 'Potência de Pico & A Frente Americana',
+    sub: '"Potencia de Pico..."',
     engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
     teamsString: 'Scuderia Ferrari • Haas • Cadillac',
     teams: ['FER', 'HAA', 'CAD'],
+    teamDetails: [
+      { code: 'FER', name: 'Scuderia Ferrari', color: '#DC0000' },
+      { code: 'HAA', name: 'Haas', color: '#E6002B' },
+      { code: 'CAD', name: 'Cadillac', color: '#FFC80C' }
+    ],
     fantasyPerk: '2x XP em apostas arriscadas de pole.',
     directorResponse: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”'
   },
   C: {
     id: 'C',
     badge: 'BLOCO C',
-    title: 'OS DESAFIANTES',
-    sub: 'Risco Tecnológico & Ambição',
+    title: 'A VANGUARDA',
+    sub: '"Ambição e Risco Tecnológico"',
     engineSpec: 'Ford / Honda / Audi PU',
     teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
+    teamDetails: [
+      { code: 'RBR', name: 'Red Bull Racing', color: '#3671C6' },
+      { code: 'RBA', name: 'Racing Bulls', color: '#6692FF' },
+      { code: 'AST', name: 'Aston Martin', color: '#229971' },
+      { code: 'AUD', name: 'Audi', color: '#F50537' }
+    ],
     fantasyPerk: '+25% XP ao prever cenários de caos.',
     directorResponse: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
   }
@@ -200,11 +217,10 @@ function InviteFlow() {
         retroSound.init();
         setPhase('GROUP_SELECT');
         setGroupIndex(0);
+        setGroupReadyFlags({ A: true, B: true, C: true });
     };
 
     const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
-        if (!groupReadyFlags[groupId]) return; 
-        
         retroSound.init();
         setSelectedGroup(groupId);
         setPhase('FETCHING_TEAM');
@@ -384,39 +400,87 @@ function InviteFlow() {
             )}
 
             {phase === 'GROUP_SELECT' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4">
                     {errorMsg && (
                         <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in">
                             [ERRO] {errorMsg}
                         </div>
                     )}
+
+                    <div className="text-center mb-1 animate-fade-in">
+                        <p className="text-[#fbaa19] text-[10px] md:text-xs font-mono font-bold uppercase tracking-[0.25em]">
+                            // ESCOLHA SEU SINDICATO DE CONSTRUTORES
+                        </p>
+                    </div>
                     
                     {(['A', 'B', 'C'] as const).map((groupId, idx) => {
-                        if (idx > groupIndex) return null;
-                        
                         const g = ENGINE_FACTIONS[groupId];
-                        // Integramos os nomes das equipes diretamente no texto typewriter para manter tudo no mesmo padrão limpo
-                        const fullText = `[${g.badge}] ${g.title}\n> ${g.sub}\n> EQUIPES: ${g.teamsString}\n> SPEC: ${g.engineSpec}\n> PERK: ${g.fantasyPerk}`;
-                        const isReady = groupReadyFlags[groupId];
 
                         return (
                             <div 
                                 key={g.id} 
-                                className={`w-full bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl p-4 md:p-5 animate-fade-in transition-all ${isReady ? 'cursor-pointer border-[#fbaa19]/30 hover:border-[#fbaa19] hover:bg-black/90 group' : 'border-white/10'}`}
+                                className="w-full bg-[#0a0a0a]/95 backdrop-blur-md border-2 border-[#fbaa19]/30 hover:border-[#fbaa19] rounded-lg shadow-[0_0_40px_rgba(0,0,0,0.85)] hover:shadow-[0_0_35px_rgba(251,170,25,0.2)] p-5 md:p-6 animate-fade-in transition-all relative overflow-hidden group cursor-pointer hover:bg-[#121212]/95"
+                                style={{ animationDelay: `${idx * 120}ms` }}
                                 onClick={() => handleSelectGroup(groupId)}
                             >
-                                <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed">
-                                    <TypewriterLine 
-                                        text={fullText} 
-                                        startDelay={100} 
-                                        fastMode={true}
-                                        onReadyForNext={() => {
-                                            setGroupReadyFlags(prev => ({...prev, [groupId]: true}));
-                                            if (idx < 2) {
-                                                setTimeout(() => setGroupIndex(idx + 1), 400);
-                                            }
-                                        }}
-                                    />
+                                {/* Gradiente superior iluminado característico dos cards anteriores */}
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fbaa19]/0 via-[#fbaa19] to-[#fbaa19]/0 group-hover:opacity-100 opacity-60 transition-opacity"></div>
+
+                                <div className="flex flex-col gap-3 relative z-10 w-full text-left">
+                                    {/* Header do bloco */}
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[#fbaa19] text-[10px] md:text-xs font-mono font-bold tracking-[0.2em] uppercase">
+                                            [ OPTION {idx + 1} : {g.badge} ]
+                                        </span>
+                                        <span className="text-[10px] font-mono text-gray-400 group-hover:text-[#fbaa19] uppercase tracking-widest font-black transition-colors">
+                                            SELECIONAR &gt;
+                                        </span>
+                                    </div>
+
+                                    {/* Título da aliança */}
+                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest group-hover:text-[#fbaa19] transition-colors">
+                                        {g.title}
+                                    </h3>
+
+                                    {/* Frase entre aspas (sem seta >) */}
+                                    <p className="text-sm md:text-base font-bold tracking-wider text-[#fbaa19] italic">
+                                        {g.sub}
+                                    </p>
+
+                                    {/* Nomes das equipes coloridos para melhor destaque */}
+                                    <div className="flex flex-col gap-1.5 pt-1">
+                                        <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400 font-bold">
+                                            EQUIPES DA ALIANÇA:
+                                        </span>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {g.teamDetails?.map((t: any) => (
+                                                <span 
+                                                    key={t.code}
+                                                    className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-sm border bg-black/60 shadow-sm transition-transform group-hover:scale-105"
+                                                    style={{ 
+                                                        color: t.color,
+                                                        borderColor: `${t.color}50`,
+                                                        backgroundColor: `${t.color}15`,
+                                                        boxShadow: `0 0 10px ${t.color}20`
+                                                    }}
+                                                >
+                                                    {t.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Detalhes de motor e perk fantasy */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono pt-3 border-t border-white/10 text-gray-400">
+                                        <div>
+                                            <span className="text-gray-500 block text-[9px] uppercase tracking-wider">MOTOR / ESPECIFICAÇÃO:</span>
+                                            <span className="text-gray-200 font-semibold">{g.engineSpec}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500 block text-[9px] uppercase tracking-wider">BÔNUS FANTASY:</span>
+                                            <span className="text-emerald-400 font-bold">{g.fantasyPerk}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         );

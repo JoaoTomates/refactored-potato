@@ -29,7 +29,7 @@ import { PilotAvatar, AvatarVariant } from '@/components/pilot-avatar';
 const ALLIANCES = {
     A: { id: 'A', name: 'CONSÓRCIO DA ESTRELA', short: 'ESTRELA', codes: ['MER', 'MCL', 'ALP', 'WIL'] },
     B: { id: 'B', name: 'DINASTIA DE MARANELLO', short: 'MARANELLO', codes: ['FER', 'HAA', 'CAD'] },
-    C: { id: 'C', name: 'OS DESAFIANTES', short: 'DESAFIANTES', codes: ['RBR', 'RBA', 'AST', 'AUD'] },
+    C: { id: 'C', name: 'A VANGUARDA', short: 'VANGUARDA', codes: ['RBR', 'RBA', 'AST', 'AUD'] },
 } as const;
 type AllianceId = keyof typeof ALLIANCES;
 

@@ -20,9 +20,9 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
   },
   C: {
     badge: 'BLOCO C',
-    title: 'OS DESAFIANTES',
+    title: 'A VANGUARDA',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
-    description: 'O caos e uma escada. As montadoras desafiantes enviaram propostas. Faca sua escolha.'
+    description: 'O caos e uma escada. As montadoras da vanguarda enviaram propostas. Faca sua escolha.'
   }
 };
 
