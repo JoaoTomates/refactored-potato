@@ -16,8 +16,8 @@ const Navigation = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
 
-    // Hide navbar on onboarding pages
-    if (pathname === '/' || pathname === '/academy' || pathname === '/invite' || pathname === '/invite4') {
+    // Hide navbar on onboarding and studio pages
+    if (pathname === '/' || pathname === '/academy' || pathname === '/invite' || pathname === '/invite4' || pathname === '/lore') {
         return null;
     }
 
