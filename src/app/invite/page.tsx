@@ -61,10 +61,10 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     title: 'CONSÓRCIO DA ESTRELA',
     sub: '"Confiabilidade de Aço & Domínio de Frota"',
     engineSpec: 'Mercedes V6 Hybrid',
-    teamsString: 'Mercedes-AMG • McLaren • Alpine • Williams',
+    teamsString: 'Mercedes • McLaren • Alpine • Williams',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
     teamDetails: [
-      { code: 'MER', name: 'Mercedes-AMG', color: '#00D2BE' },
+      { code: 'MER', name: 'Mercedes', color: '#00D2BE' },
       { code: 'MCL', name: 'McLaren', color: '#FF8000' },
       { code: 'ALP', name: 'Alpine', color: '#FD4BC7' },
       { code: 'WIL', name: 'Williams', color: '#005AFF' }
@@ -78,10 +78,10 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     title: 'A DINASTIA DE MARANELLO',
     sub: '"Potência de Pico & A Frente Americana"',
     engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
-    teamsString: 'Scuderia Ferrari • Haas • Cadillac',
+    teamsString: 'Ferrari • Haas • Cadillac',
     teams: ['FER', 'HAA', 'CAD'],
     teamDetails: [
-      { code: 'FER', name: 'Scuderia Ferrari', color: '#DC0000' },
+      { code: 'FER', name: 'Ferrari', color: '#DC0000' },
       { code: 'HAA', name: 'Haas', color: '#E6002B' },
       { code: 'CAD', name: 'Cadillac', color: '#FFC80C' }
     ],
@@ -97,7 +97,7 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
     teamDetails: [
-      { code: 'RBR', name: 'Red Bull Racing', color: '#3671C6' },
+      { code: 'RBR', name: 'Red Bull', color: '#3671C6' },
       { code: 'RBA', name: 'Racing Bulls', color: '#6692FF' },
       { code: 'AST', name: 'Aston Martin', color: '#229971' },
       { code: 'AUD', name: 'Audi', color: '#F50537' }
@@ -413,20 +413,21 @@ function InviteFlow() {
                         return (
                             <div 
                                 key={g.id} 
-                                className="w-full bg-black/80 backdrop-blur-sm border border-white/10 hover:border-[#fbaa19] rounded-lg shadow-2xl p-4 md:p-5 animate-fade-in transition-all cursor-pointer hover:bg-black/90 group"
+                                className="w-full bg-black/90 backdrop-blur-sm border border-[#fbaa19] rounded-lg shadow-2xl hover:shadow-[0_0_25px_rgba(251,170,25,0.2)] p-4 md:p-5 animate-fade-in transition-all cursor-pointer group"
                                 onClick={() => handleSelectGroup(groupId)}
                             >
                                 <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed flex flex-col gap-1.5">
                                     <div>
-                                        [{g.badge}] <span className="group-hover:text-[#fbaa19] transition-colors">{g.title}</span>
+                                        <span className="text-[#fbaa19]">[{g.badge}]</span> <span className="text-[#fbaa19]">{g.title}</span>
                                     </div>
                                     <div>
                                         {g.sub}
                                     </div>
                                     <div>
-                                        EQUIPES: {g.teamDetails?.map((t: any, i: number) => (
+                                        <span className="text-white/40">EQUIPES: </span>
+                                        {g.teamDetails?.map((t: any, i: number) => (
                                             <React.Fragment key={t.code}>
-                                                {i > 0 && <span className="text-white"> • </span>}
+                                                {i > 0 && <span className="text-white/40"> • </span>}
                                                 <span style={{ color: t.color }}>
                                                     {t.name}
                                                 </span>
@@ -434,10 +435,12 @@ function InviteFlow() {
                                         ))}
                                     </div>
                                     <div>
-                                        SPEC: {g.engineSpec}
+                                        <span className="text-white/40">SPEC: </span>
+                                        <span>{g.engineSpec}</span>
                                     </div>
                                     <div>
-                                        PERK: {g.fantasyPerk}
+                                        <span className="text-white/40">PERK: </span>
+                                        <span>{g.fantasyPerk}</span>
                                     </div>
                                 </div>
                             </div>
