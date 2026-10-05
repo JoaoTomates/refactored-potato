@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
-import Logo from '@/components/logo';
 
 type AuthMode = 'MAGIC_LINK' | 'PASSWORD' | 'REGISTER';
 
@@ -151,11 +150,6 @@ function SuperlicenseAuth() {
     return (
         <div className="w-full max-w-md mx-auto p-6 relative z-10 font-mono">
             <div className="bg-black/80 backdrop-blur-md border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)] p-8">
-                
-                <div className="flex justify-center mb-8">
-                    <Logo isOnDarkBackground={true} size="lg" isPulsing={true} />
-                </div>
-
                 <div className="flex border-b border-white/10 mb-8">
                     <button 
                         onClick={() => setMode('MAGIC_LINK')}
@@ -308,7 +302,15 @@ function SuperlicenseAuth() {
 
 export default function SuperlicensePage() {
     return (
-        <main className="w-full min-h-screen bg-[#050401] relative flex flex-col font-mono items-center justify-center pt-16 pb-12 overflow-x-hidden">
+        <main className="w-full min-h-screen bg-[#050401] relative flex flex-col font-mono items-center justify-center py-12 px-4 overflow-x-hidden">
+            {/* Background Pitwall Image */}
+            <img 
+                src="/background_pitwall.png"
+                alt=""
+                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none opacity-80"
+                style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+            />
+
             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#fbaa19_0%,_transparent_60%)]"></div>
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)', backgroundSize: '100% 4px' }}></div>

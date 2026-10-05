@@ -8,7 +8,7 @@ import MobileBottomDock from './mobile-bottom-dock';
 
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isHiddenRoute = pathname === '/invite' || pathname === '/invite4' || pathname === '/academy' || pathname === '/headquarters';
+    const isHiddenRoute = pathname === '/invite' || pathname === '/invite4' || pathname === '/academy' || pathname === '/headquarters' || pathname === '/superlicense';
 
     return (
         <div className="flex flex-col min-h-screen w-full relative">
