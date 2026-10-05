@@ -434,16 +434,16 @@ function InviteFlow() {
                             >
                                 <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed flex flex-col gap-1.5">
                                     <div>
-                                        <span className="text-[#fbaa19]">[{g.badge}]</span> <span className="text-[#fbaa19]">{g.title}</span>
+                                        <span className="text-[#fbaa19]">[{g.badge}]</span> <span className="text-white">{g.title}</span>
                                     </div>
                                     <div>
                                         {g.sub}
                                     </div>
                                     <div>
-                                        <span className="text-white/40">EQUIPES: </span>
+                                        <span className="text-white">EQUIPES: </span>
                                         {g.teamDetails?.map((t: any, i: number) => (
                                             <React.Fragment key={t.code}>
-                                                {i > 0 && <span className="text-white/40"> • </span>}
+                                                {i > 0 && <span className="text-white"> • </span>}
                                                 <span style={{ color: t.color }}>
                                                     {t.name}
                                                 </span>
@@ -451,11 +451,11 @@ function InviteFlow() {
                                         ))}
                                     </div>
                                     <div>
-                                        <span className="text-white/40">SPEC: </span>
+                                        <span className="text-white">SPEC: </span>
                                         <span>{g.engineSpec}</span>
                                     </div>
                                     <div>
-                                        <span className="text-white/40">PERK: </span>
+                                        <span className="text-white">PERK: </span>
                                         <span>{g.fantasyPerk}</span>
                                     </div>
                                 </div>
