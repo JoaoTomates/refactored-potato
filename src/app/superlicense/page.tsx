@@ -305,10 +305,10 @@ export default function SuperlicensePage() {
         <main className="w-full min-h-screen bg-[#050401] relative flex flex-col font-mono items-center justify-center py-12 px-4 overflow-x-hidden">
             {/* Background Pitwall Image */}
             <img 
-                src="/background_pitwall.png"
+                src="/pixel_setup_bg.png"
                 alt=""
                 className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none opacity-80"
-                style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
