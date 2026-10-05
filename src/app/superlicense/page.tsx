@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import Logo from '@/components/logo';
 
 type AuthMode = 'MAGIC_LINK' | 'PASSWORD' | 'REGISTER';
 
@@ -18,8 +19,7 @@ function SuperlicenseAuth() {
     // Form fields
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+    const [fullName, setFullName] = useState('');
     
     // UI states
     const [errorMsg, setErrorMsg] = useState('');
@@ -29,20 +29,6 @@ function SuperlicenseAuth() {
     const isValidNamePart = (val: string) => {
         const trimmed = val.trim();
         return trimmed.length >= 2 && /^[\p{L}'-]+$/u.test(trimmed);
-    };
-
-    const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        // Auto-split if user enters full name with space in the first name field
-        if (val.includes(' ') && !lastName) {
-            const parts = val.trim().split(/\s+/);
-            if (parts.length >= 2) {
-                setFirstName(parts[0]);
-                setLastName(parts.slice(1).join(' '));
-                return;
-            }
-        }
-        setFirstName(val);
     };
 
     useEffect(() => {
@@ -101,17 +87,14 @@ function SuperlicenseAuth() {
         e.preventDefault();
         setErrorMsg('');
 
-        const cleanFirst = firstName.trim();
-        const cleanLast = lastName.trim();
-
-        // STRICT VALIDATION: Require two distinct valid names (first name + last name)
-        if (!isValidNamePart(cleanFirst)) {
-            setErrorMsg('NOME INVÁLIDO: O PRIMEIRO NOME DEVE CONTER NO MÍNIMO 2 LETRAS (SEM NÚMEROS).');
+        const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+        if (nameParts.length < 2) {
+            setErrorMsg("A SUPERLICENÇA EXIGE PELO MENOS DOIS NOMES (NOME E SOBRENOME).");
             return;
         }
 
-        if (!isValidNamePart(cleanLast)) {
-            setErrorMsg('SOBRENOME OBRIGATÓRIO: A SUPERLICENÇA OFICIAL EXIGE NOME E SOBRENOME (MÍNIMO DE 2 LETRAS NO SOBRENOME).');
+        if (!nameParts.every(isValidNamePart)) {
+            setErrorMsg("NOMES INVÁLIDOS: CADA NOME DEVE CONTER NO MÍNIMO 2 LETRAS (SEM NÚMEROS).");
             return;
         }
 
@@ -126,8 +109,11 @@ function SuperlicenseAuth() {
             if (authError) throw authError;
 
             if (authData.user) {
-                const cleanFirstName = cleanFirst.charAt(0).toUpperCase() + cleanFirst.slice(1).toLowerCase();
-                const cleanLastName = cleanLast.toUpperCase();
+                const rawFirst = nameParts[0];
+                const rawLast = nameParts.slice(1).join(' ');
+
+                const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+                const cleanLastName = rawLast.toUpperCase();
                 const generatedNumber = Math.floor(Math.random() * 99) + 1;
                 const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
 
@@ -167,9 +153,7 @@ function SuperlicenseAuth() {
             <div className="bg-black/80 backdrop-blur-md border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)] p-8">
                 
                 <div className="flex justify-center mb-8">
-                    <div className="w-16 h-16 border border-[#fbaa19] flex items-center justify-center rotate-45">
-                        <div className="w-8 h-8 bg-[#fbaa19] animate-pulse"></div>
-                    </div>
+                    <Logo isOnDarkBackground={true} size="lg" isPulsing={true} />
                 </div>
 
                 <div className="flex border-b border-white/10 mb-8">
@@ -259,62 +243,37 @@ function SuperlicenseAuth() {
                         </p>
 
                         <form onSubmit={handleRegister} className="flex flex-col gap-4">
-                            {/* Nome e Sobrenome Obrigatórios (Exige 2 nomes) */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center justify-between">
-                                        <span>Primeiro Nome *</span>
-                                        {firstName.trim() && (
-                                            <span className={isValidNamePart(firstName) ? "text-emerald-400 text-[9px]" : "text-amber-400 text-[9px]"}>
-                                                {isValidNamePart(firstName) ? "✓ Válido" : "Min. 2 letras"}
-                                            </span>
-                                        )}
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        required
-                                        placeholder="EX: AYRTON"
-                                        value={firstName}
-                                        onChange={handleFirstNameChange}
-                                        className={`w-full bg-black/50 border text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none transition-all text-xs rounded-sm ${
-                                            firstName.trim() 
-                                                ? isValidNamePart(firstName) ? "border-emerald-500/50 focus:border-emerald-500" : "border-amber-500/60 focus:border-amber-500"
-                                                : "border-white/20 focus:border-[#fbaa19]"
-                                        }`}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center justify-between">
-                                        <span>Sobrenome *</span>
-                                        {lastName.trim() && (
-                                            <span className={isValidNamePart(lastName) ? "text-emerald-400 text-[9px]" : "text-amber-400 text-[9px]"}>
-                                                {isValidNamePart(lastName) ? "✓ Válido" : "Min. 2 letras"}
-                                            </span>
-                                        )}
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        required
-                                        placeholder="EX: SENNA"
-                                        value={lastName}
-                                        onChange={(e) => setLastName(e.target.value)}
-                                        className={`w-full bg-black/50 border text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none transition-all text-xs rounded-sm ${
-                                            lastName.trim() 
-                                                ? isValidNamePart(lastName) ? "border-emerald-500/50 focus:border-emerald-500" : "border-amber-500/60 focus:border-amber-500"
-                                                : "border-white/20 focus:border-[#fbaa19]"
-                                        }`}
-                                    />
-                                </div>
+                            {/* Nome Completo Obrigatório (Exige 2 nomes) */}
+                            <div className="flex flex-col gap-1">
+                                <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center justify-between">
+                                    <span>Nome Completo *</span>
+                                    {fullName.trim() && (
+                                        <span className={(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(isValidNamePart)) ? "text-emerald-400 text-[9px]" : "text-amber-400 text-[9px]"}>
+                                            {(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(isValidNamePart)) ? "✓ Válido" : "Nome e Sobrenome"}
+                                        </span>
+                                    )}
+                                </label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    placeholder="EX: AYRTON SENNA"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    className={`w-full bg-black/50 border text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none transition-all text-xs rounded-sm ${
+                                        fullName.trim() 
+                                            ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(isValidNamePart))
+                                                ? "border-emerald-500/50 focus:border-emerald-500" 
+                                                : "border-amber-500/60 focus:border-amber-500"
+                                            : "border-white/20 focus:border-[#fbaa19]"
+                                    }`}
+                                />
+                                {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(isValidNamePart)) && (
+                                    <p className="text-[10px] text-amber-400/90 font-mono flex items-center gap-1.5 mt-1">
+                                        <span>⚠</span>
+                                        <span>A Superlicença exige pelo menos dois nomes (Nome e Sobrenome válidos).</span>
+                                    </p>
+                                )}
                             </div>
-
-                            {/* Validação de Requisito de 2 Nomes */}
-                            {(!isValidNamePart(firstName) || !isValidNamePart(lastName)) && (
-                                <p className="text-[10px] text-amber-400/90 font-mono flex items-center gap-1.5 -mt-2">
-                                    <span>⚠</span>
-                                    <span>A Superlicença exige obrigatoriamente 2 nomes (Nome e Sobrenome válidos).</span>
-                                </p>
-                            )}
                             <input 
                                 type="email" 
                                 required
