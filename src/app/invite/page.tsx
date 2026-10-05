@@ -268,11 +268,28 @@ function InviteFlow() {
         }
     };
 
+    const isValidNamePart = (val: string) => {
+        const trimmed = val.trim();
+        return trimmed.length >= 2 && /^[\p{L}'-]+$/u.test(trimmed);
+    };
+
     const handleEnlistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrorMsg("");
+
+        const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+        if (nameParts.length < 2) {
+            setErrorMsg("A SUPERLICENÇA EXIGE PELO MENOS DOIS NOMES (NOME E SOBRENOME).");
+            return;
+        }
+
+        if (!nameParts.every(isValidNamePart)) {
+            setErrorMsg("NOMES INVÁLIDOS: CADA NOME DEVE CONTER NO MÍNIMO 2 LETRAS (SEM NÚMEROS).");
+            return;
+        }
+
         retroSound.init();
         setPhase('SUBMITTING_ENLIST');
-        setErrorMsg("");
 
         try {
             let emailToUse = email.trim();
@@ -290,11 +307,10 @@ function InviteFlow() {
             if (authError) throw authError;
 
             if (authData.user) {
-                const nameParts = fullName.trim().split(' ');
-                const rawFirst = nameParts[0] || 'Rookie';
-                const rawLast = nameParts.slice(1).join(' ') || 'Strategist';
+                const rawFirst = nameParts[0];
+                const rawLast = nameParts.slice(1).join(' ');
 
-                const cleanFirstName = rawFirst.charAt(0).toUpperCase();
+                const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
                 const cleanLastName = rawLast.toUpperCase();
                 const generatedNumber = Math.floor(Math.random() * 99) + 1;
                 const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
@@ -485,23 +501,38 @@ function InviteFlow() {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex flex-col md:flex-row gap-4">
-                                        <input 
-                                            type="text" 
-                                            required
-                                            placeholder="NOME E SOBRENOME"
-                                            value={fullName}
-                                            onChange={e => setFullName(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
-                                        />
-                                        <input 
-                                            type="email" 
-                                            required
-                                            placeholder="E-MAIL"
-                                            value={email}
-                                            onChange={e => setEmail(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
-                                        />
+                                    <div className="flex flex-col md:flex-row gap-4 items-start">
+                                        <div className="flex flex-col w-full">
+                                            <input 
+                                                type="text" 
+                                                required
+                                                placeholder="NOME E SOBRENOME"
+                                                value={fullName}
+                                                onChange={e => setFullName(e.target.value)}
+                                                className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${
+                                                    fullName.trim()
+                                                        ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
+                                                            ? "border-emerald-500/50 focus:border-emerald-500" 
+                                                            : "border-amber-500/60 focus:border-amber-500"
+                                                        : "border-white/20 focus:border-[#fbaa19]"
+                                                }`}
+                                            />
+                                            {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
+                                                <span className="text-[10px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
+                                                    <span>⚠</span> A Superlicença exige pelo menos dois nomes (Nome e Sobrenome válidos).
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col w-full">
+                                            <input 
+                                                type="email" 
+                                                required
+                                                placeholder="E-MAIL"
+                                                value={email}
+                                                onChange={e => setEmail(e.target.value)}
+                                                className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
+                                            />
+                                        </div>
                                     </div>
                                     
                                     <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
