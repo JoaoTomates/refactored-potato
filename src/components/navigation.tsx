@@ -60,14 +60,14 @@ const Navigation = () => {
 
     return (
         <>
-            {/* Top Navigation Bar with Smart Hide on Scroll */}
+            {/* Bottom Navigation Bar with Smart Hide on Scroll */}
             <header
-                className={`fixed top-0 inset-x-0 z-50 w-full transition-transform duration-300 ease-out ${
-                    isVisible ? 'translate-y-0' : '-translate-y-full'
+                className={`fixed bottom-0 inset-x-0 z-50 w-full transition-transform duration-300 ease-out ${
+                    isVisible ? 'translate-y-0' : 'translate-y-full'
                 }`}
             >
                 <nav
-                    className={`w-full bg-[#07090c]/90 backdrop-blur-md border-b transition-colors duration-300 ${
+                    className={`w-full bg-[#07090c]/90 backdrop-blur-md border-t transition-colors duration-300 ${
                         isScrolled ? 'border-white/10 shadow-2xl' : 'border-white/5'
                     }`}
                 >
@@ -112,9 +112,6 @@ const Navigation = () => {
                     </div>
                 </nav>
             </header>
-
-            {/* Spacer for fixed navbar to prevent layout shift */}
-            <div className="h-14 md:h-16 w-full shrink-0" aria-hidden="true" />
 
             {/* FULLSCREEN OVERLAY MENU (Original Links & Structure) */}
             {isMobileMenuOpen && (

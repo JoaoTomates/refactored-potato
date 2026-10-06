@@ -12,15 +12,18 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
 
     return (
         <div className="flex flex-col min-h-screen w-full relative">
-            {!isHiddenRoute && <Navigation />}
             {!isHiddenRoute && <NasdaqTicker />}
             
-            {/* Main content with bottom padding on mobile for MobileBottomDock */}
-            <div className={`flex-grow flex flex-col w-full ${!isHiddenRoute ? 'pb-16 md:pb-0' : ''}`}>
+            {/* Main content with bottom padding for bottom Navigation */}
+            <div className={`flex-grow flex flex-col w-full ${!isHiddenRoute ? 'pb-20' : ''}`}>
                 {children}
             </div>
 
-            {!isHiddenRoute && <Footer />}
+            {/* Navbar positioned at the bottom of the page */}
+            {!isHiddenRoute && <Navigation />}
+
+            {/* Footer oculto temporariamente conforme solicitado */}
+            {/* {!isHiddenRoute && <Footer />} */}
             
             {/* Mobile Thumb Zone Navigation Dock */}
             {!isHiddenRoute && <MobileBottomDock />}

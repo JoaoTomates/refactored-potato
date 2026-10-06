@@ -170,16 +170,13 @@ export function InviteFlow() {
     const [phase, setPhase] = useState<Phase>('LOADING');
     const [introReady, setIntroReady] = useState(false);
     
-    // autoIndex:
-    // 1: Dialog 1
-    // 2: Dialog 2
-    // 3: Dialog 3
-    // 4: Dialog 4
-    // 5: Oferta Bloco A
-    // 6: Oferta Bloco B
-    // 7: Oferta Bloco C
-    const [autoIndex, setAutoIndex] = useState(1);
-    const [readyFlags, setReadyFlags] = useState<Record<number, boolean>>({});
+    // Paginação de diálogos com limpeza de tela:
+    // dialogPage: 1 (Boxes 1 e 2), 2 (Boxes 3 e 4), 3 (Ofertas de Alianças: Bloco A, B, C)
+    const [dialogPage, setDialogPage] = useState<1 | 2 | 3>(1);
+    const [pageStep, setPageStep] = useState<number>(1);
+    const [isPageClearing, setIsPageClearing] = useState(false);
+    const [pageAutoAdvanceReady, setPageAutoAdvanceReady] = useState(false);
+    const advanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     const [typingComplete, setTypingComplete] = useState(false);
     
@@ -193,6 +190,12 @@ export function InviteFlow() {
     
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const initialCheckDone = useRef(false);
+
+    useEffect(() => {
+        return () => {
+            if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
+        };
+    }, []);
 
     useEffect(() => {
         if (authLoading || initialCheckDone.current) return;
@@ -216,12 +219,29 @@ export function InviteFlow() {
         if (messagesEndRef.current && phase === 'AUTO_DIALOG') {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
-    }, [autoIndex, phase, readyFlags]);
+    }, [dialogPage, pageStep, phase]);
+
+    const changeToPage = (nextPage: 1 | 2 | 3) => {
+        if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
+        setPageAutoAdvanceReady(false);
+        setIsPageClearing(true);
+        setTimeout(() => {
+            setDialogPage(nextPage);
+            setPageStep(1);
+            setIsPageClearing(false);
+            if (typeof window !== 'undefined') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, 300);
+    };
 
     const startAutoDialog = () => {
         retroSound.init();
         setPhase('AUTO_DIALOG');
-        setAutoIndex(1);
+        setDialogPage(1);
+        setPageStep(1);
+        setPageAutoAdvanceReady(false);
+        setIsPageClearing(false);
     };
 
     const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
@@ -393,39 +413,105 @@ export function InviteFlow() {
             )}
 
             {phase === 'AUTO_DIALOG' && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-24 px-4">
-                    {/* Diálogos do Diretor (1 a 4) */}
-                    {customDialogs.map((dialog, idx) => {
-                        if (idx === 0) return null;
-                        
-                        if (idx <= autoIndex) {
-                            return (
-                                <div key={idx} className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 md:mt-16 mb-24 px-4 transition-all duration-300 ${
+                    isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                }`}>
+                    {/* PÁGINA 1: Mérito e Telemetria (Boxes 1 e 2) */}
+                    {dialogPage === 1 && (
+                        <>
+                            {pageStep >= 1 && (
+                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine 
-                                        text={dialog} 
+                                        text={customDialogs[1]} 
                                         startDelay={150} 
                                         onReadyForNext={() => {
-                                            if (idx < 4) {
-                                                setTimeout(() => setAutoIndex(idx + 1), 1000);
-                                            } else if (idx === 4) {
-                                                // Ao terminar o Box 5 (diálogo 4), inicia a transcrição da primeira oferta (Bloco A)
-                                                setTimeout(() => setAutoIndex(5), 1000);
-                                            }
+                                            setTimeout(() => setPageStep(2), 400);
                                         }} 
                                     />
                                 </div>
-                            );
-                        }
-                        return null;
-                    })}
+                            )}
 
-                    {/* Boxes das Ofertas de Alianças transcritos um após outro no mesmo ritmo */}
-                    {autoIndex >= 5 && (
+                            {pageStep >= 2 && (
+                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                    <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                                    <TypewriterLine 
+                                        text={customDialogs[2]} 
+                                        startDelay={150} 
+                                        onReadyForNext={() => {
+                                            setPageAutoAdvanceReady(true);
+                                            advanceTimeoutRef.current = setTimeout(() => {
+                                                changeToPage(2);
+                                            }, 1400);
+                                        }} 
+                                    />
+                                </div>
+                            )}
+
+                            {pageAutoAdvanceReady && (
+                                <div className="flex justify-end animate-fade-in">
+                                    <button 
+                                        onClick={() => changeToPage(2)}
+                                        className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
+                                    >
+                                        [ AVANÇAR ] »
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {/* PÁGINA 2: O Novo Regulamento e o Chamado (Boxes 3 e 4) */}
+                    {dialogPage === 2 && (
+                        <>
+                            {pageStep >= 1 && (
+                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                    <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                                    <TypewriterLine 
+                                        text={customDialogs[3]} 
+                                        startDelay={150} 
+                                        onReadyForNext={() => {
+                                            setTimeout(() => setPageStep(2), 400);
+                                        }} 
+                                    />
+                                </div>
+                            )}
+
+                            {pageStep >= 2 && (
+                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                    <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                                    <TypewriterLine 
+                                        text={customDialogs[4]} 
+                                        startDelay={150} 
+                                        onReadyForNext={() => {
+                                            setPageAutoAdvanceReady(true);
+                                            advanceTimeoutRef.current = setTimeout(() => {
+                                                changeToPage(3);
+                                            }, 1400);
+                                        }} 
+                                    />
+                                </div>
+                            )}
+
+                            {pageAutoAdvanceReady && (
+                                <div className="flex justify-end animate-fade-in">
+                                    <button 
+                                        onClick={() => changeToPage(3)}
+                                        className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
+                                    >
+                                        [ VER PROPOSTAS ] »
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {/* PÁGINA 3: Propostas das Alianças (Transcritas de cima para baixo) */}
+                    {dialogPage === 3 && (
                         <>
                             {ALLIANCE_KEYS.map((groupId, aIdx) => {
-                                const targetIndex = 5 + aIdx;
-                                if (autoIndex < targetIndex) return null;
+                                const stepNeeded = aIdx + 1;
+                                if (pageStep < stepNeeded) return null;
 
                                 const g = ENGINE_FACTIONS[groupId];
 
@@ -446,10 +532,8 @@ export function InviteFlow() {
                                                 text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`} 
                                                 startDelay={150}
                                                 onReadyForNext={() => {
-                                                    if (targetIndex < 7) {
-                                                        setTimeout(() => setAutoIndex(targetIndex + 1), 1000);
-                                                    } else {
-                                                        setReadyFlags(prev => ({ ...prev, [targetIndex]: true }));
+                                                    if (stepNeeded < 3) {
+                                                        setTimeout(() => setPageStep(stepNeeded + 1), 600);
                                                     }
                                                 }}
                                             />
