@@ -602,21 +602,32 @@ function InviteFlow() {
                         )}
                     </div>
 
-                    {/* Lista de Vagas */}
+                    {/* Lista de Vagas / Livro de Ofertas */}
+                    <div className="flex items-center justify-between text-[11px] text-white/40 uppercase tracking-widest px-2 font-mono">
+                        <span>LIVRO DE ORDENS // VAGAS HOMOLOGADAS</span>
+                        <span>STATUS: PREGÃO ABERTO ▲</span>
+                    </div>
+
                     {availableSpotsList.map((spot) => (
                         <div 
                             key={spot.id}
-                            className="w-full bg-black/80 p-5 md:p-7 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono"
+                            className="w-full bg-black/80 p-5 md:p-6 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono group"
                         >
                             <div className="flex items-start">
                                 <span className="opacity-50 mr-3 text-[#fbaa19] select-none text-base">&gt; -</span>
                                 <div className="flex flex-col gap-1.5">
                                     <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="text-xs bg-white/10 px-1.5 py-0.5 rounded text-white font-bold tracking-wider">
+                                            {spot.code}
+                                        </span>
                                         <span className="text-base md:text-lg font-black tracking-widest" style={{ color: spot.color }}>
                                             {spot.name.toUpperCase()}
                                         </span>
                                         <span className="text-xs text-[#fbaa19] font-bold">
                                             [{ENGINE_FACTIONS[spot.block].badge}]
+                                        </span>
+                                        <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                                            ▲ OPEN
                                         </span>
                                     </div>
                                     <div className="text-xs text-white/70">
@@ -626,7 +637,7 @@ function InviteFlow() {
                                         DIVISÃO: <span className="text-[#fbaa19] font-bold">GRUPO {activeGroupName.toUpperCase()}</span>
                                     </div>
                                     <div className="text-xs text-emerald-400 font-bold tracking-wider">
-                                        DISPONIBILIDADE: {spot.availableSpots} / 2 ASSENTOS DE PITWALL
+                                        DISPONIBILIDADE: {spot.availableSpots} / 2 ASSENTOS NO PITWALL
                                     </div>
                                 </div>
                             </div>
