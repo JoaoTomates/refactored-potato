@@ -60,10 +60,10 @@ type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'FETCHING_TE
 
 const customDialogs = [
     "Puxe uma cadeira e feche a porta.",
-    "Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.",
-    "Você lê o traçado antes das luzes apagarem.",
-    "Mas você sabe que o novo regulamento de motores deflagrou uma verdadeira guerra fria nos bastidores. As fronteiras foram desenhadas e três grandes alianças se formaram no grid.",
-    "Chegou a hora de escolher o seu lado e buscar uma vaga no pitwall entre os melhores."
+    "Os relatórios da sua telemetria caíram na minha mesa. Seus números são impressionantes.",
+    "Você decifra o traçado antes mesmo das luzes vermelhas se apagarem.",
+    "Mas o novo regulamento de motores deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
+    "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
 ];
 
 const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
@@ -71,8 +71,8 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
     id: 'A',
     badge: 'BLOCO A',
     title: 'CONSÓRCIO DA ESTRELA',
-    sub: '"Confiabilidade de Aço & Domínio de Frota"',
-    engineSpec: 'Mercedes V6 Hybrid',
+    sub: '"Confiabilidade de Aço & Engenharia Teutônica"',
+    engineSpec: 'Mercedes-AMG High Performance Powertrains V6 Hybrid',
     teamsString: 'Mercedes • McLaren • Alpine • Williams',
     teams: ['MER', 'MCL', 'ALP', 'WIL'],
     teamDetails: [
@@ -81,15 +81,15 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
       { code: 'ALP', name: 'Alpine', color: '#FD4BC7' },
       { code: 'WIL', name: 'Williams', color: '#005AFF' }
     ],
-    fantasyPerk: '+15% XP em previsões de consistência.',
-    directorResponse: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
+    fantasyPerk: '+15% de rendimento em previsões de consistência cirúrgica.',
+    directorResponse: '“Decisão metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens compartilhando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
   },
   B: {
     id: 'B',
     badge: 'BLOCO B',
     title: 'A DINASTIA DE MARANELLO',
-    sub: '"Potência de Pico & A Frente Americana"',
-    engineSpec: 'Ferrari 067/3 Hybrid E-Turbo',
+    sub: '"Potência de Pico & A Frente Ítalo-Americana"',
+    engineSpec: 'Ferrari 067/3 Hybrid E-Turbo Speciale',
     teamsString: 'Ferrari • Haas • Cadillac',
     teams: ['FER', 'HAA', 'CAD'],
     teamDetails: [
@@ -97,15 +97,15 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
       { code: 'HAA', name: 'Haas', color: '#E6002B' },
       { code: 'CAD', name: 'Cadillac', color: '#FFC80C' }
     ],
-    fantasyPerk: '2x XP em apostas arriscadas de pole.',
-    directorResponse: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”'
+    fantasyPerk: 'Bônus dobrado (2x) em apostas arriscadas de Pole Position.',
+    directorResponse: '“Sangue quente. Você escolheu a mística de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou sua telemetria nos coloca na frente, ou a imprensa italiana te destrói.”'
   },
   C: {
     id: 'C',
     badge: 'BLOCO C',
     title: 'A VANGUARDA',
-    sub: '"Ambição e Risco Tecnológico"',
-    engineSpec: 'Ford / Honda / Audi PU',
+    sub: '"Ousadia Tecnológica & A Força do Caos"',
+    engineSpec: 'Red Bull Ford Powertrains / Honda / Audi F1 PU',
     teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
     teams: ['RBR', 'RBA', 'AST', 'AUD'],
     teamDetails: [
@@ -114,8 +114,8 @@ const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
       { code: 'AST', name: 'Aston Martin', color: '#229971' },
       { code: 'AUD', name: 'Audi', color: '#F50537' }
     ],
-    fantasyPerk: '+25% XP ao prever cenários de caos.',
-    directorResponse: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
+    fantasyPerk: '+25% de rendimento ao antecipar cenários de caos no traçado.',
+    directorResponse: '“Aprecio a ousadia. Você marchou direto para o terreno hostil de motores inéditos. Risco brutal, mas é exatamente no caos que os estrategistas lendários constroem dinastias.”'
   }
 };
 
@@ -503,14 +503,14 @@ function InviteFlow() {
             {phase === 'GROUP_SELECT' && (
                 <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
                     {errorMsg && (
-                        <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in">
-                            [ERRO] {errorMsg}
+                        <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded mb-2 animate-fade-in font-mono">
+                            [ERRO TÉCNICO] {errorMsg}
                         </div>
                     )}
 
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                         <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                        <TypewriterLine text="SELECIONE UMA ALIANÇA PARA CONSULTAR AS VAGAS DISPONÍVEIS NO GRID:" startDelay={100} onReadyForNext={() => setGroupIntroReady(true)} />
+                        <TypewriterLine text="RELATÓRIO CONFIDENCIAL: SELECIONE UMA ALIANÇA PARA MAPEAR VAGAS NO GRID:" startDelay={100} onReadyForNext={() => setGroupIntroReady(true)} />
                     </div>
                     
                     {(['A', 'B', 'C'] as const).map((groupId, idx) => {
@@ -519,29 +519,46 @@ function InviteFlow() {
                         return (
                             <div 
                                 key={g.id} 
-                                className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in group"
+                                className="w-full bg-black/80 p-5 md:p-7 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in group flex flex-col gap-3 font-mono"
                                 onClick={() => handleSelectGroup(groupId)}
                             >
                                 <div className="flex items-start">
-                                    <span className="opacity-50 mr-3 text-[#fbaa19] select-none">&gt; -</span>
-                                    <div className="flex-1 text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed flex flex-col gap-2">
-                                        <div>
-                                            <span className="text-[#fbaa19]">[{g.badge}]</span> <span className="text-white">{g.title}</span>
+                                    <span className="opacity-50 mr-3 text-[#fbaa19] select-none text-base">&gt; -</span>
+                                    <div className="flex-1 flex flex-col gap-2">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="text-[#fbaa19] text-xs font-bold tracking-widest">[{g.badge}]</span>
+                                            <span className="text-white text-sm md:text-base font-black tracking-widest">{g.title}</span>
                                         </div>
-                                        <div className="text-white/80">
-                                            <TypewriterLine text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`} startDelay={250 + idx * 150} fastMode={true} />
+
+                                        <div className="text-white/70 text-xs md:text-sm italic">
+                                            <TypewriterLine text={g.sub} startDelay={250 + idx * 150} fastMode={true} />
                                         </div>
-                                        <div className="mt-2 pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-white/60 text-[10px] md:text-xs">EQUIPES:</span>
+
+                                        <div className="flex flex-col gap-1.5 pt-2 text-xs">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="text-white/50 tracking-wider">ESCUDERIAS:</span>
                                                 {g.teamDetails?.map((t: any, i: number) => (
-                                                    <span key={t.code} className="text-[11px] md:text-xs font-bold" style={{ color: t.color }}>
+                                                    <span key={t.code} className="font-bold tracking-wider" style={{ color: t.color }}>
                                                         {t.name}{i < g.teamDetails.length - 1 ? ' • ' : ''}
                                                     </span>
                                                 ))}
                                             </div>
-                                            <span className="text-[#fbaa19] text-xs font-bold uppercase group-hover:text-white transition-colors animate-pulse">
-                                                [ CONSULTAR VAGAS ] »
+
+                                            <div className="flex items-baseline gap-2 flex-wrap">
+                                                <span className="text-white/50 tracking-wider">MOTOR (PU):</span>
+                                                <span className="text-white/90 font-medium">{g.engineSpec}</span>
+                                            </div>
+
+                                            <div className="flex items-baseline gap-2 flex-wrap">
+                                                <span className="text-[#fbaa19] tracking-wider font-bold">DOUTRINA:</span>
+                                                <span className="text-[#fbaa19]/90 font-medium">{g.fantasyPerk}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                                            <span className="text-white/40 text-[10px] uppercase tracking-widest">PROTOCOLO DE HOMOLOGAÇÃO</span>
+                                            <span className="text-[#fbaa19] text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors animate-pulse">
+                                                [ INSPECIONAR VAGAS ] »
                                             </span>
                                         </div>
                                     </div>
@@ -556,8 +573,8 @@ function InviteFlow() {
             {phase === 'FETCHING_TEAM' && (
                 <div className="relative z-10 w-full flex flex-col items-center justify-center gap-6 mt-32 px-4">
                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs md:text-sm">
-                        &gt;_ VERIFICANDO DISPONIBILIDADE NO GRID...
+                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs md:text-sm font-mono">
+                        &gt;_ INTERCEPTANDO TELEMETRIA DO PADDOCK...
                     </p>
                 </div>
             )}
@@ -565,20 +582,20 @@ function InviteFlow() {
             {phase === 'SPOTS_SELECTION' && (
                 <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
                     {/* Alerta de Vagas ou Status */}
-                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest font-mono">
                         <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                         {isFallback ? (
                             <span className="leading-relaxed">
-                                <span className="text-amber-400">[VAGAS ESGOTADAS]</span>
+                                <span className="text-amber-400">[COMUNICADO DE GARAGEM]</span>
                                 <TypewriterLine 
-                                    text={` O BLOCO ESCOLHIDO NÃO POSSUI VAGAS NO GRUPO ATIVO (${activeGroupName.toUpperCase()}). EXIBINDO VAGAS DISPONÍVEIS EM OUTROS BLOCOS:`}
+                                    text={` TODAS AS VAGAS DA ALIANÇA ESCOLHIDA FORAM PREENCHIDAS NA DIVISÃO ${activeGroupName.toUpperCase()}. EXIBINDO VAGAS REMANESCENTES NO PADDOCK:`}
                                     startDelay={100}
                                     fastMode={true}
                                 />
                             </span>
                         ) : (
                             <TypewriterLine 
-                                text={`VAGAS LOCALIZADAS NO GRUPO ATIVO (${activeGroupName.toUpperCase()}) — ${selectedGroup ? ENGINE_FACTIONS[selectedGroup].title : ''}:`}
+                                text={`TRANSMISSÃO CRIPTOGRAFADA: VAGAS HOMOLOGADAS NO GRUPO ATIVO (${activeGroupName.toUpperCase()}) — ${selectedGroup ? ENGINE_FACTIONS[selectedGroup].title : ''}:`}
                                 startDelay={100}
                                 fastMode={true}
                             />
@@ -589,27 +606,27 @@ function InviteFlow() {
                     {availableSpotsList.map((spot) => (
                         <div 
                             key={spot.id}
-                            className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4"
+                            className="w-full bg-black/80 p-5 md:p-7 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono"
                         >
                             <div className="flex items-start">
-                                <span className="opacity-50 mr-3 text-[#fbaa19] select-none">&gt; -</span>
-                                <div className="flex flex-col gap-1.5 font-mono">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-base md:text-lg font-bold" style={{ color: spot.color }}>
+                                <span className="opacity-50 mr-3 text-[#fbaa19] select-none text-base">&gt; -</span>
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="text-base md:text-lg font-black tracking-widest" style={{ color: spot.color }}>
                                             {spot.name.toUpperCase()}
                                         </span>
-                                        <span className="text-xs text-[#fbaa19]">
+                                        <span className="text-xs text-[#fbaa19] font-bold">
                                             [{ENGINE_FACTIONS[spot.block].badge}]
                                         </span>
                                     </div>
                                     <div className="text-xs text-white/70">
-                                        SPEC: <span className="text-white">{spot.engineSpec}</span>
+                                        MOTOR: <span className="text-white font-medium">{spot.engineSpec}</span>
                                     </div>
                                     <div className="text-xs text-white/70">
-                                        DIVISÃO: <span className="text-[#fbaa19] font-bold">GRUPO {activeGroupName}</span>
+                                        DIVISÃO: <span className="text-[#fbaa19] font-bold">GRUPO {activeGroupName.toUpperCase()}</span>
                                     </div>
-                                    <div className="text-xs text-emerald-400 font-bold">
-                                        VAGAS ABERTAS: {spot.availableSpots} / 2
+                                    <div className="text-xs text-emerald-400 font-bold tracking-wider">
+                                        DISPONIBILIDADE: {spot.availableSpots} / 2 ASSENTOS DE PITWALL
                                     </div>
                                 </div>
                             </div>
@@ -617,7 +634,7 @@ function InviteFlow() {
                             <div className="flex items-center justify-end">
                                 <button 
                                     onClick={() => handleViewOffer(spot)}
-                                    className="w-full md:w-auto bg-[#fbaa19] hover:bg-white text-black font-black uppercase tracking-widest text-xs px-5 py-3 rounded transition-all shadow-[0_0_15px_rgba(251,170,25,0.3)] animate-pulse"
+                                    className="w-full md:w-auto bg-[#fbaa19] hover:bg-white text-black font-black uppercase tracking-widest text-xs px-6 py-3 rounded transition-all shadow-[0_0_15px_rgba(251,170,25,0.3)] animate-pulse"
                                 >
                                     [ VER OFERTA ] »
                                 </button>
@@ -626,12 +643,12 @@ function InviteFlow() {
                     ))}
 
                     {/* Botão de retorno */}
-                    <div className="flex justify-between items-center mt-2">
+                    <div className="flex justify-between items-center mt-2 font-mono">
                         <button 
                             onClick={() => setPhase('GROUP_SELECT')}
                             className="text-white/60 hover:text-white text-xs font-bold tracking-widest uppercase transition-colors"
                         >
-                            « [ ESCOLHER OUTRO BLOCO ]
+                            « [ RETORNAR À ESCOLHA DE ALIANÇAS ]
                         </button>
                     </div>
                     <div ref={messagesEndRef} className="h-4 w-full" />
@@ -639,55 +656,52 @@ function InviteFlow() {
             )}
 
             {phase === 'BRIEFING' && selectedSpot && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4 font-mono">
                     {/* Box Proposta */}
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                         <div className="flex items-center gap-2 mb-3">
                             <span className="opacity-50 text-[#fbaa19]">&gt;_</span>
-                            <span className="text-[#fbaa19]">BRIEFING TÁTICO DA PROPOSTA</span>
+                            <span className="text-[#fbaa19]">BRIEFING CONFIDENCIAL DE TELEMETRIA — PROPOSTA DE CONTRATO</span>
                         </div>
                         <div className="text-white text-sm md:text-base leading-relaxed">
-                            A escuderia <span style={{ color: selectedSpot.color }}>{selectedSpot.name.toUpperCase()}</span> formalizou sua proposta para vaga de estrategista no <span className="text-[#fbaa19]">GRUPO {activeGroupName.toUpperCase()}</span>.
+                            A escuderia <span style={{ color: selectedSpot.color }}>{selectedSpot.name.toUpperCase()}</span> formalizou sua requisição técnica para o posto de Estrategista Chefe no <span className="text-[#fbaa19]">GRUPO {activeGroupName.toUpperCase()}</span>.
                         </div>
                     </div>
 
                     {/* Box Briefing Competições */}
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-4 text-xs md:text-sm">
                         <div className="text-[#fbaa19] font-bold tracking-widest uppercase pb-2 border-b border-white/10 flex items-center justify-between">
-                            <span>REGULAMENTO DAS COMPETIÇÕES</span>
-                            <span className="text-white/60">TEMPORADA OFICIAL</span>
+                            <span>REGULAMENTO OPERACIONAL DA TEMPORADA</span>
+                            <span className="text-white/60">HOMOLOGAÇÃO FIA</span>
                         </div>
 
                         <div className="flex flex-col gap-3 font-mono">
-                            <div className="bg-black/40 p-3 rounded border border-white/10">
-                                <span className="text-[#fbaa19] font-bold block mb-1">&gt; 1. POLETIME (DESAFIO DA POLE POSITION)</span>
+                            <div className="bg-black/40 p-4 rounded border border-white/10 flex flex-col gap-1.5">
+                                <span className="text-[#fbaa19] font-bold tracking-wider">&gt; 1. POLETIME (TELEMETRIA DE QUALIFICAÇÃO - Q3)</span>
                                 <p className="text-white/80 leading-relaxed text-xs">
-                                    Preveja o tempo exato da pole position no Q3 de cada final de semana de GP. A precisão até o milésimo define sua pontuação técnica e prestígio no paddock.
+                                    Preveja com precisão milimétrica o tempo da pole position no Q3 de cada Grande Prêmio. A exatidão ao milésimo de segundo estabelece seu coeficiente técnico e prestígio no paddock.
                                 </p>
                             </div>
 
-                            <div className="bg-black/40 p-3 rounded border border-white/10">
-                                <span className="text-[#fbaa19] font-bold block mb-1">&gt; 2. LIGA MASTER (CONFRONTO DIRETO DE GRID)</span>
+                            <div className="bg-black/40 p-4 rounded border border-white/10 flex flex-col gap-1.5">
+                                <span className="text-[#fbaa19] font-bold tracking-wider">&gt; 2. LIGA MASTER (DUELOS DIRETOS DE GRID)</span>
                                 <p className="text-white/80 leading-relaxed text-xs">
-                                    Duelos diretos contra estrategistas da sua divisão. Seus pontos individuais somam para a conquista do Campeonato Mundial de Construtores pela sua escuderia.
+                                    Confrontos diretos semanais contra estrategistas da sua divisão. Seus pontos individuais alimentam a classificação do Campeonato Mundial de Construtores pela sua escuderia.
                                 </p>
                             </div>
 
-                            <div className="bg-black/40 p-3 rounded border border-white/10">
-                                <span className="text-[#fbaa19] font-bold block mb-1">&gt; 3. MILESIMUS / F1 FANTASY</span>
+                            <div className="bg-black/40 p-4 rounded border border-white/10 flex flex-col gap-1.5">
+                                <span className="text-[#fbaa19] font-bold tracking-wider">&gt; 3. MILESIMUS / F1 FANTASY (OPERAÇÃO DE CORRIDA)</span>
                                 <p className="text-white/80 leading-relaxed text-xs">
-                                    Gestão de pontuação por corrida. Sua aliança garante o bônus: <span className="text-[#fbaa19] font-bold">{selectedSpot.fantasyPerk}</span>.
+                                    Gestão de performance nas corridas de domingo. A aliança garante sua vantagem tática exclusiva: <span className="text-[#fbaa19] font-bold">{selectedSpot.fantasyPerk}</span>.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="pt-2 text-xs text-white/60 flex flex-wrap items-center gap-2">
-                            <span>ESCUDERIA:</span>
-                            <span className="font-bold" style={{ color: selectedSpot.color }}>{selectedSpot.name}</span>
-                            <span>• PU:</span>
-                            <span className="text-white">{selectedSpot.engineSpec}</span>
-                            <span>• ALIANÇA:</span>
-                            <span className="text-[#fbaa19]">[{ENGINE_FACTIONS[selectedSpot.block].badge}]</span>
+                        <div className="pt-2 text-xs text-white/60 flex flex-wrap items-center gap-3 border-t border-white/10">
+                            <span>ESCUDERIA: <span className="font-bold" style={{ color: selectedSpot.color }}>{selectedSpot.name}</span></span>
+                            <span>• PU: <span className="text-white">{selectedSpot.engineSpec}</span></span>
+                            <span>• ALIANÇA: <span className="text-[#fbaa19]">[{ENGINE_FACTIONS[selectedSpot.block].badge}]</span></span>
                         </div>
 
                         {/* Confirmação ou Recusa */}
@@ -696,14 +710,14 @@ function InviteFlow() {
                                 onClick={handleConfirmOffer}
                                 className="w-full bg-[#fbaa19] hover:bg-white text-black font-black uppercase tracking-[0.2em] p-4 rounded transition-all shadow-[0_0_15px_rgba(251,170,25,0.4)] text-sm"
                             >
-                                [ CONFIRMAR CONTRATO ] »
+                                [ HOMOLOGAR CONTRATO & ASSUMIR O PITWALL ] »
                             </button>
 
                             <button 
                                 onClick={() => setPhase('SPOTS_SELECTION')}
                                 className="w-full text-white/60 hover:text-white text-xs font-bold tracking-widest uppercase transition-colors py-2 text-center"
                             >
-                                « [ RECUSAR E VER OUTRAS VAGAS ]
+                                « [ RECUSAR E EXAMINAR OUTRAS VAGAS ]
                             </button>
                         </div>
                     </div>
@@ -712,11 +726,11 @@ function InviteFlow() {
             )}
 
             {(phase === 'ENLIST' || phase === 'SUBMITTING_ENLIST') && selectedGroup && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4">
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4 font-mono">
                     <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
                         <div>
                             <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-3 uppercase">
-                                RESPOSTA DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
+                                DESPACHO CONFIDENCIAL DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
                             </p>
                             <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
                                 <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={300} onReadyForNext={() => setTypingComplete(true)} />
@@ -726,14 +740,14 @@ function InviteFlow() {
                         <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full mt-4 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             {errorMsg && (
                                 <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
-                                    [ERRO] {errorMsg}
+                                    [FALHA DE HOMOLOGAÇÃO] {errorMsg}
                                 </div>
                             )}
                             
                             {phase === 'SUBMITTING_ENLIST' ? (
                                 <div className="flex flex-col items-center justify-center gap-6 py-8">
                                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ INICIALIZANDO SUPERLICENÇA...</p>
+                                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ EMITINDO SUPERLICENÇA & HOMOLOGANDO CONTRATO...</p>
                                 </div>
                             ) : (
                                 <>
@@ -742,7 +756,7 @@ function InviteFlow() {
                                             <input 
                                                 type="text" 
                                                 required
-                                                placeholder="NOME E SOBRENOME"
+                                                placeholder="NOME E SOBRENOME DO PILOTO"
                                                 value={fullName}
                                                 onChange={e => setFullName(e.target.value)}
                                                 className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${
@@ -763,7 +777,7 @@ function InviteFlow() {
                                             <input 
                                                 type="email" 
                                                 required
-                                                placeholder="E-MAIL"
+                                                placeholder="CANAL DE TELEMETRIA (E-MAIL)"
                                                 value={email}
                                                 onChange={e => setEmail(e.target.value)}
                                                 className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
@@ -772,7 +786,7 @@ function InviteFlow() {
                                     </div>
                                     
                                     <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
-                                        [ ASSINAR CONTRATO E ACESSAR PITWALL ]
+                                        [ EMITIR SUPERLICENÇA & ACESSAR PITWALL ]
                                     </button>
                                 </>
                             )}
