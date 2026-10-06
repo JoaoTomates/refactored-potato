@@ -44,7 +44,19 @@ class PitWallSoundEngine {
 
 const retroSound = new PitWallSoundEngine();
 
-type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'FETCHING_TEAM' | 'ENLIST' | 'SUBMITTING_ENLIST';
+interface TeamSpot {
+    id: string;
+    code: string;
+    name: string;
+    color: string;
+    block: 'A' | 'B' | 'C';
+    engineSpec: string;
+    fantasyPerk: string;
+    availableSpots: number;
+    occupiedSpots: number;
+}
+
+type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'GROUP_SELECT' | 'FETCHING_TEAM' | 'SPOTS_SELECTION' | 'BRIEFING' | 'ENLIST' | 'SUBMITTING_ENLIST';
 
 const customDialogs = [
     "Puxe uma cadeira e feche a porta.",
@@ -178,6 +190,12 @@ function InviteFlow() {
     
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+    const [selectedSpot, setSelectedSpot] = useState<TeamSpot | null>(null);
+    const [availableSpotsList, setAvailableSpotsList] = useState<TeamSpot[]>([]);
+    const [isFallback, setIsFallback] = useState<boolean>(false);
+    const [activeGroupName, setActiveGroupName] = useState<string>('J. Fangio');
+    const [activeGroupId, setActiveGroupId] = useState<number>(2);
+    const [groupIntroReady, setGroupIntroReady] = useState(false);
     
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -227,26 +245,81 @@ function InviteFlow() {
         setErrorMsg("");
         
         try {
-            const { data, error } = await supabase.from('teams').select('*');
-            if (error) throw error;
-            
-            const groupData = ENGINE_FACTIONS[groupId];
-            
-            let groupTeams = data.filter(t => groupData.teams.includes(t.code) && t.is_available);
-            if (groupTeams.length === 0) {
-                groupTeams = data.filter(t => groupData.teams.includes(t.code));
+            // 1. Grupo ativo da liga
+            const { data: groupData } = await supabase.from('groups').select('*').eq('is_filling', true).single();
+            const currentGId = groupData?.id || 2;
+            const currentGName = groupData?.name || 'J. Fangio';
+            setActiveGroupId(currentGId);
+            setActiveGroupName(currentGName);
+
+            // 2. Equipes
+            const { data: teamsData, error: teamsError } = await supabase.from('teams').select('*');
+            if (teamsError) throw teamsError;
+
+            // 3. Contratos no grupo ativo
+            const { data: contractsData } = await supabase.from('contracts').select('team_id').eq('group_id', currentGId);
+
+            // 4. Mapeia as vagas de cada equipe (máximo 2 por escuderia)
+            const spots: TeamSpot[] = (teamsData || []).map((t: any) => {
+                let block: 'A' | 'B' | 'C' = 'A';
+                if (ENGINE_FACTIONS.B.teams.includes(t.code)) block = 'B';
+                else if (ENGINE_FACTIONS.C.teams.includes(t.code)) block = 'C';
+
+                const occupied = (contractsData || []).filter((c: any) => c.team_id === t.id).length;
+                const available = Math.max(0, 2 - occupied);
+
+                return {
+                    id: t.id,
+                    code: t.code,
+                    name: t.name,
+                    color: t.color,
+                    block,
+                    engineSpec: ENGINE_FACTIONS[block]?.engineSpec || '',
+                    fantasyPerk: ENGINE_FACTIONS[block]?.fantasyPerk || '',
+                    availableSpots: available,
+                    occupiedSpots: occupied
+                };
+            });
+
+            // 5. Vagas no bloco selecionado
+            const chosenBlockSpots = spots.filter(s => s.block === groupId && s.availableSpots > 0);
+
+            if (chosenBlockSpots.length > 0) {
+                setAvailableSpotsList(chosenBlockSpots);
+                setIsFallback(false);
+            } else {
+                // Se não houver vagas no bloco selecionado, mostra as vagas dos outros grupos!
+                const otherSpots = spots.filter(s => s.block !== groupId && s.availableSpots > 0);
+                setAvailableSpotsList(otherSpots);
+                setIsFallback(true);
             }
-            
-            if (groupTeams.length === 0) {
-                throw new Error("Não há equipes cadastradas para esse bloco.");
-            }
-            
+
             localStorage.setItem('draft_alliance', groupId);
-            setPhase('ENLIST');
+            setPhase('SPOTS_SELECTION');
         } catch (err: any) {
             console.error(err);
-            setErrorMsg(err.message || "ERRO NA CONEXÃO");
+            setErrorMsg(err.message || "ERRO NA VERIFICAÇÃO DE VAGAS");
             setPhase('GROUP_SELECT');
+        }
+    };
+
+    const handleViewOffer = (spot: TeamSpot) => {
+        retroSound.init();
+        setSelectedSpot(spot);
+        setSelectedTeamId(spot.id);
+        setPhase('BRIEFING');
+    };
+
+    const handleConfirmOffer = async () => {
+        if (!selectedSpot) return;
+        retroSound.init();
+
+        if (user) {
+            setPhase('SUBMITTING_ENLIST');
+            await signInitialContract(selectedSpot.id);
+        } else {
+            setTypingComplete(false);
+            setPhase('ENLIST');
         }
     };
 
@@ -264,7 +337,7 @@ function InviteFlow() {
         } catch (err: any) {
             console.error('RPC Error:', err);
             setErrorMsg("FALHA NA ASSINATURA");
-            setPhase('ENLIST');
+            setPhase('BRIEFING');
         }
     };
 
@@ -315,11 +388,13 @@ function InviteFlow() {
                 const generatedNumber = Math.floor(Math.random() * 99) + 1;
                 const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
 
+                const teamColor = selectedSpot?.color || '#000000';
+
                 const { error: profileError } = await supabase.from('profiles').update({
                     first_name: cleanFirstName,
                     last_name: cleanLastName,
                     nationality: null,
-                    org_color: '#000000',
+                    org_color: teamColor,
                     setup_completed: false, 
                     slug: slug
                 }).eq('id', authData.user.id);
@@ -330,13 +405,23 @@ function InviteFlow() {
                         first_name: cleanFirstName,
                         last_name: cleanLastName,
                         nationality: null,
-                        org_color: '#000000',
-                        setup_completed: false,
+                        org_color: teamColor,
+                        setup_completed: false, 
                         slug: slug
                     });
                 }
+
+                if (selectedSpot?.id) {
+                    localStorage.setItem('draft_team_id', selectedSpot.id);
+                    localStorage.setItem('draft_alliance', selectedSpot.block);
+                    try {
+                        await supabase.rpc('sign_initial_contract', { p_team_id: selectedSpot.id });
+                    } catch (rpcErr) {
+                        console.warn('RPC post-signup error:', rpcErr);
+                    }
+                }
                 
-                window.location.href = '/headquarters';
+                window.location.href = `/${slug}`;
             }
         } catch (err: any) {
             console.error(err);
@@ -422,6 +507,11 @@ function InviteFlow() {
                             [ERRO] {errorMsg}
                         </div>
                     )}
+
+                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                        <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                        <TypewriterLine text="SELECIONE UMA ALIANÇA PARA CONSULTAR AS VAGAS DISPONÍVEIS NO GRID:" startDelay={100} onReadyForNext={() => setGroupIntroReady(true)} />
+                    </div>
                     
                     {(['A', 'B', 'C'] as const).map((groupId, idx) => {
                         const g = ENGINE_FACTIONS[groupId];
@@ -429,34 +519,31 @@ function InviteFlow() {
                         return (
                             <div 
                                 key={g.id} 
-                                className="w-full bg-black/90 backdrop-blur-sm border border-[#fbaa19] rounded-lg shadow-2xl hover:shadow-[0_0_25px_rgba(251,170,25,0.2)] p-4 md:p-5 animate-fade-in transition-all cursor-pointer group"
+                                className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in group"
                                 onClick={() => handleSelectGroup(groupId)}
                             >
-                                <div className="text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed flex flex-col gap-1.5">
-                                    <div>
-                                        <span className="text-[#fbaa19]">[{g.badge}]</span> <span className="text-white">{g.title}</span>
-                                    </div>
-                                    <div>
-                                        {g.sub}
-                                    </div>
-                                    <div>
-                                        <span className="text-white">EQUIPES: </span>
-                                        {g.teamDetails?.map((t: any, i: number) => (
-                                            <React.Fragment key={t.code}>
-                                                {i > 0 && <span className="text-white"> • </span>}
-                                                <span style={{ color: t.color }}>
-                                                    {t.name}
-                                                </span>
-                                            </React.Fragment>
-                                        ))}
-                                    </div>
-                                    <div>
-                                        <span className="text-white">SPEC: </span>
-                                        <span>{g.engineSpec}</span>
-                                    </div>
-                                    <div>
-                                        <span className="text-white">PERK: </span>
-                                        <span>{g.fantasyPerk}</span>
+                                <div className="flex items-start">
+                                    <span className="opacity-50 mr-3 text-[#fbaa19] select-none">&gt; -</span>
+                                    <div className="flex-1 text-white text-xs md:text-sm font-bold tracking-widest leading-relaxed flex flex-col gap-2">
+                                        <div>
+                                            <span className="text-[#fbaa19]">[{g.badge}]</span> <span className="text-white">{g.title}</span>
+                                        </div>
+                                        <div className="text-white/80">
+                                            <TypewriterLine text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`} startDelay={250 + idx * 150} fastMode={true} />
+                                        </div>
+                                        <div className="mt-2 pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-white/60 text-[10px] md:text-xs">EQUIPES:</span>
+                                                {g.teamDetails?.map((t: any, i: number) => (
+                                                    <span key={t.code} className="text-[11px] md:text-xs font-bold" style={{ color: t.color }}>
+                                                        {t.name}{i < g.teamDetails.length - 1 ? ' • ' : ''}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <span className="text-[#fbaa19] text-xs font-bold uppercase group-hover:text-white transition-colors animate-pulse">
+                                                [ CONSULTAR VAGAS ] »
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -470,8 +557,157 @@ function InviteFlow() {
                 <div className="relative z-10 w-full flex flex-col items-center justify-center gap-6 mt-32 px-4">
                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs md:text-sm">
-                        &gt;_ NEGOCIANDO CONTRATO...
+                        &gt;_ VERIFICANDO DISPONIBILIDADE NO GRID...
                     </p>
+                </div>
+            )}
+
+            {phase === 'SPOTS_SELECTION' && (
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
+                    {/* Alerta de Vagas ou Status */}
+                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                        <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
+                        {isFallback ? (
+                            <span className="leading-relaxed">
+                                <span className="text-amber-400">[VAGAS ESGOTADAS]</span>
+                                <TypewriterLine 
+                                    text={` O BLOCO ESCOLHIDO NÃO POSSUI VAGAS NO GRUPO ATIVO (${activeGroupName.toUpperCase()}). EXIBINDO VAGAS DISPONÍVEIS EM OUTROS BLOCOS:`}
+                                    startDelay={100}
+                                    fastMode={true}
+                                />
+                            </span>
+                        ) : (
+                            <TypewriterLine 
+                                text={`VAGAS LOCALIZADAS NO GRUPO ATIVO (${activeGroupName.toUpperCase()}) — ${selectedGroup ? ENGINE_FACTIONS[selectedGroup].title : ''}:`}
+                                startDelay={100}
+                                fastMode={true}
+                            />
+                        )}
+                    </div>
+
+                    {/* Lista de Vagas */}
+                    {availableSpotsList.map((spot) => (
+                        <div 
+                            key={spot.id}
+                            className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4"
+                        >
+                            <div className="flex items-start">
+                                <span className="opacity-50 mr-3 text-[#fbaa19] select-none">&gt; -</span>
+                                <div className="flex flex-col gap-1.5 font-mono">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-base md:text-lg font-bold" style={{ color: spot.color }}>
+                                            {spot.name.toUpperCase()}
+                                        </span>
+                                        <span className="text-xs text-[#fbaa19]">
+                                            [{ENGINE_FACTIONS[spot.block].badge}]
+                                        </span>
+                                    </div>
+                                    <div className="text-xs text-white/70">
+                                        SPEC: <span className="text-white">{spot.engineSpec}</span>
+                                    </div>
+                                    <div className="text-xs text-white/70">
+                                        DIVISÃO: <span className="text-[#fbaa19] font-bold">GRUPO {activeGroupName}</span>
+                                    </div>
+                                    <div className="text-xs text-emerald-400 font-bold">
+                                        VAGAS ABERTAS: {spot.availableSpots} / 2
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-end">
+                                <button 
+                                    onClick={() => handleViewOffer(spot)}
+                                    className="w-full md:w-auto bg-[#fbaa19] hover:bg-white text-black font-black uppercase tracking-widest text-xs px-5 py-3 rounded transition-all shadow-[0_0_15px_rgba(251,170,25,0.3)] animate-pulse"
+                                >
+                                    [ VER OFERTA ] »
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Botão de retorno */}
+                    <div className="flex justify-between items-center mt-2">
+                        <button 
+                            onClick={() => setPhase('GROUP_SELECT')}
+                            className="text-white/60 hover:text-white text-xs font-bold tracking-widest uppercase transition-colors"
+                        >
+                            « [ ESCOLHER OUTRO BLOCO ]
+                        </button>
+                    </div>
+                    <div ref={messagesEndRef} className="h-4 w-full" />
+                </div>
+            )}
+
+            {phase === 'BRIEFING' && selectedSpot && (
+                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-16 mb-16 px-4">
+                    {/* Box Proposta */}
+                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="opacity-50 text-[#fbaa19]">&gt;_</span>
+                            <span className="text-[#fbaa19]">BRIEFING TÁTICO DA PROPOSTA</span>
+                        </div>
+                        <div className="text-white text-sm md:text-base leading-relaxed">
+                            A escuderia <span style={{ color: selectedSpot.color }}>{selectedSpot.name.toUpperCase()}</span> formalizou sua proposta para vaga de estrategista no <span className="text-[#fbaa19]">GRUPO {activeGroupName.toUpperCase()}</span>.
+                        </div>
+                    </div>
+
+                    {/* Box Briefing Competições */}
+                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-4 text-xs md:text-sm">
+                        <div className="text-[#fbaa19] font-bold tracking-widest uppercase pb-2 border-b border-white/10 flex items-center justify-between">
+                            <span>REGULAMENTO DAS COMPETIÇÕES</span>
+                            <span className="text-white/60">TEMPORADA OFICIAL</span>
+                        </div>
+
+                        <div className="flex flex-col gap-3 font-mono">
+                            <div className="bg-black/40 p-3 rounded border border-white/10">
+                                <span className="text-[#fbaa19] font-bold block mb-1">&gt; 1. POLETIME (DESAFIO DA POLE POSITION)</span>
+                                <p className="text-white/80 leading-relaxed text-xs">
+                                    Preveja o tempo exato da pole position no Q3 de cada final de semana de GP. A precisão até o milésimo define sua pontuação técnica e prestígio no paddock.
+                                </p>
+                            </div>
+
+                            <div className="bg-black/40 p-3 rounded border border-white/10">
+                                <span className="text-[#fbaa19] font-bold block mb-1">&gt; 2. LIGA MASTER (CONFRONTO DIRETO DE GRID)</span>
+                                <p className="text-white/80 leading-relaxed text-xs">
+                                    Duelos diretos contra estrategistas da sua divisão. Seus pontos individuais somam para a conquista do Campeonato Mundial de Construtores pela sua escuderia.
+                                </p>
+                            </div>
+
+                            <div className="bg-black/40 p-3 rounded border border-white/10">
+                                <span className="text-[#fbaa19] font-bold block mb-1">&gt; 3. MILESIMUS / F1 FANTASY</span>
+                                <p className="text-white/80 leading-relaxed text-xs">
+                                    Gestão de pontuação por corrida. Sua aliança garante o bônus: <span className="text-[#fbaa19] font-bold">{selectedSpot.fantasyPerk}</span>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="pt-2 text-xs text-white/60 flex flex-wrap items-center gap-2">
+                            <span>ESCUDERIA:</span>
+                            <span className="font-bold" style={{ color: selectedSpot.color }}>{selectedSpot.name}</span>
+                            <span>• PU:</span>
+                            <span className="text-white">{selectedSpot.engineSpec}</span>
+                            <span>• ALIANÇA:</span>
+                            <span className="text-[#fbaa19]">[{ENGINE_FACTIONS[selectedSpot.block].badge}]</span>
+                        </div>
+
+                        {/* Confirmação ou Recusa */}
+                        <div className="mt-4 flex flex-col gap-3 pt-3 border-t border-white/10">
+                            <button 
+                                onClick={handleConfirmOffer}
+                                className="w-full bg-[#fbaa19] hover:bg-white text-black font-black uppercase tracking-[0.2em] p-4 rounded transition-all shadow-[0_0_15px_rgba(251,170,25,0.4)] text-sm"
+                            >
+                                [ CONFIRMAR CONTRATO ] »
+                            </button>
+
+                            <button 
+                                onClick={() => setPhase('SPOTS_SELECTION')}
+                                className="w-full text-white/60 hover:text-white text-xs font-bold tracking-widest uppercase transition-colors py-2 text-center"
+                            >
+                                « [ RECUSAR E VER OUTRAS VAGAS ]
+                            </button>
+                        </div>
+                    </div>
+                    <div ref={messagesEndRef} className="h-4 w-full" />
                 </div>
             )}
 
