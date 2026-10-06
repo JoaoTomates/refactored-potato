@@ -203,8 +203,20 @@ export function InviteFlow() {
 
         const checkUserStatus = async () => {
             if (user) {
-                const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).single();
-                if (data?.setup_completed && data?.slug) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('slug, setup_completed')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (error || !data) {
+                    // Sessão fantasma/órfã no cliente que não existe no banco. Limpa o cache de auth.
+                    await supabase.auth.signOut();
+                    setPhase('INTRO');
+                    return;
+                }
+
+                if (data.setup_completed && data.slug) {
                     window.location.replace(`/${data.slug}`);
                     return;
                 }
@@ -298,61 +310,63 @@ export function InviteFlow() {
         setPhase('SUBMITTING_ENLIST');
 
         try {
-            let activeUserId = user?.id;
-
-            if (!activeUserId) {
-                let emailToUse = email.trim();
-                if (!emailToUse.includes('@')) {
-                    emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
-                }
-
-                const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
-
-                const { data: authData, error: authError } = await supabase.auth.signUp({ 
-                    email: emailToUse, 
-                    password: autoPassword 
-                });
-
-                if (authError) throw authError;
-                activeUserId = authData.user?.id;
+            let emailToUse = email.trim();
+            if (!emailToUse.includes('@')) {
+                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
             }
 
-            if (activeUserId) {
-                const rawFirst = nameParts[0];
-                const rawLast = nameParts.slice(1).join(' ');
+            const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
 
-                const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
-                const cleanLastName = rawLast.toUpperCase();
-                const generatedNumber = Math.floor(Math.random() * 99) + 1;
-                const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
+            // Desloga qualquer sessão anterior/fantasma do localStorage para garantir novo cadastro limpo
+            try {
+                await supabase.auth.signOut();
+            } catch (_) {}
 
-                const teamColor = selectedTeamColor || '#000000';
+            const { data: authData, error: authError } = await supabase.auth.signUp({ 
+                email: emailToUse, 
+                password: autoPassword 
+            });
 
-                // Garante perfil atualizado e pronto para a assinatura de contrato
-                const { error: profileError } = await supabase.from('profiles').upsert({
-                    id: activeUserId,
-                    first_name: cleanFirstName,
-                    last_name: cleanLastName,
-                    nationality: null,
-                    org_color: teamColor,
-                    setup_completed: false, 
-                    slug: slug
-                });
+            if (authError) throw authError;
 
-                if (profileError) throw profileError;
-
-                if (selectedTeamId) {
-                    const { error: rpcErr } = await supabase.rpc('sign_initial_contract', { p_team_id: selectedTeamId });
-                    if (rpcErr) {
-                        console.error('RPC Error:', rpcErr);
-                        throw rpcErr;
-                    }
-                }
-                
-                window.location.href = `/${slug}`;
-            } else {
-                throw new Error("FALHA AO OBTER IDENTIFICAÇÃO DO USUÁRIO");
+            const newUserId = authData.user?.id;
+            if (!newUserId) {
+                throw new Error("FALHA AO GERAR IDENTIFICAÇÃO DO PILOTO");
             }
+
+            const rawFirst = nameParts[0];
+            const rawLast = nameParts.slice(1).join(' ');
+
+            const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+            const cleanLastName = rawLast.toUpperCase();
+            const generatedNumber = Math.floor(Math.random() * 99) + 1;
+            const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
+
+            const teamColor = selectedTeamColor || '#000000';
+
+            // Atualiza o perfil criado automaticamente pelo trigger da tabela auth.users
+            const { error: profileError } = await supabase.from('profiles').upsert({
+                id: newUserId,
+                email: emailToUse,
+                first_name: cleanFirstName,
+                last_name: cleanLastName,
+                nationality: null,
+                org_color: teamColor,
+                setup_completed: false, 
+                slug: slug
+            });
+
+            if (profileError) throw profileError;
+
+            if (selectedTeamId) {
+                const { error: rpcErr } = await supabase.rpc('sign_initial_contract', { p_team_id: selectedTeamId });
+                if (rpcErr) {
+                    console.error('RPC Error:', rpcErr);
+                    throw rpcErr;
+                }
+            }
+            
+            window.location.href = `/${slug}`;
         } catch (err: any) {
             console.error(err);
             setErrorMsg(err.message || "ERRO NA EMISSÃO DA SUPERLICENÇA");
