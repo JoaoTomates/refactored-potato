@@ -265,33 +265,12 @@ export function InviteFlow() {
             localStorage.setItem('draft_team_id', teamId);
             localStorage.setItem('draft_alliance', groupId);
 
-            if (user) {
-                await signInitialContract(teamId);
-            } else {
-                setTypingComplete(false);
-                setPhase('ENLIST');
-            }
+            // Transição direta para o Despacho do Diretor do Bloco selecionado
+            setTypingComplete(false);
+            setPhase('ENLIST');
         } catch (err: any) {
             console.error(err);
             setErrorMsg(err.message || "ERRO NA ALOCAÇÃO DE EQUIPE");
-        }
-    };
-
-    const signInitialContract = async (teamId: string, slug?: string) => {
-        try {
-            const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: teamId });
-            if (rpcError) throw rpcError;
-            
-            if (slug) {
-                window.location.href = `/${slug}`;
-            } else {
-                const { data } = await supabase.from('profiles').select('slug').eq('id', user!.id).single();
-                window.location.href = `/${data?.slug || 'superlicense'}`;
-            }
-        } catch (err: any) {
-            console.error('RPC Error:', err);
-            setErrorMsg("FALHA NA ASSINATURA");
-            setPhase('ENLIST');
         }
     };
 
@@ -319,21 +298,26 @@ export function InviteFlow() {
         setPhase('SUBMITTING_ENLIST');
 
         try {
-            let emailToUse = email.trim();
-            if (!emailToUse.includes('@')) {
-                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
+            let activeUserId = user?.id;
+
+            if (!activeUserId) {
+                let emailToUse = email.trim();
+                if (!emailToUse.includes('@')) {
+                    emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
+                }
+
+                const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
+
+                const { data: authData, error: authError } = await supabase.auth.signUp({ 
+                    email: emailToUse, 
+                    password: autoPassword 
+                });
+
+                if (authError) throw authError;
+                activeUserId = authData.user?.id;
             }
 
-            const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
-
-            const { data: authData, error: authError } = await supabase.auth.signUp({ 
-                email: emailToUse, 
-                password: autoPassword 
-            });
-
-            if (authError) throw authError;
-
-            if (authData.user) {
+            if (activeUserId) {
                 const rawFirst = nameParts[0];
                 const rawLast = nameParts.slice(1).join(' ');
 
@@ -344,40 +328,34 @@ export function InviteFlow() {
 
                 const teamColor = selectedTeamColor || '#000000';
 
-                const { error: profileError } = await supabase.from('profiles').update({
+                // Garante perfil atualizado e pronto para a assinatura de contrato
+                const { error: profileError } = await supabase.from('profiles').upsert({
+                    id: activeUserId,
                     first_name: cleanFirstName,
                     last_name: cleanLastName,
                     nationality: null,
                     org_color: teamColor,
                     setup_completed: false, 
                     slug: slug
-                }).eq('id', authData.user.id);
+                });
 
-                if (profileError) {
-                    await supabase.from('profiles').upsert({
-                        id: authData.user.id,
-                        first_name: cleanFirstName,
-                        last_name: cleanLastName,
-                        nationality: null,
-                        org_color: teamColor,
-                        setup_completed: false, 
-                        slug: slug
-                    });
-                }
+                if (profileError) throw profileError;
 
                 if (selectedTeamId) {
-                    try {
-                        await supabase.rpc('sign_initial_contract', { p_team_id: selectedTeamId });
-                    } catch (rpcErr) {
-                        console.warn('RPC post-signup error:', rpcErr);
+                    const { error: rpcErr } = await supabase.rpc('sign_initial_contract', { p_team_id: selectedTeamId });
+                    if (rpcErr) {
+                        console.error('RPC Error:', rpcErr);
+                        throw rpcErr;
                     }
                 }
                 
                 window.location.href = `/${slug}`;
+            } else {
+                throw new Error("FALHA AO OBTER IDENTIFICAÇÃO DO USUÁRIO");
             }
         } catch (err: any) {
             console.error(err);
-            setErrorMsg(err.message || "ERRO CRÍTICO");
+            setErrorMsg(err.message || "ERRO NA EMISSÃO DA SUPERLICENÇA");
             setPhase('ENLIST');
         }
     };
