@@ -703,7 +703,7 @@ export default function PlaygroundPage() {
                             <button 
                                 onClick={() => setActiveTab('history')}
                                 className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'history' ? 'ring-2 scale-[1.02]' : 'hover:scale-[1.02]'}`}
-                                style={{ borderColor: `${teamColor}60`, ringColor: teamColor }}
+                                style={{ borderColor: `${teamColor}60` }}
                             >
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: teamColor }}>Milesimus</span>

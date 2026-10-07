@@ -72,8 +72,19 @@ function buildSeries(key: string, n = 24, base = 100, vol = 0.12) {
     return out;
 }
 
-const pct = (a: number, b: number) => (b === 0 ? 0 : ((a - b) / b) * 100);
-const fmt = (v: number) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pct = (a: number | undefined | null, b: number | undefined | null) => {
+    const valA = typeof a === 'number' && isFinite(a) ? a : 0;
+    const valB = typeof b === 'number' && isFinite(b) ? b : 0;
+    return valB === 0 ? 0 : ((valA - valB) / valB) * 100;
+};
+
+const fmt = (v: number | undefined | null) => {
+    if (typeof v === 'number' && !isNaN(v) && isFinite(v)) {
+        return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    return '0,00';
+};
+
 const ratingFor = (v: number) => (v >= 160 ? 'AAA' : v >= 130 ? 'AA' : v >= 105 ? 'A' : v >= 85 ? 'BBB' : v >= 65 ? 'BB' : 'B');
 
 /* ---------- Tipos ---------- */
@@ -94,7 +105,7 @@ type MainTab = 'quotes' | 'book' | 'radio' | 'history' | 'teamwork';
 const DEMO_NAMES = ['M. KOVAC', 'J. TANAKA', 'R. SILVA', 'A. BERG', 'L. MOREAU', 'D. OKAFOR', 'I. PETROVA', 'C. VEGA', 'T. NAKAMURA', 'H. LINDQVIST'];
 
 function makeStrategist(id: string, name: string, slug: string | null, teamId: string | undefined, groupId: number, isDemo = false): Strategist {
-    const team = F1_TEAMS.find(t => t.id === teamId) || F1_TEAMS[hashString(id) % F1_TEAMS.length];
+    const team = F1_TEAMS.find(t => t.id === teamId || t.logo === teamId) || F1_TEAMS[hashString(id) % F1_TEAMS.length];
     return {
         id, slug, name, isDemo, groupId,
         teamCode: team.logo, teamName: team.name, teamColor: team.color,
@@ -176,6 +187,9 @@ function Delta({ value, className = '' }: { value: number; className?: string })
 }
 
 function Sparkline({ data, width = 90, height = 26, strokeColor }: { data: number[]; width?: number; height?: number; strokeColor?: string }) {
+    if (!data || data.length < 2) {
+        return <div style={{ width, height }} />;
+    }
     const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
     const pts = data.map((v, i) => `${(i / (data.length - 1)) * width},${height - ((v - min) / r) * height}`).join(' ');
     const up = data[data.length - 1] >= data[0];
@@ -209,6 +223,14 @@ function TypewriterText({ text, speed = 24 }: { text: string; speed?: number }) 
 
 /* ---------- Gráfico principal ---------- */
 function PriceChart({ data, startRound, teamColor }: { data: number[]; startRound: number; teamColor?: string }) {
+    if (!data || data.length < 2) {
+        return (
+            <div className="w-full h-[200px] md:h-[240px] flex items-center justify-center text-xs text-white/30 font-mono">
+                &gt;_ CARREGANDO SÉRIE DE COTAÇÃO DO ESTRATEGISTA...
+            </div>
+        );
+    }
+
     const [hover, setHover] = useState<number | null>(null);
     const W = 600, H = 220;
     const min = Math.min(...data), max = Math.max(...data);
@@ -219,7 +241,8 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
     const line = data.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
     const area = `${line} L${W},${H} L0,${H} Z`;
     const stroke = teamColor || '#fbaa19';
-    const idx = hover ?? data.length - 1;
+    const idx = hover !== null && hover >= 0 && hover < data.length ? hover : data.length - 1;
+    const activeVal = data[idx] ?? data[data.length - 1] ?? 0;
 
     const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
         const r = e.currentTarget.getBoundingClientRect();
@@ -245,10 +268,10 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
             </svg>
 
             {/* Marcador */}
-            <div className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full border-2 border-black pointer-events-none" style={{ left: `${(x(idx) / W) * 100}%`, top: `${(y(data[idx]) / H) * 100}%`, background: stroke, boxShadow: `0 0 12px ${stroke}` }} />
+            <div className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full border-2 border-black pointer-events-none" style={{ left: `${(x(idx) / W) * 100}%`, top: `${(y(activeVal) / H) * 100}%`, background: stroke, boxShadow: `0 0 12px ${stroke}` }} />
 
             <div className="absolute top-2 pointer-events-none text-[10px] font-bold tracking-widest bg-black/80 border px-2 py-1 rounded" style={{ left: `clamp(0px, calc(${(x(idx) / W) * 100}% - 48px), calc(100% - 96px))`, borderColor: `${stroke}40` }}>
-                <span className="text-white/50">R{startRound + idx}</span> <span className="text-white">{fmt(data[idx])}</span>
+                <span className="text-white/50">R{startRound + idx}</span> <span className="text-white">{fmt(activeVal)}</span>
             </div>
 
             <div className="absolute right-1 top-0 bottom-0 flex flex-col justify-between py-1 text-[9px] text-white/30 tabular-nums pointer-events-none">
@@ -261,7 +284,7 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 
 /* ---------- Credencial / Capacete ---------- */
 function CredentialCard({ me, number, allianceId }: { me: Strategist; number: string; allianceId: AllianceId }) {
-    const last = me.series[me.series.length - 1];
+    const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const [avatarVariant, setAvatarVariant] = useState<AvatarVariant>('team');
 
     return (
@@ -364,26 +387,18 @@ export default function OfficialStrategistDashboard() {
 
         const loadDashboard = async () => {
             try {
-                // 1. Busca perfil pelo slug da URL
+                // 1. Busca perfil pelo slug da URL de forma resiliente
                 let profileData: any = null;
                 if (targetSlug) {
+                    const clean = targetSlug.replace('@', '');
                     const { data: pBySlug } = await supabase
                         .from('profiles')
                         .select('*')
-                        .eq('slug', targetSlug)
+                        .or(`slug.eq.${targetSlug},slug.eq.${clean},slug.ilike.${targetSlug},slug.ilike.${clean}`)
                         .maybeSingle();
 
                     if (pBySlug) {
                         profileData = pBySlug;
-                    } else {
-                        // Tenta sem o @ caso o slug tenha sido gravado sem o caractere
-                        const clean = targetSlug.replace('@', '');
-                        const { data: pByClean } = await supabase
-                            .from('profiles')
-                            .select('*')
-                            .eq('slug', clean)
-                            .maybeSingle();
-                        profileData = pByClean;
                     }
                 }
 
@@ -399,28 +414,31 @@ export default function OfficialStrategistDashboard() {
 
                 setTargetProfile(profileData);
 
-                // 3. Se é o próprio usuário e ainda não completou setup / contrato, redireciona para alocação
-                if (user && profileData && user.id === profileData.id && profileData.setup_completed === false) {
-                    window.location.replace('/headquarters');
-                    return;
-                }
-
-                // 4. Busca todos os contratos ativos no grid
+                // 3. Busca todos os contratos ativos no grid
                 const { data: contracts } = await supabase
                     .from('contracts')
                     .select('user_id, group_id, team_id, profiles(slug, first_name, last_name, driver_number)');
 
                 const realStrategists: Strategist[] = (contracts || []).map((c: any) => {
-                    const p = c.profiles || {};
+                    const p = Array.isArray(c.profiles) ? c.profiles[0] || {} : c.profiles || {};
                     const name = p.first_name ? `${p.first_name.charAt(0)}. ${p.last_name || ''}`.trim() : 'ESTRATEGISTA';
                     return makeStrategist(c.user_id, name.toUpperCase(), p.slug || null, c.team_id, c.group_id || 1);
                 });
 
+                // Verifica se o usuário atual já possui contrato assinado
+                const userContract = (contracts || []).find((c: any) => c.user_id === (profileData?.id || user?.id));
+
+                // 4. Se o usuário atual está sem contrato assinado E não completou setup, vai para headquarters
+                if (user && profileData && user.id === profileData.id) {
+                    if (!userContract && profileData.setup_completed === false) {
+                        window.location.replace('/headquarters');
+                        return;
+                    }
+                }
+
                 // 5. Determina o estrategista da página atual
                 let currentStrategist: Strategist | null = null;
                 if (profileData) {
-                    // Contrato do piloto atual
-                    const userContract = (contracts || []).find((c: any) => c.user_id === profileData.id);
                     const name = profileData.first_name 
                         ? `${profileData.first_name.charAt(0)}. ${profileData.last_name || ''}`.trim().toUpperCase() 
                         : (profileData.slug ? profileData.slug.replace('@', '').toUpperCase() : 'ESTRATEGISTA');
@@ -439,7 +457,14 @@ export default function OfficialStrategistDashboard() {
 
                 const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null, F1_TEAMS[i % F1_TEAMS.length].id, 1, true));
                 if (!currentStrategist) {
-                    currentStrategist = makeStrategist('demo-visitor', targetSlug ? targetSlug.replace('@', '').toUpperCase() : 'VISITANTE', targetSlug || null, F1_TEAMS[1].id, 1, true);
+                    currentStrategist = makeStrategist(
+                        'demo-visitor', 
+                        targetSlug ? targetSlug.replace('@', '').toUpperCase() : 'VISITANTE', 
+                        targetSlug || null, 
+                        F1_TEAMS[1].id, 
+                        1, 
+                        true
+                    );
                 }
 
                 setMe(currentStrategist);
@@ -459,7 +484,8 @@ export default function OfficialStrategistDashboard() {
     const allianceId = allianceForCode(me?.teamCode);
     const teamColor = me?.teamColor || '#fbaa19';
     const series = me ? me.series.slice(-range) : [];
-    const last = series[series.length - 1] ?? 0;
+    const last = series.length > 0 ? series[series.length - 1] ?? 0 : 0;
+    const prev = me && me.series.length >= 2 ? me.series[me.series.length - 2] ?? last : last;
     const isDemo = !targetProfile && (!user || !!me?.isDemo);
 
     // Métricas das 4 competições baseadas no ID do usuário
@@ -539,8 +565,8 @@ export default function OfficialStrategistDashboard() {
         const list = field.length ? field : [];
         return list.map(s => ({
             sym: `$${(s.slug || s.name).replace(/[@.\s]/g, '').toUpperCase()}`,
-            price: s.series[s.series.length - 1],
-            chg: pct(s.series[s.series.length - 1], s.series[s.series.length - 2]),
+            price: s.series.length > 0 ? s.series[s.series.length - 1] : 100,
+            chg: s.series.length >= 2 ? pct(s.series[s.series.length - 1], s.series[s.series.length - 2]) : 0,
         }));
     }, [field]);
 
@@ -548,7 +574,11 @@ export default function OfficialStrategistDashboard() {
         if (!me) return [];
         const pool = field.filter(s => s.groupId === me.groupId && s.id !== me.id);
         return [...pool, me]
-            .map(s => ({ s, v: s.series[s.series.length - 1], c: pct(s.series[s.series.length - 1], s.series[s.series.length - 2]) }))
+            .map(s => {
+                const sLast = s.series.length > 0 ? s.series[s.series.length - 1] : 100;
+                const sPrev = s.series.length >= 2 ? s.series[s.series.length - 2] : sLast;
+                return { s, v: sLast, c: pct(sLast, sPrev) };
+            })
             .sort((a, b) => b.v - a.v);
     }, [field, me]);
 
@@ -577,15 +607,15 @@ export default function OfficialStrategistDashboard() {
 
     const feed = useMemo(() => {
         if (!me) return [''];
-        const chg = pct(me.series[me.series.length - 1], me.series[me.series.length - 2]);
+        const chg = pct(last, prev);
         return [
             `Bom dia, ${me.name}. Sua cotação ${chg >= 0 ? 'subiu' : 'recuou'} ${Math.abs(chg).toFixed(2)}% desde o último GP.`,
-            `O ${ALLIANCES[allianceId].name} acompanha seus relatórios. Mantenha o rating ${ratingFor(me.series[me.series.length - 1])} no Master.`,
+            `O ${ALLIANCES[allianceId].name} acompanha seus relatórios. Mantenha o rating ${ratingFor(last)} no Master.`,
             `Competições ativas: Poletime, Master, Milesimus e Teamwork com inscrições sincronizadas.`,
             `O ${getChampionGroupName(me.groupId)} ainda tem assentos abertos. A concorrência no grid vai aumentar.`,
             `Lembre-se: quem prevê o caos, fatura o campeonato. Abra suas posições antes do fechamento do mercado.`,
         ];
-    }, [me, allianceId]);
+    }, [me, allianceId, last, prev]);
 
     const feedTimer = useRef<ReturnType<typeof setInterval> | null>(null);
     useEffect(() => {
@@ -932,8 +962,8 @@ export default function OfficialStrategistDashboard() {
                                                     <p className="text-[10px] tracking-widest text-white/40 mt-0.5">VARIAÇÃO ÚLTIMO GP · SPREAD 0.08</p>
                                                 </div>
                                                 <div className="flex items-center gap-4 text-[10px] tracking-widest">
-                                                    <div><span className="text-white/40">MÁX:</span> <span className="font-bold">{fmt(Math.max(...series))}</span></div>
-                                                    <div><span className="text-white/40">MÍN:</span> <span className="font-bold">{fmt(Math.min(...series))}</span></div>
+                                                    <div><span className="text-white/40">MÁX:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.max(...series) : 0)}</span></div>
+                                                    <div><span className="text-white/40">MÍN:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.min(...series) : 0)}</span></div>
                                                     <div><span className="text-white/40">VOL:</span> <span className="font-bold">{series.length * 12}K</span></div>
                                                 </div>
                                             </div>
@@ -1036,7 +1066,7 @@ export default function OfficialStrategistDashboard() {
                                                     <span style={{ color: teamColor }}>{compStats?.teamwork.duoRank} / 11 DUPLAS</span>
                                                 </div>
                                                 <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${compStats?.teamwork.synergy}%`, backgroundColor: teamColor }} />
+                                                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${compStats?.teamwork.synergy || 0}%`, backgroundColor: teamColor }} />
                                                 </div>
                                             </div>
                                         </div>
