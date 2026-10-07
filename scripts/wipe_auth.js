@@ -11,22 +11,44 @@ const supabase = createClient(
   }
 )
 
-async function wipeAuthUsers() {
-    const { data: { users }, error } = await supabase.auth.admin.listUsers();
-    if (error) {
-        console.error("Error fetching users:", error);
+async function wipeDatabase() {
+    console.log("Iniciando limpeza completa do banco de dados...");
+
+    // 1. Limpa apostas / previsões
+    const { error: errPred } = await supabase.from('predictions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (errPred) console.warn("Aviso ao limpar predictions:", errPred.message);
+    else console.log("✓ Tabela 'predictions' limpa com sucesso.");
+
+    // 2. Limpa contratos
+    const { error: errCont } = await supabase.from('contracts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (errCont) console.warn("Aviso ao limpar contracts:", errCont.message);
+    else console.log("✓ Tabela 'contracts' limpa com sucesso.");
+
+    // 3. Limpa perfis públicos
+    const { error: errProf } = await supabase.from('profiles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (errProf) console.warn("Aviso ao limpar profiles:", errProf.message);
+    else console.log("✓ Tabela 'profiles' limpa com sucesso.");
+
+    // 4. Limpa todos os usuários cadastrados no Supabase Auth
+    const { data: { users }, error: errUsers } = await supabase.auth.admin.listUsers();
+    if (errUsers) {
+        console.error("Erro ao listar auth.users:", errUsers);
         return;
     }
-    console.log(`Found ${users.length} users to delete.`);
+
+    console.log(`Encontrados ${users.length} usuários em auth.users para remoção.`);
     for (const u of users) {
         const { error: delError } = await supabase.auth.admin.deleteUser(u.id);
         if (delError) {
-            console.log(`Failed to delete ${u.email}:`, delError);
+            console.log(`Falha ao remover ${u.email}:`, delError.message);
         } else {
-            console.log(`Deleted ${u.email}`);
+            console.log(`✓ Removido auth user: ${u.email}`);
         }
     }
-    console.log("Auth users wiped!");
+
+    console.log("\n==========================================");
+    console.log("BANCO DE DADOS E AUTH ZERADOS COM SUCESSO!");
+    console.log("==========================================\n");
 }
 
-wipeAuthUsers();
+wipeDatabase();
