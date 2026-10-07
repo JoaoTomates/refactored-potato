@@ -44,7 +44,17 @@ class PitWallSoundEngine {
 
 export const retroSound = new PitWallSoundEngine();
 
-export function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 150 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
+export function TypewriterLine({ 
+    text, 
+    onComplete, 
+    onReadyForNext, 
+    startDelay = 150 
+}: { 
+    text: string, 
+    onComplete?: () => void, 
+    onReadyForNext?: () => void, 
+    startDelay?: number 
+}) {
     const [displayed, setDisplayed] = useState("");
     const [isTyping, setIsTyping] = useState(true);
     const callbacksRef = useRef({ onComplete, onReadyForNext });
@@ -53,10 +63,27 @@ export function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 
         callbacksRef.current = { onComplete, onReadyForNext };
     }, [onComplete, onReadyForNext]);
 
+    const finishImmediately = useRef(() => {
+        setIsTyping(false);
+        setDisplayed(text);
+        if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
+        if (callbacksRef.current.onComplete) callbacksRef.current.onComplete();
+    });
+
     useEffect(() => {
         let i = 0;
         let timeoutId: NodeJS.Timeout;
         let isCancelled = false;
+
+        finishImmediately.current = () => {
+            if (isCancelled) return;
+            isCancelled = true;
+            clearTimeout(timeoutId);
+            setIsTyping(false);
+            setDisplayed(text);
+            if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
+            if (callbacksRef.current.onComplete) callbacksRef.current.onComplete();
+        };
 
         const typeNext = () => {
             if (isCancelled) return;
@@ -93,7 +120,13 @@ export function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 
     }, [text, startDelay]);
 
     return (
-        <span className="opacity-90 leading-relaxed relative whitespace-pre-wrap">
+        <span 
+            onClick={() => {
+                if (isTyping) finishImmediately.current();
+            }}
+            className="opacity-90 leading-relaxed relative whitespace-pre-wrap cursor-pointer"
+            title={isTyping ? "Clique para exibir o texto completo imediatamente" : undefined}
+        >
             {displayed}
             {isTyping && <span className="text-[#fbaa19] animate-pulse ml-1 inline-block translate-y-[2px]">■</span>}
         </span>
@@ -121,8 +154,9 @@ export function InviteFlow() {
     const [dialogPage, setDialogPage] = useState<1 | 2 | 3>(1);
     const [pageStep, setPageStep] = useState<number>(1);
     const [isPageClearing, setIsPageClearing] = useState(false);
-    const [pageAutoAdvanceReady, setPageAutoAdvanceReady] = useState(false);
+    const [autoAdvanceRemaining, setAutoAdvanceRemaining] = useState<number | null>(null);
     const advanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const [typingComplete, setTypingComplete] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
@@ -134,9 +168,17 @@ export function InviteFlow() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const initialCheckDone = useRef(false);
 
+    const clearAllTimers = () => {
+        if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        advanceTimeoutRef.current = null;
+        intervalRef.current = null;
+        setAutoAdvanceRemaining(null);
+    };
+
     useEffect(() => {
         return () => {
-            if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
+            clearAllTimers();
         };
     }, []);
 
@@ -186,9 +228,30 @@ export function InviteFlow() {
         }
     }, [dialogPage, pageStep, phase]);
 
+    // Inicia a contagem de 10 segundos antes da transição automática
+    const start10SecondAutoAdvance = (targetPage: 1 | 2 | 3) => {
+        clearAllTimers();
+        setAutoAdvanceRemaining(10);
+
+        let secondsLeft = 10;
+        intervalRef.current = setInterval(() => {
+            secondsLeft -= 1;
+            if (secondsLeft <= 0) {
+                if (intervalRef.current) clearInterval(intervalRef.current);
+                setAutoAdvanceRemaining(null);
+            } else {
+                setAutoAdvanceRemaining(secondsLeft);
+            }
+        }, 1000);
+
+        advanceTimeoutRef.current = setTimeout(() => {
+            clearAllTimers();
+            changeToPage(targetPage);
+        }, 10000); // Exatos 10 segundos de pausa
+    };
+
     const changeToPage = (nextPage: 1 | 2 | 3) => {
-        if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
-        setPageAutoAdvanceReady(false);
+        clearAllTimers();
         setIsPageClearing(true);
         setTimeout(() => {
             setDialogPage(nextPage);
@@ -197,20 +260,40 @@ export function InviteFlow() {
             if (typeof window !== 'undefined') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        }, 300);
+        }, 350);
     };
 
     const startAutoDialog = () => {
+        clearAllTimers();
         retroSound.init();
         setPhase('AUTO_DIALOG');
         setDialogPage(1);
         setPageStep(1);
-        setPageAutoAdvanceReady(false);
         setIsPageClearing(false);
+    };
+
+    // Ao clicar em voltar para selecionar uma nova aliança, limpa a tela e recomeça o diálogo
+    const handleBackAndRestartDialogue = () => {
+        clearAllTimers();
+        retroSound.init();
+        setSelectedGroup(null);
+        setTypingComplete(false);
+        setIsPageClearing(true);
+
+        setTimeout(() => {
+            setPhase('AUTO_DIALOG');
+            setDialogPage(1);
+            setPageStep(1);
+            setIsPageClearing(false);
+            if (typeof window !== 'undefined') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, 350);
     };
 
     // 1. Ao escolher a aliança, recebe a mensagem do Diretor e abre o formulário
     const handleSelectAlliance = (groupId: 'A' | 'B' | 'C') => {
+        clearAllTimers();
         retroSound.init();
         setSelectedGroup(groupId);
         setErrorMsg("");
@@ -224,7 +307,7 @@ export function InviteFlow() {
             if (typeof window !== 'undefined') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        }, 300);
+        }, 350);
     };
 
     const isValidNamePart = (val: string) => {
@@ -317,7 +400,7 @@ export function InviteFlow() {
                 if (typeof window !== 'undefined') {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
-            }, 300);
+            }, 350);
 
         } catch (err: any) {
             console.error(err);
@@ -336,22 +419,28 @@ export function InviteFlow() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
+            {/* FASE INTRO: Puxe uma cadeira e feche a porta */}
             {phase === 'INTRO' && (
                 <div className="absolute bottom-[25%] md:bottom-[30%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
-                    <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                    <div 
+                        onClick={startAutoDialog}
+                        className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest cursor-pointer group"
+                    >
                         <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                         <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
 
-                        {introReady && (
-                            <div className="mt-5 flex justify-end animate-fade-in">
-                                <button
-                                    onClick={startAutoDialog}
-                                    className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
-                                >
-                                    [ CONTINUAR ] »
-                                </button>
-                            </div>
-                        )}
+                        {/* Botão de avanço imediato sempre disponível */}
+                        <div className="mt-5 flex justify-end animate-fade-in">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    startAutoDialog();
+                                }}
+                                className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse p-1"
+                            >
+                                [ CONTINUAR ] »
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -363,44 +452,58 @@ export function InviteFlow() {
                     {dialogPage === 1 && (
                         <>
                             {pageStep >= 1 && (
-                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                <div 
+                                    onClick={() => setPageStep(2)}
+                                    className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest cursor-pointer group hover:border-[#fbaa19]/60 transition-colors"
+                                    title="Clique para avançar para a próxima fala"
+                                >
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
                                         text={customDialogs[1]}
                                         startDelay={150}
                                         onReadyForNext={() => {
-                                            setTimeout(() => setPageStep(2), 400);
+                                            setTimeout(() => setPageStep(2), 300);
                                         }}
                                     />
                                 </div>
                             )}
 
                             {pageStep >= 2 && (
-                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                <div 
+                                    onClick={() => changeToPage(2)}
+                                    className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest cursor-pointer group hover:border-[#fbaa19]/60 transition-colors"
+                                    title="Clique para avançar imediatamente para a próxima página"
+                                >
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
                                         text={customDialogs[2]}
                                         startDelay={150}
                                         onReadyForNext={() => {
-                                            setPageAutoAdvanceReady(true);
-                                            advanceTimeoutRef.current = setTimeout(() => {
-                                                changeToPage(2);
-                                            }, 1400);
+                                            // Pausa de 10 segundos antes de mudar automaticamente
+                                            start10SecondAutoAdvance(2);
                                         }}
                                     />
                                 </div>
                             )}
 
-                            {pageAutoAdvanceReady && (
-                                <div className="flex justify-end animate-fade-in">
-                                    <button
-                                        onClick={() => changeToPage(2)}
-                                        className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
-                                    >
-                                        [ AVANÇAR ] »
-                                    </button>
-                                </div>
-                            )}
+                            {/* Botão de avanço imediato sempre acessível */}
+                            <div className="flex items-center justify-between animate-fade-in pt-1">
+                                {autoAdvanceRemaining !== null && autoAdvanceRemaining > 0 ? (
+                                    <span className="text-[11px] text-white/40 font-mono tracking-widest">
+                                        Transição automática em <strong className="text-[#fbaa19]">{autoAdvanceRemaining}s</strong>...
+                                    </span>
+                                ) : (
+                                    <span />
+                                )}
+
+                                <button
+                                    onClick={() => changeToPage(2)}
+                                    className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse p-2 rounded cursor-pointer ml-auto"
+                                    title="Avançar imediatamente sem aguardar"
+                                >
+                                    [ AVANÇAR ] »
+                                </button>
+                            </div>
                         </>
                     )}
 
@@ -408,44 +511,58 @@ export function InviteFlow() {
                     {dialogPage === 2 && (
                         <>
                             {pageStep >= 1 && (
-                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                <div 
+                                    onClick={() => setPageStep(2)}
+                                    className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest cursor-pointer group hover:border-[#fbaa19]/60 transition-colors"
+                                    title="Clique para avançar para a próxima fala"
+                                >
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
                                         text={customDialogs[3]}
                                         startDelay={150}
                                         onReadyForNext={() => {
-                                            setTimeout(() => setPageStep(2), 400);
+                                            setTimeout(() => setPageStep(2), 300);
                                         }}
                                     />
                                 </div>
                             )}
 
                             {pageStep >= 2 && (
-                                <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
+                                <div 
+                                    onClick={() => changeToPage(3)}
+                                    className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest cursor-pointer group hover:border-[#fbaa19]/60 transition-colors"
+                                    title="Clique para avançar imediatamente para as propostas"
+                                >
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
                                         text={customDialogs[4]}
                                         startDelay={150}
                                         onReadyForNext={() => {
-                                            setPageAutoAdvanceReady(true);
-                                            advanceTimeoutRef.current = setTimeout(() => {
-                                                changeToPage(3);
-                                            }, 1400);
+                                            // Pausa de 10 segundos antes de mudar automaticamente para as alianças
+                                            start10SecondAutoAdvance(3);
                                         }}
                                     />
                                 </div>
                             )}
 
-                            {pageAutoAdvanceReady && (
-                                <div className="flex justify-end animate-fade-in">
-                                    <button
-                                        onClick={() => changeToPage(3)}
-                                        className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
-                                    >
-                                        [ VER ALIANÇAS ] »
-                                    </button>
-                                </div>
-                            )}
+                            {/* Botão de avanço imediato sempre acessível */}
+                            <div className="flex items-center justify-between animate-fade-in pt-1">
+                                {autoAdvanceRemaining !== null && autoAdvanceRemaining > 0 ? (
+                                    <span className="text-[11px] text-white/40 font-mono tracking-widest">
+                                        Transição automática em <strong className="text-[#fbaa19]">{autoAdvanceRemaining}s</strong>...
+                                    </span>
+                                ) : (
+                                    <span />
+                                )}
+
+                                <button
+                                    onClick={() => changeToPage(3)}
+                                    className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse p-2 rounded cursor-pointer ml-auto"
+                                    title="Ver propostas de alianças imediatamente"
+                                >
+                                    [ VER ALIANÇAS ] »
+                                </button>
+                            </div>
                         </>
                     )}
 
@@ -476,7 +593,7 @@ export function InviteFlow() {
                                                 startDelay={150}
                                                 onReadyForNext={() => {
                                                     if (stepNeeded < 3) {
-                                                        setTimeout(() => setPageStep(stepNeeded + 1), 600);
+                                                        setTimeout(() => setPageStep(stepNeeded + 1), 400);
                                                     }
                                                 }}
                                             />
@@ -525,14 +642,14 @@ export function InviteFlow() {
                             <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
                                 <TypewriterLine 
                                     text={ENGINE_FACTIONS[selectedGroup].directorResponse} 
-                                    startDelay={250} 
+                                    startDelay={200} 
                                     onReadyForNext={() => setTypingComplete(true)} 
                                 />
                             </div>
                         </div>
 
                         {/* Formulário de Emissão da Superlicença */}
-                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full transition-opacity duration-700 ${typingComplete ? 'opacity-100' : 'opacity-80'}`}>
+                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full transition-opacity duration-700 ${typingComplete ? 'opacity-100' : 'opacity-85'}`}>
                             
                             <div className="border-b border-white/5 pb-2">
                                 <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
@@ -599,21 +716,15 @@ export function InviteFlow() {
                                         [ TRANSMITIR CREDENCIAIS & EMITIR SUPERLICENÇA ] »
                                     </button>
 
+                                    {/* Botão VOLTAR: Limpa a tela e recomeça o diálogo de cima para baixo */}
                                     <div className="flex justify-between items-center pt-2">
                                         <button
                                             type="button"
-                                            onClick={() => {
-                                                setIsPageClearing(true);
-                                                setTimeout(() => {
-                                                    setPhase('AUTO_DIALOG');
-                                                    setDialogPage(3);
-                                                    setPageStep(3);
-                                                    setIsPageClearing(false);
-                                                }, 250);
-                                            }}
+                                            onClick={handleBackAndRestartDialogue}
                                             className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
+                                            title="Zerar tela e recomeçar o diálogo"
                                         >
-                                            « [ ESCOLHER OUTRA ALIANÇA ]
+                                            « [ VOLTAR E REINICIAR DIÁLOGO ]
                                         </button>
                                     </div>
                                 </>
@@ -690,16 +801,10 @@ export function InviteFlow() {
 
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setIsPageClearing(true);
-                                    setTimeout(() => {
-                                        setPhase('ENLIST');
-                                        setIsPageClearing(false);
-                                    }, 250);
-                                }}
-                                className="text-gray-500 hover:text-gray-300 text-[11px] uppercase tracking-widest transition-colors text-center"
+                                onClick={handleBackAndRestartDialogue}
+                                className="text-gray-500 hover:text-gray-300 text-[11px] uppercase tracking-widest transition-colors text-center cursor-pointer"
                             >
-                                Digitei o e-mail errado? Clique aqui para corrigir
+                                « Deseja escolher outra aliança? Clique aqui para reiniciar o diálogo
                             </button>
                         </div>
                     </div>
