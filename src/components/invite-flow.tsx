@@ -6,39 +6,39 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
-  ctx: AudioContext | null = null;
-  enabled: boolean = true;
+    ctx: AudioContext | null = null;
+    enabled: boolean = true;
 
-  init() {
-    if (typeof window === 'undefined') return;
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
+    init() {
+        if (typeof window === 'undefined') return;
+        if (!this.ctx) {
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+
+    playKeyClick(char = 'a') {
+        if (!this.enabled || !this.ctx) return;
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const code = char.charCodeAt(0) || 65;
+            const freq = 380 + (code % 28) * 14;
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.028);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.03);
+        } catch (_) { }
     }
-  }
-
-  playKeyClick(char = 'a') {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      const code = char.charCodeAt(0) || 65;
-      const freq = 380 + (code % 28) * 14;
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.028);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.03);
-    } catch (_) {}
-  }
 }
 
 const retroSound = new PitWallSoundEngine();
@@ -49,63 +49,63 @@ const customDialogs = [
     "Puxe uma cadeira e feche a porta.",
     "Os relatórios da sua telemetria caíram na minha mesa. Seus números são impressionantes.",
     "Você decifra o traçado antes mesmo das luzes vermelhas se apagarem.",
-    "Mas o novo regulamento de motores deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
+    "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
     "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
 ];
 
 const ALLIANCE_KEYS: ('A' | 'B' | 'C')[] = ['A', 'B', 'C'];
 
 const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', any> = {
-  A: {
-    id: 'A',
-    badge: 'BLOCO A',
-    title: 'CONSÓRCIO DA ESTRELA',
-    sub: '"Confiabilidade de Aço & Engenharia Teutônica"',
-    engineSpec: 'Mercedes-AMG High Performance Powertrains V6 Hybrid',
-    teamsString: 'Mercedes • McLaren • Alpine • Williams',
-    teams: ['MER', 'MCL', 'ALP', 'WIL'],
-    teamDetails: [
-      { code: 'MER', name: 'Mercedes', color: '#00D2BE' },
-      { code: 'MCL', name: 'McLaren', color: '#FF8000' },
-      { code: 'ALP', name: 'Alpine', color: '#FD4BC7' },
-      { code: 'WIL', name: 'Williams', color: '#005AFF' }
-    ],
-    fantasyPerk: '+15% de rendimento em previsões de consistência cirúrgica.',
-    directorResponse: '“Decisão metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens compartilhando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
-  },
-  B: {
-    id: 'B',
-    badge: 'BLOCO B',
-    title: 'A DINASTIA DE MARANELLO',
-    sub: '"Potência de Pico & A Frente Ítalo-Americana"',
-    engineSpec: 'Ferrari 067/3 Hybrid E-Turbo Speciale',
-    teamsString: 'Ferrari • Haas • Cadillac',
-    teams: ['FER', 'HAA', 'CAD'],
-    teamDetails: [
-      { code: 'FER', name: 'Ferrari', color: '#DC0000' },
-      { code: 'HAA', name: 'Haas', color: '#E6002B' },
-      { code: 'CAD', name: 'Cadillac', color: '#FFC80C' }
-    ],
-    fantasyPerk: 'Bônus dobrado (2x) em apostas arriscadas de Pole Position.',
-    directorResponse: '“Sangue quente. Você escolheu a mística de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou sua telemetria nos coloca na frente, ou a imprensa italiana te destrói.”'
-  },
-  C: {
-    id: 'C',
-    badge: 'BLOCO C',
-    title: 'A VANGUARDA',
-    sub: '"Ousadia Tecnológica & A Força do Caos"',
-    engineSpec: 'Red Bull Ford Powertrains / Honda / Audi F1 PU',
-    teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
-    teams: ['RBR', 'RBA', 'AST', 'AUD'],
-    teamDetails: [
-      { code: 'RBR', name: 'Red Bull', color: '#3671C6' },
-      { code: 'RBA', name: 'Racing Bulls', color: '#6692FF' },
-      { code: 'AST', name: 'Aston Martin', color: '#229971' },
-      { code: 'AUD', name: 'Audi', color: '#F50537' }
-    ],
-    fantasyPerk: '+25% de rendimento ao antecipar cenários de caos no traçado.',
-    directorResponse: '“Aprecio a ousadia. Você marchou direto para o terreno hostil de motores inéditos. Risco brutal, mas é exatamente no caos que os estrategistas lendários constroem dinastias.”'
-  }
+    A: {
+        id: 'A',
+        badge: 'BLOCO A',
+        title: 'CONSÓRCIO DA ESTRELA',
+        sub: '"Confiabilidade de Aço & Engenharia Teutônica"',
+        engineSpec: 'Mercedes-AMG High Performance Powertrains V6 Hybrid',
+        teamsString: 'Mercedes • McLaren • Alpine • Williams',
+        teams: ['MER', 'MCL', 'ALP', 'WIL'],
+        teamDetails: [
+            { code: 'MER', name: 'Mercedes', color: '#00D2BE' },
+            { code: 'MCL', name: 'McLaren', color: '#FF8000' },
+            { code: 'ALP', name: 'Alpine', color: '#FD4BC7' },
+            { code: 'WIL', name: 'Williams', color: '#005AFF' }
+        ],
+        fantasyPerk: '+15% de rendimento em previsões de consistência cirúrgica.',
+        directorResponse: '“Decisão metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens compartilhando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
+    },
+    B: {
+        id: 'B',
+        badge: 'BLOCO B',
+        title: 'A DINASTIA DE MARANELLO',
+        sub: '"Potência Máxima & A Frente Ítalo-Americana"',
+        engineSpec: 'Ferrari 067/3 Hybrid E-Turbo Speciale',
+        teamsString: 'Ferrari • Haas • Cadillac',
+        teams: ['FER', 'HAA', 'CAD'],
+        teamDetails: [
+            { code: 'FER', name: 'Ferrari', color: '#DC0000' },
+            { code: 'HAA', name: 'Haas', color: '#E6002B' },
+            { code: 'CAD', name: 'Cadillac', color: '#FFC80C' }
+        ],
+        fantasyPerk: 'Bônus dobrado (2x) em apostas arriscadas de Pole Position.',
+        directorResponse: '“Sangue quente. Você escolheu a mística de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou sua telemetria nos coloca na frente, ou a imprensa italiana te destrói.”'
+    },
+    C: {
+        id: 'C',
+        badge: 'BLOCO C',
+        title: 'A VANGUARDA',
+        sub: '"Ousadia Tecnológica & A Força do Caos"',
+        engineSpec: 'Red Bull Ford Powertrains / Honda / Audi F1 PU',
+        teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
+        teams: ['RBR', 'RBA', 'AST', 'AUD'],
+        teamDetails: [
+            { code: 'RBR', name: 'Red Bull', color: '#3671C6' },
+            { code: 'RBA', name: 'Racing Bulls', color: '#6692FF' },
+            { code: 'AST', name: 'Aston Martin', color: '#229971' },
+            { code: 'AUD', name: 'Audi', color: '#F50537' }
+        ],
+        fantasyPerk: '+25% de rendimento ao antecipar cenários de caos no traçado.',
+        directorResponse: '“Aprecio a ousadia. Você marchou direto para o terreno hostil de motores inéditos. Risco brutal, mas é exatamente no caos que os estrategistas lendários constroem dinastias.”'
+    }
 };
 
 function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 150 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
@@ -116,46 +116,46 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 150 }: 
     useEffect(() => {
         callbacksRef.current = { onComplete, onReadyForNext };
     }, [onComplete, onReadyForNext]);
-    
+
     useEffect(() => {
         let i = 0;
         let timeoutId: NodeJS.Timeout;
         let isCancelled = false;
-        
+
         const typeNext = () => {
             if (isCancelled) return;
             if (i < text.length) {
                 setDisplayed(text.slice(0, i + 1));
                 const char = text.charAt(i);
-                
+
                 if (char !== ' ' && char !== '\n') {
                     retroSound.playKeyClick(char);
                 }
-                
+
                 i++;
-                
-                let delay = (40 + Math.random() * 30); 
+
+                let delay = (40 + Math.random() * 30);
                 if (char === '.' || char === '!' || char === '?') delay = 400;
                 else if (char === ',' || char === '\n') delay = 200;
-                
+
                 timeoutId = setTimeout(typeNext, delay);
             } else {
                 setIsTyping(false);
                 if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
                 if (callbacksRef.current.onComplete) {
-                    setTimeout(callbacksRef.current.onComplete, 1000); 
+                    setTimeout(callbacksRef.current.onComplete, 1000);
                 }
             }
         };
-        
+
         timeoutId = setTimeout(typeNext, startDelay);
-        
+
         return () => {
             isCancelled = true;
             clearTimeout(timeoutId);
         };
     }, [text, startDelay]);
-    
+
     return (
         <span className="opacity-90 leading-relaxed relative whitespace-pre-wrap">
             {displayed}
@@ -166,10 +166,10 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 150 }: 
 
 export function InviteFlow() {
     const { user, isLoading: authLoading } = useSupabaseAuth();
-    
+
     const [phase, setPhase] = useState<Phase>('LOADING');
     const [introReady, setIntroReady] = useState(false);
-    
+
     // Paginação de diálogos com limpeza de tela:
     // dialogPage: 1 (Boxes 1 e 2), 2 (Boxes 3 e 4), 3 (Ofertas de Alianças: Bloco A, B, C)
     const [dialogPage, setDialogPage] = useState<1 | 2 | 3>(1);
@@ -177,17 +177,17 @@ export function InviteFlow() {
     const [isPageClearing, setIsPageClearing] = useState(false);
     const [pageAutoAdvanceReady, setPageAutoAdvanceReady] = useState(false);
     const advanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    
+
     const [typingComplete, setTypingComplete] = useState(false);
-    
+
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     const [selectedTeamColor, setSelectedTeamColor] = useState<string>('#000000');
-    
+
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-    
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const initialCheckDone = useRef(false);
 
@@ -223,7 +223,7 @@ export function InviteFlow() {
             }
             setPhase(prev => (prev === 'LOADING' ? 'INTRO' : prev));
         };
-        
+
         checkUserStatus();
     }, [authLoading, user]);
 
@@ -260,14 +260,14 @@ export function InviteFlow() {
         retroSound.init();
         setSelectedGroup(groupId);
         setErrorMsg("");
-        
+
         try {
             const { data: teamsData, error: teamsError } = await supabase.from('teams').select('*');
             if (teamsError) throw teamsError;
 
             const factionTeams = ENGINE_FACTIONS[groupId].teams;
             const factionTeamObjs = (teamsData || []).filter((t: any) => factionTeams.includes(t.code));
-            
+
             const chosenTeam = factionTeamObjs[0] || (teamsData || [])[0];
             const teamId = chosenTeam?.id || '';
             const teamColor = chosenTeam?.color || '#000000';
@@ -312,7 +312,7 @@ export function InviteFlow() {
         try {
             let emailToUse = email.trim();
             if (!emailToUse.includes('@')) {
-                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`; 
+                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`;
             }
 
             const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
@@ -320,11 +320,11 @@ export function InviteFlow() {
             // Desloga qualquer sessão anterior/fantasma do localStorage para garantir novo cadastro limpo
             try {
                 await supabase.auth.signOut();
-            } catch (_) {}
+            } catch (_) { }
 
-            const { data: authData, error: authError } = await supabase.auth.signUp({ 
-                email: emailToUse, 
-                password: autoPassword 
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: emailToUse,
+                password: autoPassword
             });
 
             if (authError) throw authError;
@@ -352,7 +352,7 @@ export function InviteFlow() {
                 last_name: cleanLastName,
                 nationality: null,
                 org_color: teamColor,
-                setup_completed: false, 
+                setup_completed: false,
                 slug: slug
             });
 
@@ -365,7 +365,7 @@ export function InviteFlow() {
                     throw rpcErr;
                 }
             }
-            
+
             window.location.href = `/${slug}`;
         } catch (err: any) {
             console.error(err);
@@ -376,8 +376,8 @@ export function InviteFlow() {
 
     return (
         <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center">
-            
-            <img 
+
+            <img
                 src="/pixel_invite_bg_v2.jpg"
                 alt=""
                 className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
@@ -389,10 +389,10 @@ export function InviteFlow() {
                     <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                         <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
                         <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
-                        
+
                         {introReady && (
                             <div className="mt-5 flex justify-end animate-fade-in">
-                                <button 
+                                <button
                                     onClick={startAutoDialog}
                                     className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
                                 >
@@ -405,21 +405,20 @@ export function InviteFlow() {
             )}
 
             {phase === 'AUTO_DIALOG' && (
-                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 md:mt-16 mb-24 px-4 transition-all duration-300 ${
-                    isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
-                }`}>
+                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 md:mt-16 mb-24 px-4 transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                    }`}>
                     {/* PÁGINA 1: Mérito e Telemetria (Boxes 1 e 2) */}
                     {dialogPage === 1 && (
                         <>
                             {pageStep >= 1 && (
                                 <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine 
-                                        text={customDialogs[1]} 
-                                        startDelay={150} 
+                                    <TypewriterLine
+                                        text={customDialogs[1]}
+                                        startDelay={150}
                                         onReadyForNext={() => {
                                             setTimeout(() => setPageStep(2), 400);
-                                        }} 
+                                        }}
                                     />
                                 </div>
                             )}
@@ -427,22 +426,22 @@ export function InviteFlow() {
                             {pageStep >= 2 && (
                                 <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine 
-                                        text={customDialogs[2]} 
-                                        startDelay={150} 
+                                    <TypewriterLine
+                                        text={customDialogs[2]}
+                                        startDelay={150}
                                         onReadyForNext={() => {
                                             setPageAutoAdvanceReady(true);
                                             advanceTimeoutRef.current = setTimeout(() => {
                                                 changeToPage(2);
                                             }, 1400);
-                                        }} 
+                                        }}
                                     />
                                 </div>
                             )}
 
                             {pageAutoAdvanceReady && (
                                 <div className="flex justify-end animate-fade-in">
-                                    <button 
+                                    <button
                                         onClick={() => changeToPage(2)}
                                         className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
                                     >
@@ -459,12 +458,12 @@ export function InviteFlow() {
                             {pageStep >= 1 && (
                                 <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine 
-                                        text={customDialogs[3]} 
-                                        startDelay={150} 
+                                    <TypewriterLine
+                                        text={customDialogs[3]}
+                                        startDelay={150}
                                         onReadyForNext={() => {
                                             setTimeout(() => setPageStep(2), 400);
-                                        }} 
+                                        }}
                                     />
                                 </div>
                             )}
@@ -472,22 +471,22 @@ export function InviteFlow() {
                             {pageStep >= 2 && (
                                 <div className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in text-white text-sm md:text-base font-bold tracking-widest">
                                     <span className="opacity-50 mr-3 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine 
-                                        text={customDialogs[4]} 
-                                        startDelay={150} 
+                                    <TypewriterLine
+                                        text={customDialogs[4]}
+                                        startDelay={150}
                                         onReadyForNext={() => {
                                             setPageAutoAdvanceReady(true);
                                             advanceTimeoutRef.current = setTimeout(() => {
                                                 changeToPage(3);
                                             }, 1400);
-                                        }} 
+                                        }}
                                     />
                                 </div>
                             )}
 
                             {pageAutoAdvanceReady && (
                                 <div className="flex justify-end animate-fade-in">
-                                    <button 
+                                    <button
                                         onClick={() => changeToPage(3)}
                                         className="text-[#fbaa19] text-xs font-bold tracking-widest uppercase hover:text-white transition-colors animate-pulse"
                                     >
@@ -508,7 +507,7 @@ export function InviteFlow() {
                                 const g = ENGINE_FACTIONS[groupId];
 
                                 return (
-                                    <div 
+                                    <div
                                         key={g.id}
                                         className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in text-white text-sm md:text-base font-bold tracking-widest group"
                                         onClick={() => handleSelectGroup(groupId)}
@@ -520,8 +519,8 @@ export function InviteFlow() {
                                         </div>
 
                                         <div className="mt-2 text-white/80 text-xs md:text-sm font-normal leading-relaxed">
-                                            <TypewriterLine 
-                                                text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`} 
+                                            <TypewriterLine
+                                                text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`}
                                                 startDelay={150}
                                                 onReadyForNext={() => {
                                                     if (stepNeeded < 3) {
@@ -563,14 +562,14 @@ export function InviteFlow() {
                                 <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={250} onReadyForNext={() => setTypingComplete(true)} />
                             </div>
                         </div>
-                        
+
                         <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full mt-4 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             {errorMsg && (
                                 <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
                                     [FALHA DE HOMOLOGAÇÃO] {errorMsg}
                                 </div>
                             )}
-                            
+
                             {phase === 'SUBMITTING_ENLIST' ? (
                                 <div className="flex flex-col items-center justify-center gap-6 py-8">
                                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
@@ -580,19 +579,18 @@ export function InviteFlow() {
                                 <>
                                     <div className="flex flex-col md:flex-row gap-4 items-start">
                                         <div className="flex flex-col w-full">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 required
                                                 placeholder="NOME E SOBRENOME DO PILOTO"
                                                 value={fullName}
                                                 onChange={e => setFullName(e.target.value)}
-                                                className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${
-                                                    fullName.trim()
+                                                className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${fullName.trim()
                                                         ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
-                                                            ? "border-emerald-500/50 focus:border-emerald-500" 
+                                                            ? "border-emerald-500/50 focus:border-emerald-500"
                                                             : "border-amber-500/60 focus:border-amber-500"
                                                         : "border-white/20 focus:border-[#fbaa19]"
-                                                }`}
+                                                    }`}
                                             />
                                             {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
                                                 <span className="text-[10px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
@@ -601,8 +599,8 @@ export function InviteFlow() {
                                             )}
                                         </div>
                                         <div className="flex flex-col w-full">
-                                            <input 
-                                                type="email" 
+                                            <input
+                                                type="email"
                                                 required
                                                 placeholder="CANAL DE TELEMETRIA (E-MAIL)"
                                                 value={email}
@@ -611,7 +609,7 @@ export function InviteFlow() {
                                             />
                                         </div>
                                     </div>
-                                    
+
                                     <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
                                         [ EMITIR SUPERLICENÇA & ACESSAR PITWALL ]
                                     </button>
