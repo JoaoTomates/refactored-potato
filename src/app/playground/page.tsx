@@ -361,9 +361,13 @@ export default function PlaygroundPage() {
 
                 let mine: Strategist | null = null;
                 if (user) {
-                    mine = real.find(s => s.id === user.id) || null;
                     const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+                    if (prof?.slug) {
+                        router.replace(`/${prof.slug}`);
+                        return;
+                    }
                     setMeProfile(prof);
+                    mine = real.find(s => s.id === user.id) || null;
                     if (!mine && prof) {
                         const name = prof.first_name ? `${prof.first_name.charAt(0)}. ${prof.last_name || ''}`.trim().toUpperCase() : 'ESTRATEGISTA';
                         mine = makeStrategist(user.id, name, prof.slug, undefined, 1);
