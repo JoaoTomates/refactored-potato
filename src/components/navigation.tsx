@@ -16,11 +16,6 @@ const Navigation = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
 
-    // Hide navbar on onboarding and studio pages
-    if (pathname === '/' || pathname === '/academy' || pathname === '/invite' || pathname === '/invite4' || pathname === '/lore') {
-        return null;
-    }
-
     // Close mobile menu on route change
     useEffect(() => {
         setIsMobileMenuOpen(false);
@@ -57,6 +52,11 @@ const Navigation = () => {
         fetchDashboardTarget();
         return () => { isMounted = false; };
     }, [user]);
+
+    // Hide navbar on onboarding and studio pages (called AFTER all hooks to adhere to Rules of Hooks)
+    if (pathname === '/' || pathname === '/academy' || pathname === '/invite' || pathname === '/invite4' || pathname === '/lore') {
+        return null;
+    }
 
     return (
         <>
