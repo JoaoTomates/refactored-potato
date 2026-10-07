@@ -43,7 +43,90 @@ class PitWallSoundEngine {
 
 const retroSound = new PitWallSoundEngine();
 
-type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'ENLIST' | 'SUBMITTING_ENLIST';
+type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'OFFERS' | 'BRIEFING' | 'SUBMITTING_ENLIST';
+
+interface TeamOffer {
+    id: string;
+    name: string;
+    code: string;
+    color: string;
+    occupied: number;
+    engineSpec: string;
+    perk: string;
+    description: string;
+    seatTitle: string;
+    groupName: string;
+    groupId: number;
+}
+
+const TEAM_SPECS: Record<string, { engineSpec: string; perk: string; description: string; seatTitle: string }> = {
+    MER: {
+        engineSpec: 'Mercedes-AMG M16 E Performance V6 Turbo Hybrid',
+        perk: '+15% de rendimento em previsões de consistência cirúrgica de corrida.',
+        description: 'A matriz alemã de Brackley. Máxima cobrança por perfeição matemática, ritmo implacável e confiabilidade de aço.',
+        seatTitle: 'ESTRATEGISTA CHEFE MERCEDES'
+    },
+    MCL: {
+        engineSpec: 'Mercedes M16 High Performance Customer PU',
+        perk: '+15% de bônus em previsões de volta mais rápida e top speed.',
+        description: 'O time de Woking em ascensão meteórica. Exige decisões agressivas de pitwall e arrojo nas ultrapassagens.',
+        seatTitle: 'ESTRATEGISTA CHEFE McLAREN'
+    },
+    ALP: {
+        engineSpec: 'Mercedes High Output Customer Specification',
+        perk: '+20% de rendimento ao acertar estratégias alternativas de undercut.',
+        description: 'A esquadra de Enstone em reformulação tática com motores da estrela para retomar o pelotão da frente.',
+        seatTitle: 'ESTRATEGISTA CHEFE ALPINE'
+    },
+    WIL: {
+        engineSpec: 'Mercedes-AMG V6 Turbo Hybrid Standard Spec',
+        perk: '+25% de retorno em apostas de azarão e disputas no pelotão intermediário.',
+        description: 'A lendária garagem britânica de Grove com alta eficiência em retas e sede de retomada histórica.',
+        seatTitle: 'ESTRATEGISTA CHEFE WILLIAMS'
+    },
+    FER: {
+        engineSpec: 'Ferrari 067/3 Hybrid E-Turbo Speciale',
+        perk: 'Bônus dobrado (2x) em apostas arriscadas de Pole Position (Poletime).',
+        description: 'A mística sagrada de Maranello. Tolerância zero ao erro estratégico sob a vigilância obsessiva dos tifosi.',
+        seatTitle: 'ESTRATEGISTA CHEFE FERRARI'
+    },
+    HAA: {
+        engineSpec: 'Ferrari 067/3 Customer Powertrain Package',
+        perk: '+20% de rendimento em antecipação de Safety Car e estratégias de largada.',
+        description: 'Operação pragmática ítalo-americana focada em ataques cirúrgicos e pontuações em janelas caóticas.',
+        seatTitle: 'ESTRATEGISTA CHEFE HAAS'
+    },
+    CAD: {
+        engineSpec: 'Cadillac-Ferrari Powertrain Joint Venture',
+        perk: '+25% de rendimento em primeiras voltas e duelos roda a roda.',
+        description: 'A nova potência americana desembarcando no paddock com o suporte de Maranello para desafiar os gigantes.',
+        seatTitle: 'ESTRATEGISTA CHEFE CADILLAC'
+    },
+    RBR: {
+        engineSpec: 'Red Bull Ford Powertrains V6 Hybrid PU',
+        perk: '+25% de rendimento ao antecipar cenários de caos e paradas relâmpago.',
+        description: 'Milton Keynes e a máquina impiedosa de vitórias. Exige postura predatória na leitura de telemetria.',
+        seatTitle: 'ESTRATEGISTA CHEFE RED BULL'
+    },
+    RBA: {
+        engineSpec: 'Red Bull Ford Powertrains Spec-B Development PU',
+        perk: '+20% de bônus na evolução de posições entre largada e chegada.',
+        description: 'A divisão dinâmica de Faenza especializada em forjar táticas inovadoras no coração do grid.',
+        seatTitle: 'ESTRATEGISTA CHEFE RACING BULLS'
+    },
+    AST: {
+        engineSpec: 'AMR-Honda Factory Works Turbo Hybrid',
+        perk: '+15% de rendimento na gestão cirúrgica de desgaste de pneus.',
+        description: 'Silverstone aliada à disciplina de ponta da engenharia japonesa da Honda para desafiar o topo do mundo.',
+        seatTitle: 'ESTRATEGISTA CHEFE ASTON MARTIN'
+    },
+    AUD: {
+        engineSpec: 'Audi F1 PowerUnit Prototype V6 Hybrid',
+        perk: '+30% de rendimento em corridas sob chuva ou condições climáticas mutáveis.',
+        description: 'A gigante de Ingolstadt invadindo a Fórmula 1 com engenharia do zero e ambição implacável de domínio.',
+        seatTitle: 'ESTRATEGISTA CHEFE AUDI'
+    }
+};
 
 const customDialogs = [
     "Puxe uma cadeira e feche a porta.",
@@ -181,8 +264,12 @@ export function InviteFlow() {
     const [typingComplete, setTypingComplete] = useState(false);
 
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
+    const [selectedTeam, setSelectedTeam] = useState<TeamOffer | null>(null);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     const [selectedTeamColor, setSelectedTeamColor] = useState<string>('#000000');
+    const [offeredTeams, setOfferedTeams] = useState<TeamOffer[]>([]);
+    const [activeGroupName, setActiveGroupName] = useState<string>("Grupo 1 (G. Farina)");
+    const [isFetchingOffers, setIsFetchingOffers] = useState<boolean>(false);
 
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -256,34 +343,112 @@ export function InviteFlow() {
         setIsPageClearing(false);
     };
 
-    const handleSelectGroup = async (groupId: 'A' | 'B' | 'C') => {
+    const handleSelectAlliance = async (groupId: 'A' | 'B' | 'C') => {
         retroSound.init();
         setSelectedGroup(groupId);
         setErrorMsg("");
+        setIsFetchingOffers(true);
 
         try {
+            // 1. Busca o grupo que está recebendo pilotos atualmente
+            const { data: activeGroupData } = await supabase
+                .from('groups')
+                .select('*')
+                .eq('is_filling', true)
+                .maybeSingle();
+
+            const group = activeGroupData || { id: 1, name: 'G. Farina' };
+            const gName = group.name ? `Grupo ${group.id} (${group.name})` : `Grupo ${group.id}`;
+            setActiveGroupName(gName);
+
+            // 2. Busca contratos ocupados no grupo ativo
+            const { data: contractsData } = await supabase
+                .from('contracts')
+                .select('team_id')
+                .eq('group_id', group.id);
+
+            const occupiedCounts: Record<string, number> = {};
+            (contractsData || []).forEach((c: any) => {
+                occupiedCounts[c.team_id] = (occupiedCounts[c.team_id] || 0) + 1;
+            });
+
+            // 3. Busca equipes cadastradas no banco
             const { data: teamsData, error: teamsError } = await supabase.from('teams').select('*');
             if (teamsError) throw teamsError;
 
-            const factionTeams = ENGINE_FACTIONS[groupId].teams;
-            const factionTeamObjs = (teamsData || []).filter((t: any) => factionTeams.includes(t.code));
+            const factionCodes = ENGINE_FACTIONS[groupId].teams;
+            const factionTeamObjs = (teamsData || []).filter((t: any) => factionCodes.includes(t.code));
 
-            const chosenTeam = factionTeamObjs[0] || (teamsData || [])[0];
-            const teamId = chosenTeam?.id || '';
-            const teamColor = chosenTeam?.color || '#000000';
+            // 4. Mapeia as ofertas com especificações completas de telemetria
+            const offersList: TeamOffer[] = factionTeamObjs.map((t: any) => {
+                const spec = TEAM_SPECS[t.code] || {
+                    engineSpec: ENGINE_FACTIONS[groupId].engineSpec,
+                    perk: ENGINE_FACTIONS[groupId].fantasyPerk,
+                    description: `Garagem oficial da aliança ${ENGINE_FACTIONS[groupId].badge}.`,
+                    seatTitle: `ESTRATEGISTA CHEFE ${t.name.toUpperCase()}`
+                };
+                const occupied = occupiedCounts[t.id] || 0;
+                return {
+                    id: t.id,
+                    name: t.name,
+                    code: t.code,
+                    color: t.color || '#000000',
+                    occupied: occupied,
+                    engineSpec: spec.engineSpec,
+                    perk: spec.perk,
+                    description: spec.description,
+                    seatTitle: spec.seatTitle,
+                    groupName: gName,
+                    groupId: group.id
+                };
+            });
 
-            setSelectedTeamId(teamId);
-            setSelectedTeamColor(teamColor);
-            localStorage.setItem('draft_team_id', teamId);
+            // 5. Filtra equipes que possuem pelo menos 1 vaga aberta (< 2)
+            let openOffers = offersList.filter(o => o.occupied < 2);
+            if (openOffers.length === 0) {
+                openOffers = offersList;
+            }
+
+            // Seleciona exatamente duas propostas oficiais
+            const shuffled = [...openOffers].sort(() => 0.5 - Math.random());
+            const twoProposals = shuffled.slice(0, 2);
+
+            setOfferedTeams(twoProposals);
             localStorage.setItem('draft_alliance', groupId);
 
-            // Transição direta para o Despacho do Diretor do Bloco selecionado
-            setTypingComplete(false);
-            setPhase('ENLIST');
+            // Zera a tela com transição cinematográfica e abre a vitrine de propostas
+            setIsPageClearing(true);
+            setTimeout(() => {
+                setPhase('OFFERS');
+                setIsPageClearing(false);
+                if (typeof window !== 'undefined') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, 300);
         } catch (err: any) {
             console.error(err);
-            setErrorMsg(err.message || "ERRO NA ALOCAÇÃO DE EQUIPE");
+            setErrorMsg(err.message || "ERRO AO CARREGAR OFERTAS DO GRID");
+        } finally {
+            setIsFetchingOffers(false);
         }
+    };
+
+    const handleViewOffer = (offer: TeamOffer) => {
+        retroSound.init();
+        setSelectedTeam(offer);
+        setSelectedTeamId(offer.id);
+        setSelectedTeamColor(offer.color);
+        localStorage.setItem('draft_team_id', offer.id);
+
+        setIsPageClearing(true);
+        setTimeout(() => {
+            setTypingComplete(false);
+            setPhase('BRIEFING');
+            setIsPageClearing(false);
+            if (typeof window !== 'undefined') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, 300);
     };
 
     const isValidNamePart = (val: string) => {
@@ -510,7 +675,7 @@ export function InviteFlow() {
                                     <div
                                         key={g.id}
                                         className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in text-white text-sm md:text-base font-bold tracking-widest group"
-                                        onClick={() => handleSelectGroup(groupId)}
+                                        onClick={() => handleSelectAlliance(groupId)}
                                     >
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className="opacity-50 text-[#fbaa19]">&gt;_</span>
@@ -551,19 +716,169 @@ export function InviteFlow() {
                 </div>
             )}
 
-            {(phase === 'ENLIST' || phase === 'SUBMITTING_ENLIST') && selectedGroup && (
-                <div className="relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-16 mb-16 px-4 font-mono">
-                    <div className="w-full bg-black/80 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
-                        <div>
-                            <p className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] mb-3 uppercase">
-                                DESPACHO CONFIDENCIAL DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
-                            </p>
+            {/* FASE OFFERS: Apresentação das DUAS PROPOSTAS OFICIAIS com vagas disponíveis */}
+            {phase === 'OFFERS' && selectedGroup && (
+                <div className={`relative z-10 w-full max-w-4xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 transition-all duration-300 font-mono ${
+                    isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                }`}>
+                    {/* Header do Terminal / Stock Exchange Noir */}
+                    <div className="bg-black/85 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-5 md:p-8 shadow-2xl flex flex-col gap-3 animate-fade-in">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                            <span className="text-[#fbaa19] text-xs font-black tracking-[0.2em] uppercase">
+                                &gt;_ SISTEMA DE ALOCAÇÃO DE GRID // {activeGroupName.toUpperCase()}
+                            </span>
+                            <span className="text-emerald-400 text-[10px] font-bold tracking-widest uppercase border border-emerald-500/30 px-2.5 py-0.5 rounded bg-emerald-950/30">
+                                ● PREGÃO: ABERTO • ORDENS EM DISPUTA
+                            </span>
+                        </div>
+
+                        <h2 className="text-white text-xl md:text-2xl font-black uppercase tracking-widest">
+                            PROPOSTAS DE VAGA NO PITWALL [{ENGINE_FACTIONS[selectedGroup].badge}]
+                        </h2>
+
+                        <p className="text-gray-300 text-xs md:text-sm italic border-l-2 border-[#fbaa19] pl-3 py-0.5">
+                            {ENGINE_FACTIONS[selectedGroup].sub}
+                        </p>
+
+                        <p className="text-white/70 text-xs font-mono leading-relaxed mt-1">
+                            <span className="text-[#fbaa19] font-bold">&gt; -</span> O regulamento oficial correlaciona cada garagem real a 2 assentos estratégicos no {activeGroupName}. Analise as duas propostas oficiais homologadas abaixo e examine os termos operacionais:
+                        </p>
+                    </div>
+
+                    {/* Grid com as DUAS PROPOSTAS OFICIAIS DE EQUIPES */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {offeredTeams.map((teamOffer) => {
+                            const availableSpots = Math.max(0, 2 - teamOffer.occupied);
+                            return (
+                                <div 
+                                    key={teamOffer.id}
+                                    className="bg-black/85 backdrop-blur-sm border border-white/15 hover:border-[#fbaa19] rounded-lg p-6 shadow-2xl flex flex-col justify-between gap-5 transition-all group relative overflow-hidden animate-fade-in"
+                                >
+                                    {/* Faixa superior de acento com a cor oficial da escuderia */}
+                                    <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: teamOffer.color }} />
+
+                                    {/* Topo: Emblema e Nome */}
+                                    <div className="flex items-center gap-4 mt-1">
+                                        <div 
+                                            className="w-14 h-14 rounded flex items-center justify-center font-black text-lg shadow-lg border border-white/20 text-white shrink-0"
+                                            style={{ backgroundColor: teamOffer.color }}
+                                        >
+                                            {teamOffer.code}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-white text-lg font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors">
+                                                {teamOffer.name}
+                                            </span>
+                                            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
+                                                {teamOffer.seatTitle}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Descrição tática da garagem */}
+                                    <p className="text-xs text-gray-300 italic border-l-2 border-white/20 pl-3 leading-relaxed">
+                                        "{teamOffer.description}"
+                                    </p>
+
+                                    {/* Tabela de Telemetria e Mercado (Estilo Bloomberg / Wall Street do Paddock) */}
+                                    <div className="border border-white/10 rounded overflow-hidden text-xs font-mono bg-black/40">
+                                        <div className="flex justify-between items-center p-2.5 bg-white/[0.03] border-b border-white/5">
+                                            <span className="text-gray-400 uppercase tracking-widest text-[10px]">STATUS DO ATIVO</span>
+                                            <span className="text-emerald-400 font-bold tracking-widest text-[11px]">
+                                                [OPEN] • {availableSpots} {availableSpots === 1 ? 'VAGA RESTANTE' : 'VAGAS ABERTAS'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center p-2.5 border-b border-white/5">
+                                            <span className="text-gray-400 uppercase tracking-widest text-[10px]">GRUPO FANTASY</span>
+                                            <span className="text-white font-bold text-[11px]">{teamOffer.groupName}</span>
+                                        </div>
+                                        <div className="flex flex-col p-2.5 border-b border-white/5 gap-1">
+                                            <span className="text-gray-400 uppercase tracking-widest text-[10px]">UNIDADE DE POTÊNCIA</span>
+                                            <span className="text-[#fbaa19] text-[11px] font-bold">{teamOffer.engineSpec}</span>
+                                        </div>
+                                        <div className="flex flex-col p-2.5 gap-1">
+                                            <span className="text-gray-400 uppercase tracking-widest text-[10px]">PERK DE OPERAÇÃO</span>
+                                            <span className="text-white text-[11px] leading-relaxed">{teamOffer.perk}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Botão Oficial: [ VER OFERTA ] » */}
+                                    <button
+                                        onClick={() => handleViewOffer(teamOffer)}
+                                        className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.15em] text-xs p-3.5 rounded hover:bg-white hover:shadow-[0_0_15px_rgba(251,170,25,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        [ VER OFERTA ] »
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Botão de Retorno */}
+                    <div className="flex justify-start pt-2">
+                        <button
+                            onClick={() => {
+                                setIsPageClearing(true);
+                                setTimeout(() => {
+                                    setPhase('AUTO_DIALOG');
+                                    setDialogPage(3);
+                                    setPageStep(3);
+                                    setIsPageClearing(false);
+                                }, 250);
+                            }}
+                            className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
+                        >
+                            « [ VOLTAR E ESCOLHER OUTRA ALIANÇA ]
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* FASE BRIEFING: Despacho do Diretor, Briefing das Competições e Homologação */}
+            {(phase === 'BRIEFING' || phase === 'SUBMITTING_ENLIST') && selectedGroup && selectedTeam && (
+                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${
+                    isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                }`}>
+                    <div className="w-full bg-black/85 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
+                        
+                        {/* Topo do Briefing: Identificação da Aliança e Escuderia */}
+                        <div className="border-b border-white/10 pb-4 flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] uppercase">
+                                    DESPACHO CONFIDENCIAL DO DIRETOR [{ENGINE_FACTIONS[selectedGroup].badge}]
+                                </span>
+                                <span 
+                                    className="px-2.5 py-0.5 rounded text-[10px] font-black tracking-widest uppercase border border-white/20 text-white"
+                                    style={{ backgroundColor: selectedTeam.color }}
+                                >
+                                    {selectedTeam.name}
+                                </span>
+                            </div>
                             <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
                                 <TypewriterLine text={ENGINE_FACTIONS[selectedGroup].directorResponse} startDelay={250} onReadyForNext={() => setTypingComplete(true)} />
                             </div>
                         </div>
 
-                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full mt-4 transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                        {/* Briefing Tático Operacional das Competições */}
+                        <div className="bg-black/60 border border-white/10 rounded-lg p-5 flex flex-col gap-3 text-xs leading-relaxed">
+                            <p className="text-[#fbaa19] font-black uppercase tracking-widest text-[11px] flex items-center gap-2">
+                                <span>&gt; -</span> BRIEFING TÁTICO OPERACIONAL // REGULAMENTO DA LIGA MASTER
+                            </p>
+                            <div className="flex flex-col gap-2.5 text-gray-300">
+                                <p>
+                                    <strong className="text-white">1. SISTEMA MASTER FANTASY:</strong> Sua pontuação e patrimônio na temporada dependem da precisão com que você prevê posições de chegada, consistência e pitstops reais durante cada Grande Prêmio.
+                                </p>
+                                <p>
+                                    <strong className="text-white">2. DUELOS DE POLETIME:</strong> Nas sextas e sábados de classificação, acertar a volta mais rápida da pole position aciona bônus multiplicadores de rendimento operacional.
+                                </p>
+                                <p>
+                                    <strong className="text-white">3. ALOCAÇÃO NO GRID:</strong> Você assumirá o posto oficial na garagem da <span className="text-white font-bold">{selectedTeam.name}</span> no <span className="text-[#fbaa19] font-bold">{selectedTeam.groupName}</span>, competindo diretamente contra os outros 21 estrategistas do grid.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Formulário de Emissão da Superlicença e Homologação */}
+                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full transition-opacity duration-1000 ${typingComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             {errorMsg && (
                                 <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
                                     [FALHA DE HOMOLOGAÇÃO] {errorMsg}
@@ -573,7 +888,9 @@ export function InviteFlow() {
                             {phase === 'SUBMITTING_ENLIST' ? (
                                 <div className="flex flex-col items-center justify-center gap-6 py-8">
                                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase">&gt;_ EMITINDO SUPERLICENÇA & HOMOLOGANDO CONTRATO...</p>
+                                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
+                                        &gt;_ EMITINDO SUPERLICENÇA & HOMOLOGANDO CONTRATO NA {selectedTeam.name.toUpperCase()}...
+                                    </p>
                                 </div>
                             ) : (
                                 <>
@@ -585,12 +902,13 @@ export function InviteFlow() {
                                                 placeholder="NOME E SOBRENOME DO PILOTO"
                                                 value={fullName}
                                                 onChange={e => setFullName(e.target.value)}
-                                                className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${fullName.trim()
+                                                className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${
+                                                    fullName.trim()
                                                         ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
                                                             ? "border-emerald-500/50 focus:border-emerald-500"
                                                             : "border-amber-500/60 focus:border-amber-500"
                                                         : "border-white/20 focus:border-[#fbaa19]"
-                                                    }`}
+                                                }`}
                                             />
                                             {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
                                                 <span className="text-[10px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
@@ -610,9 +928,28 @@ export function InviteFlow() {
                                         </div>
                                     </div>
 
-                                    <button type="submit" className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)]">
-                                        [ EMITIR SUPERLICENÇA & ACESSAR PITWALL ]
+                                    <button 
+                                        type="submit" 
+                                        className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm"
+                                    >
+                                        [ EMITIR SUPERLICENÇA & ASSINAR CONTRATO COM A {selectedTeam.name.toUpperCase()} ]
                                     </button>
+
+                                    <div className="flex justify-between items-center pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setIsPageClearing(true);
+                                                setTimeout(() => {
+                                                    setPhase('OFFERS');
+                                                    setIsPageClearing(false);
+                                                }, 250);
+                                            }}
+                                            className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
+                                        >
+                                            « [ ANALISAR OUTRA PROPOSTA ]
+                                        </button>
+                                    </div>
                                 </>
                             )}
                         </form>
