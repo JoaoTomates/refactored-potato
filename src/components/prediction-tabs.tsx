@@ -60,8 +60,8 @@ const PredictionTabs = () => {
                 const teamInfo = contract?.teams ? (Array.isArray(contract.teams) ? contract.teams[0] : contract.teams) : null;
 
                 const displayName = prof?.first_name && prof?.last_name 
-                    ? `${prof.first_name} ${prof.last_name}`
-                    : (prof?.username || prof?.slug || user.email?.split('@')[0] || 'PILOTO');
+                    ? `${prof.first_name.trim().charAt(0).toUpperCase()}.${prof.last_name.trim().toUpperCase().replace(/\s+/g, '')}`
+                    : (prof?.username?.toUpperCase() || prof?.slug?.replace('@', '').toUpperCase() || 'PILOTO');
 
                 setPilot({
                     name: displayName,

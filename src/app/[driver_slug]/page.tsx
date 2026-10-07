@@ -421,8 +421,10 @@ export default function OfficialStrategistDashboard() {
 
                 const realStrategists: Strategist[] = (contracts || []).map((c: any) => {
                     const p = Array.isArray(c.profiles) ? c.profiles[0] || {} : c.profiles || {};
-                    const name = p.first_name ? `${p.first_name.charAt(0)}. ${p.last_name || ''}`.trim() : 'ESTRATEGISTA';
-                    return makeStrategist(c.user_id, name.toUpperCase(), p.slug || null, c.team_id, c.group_id || 1);
+                    const name = p.first_name 
+                        ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}` 
+                        : 'ESTRATEGISTA';
+                    return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1);
                 });
 
                 // Verifica se o usuário atual já possui contrato assinado
@@ -440,7 +442,7 @@ export default function OfficialStrategistDashboard() {
                 let currentStrategist: Strategist | null = null;
                 if (profileData) {
                     const name = profileData.first_name 
-                        ? `${profileData.first_name.charAt(0)}. ${profileData.last_name || ''}`.trim().toUpperCase() 
+                        ? `${profileData.first_name.charAt(0).toUpperCase()}.${(profileData.last_name || '').trim().toUpperCase()}` 
                         : (profileData.slug ? profileData.slug.replace('@', '').toUpperCase() : 'ESTRATEGISTA');
 
                     currentStrategist = makeStrategist(
