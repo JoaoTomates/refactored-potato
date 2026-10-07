@@ -7,13 +7,13 @@ import Logo from './logo'
 
 const Footer = () => {
     const pathname = usePathname();
-    if (pathname === '/' || pathname === '/superlicense' || pathname === '/invite') return null;
-
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => {
         const t = setTimeout(() => setMounted(true), 0);
         return () => clearTimeout(t);
     }, []);
+
+    if (pathname === '/' || pathname === '/superlicense' || pathname === '/invite') return null;
 
     return (
         <footer className="w-full bg-transparent border-t border-white/5 mt-16 transition-colors opacity-30 hover:opacity-100 focus-within:opacity-100">

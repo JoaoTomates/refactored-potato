@@ -126,7 +126,7 @@ export function useSupabaseAuth() {
             setIsLoading(false);
             setUser(null);
             setSession(null);
-            router.push('/');
+            window.location.href = '/';
         }
     };
 

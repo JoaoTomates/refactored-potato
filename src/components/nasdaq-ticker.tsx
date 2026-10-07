@@ -74,18 +74,6 @@ function Delta({ value, className = '' }: { value: number; className?: string })
 export default function NasdaqTicker() {
     const pathname = usePathname();
 
-    // Do not show on onboarding or inside playground (where it already has its own embedded ticker)
-    if (
-        pathname === '/' ||
-        pathname === '/superlicense' ||
-        pathname === '/invite' ||
-        pathname === '/invite4' ||
-        pathname === '/playground' ||
-        pathname === '/academy'
-    ) {
-        return null;
-    }
-
     const [field, setField] = useState<Strategist[]>([]);
 
     useEffect(() => {
@@ -126,6 +114,18 @@ export default function NasdaqTicker() {
             slug: s.slug,
         }));
     }, [field]);
+
+    // Do not show on onboarding or inside playground (called AFTER all hooks to adhere to Rules of Hooks)
+    if (
+        pathname === '/' ||
+        pathname === '/superlicense' ||
+        pathname === '/invite' ||
+        pathname === '/invite4' ||
+        pathname === '/playground' ||
+        pathname === '/academy'
+    ) {
+        return null;
+    }
 
     return (
         <div className="w-full overflow-hidden border-b border-white/5 bg-black/60 font-mono relative z-30 select-none">

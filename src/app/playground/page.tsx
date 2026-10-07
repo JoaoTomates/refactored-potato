@@ -532,10 +532,10 @@ export default function PlaygroundPage() {
     const handleLogout = async () => {
         try {
             if (logout) await logout();
-            router.push('/');
+            window.location.href = '/';
         } catch (_) {
             await supabase.auth.signOut();
-            router.push('/');
+            window.location.href = '/';
         }
     };
 
