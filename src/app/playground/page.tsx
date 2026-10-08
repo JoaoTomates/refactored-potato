@@ -256,51 +256,17 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
     const last = me.series[me.series.length - 1];
 
     return (
-        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" accentColor={me.teamColor}>
-            <div className="relative aspect-[5/4] overflow-hidden bg-[#070604] flex items-center justify-center p-4">
-                <div className="w-full h-full max-h-[220px] flex items-center justify-center relative">
-                    <div className="relative inline-flex items-center justify-center shrink-0 select-none overflow-hidden rounded-full w-full h-full max-h-[220px]">
-                        <div className="absolute inset-0 flex items-center justify-center p-[6%] pointer-events-none">
-                            <div className="relative w-full h-full flex items-center justify-center">
-                                <img 
-                                    alt="Capacete Oficial F1" 
-                                    className="w-full h-full object-contain select-none drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)]" 
-                                    src="/avatar-overlay.svg" 
-                                />
-                                <div 
-                                    className="absolute inset-0 mix-blend-multiply" 
-                                    style={{ 
-                                        WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                        maskImage: 'url("/avatar-overlay.svg")', 
-                                        WebkitMaskSize: 'contain',
-                                        maskSize: 'contain', 
-                                        WebkitMaskRepeat: 'no-repeat',
-                                        maskRepeat: 'no-repeat', 
-                                        WebkitMaskPosition: 'center center',
-                                        maskPosition: 'center center', 
-                                        backgroundColor: me.teamColor 
-                                    }} 
-                                />
-                                <div 
-                                    className="absolute inset-0 mix-blend-color opacity-75" 
-                                    style={{ 
-                                        WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                        maskImage: 'url("/avatar-overlay.svg")', 
-                                        WebkitMaskSize: 'contain',
-                                        maskSize: 'contain', 
-                                        WebkitMaskRepeat: 'no-repeat',
-                                        maskRepeat: 'no-repeat', 
-                                        WebkitMaskPosition: 'center center',
-                                        maskPosition: 'center center', 
-                                        backgroundColor: me.teamColor 
-                                    }} 
-                                />
-                            </div>
-                        </div>
-                    </div>
+        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={me.teamColor}>
+            <div className="relative aspect-[5/4] overflow-hidden bg-black flex items-center justify-center p-4">
+                {/* Imagem SVG do capacete escondida com background 100% preto */}
+                <div className="hidden" aria-hidden="true">
+                    <img 
+                        alt="Capacete Oficial F1" 
+                        src="/avatar-overlay.svg" 
+                    />
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 flex items-end justify-between bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 flex items-end justify-between bg-black z-20">
                     <div>
                         <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">ESTRATEGISTA</p>
                         <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">{me.name}</h2>
@@ -312,7 +278,7 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10">
+            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10 bg-black">
                 {[
                     ['EQUIPE', <span key="t" className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />{me.teamName}</span>],
                     ['GRUPO', getChampionGroupName(me.groupId)],
