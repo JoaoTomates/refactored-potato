@@ -872,7 +872,7 @@ export default function PositionsPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 05 // EVENT PROPS
+                                            &gt; - POSIÇÃO 05 // MILESIMUS LEAGUE
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -924,7 +924,7 @@ export default function PositionsPage() {
                                         <p className="text-[11px] text-white/50">Nível de segurança na telemetria transmitida nesta rodada.</p>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        {['10', '25', '50', '100'].map((val) => {
+                                        {['10', '30', '50'].map((val) => {
                                             const activeStake = misc.stake || '10';
                                             const isCurrent = activeStake === val;
                                             return (
