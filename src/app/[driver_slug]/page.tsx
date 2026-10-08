@@ -783,11 +783,11 @@ export default function OfficialStrategistDashboard() {
                                         <span style={{ color: teamColor }}>GRID »</span>
                                     </Link>
                                     <Link 
-                                        href="/bet"
+                                        href="/positions"
                                         className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
                                     >
-                                        <span>CENTRAL DE APOSTAS</span>
-                                        <span style={{ color: teamColor }}>ODDS »</span>
+                                        <span>MERCADO DE POSIÇÕES</span>
+                                        <span style={{ color: teamColor }}>ORDENS »</span>
                                     </Link>
                                     <Link 
                                         href="/headquarters"
@@ -882,6 +882,26 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </button>
                             </div>
+
+                            {/* BANNER / BOTÃO OPERACIONAL DE TOMADA DE POSIÇÕES */}
+                            <Link
+                                href="/positions"
+                                className="w-full py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-lg cursor-pointer"
+                                style={{ 
+                                    borderColor: `${teamColor}60`, 
+                                    backgroundColor: `${teamColor}18`, 
+                                    color: teamColor 
+                                }}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
+                                    <span>&gt;_ TOMADA DE POSIÇÕES DE GP // MERCADO ABERTO</span>
+                                </div>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/70 border border-white/10 text-white flex items-center gap-1">
+                                    <span>ENVIAR ORDENS</span>
+                                    <span>»</span>
+                                </span>
+                            </Link>
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
                             <div 
@@ -1000,6 +1020,15 @@ export default function OfficialStrategistDashboard() {
                                                     </div>
                                                 </div>
                                             ))}
+
+                                            <Link
+                                                href="/positions"
+                                                className="mt-3 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
+                                                style={{ borderColor: `${teamColor}60`, backgroundColor: `${teamColor}15`, color: teamColor }}
+                                            >
+                                                <span>&gt;_ ABRIR TERMINAL // CONSOLIDAR POSIÇÕES DE GP</span>
+                                                <span>»</span>
+                                            </Link>
                                         </div>
                                     )}
 

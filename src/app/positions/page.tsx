@@ -63,9 +63,9 @@ const QUESTIONS = [
 ];
 
 const TABS = [
-    { id: 'all', label: 'FULL PREDICTION', code: 'ALL', desc: 'Protocolo unificado com todas as ordens de corrida.' },
+    { id: 'all', label: 'TODAS AS POSIÇÕES', code: 'ALL', desc: 'Protocolo consolidado com todas as tomadas de posição do GP.' },
     { id: 'poletime', label: 'POLETIME', code: 'POLE', desc: 'Previsão de volta mais rápida da classificação até os milésimos.' },
-    { id: 'master', label: 'TOP 10 FINISH', code: 'TOP10', desc: 'Ordem exata de chegada dos dez primeiros colocados.' },
+    { id: 'master', label: 'TOP 10 FINISH', code: 'TOP10', desc: 'Posições exatas de chegada dos dez primeiros colocados.' },
     { id: 'evo', label: 'EVO / ESCALADA', code: 'EVO', desc: 'Os 5 pilotos que mais ganharão posições em relação ao grid de largada.' },
     { id: 'h2h', label: 'DUELOS TÁTICOS', code: 'H2H', desc: 'Confrontos diretos internos entre os companheiros de equipe.' },
     { id: 'misc', label: 'EVENT PROPS', code: 'MISC', desc: 'Probabilidade de eventos de pista e telemetria extra.' },
@@ -80,7 +80,7 @@ interface PilotProfile {
     avatarUrl: string | null;
 }
 
-export default function Prediction2TerminalPage() {
+export default function PositionsPage() {
     const router = useRouter();
     const { user, isLoading: authLoading } = useSupabaseAuth();
     const [activeTab, setActiveTab] = useState<string>('all');
@@ -88,7 +88,7 @@ export default function Prediction2TerminalPage() {
     const [hasSyncedFromDb, setHasSyncedFromDb] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<{ type: 'top10' | 'evo', index: number } | null>(null);
 
-    // Conexão com a Store oficial de Predições
+    // Conexão com a Store oficial de Predições / Posições
     const {
         poletime,
         top10,
@@ -182,7 +182,7 @@ export default function Prediction2TerminalPage() {
                     setHasSyncedFromDb(true);
                 }
             } catch (e) {
-                console.error("Erro ao sincronizar predições:", e);
+                console.error("Erro ao sincronizar posições:", e);
             }
         };
 
@@ -245,7 +245,7 @@ export default function Prediction2TerminalPage() {
                             PREGÃO: ABERTO
                         </span>
                         <span className="hidden sm:inline text-white/50">|</span>
-                        <span className="hidden sm:inline text-white/70">SESSÃO: PRE-RACE ORDERS</span>
+                        <span className="hidden sm:inline text-white/70">MERCADO DE POSIÇÕES DE GP</span>
                     </div>
 
                     {/* Ticker contínuo */}
@@ -320,17 +320,17 @@ export default function Prediction2TerminalPage() {
                     </div>
                 </section>
 
-                {/* 2. HEADER OPERACIONAL / DESPACHO DE PREDIÇÕES */}
+                {/* 2. HEADER OPERACIONAL / DESPACHO DE POSIÇÕES */}
                 <header className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-3">
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
                         <div className="flex items-center gap-2">
                             <span className="text-[#fbaa19] text-xs font-black tracking-[0.2em] uppercase">
-                                &gt;_ TERMINAL DE PREDIÇÃO DE PITWALL // V2
+                                &gt;_ TERMINAL DE POSIÇÕES // SALA DE CONTROLE DE PITWALL
                             </span>
                             <span className="text-[#fbaa19] animate-pulse">■</span>
                         </div>
                         <span className="text-[10px] uppercase tracking-widest text-white/40">
-                            ORDENS DE GP // SESSÃO ATIVA
+                            ORDENS DE MERCADO // GP ATIVO
                         </span>
                     </div>
 
@@ -339,12 +339,12 @@ export default function Prediction2TerminalPage() {
                     </h1>
 
                     <p className="text-white/60 text-xs md:text-sm leading-relaxed max-w-3xl">
-                        {activeTabMeta.desc} Padrão de cores com destaque âmbar de ativação idêntico à interface de mercado.
+                        {activeTabMeta.desc} Abra e consolide suas posições de telemetria antes do fechamento do pregão. Todas as ordens registradas na Superlicença serão auditadas contra os tempos oficiais da FIA e liquidarão pontos para sua aliança técnica.
                     </p>
                 </header>
 
                 {/* 3. CONTROLE DE ABAS (PITWALL CONSOLE) */}
-                <nav aria-label="Abas de Predição" className="w-full bg-black/80 backdrop-blur-md border border-white/15 rounded-lg p-1.5 flex flex-wrap md:flex-nowrap gap-1.5 shadow-xl">
+                <nav aria-label="Abas de Posições" className="w-full bg-black/80 backdrop-blur-md border border-white/15 rounded-lg p-1.5 flex flex-wrap md:flex-nowrap gap-1.5 shadow-xl">
                     {TABS.map((tab) => {
                         const isActive = activeTab === tab.id;
                         let progress = '';
@@ -389,7 +389,7 @@ export default function Prediction2TerminalPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - MODALIDADE 01 // VOLTA DA POLE POSITION
+                                            &gt; - POSIÇÃO 01 // VOLTA DA POLE POSITION
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -506,11 +506,11 @@ export default function Prediction2TerminalPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - MODALIDADE 02 // LIGA MASTER
+                                            &gt; - POSIÇÃO 02 // LIGA MASTER
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        TOP 10 FINISH // ORDEM DE CHEGADA
+                                        TOP 10 FINISH // POSIÇÕES DE CHEGADA
                                     </h2>
                                     <p className="text-xs text-white/60 mt-1">
                                         Selecione os 10 pilotos na ordem exata de chegada. Ao selecionar, a opção se destaca em âmbar/amarelo no padrão oficial de BET.
@@ -647,7 +647,7 @@ export default function Prediction2TerminalPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - MODALIDADE 03 // EVOLUÇÃO DE CORRIDA
+                                            &gt; - POSIÇÃO 03 // EVOLUÇÃO DE CORRIDA
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -788,7 +788,7 @@ export default function Prediction2TerminalPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - MODALIDADE 04 // DUELOS DE BOX
+                                            &gt; - POSIÇÃO 04 // DUELOS DE BOX
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -881,7 +881,7 @@ export default function Prediction2TerminalPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - MODALIDADE 05 // EVENT PROPS
+                                            &gt; - POSIÇÃO 05 // EVENT PROPS
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -967,7 +967,7 @@ export default function Prediction2TerminalPage() {
                 <div className="max-w-5xl mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-3">
                     
                     <div className="flex items-center gap-3 text-xs uppercase tracking-wider">
-                        <span className="text-[#fbaa19] font-black hidden sm:inline">&gt;_ ORDENS DE GRID:</span>
+                        <span className="text-[#fbaa19] font-black hidden sm:inline">&gt;_ ORDENS DE MERCADO:</span>
                         <div className="flex items-center gap-2 flex-wrap text-[11px]">
                             <span className={isPoletimeSet ? "text-emerald-400 font-bold" : "text-white/40"}>
                                 POLE: {isPoletimeSet ? 'OK' : '0/1'}
@@ -999,12 +999,12 @@ export default function Prediction2TerminalPage() {
                             }`}
                         >
                             {isSubmitting
-                                ? 'TRANSMITINDO ORDENS...'
+                                ? 'CONSOLIDANDO POSIÇÕES...'
                                 : isSuccess
-                                ? '✔ ORDENS AUDITADAS E SALVAS!'
+                                ? '✔ POSIÇÕES AUDITADAS E PROTOCOLADAS!'
                                 : isAllComplete
-                                ? '[ CONFIRMAR & TRANSMITIR ORDENS AO GRID ]'
-                                : '[ ORDENS PENDENTES DE PREENCHIMENTO ]'}
+                                ? '[ CONSOLIDAR & TRANSMITIR POSIÇÕES AO GRID ]'
+                                : '[ POSIÇÕES PENDENTES DE PREENCHIMENTO ]'}
                         </button>
                     </div>
 

@@ -19,7 +19,7 @@ export const MobileBottomDock: React.FC = () => {
     const { user } = useSupabaseAuth();
 
     // Do not show on onboarding / immersion screens
-    if (pathname === "/" || pathname === "/invite" || pathname === "/invite4" || pathname === "/academy") {
+    if (pathname === "/" || pathname === "/invite" || pathname === "/academy") {
         return null;
     }
 
@@ -34,8 +34,8 @@ export const MobileBottomDock: React.FC = () => {
             ),
         },
         {
-            href: "/bet",
-            label: "APOSTAS",
+            href: "/positions",
+            label: "POSIÇÕES",
             badge: "LIVE",
             icon: (isActive) => (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={isActive ? 2.5 : 2}>
