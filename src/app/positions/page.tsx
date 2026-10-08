@@ -226,7 +226,7 @@ export default function PositionsPage() {
 
     return (
         <main className="w-full min-h-screen relative bg-[#050401] text-white font-mono flex flex-col items-center pb-32 select-none overflow-x-hidden">
-            
+
             {/* Background Pixel Art Imersivo Noir */}
             <img
                 src="/pixel_invite_bg_v2.jpg"
@@ -268,7 +268,7 @@ export default function PositionsPage() {
             <div className="relative z-10 w-full max-w-5xl px-4 md:px-8 mt-6 flex flex-col gap-6">
 
                 {/* 1. HUD DA SUPERLICENÇA / STATUS DO PILOTO */}
-                <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-4 md:p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                {/* <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-4 md:p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative border-2" style={{ borderColor: pilot?.teamColor || '#fbaa19' }}>
                             {pilot?.avatarUrl ? (
@@ -360,18 +360,16 @@ export default function PositionsPage() {
                                 key={tab.id}
                                 type="button"
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex-1 min-w-[130px] p-2.5 rounded flex flex-col items-center justify-center gap-1 transition-all border cursor-pointer ${
-                                    isActive
+                                className={`flex-1 min-w-[130px] p-2.5 rounded flex flex-col items-center justify-center gap-1 transition-all border cursor-pointer ${isActive
                                         ? 'bg-[#fbaa19] text-black border-[#fbaa19] shadow-lg font-black'
                                         : 'bg-black/40 text-white/70 border-white/5 hover:border-[#fbaa19]/40 hover:text-white font-bold'
-                                }`}
+                                    }`}
                             >
                                 <span className="text-[11px] md:text-xs uppercase tracking-wider font-mono">
                                     {tab.label}
                                 </span>
-                                <span className={`text-[9px] uppercase tracking-widest px-1.5 py-0.2 rounded font-mono ${
-                                    isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-white/60'
-                                }`}>
+                                <span className={`text-[9px] uppercase tracking-widest px-1.5 py-0.2 rounded font-mono ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-white/60'
+                                    }`}>
                                     {progress}
                                 </span>
                             </button>
@@ -553,18 +551,16 @@ export default function PositionsPage() {
                                             <div
                                                 onClick={() => setOpenDropdown(isOpen ? null : { type: 'top10', index: idx })}
                                                 style={{ minHeight: '3.5rem' }}
-                                                className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${
-                                                    isPicked 
-                                                        ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg' 
+                                                className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${isPicked
+                                                        ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
                                                         : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
-                                                } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
+                                                    } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
                                             >
                                                 {/* Badge lateral ordinal no padrão de BET */}
-                                                <div className={`w-16 flex items-center justify-center font-black uppercase text-base md:text-lg border-r shrink-0 ${
-                                                    isPicked 
-                                                        ? 'bg-[#e59914] text-black border-[#e59914]' 
+                                                <div className={`w-16 flex items-center justify-center font-black uppercase text-base md:text-lg border-r shrink-0 ${isPicked
+                                                        ? 'bg-[#e59914] text-black border-[#e59914]'
                                                         : 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                }`}>
+                                                    }`}>
                                                     {getOrdinal(idx + 1)}
                                                 </div>
 
@@ -613,11 +609,10 @@ export default function PositionsPage() {
                                                                     setTop10(next);
                                                                     setOpenDropdown(null);
                                                                 }}
-                                                                className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${
-                                                                    isSelected && driverName !== dName
+                                                                className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
                                                                         ? 'opacity-30 cursor-not-allowed bg-black/40'
                                                                         : 'hover:bg-[#fbaa19] hover:text-black group'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="text-xs font-black uppercase group-hover:text-black">{dInfo.name}</span>
@@ -694,18 +689,16 @@ export default function PositionsPage() {
                                             <div
                                                 onClick={() => setOpenDropdown(isOpen ? null : { type: 'evo', index: idx })}
                                                 style={{ minHeight: '3.5rem' }}
-                                                className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${
-                                                    isPicked 
-                                                        ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg' 
+                                                className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${isPicked
+                                                        ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
                                                         : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
-                                                } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
+                                                    } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
                                             >
                                                 {/* Badge lateral no padrão BET */}
-                                                <div className={`w-20 flex items-center justify-center font-bold uppercase text-xs border-r shrink-0 ${
-                                                    isPicked 
-                                                        ? 'bg-[#e59914] text-black border-[#e59914]' 
+                                                <div className={`w-20 flex items-center justify-center font-bold uppercase text-xs border-r shrink-0 ${isPicked
+                                                        ? 'bg-[#e59914] text-black border-[#e59914]'
                                                         : 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                }`}>
+                                                    }`}>
                                                     EVO {idx + 1}
                                                 </div>
 
@@ -754,11 +747,10 @@ export default function PositionsPage() {
                                                                     setEvo(next);
                                                                     setOpenDropdown(null);
                                                                 }}
-                                                                className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${
-                                                                    isSelected && driverName !== dName
+                                                                className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
                                                                         ? 'opacity-30 cursor-not-allowed bg-black/40'
                                                                         : 'hover:bg-[#fbaa19] hover:text-black group'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="text-xs font-black uppercase group-hover:text-black">{dInfo.name}</span>
@@ -845,11 +837,10 @@ export default function PositionsPage() {
                                                             type="button"
                                                             onClick={() => setH2H(prev => ({ ...prev, [match.id]: driver.num }))}
                                                             style={{ minHeight: '3.5rem' }}
-                                                            className={`flex-1 flex flex-row items-center justify-between px-4 py-2 transition-all text-left border-r border-white/10 last:border-r-0 cursor-pointer ${
-                                                                isPicked
+                                                            className={`flex-1 flex flex-row items-center justify-between px-4 py-2 transition-all text-left border-r border-white/10 last:border-r-0 cursor-pointer ${isPicked
                                                                     ? 'bg-[#fbaa19] text-black font-black'
                                                                     : 'bg-black/50 text-white hover:bg-black/90 hover:text-[#fbaa19]'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <span className="text-base md:text-lg font-black uppercase tracking-widest leading-tight">
                                                                 {driver.name}{' '}
@@ -912,11 +903,10 @@ export default function PositionsPage() {
                                                             key={opt}
                                                             type="button"
                                                             onClick={() => setMisc(prev => ({ ...prev, [q.id]: opt }))}
-                                                            className={`px-6 py-2 rounded text-xs font-black uppercase tracking-widest transition-all cursor-pointer border ${
-                                                                isSelected
+                                                            className={`px-6 py-2 rounded text-xs font-black uppercase tracking-widest transition-all cursor-pointer border ${isSelected
                                                                     ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
                                                                     : 'bg-black/60 text-white/70 border-white/20 hover:border-[#fbaa19]/50 hover:text-white'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             {opt} {isSelected && '✔'}
                                                         </button>
@@ -942,11 +932,10 @@ export default function PositionsPage() {
                                                     key={val}
                                                     type="button"
                                                     onClick={() => setMisc(prev => ({ ...prev, stake: val }))}
-                                                    className={`px-3 py-1.5 rounded text-xs font-black tracking-wider transition-all cursor-pointer border ${
-                                                        isCurrent
+                                                    className={`px-3 py-1.5 rounded text-xs font-black tracking-wider transition-all cursor-pointer border ${isCurrent
                                                             ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
                                                             : 'bg-black/40 text-white/60 border-white/15 hover:border-[#fbaa19]'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {val}%
                                                 </button>
@@ -965,7 +954,7 @@ export default function PositionsPage() {
             {/* BARRA FIXA DE CONFIRMAÇÃO & TRANSMISSÃO (STICKY EXECUTION DOCK) */}
             <footer className="fixed bottom-0 left-0 w-full bg-black/95 backdrop-blur-lg border-t-2 border-[#fbaa19] z-50 p-3 md:p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
                 <div className="max-w-5xl mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-3">
-                    
+
                     <div className="flex items-center gap-3 text-xs uppercase tracking-wider">
                         <span className="text-[#fbaa19] font-black hidden sm:inline">&gt;_ ORDENS DE MERCADO:</span>
                         <div className="flex items-center gap-2 flex-wrap text-[11px]">
@@ -992,19 +981,18 @@ export default function PositionsPage() {
                             type="button"
                             onClick={() => handleSubmit(true)}
                             disabled={!isAllComplete || isSubmitting || isSuccess}
-                            className={`w-full sm:w-auto px-8 py-3 rounded text-xs md:text-sm font-black uppercase tracking-widest transition-all cursor-pointer border ${
-                                isAllComplete
+                            className={`w-full sm:w-auto px-8 py-3 rounded text-xs md:text-sm font-black uppercase tracking-widest transition-all cursor-pointer border ${isAllComplete
                                     ? 'bg-[#fbaa19] text-black border-[#fbaa19] hover:bg-white hover:text-black hover:border-white shadow-[0_0_20px_rgba(251,170,25,0.4)]'
                                     : 'bg-white/10 text-white/40 border-white/10 cursor-not-allowed'
-                            }`}
+                                }`}
                         >
                             {isSubmitting
                                 ? 'CONSOLIDANDO POSIÇÕES...'
                                 : isSuccess
-                                ? '✔ POSIÇÕES AUDITADAS E PROTOCOLADAS!'
-                                : isAllComplete
-                                ? '[ CONSOLIDAR & TRANSMITIR POSIÇÕES AO GRID ]'
-                                : '[ POSIÇÕES PENDENTES DE PREENCHIMENTO ]'}
+                                    ? '✔ POSIÇÕES AUDITADAS E PROTOCOLADAS!'
+                                    : isAllComplete
+                                        ? '[ CONSOLIDAR & TRANSMITIR POSIÇÕES AO GRID ]'
+                                        : '[ POSIÇÕES PENDENTES DE PREENCHIMENTO ]'}
                         </button>
                     </div>
 
