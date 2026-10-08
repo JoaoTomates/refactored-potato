@@ -136,7 +136,7 @@ export function TypewriterLine({
 type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'ENLIST' | 'EMAIL_SENT' | 'SUBMITTING_ENLIST';
 
 const customDialogs = [
-    "Puxe uma cadeira e feche a porta.",
+    "Entre e feche a porta.",
     "Os relatórios da sua telemetria caíram na minha mesa. Seus números são impressionantes.",
     "Você decifra o traçado antes mesmo das luzes vermelhas se apagarem.",
     "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
@@ -412,10 +412,23 @@ export function InviteFlow() {
     return (
         <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center">
 
+            {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
+            <img
+                src="/pixel_invite_walk.jpg"
+                alt=""
+                className={`fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
+                    phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
+                }`}
+                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+            />
+
+            {/* Background 2: Interior do Motorhome com telas de telemetria (demais mensagens da imersão) */}
             <img
                 src="/pixel_invite_bg_v2.jpg"
                 alt=""
-                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
+                className={`fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
+                    phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
+                }`}
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
