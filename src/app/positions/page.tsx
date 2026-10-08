@@ -257,10 +257,10 @@ export default function PositionsPage() {
                         <span>[SPREAD: 0.014s]</span>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    {/* <div className="flex items-center gap-2 shrink-0">
                         <span className="text-white/40">AUDITORIA:</span>
                         <span className="text-[#fbaa19] font-bold">FIA // PITWALL V2</span>
-                    </div>
+                    </div> */}
                 </div>
             </header>
 
@@ -329,9 +329,9 @@ export default function PositionsPage() {
                             </span>
                             <span className="text-[#fbaa19] animate-pulse">■</span>
                         </div>
-                        <span className="text-[10px] uppercase tracking-widest text-white/40">
+                        {/* <span className="text-[10px] uppercase tracking-widest text-white/40">
                             ORDENS DE MERCADO // GP ATIVO
-                        </span>
+                        </span> */}
                     </div>
 
                     <h1 className="text-2xl md:text-4xl font-black uppercase tracking-wider text-white">
@@ -361,8 +361,8 @@ export default function PositionsPage() {
                                 type="button"
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex-1 min-w-[130px] p-2.5 rounded flex flex-col items-center justify-center gap-1 transition-all border cursor-pointer ${isActive
-                                        ? 'bg-[#fbaa19] text-black border-[#fbaa19] shadow-lg font-black'
-                                        : 'bg-black/40 text-white/70 border-white/5 hover:border-[#fbaa19]/40 hover:text-white font-bold'
+                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19] shadow-lg font-black'
+                                    : 'bg-black/40 text-white/70 border-white/5 hover:border-[#fbaa19]/40 hover:text-white font-bold'
                                     }`}
                             >
                                 <span className="text-[11px] md:text-xs uppercase tracking-wider font-mono">
@@ -387,11 +387,11 @@ export default function PositionsPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 01 // VOLTA DA POLE POSITION
+                                            &gt; - POSIÇÃO 01 // POLETIME COMPETITION & MILESIMUS LEAGUE
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        POLETIME // MILÉSIMUS
+                                        POLETIME // TEMPO DA POLE POSITION
                                     </h2>
                                     <p className="text-xs text-white/60 mt-1">
                                         Defina o tempo exato da pole nos treinos de qualificação. Clique em cada dígito para incrementar o valor.
@@ -504,7 +504,7 @@ export default function PositionsPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 02 // LIGA MASTER
+                                            &gt; - POSIÇÃO 02 // MASTER LEAGUE & MILESIMUS LEAGUE
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -552,14 +552,14 @@ export default function PositionsPage() {
                                                 onClick={() => setOpenDropdown(isOpen ? null : { type: 'top10', index: idx })}
                                                 style={{ minHeight: '3.5rem' }}
                                                 className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${isPicked
-                                                        ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
-                                                        : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
+                                                    ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
+                                                    : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
                                                     } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
                                             >
                                                 {/* Badge lateral ordinal no padrão de BET */}
                                                 <div className={`w-16 flex items-center justify-center font-black uppercase text-base md:text-lg border-r shrink-0 ${isPicked
-                                                        ? 'bg-[#e59914] text-black border-[#e59914]'
-                                                        : 'bg-[#fbaa19] text-black border-[#fbaa19]'
+                                                    ? 'bg-[#e59914] text-black border-[#e59914]'
+                                                    : 'bg-[#fbaa19] text-black border-[#fbaa19]'
                                                     }`}>
                                                     {getOrdinal(idx + 1)}
                                                 </div>
@@ -610,8 +610,8 @@ export default function PositionsPage() {
                                                                     setOpenDropdown(null);
                                                                 }}
                                                                 className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
-                                                                        ? 'opacity-30 cursor-not-allowed bg-black/40'
-                                                                        : 'hover:bg-[#fbaa19] hover:text-black group'
+                                                                    ? 'opacity-30 cursor-not-allowed bg-black/40'
+                                                                    : 'hover:bg-[#fbaa19] hover:text-black group'
                                                                     }`}
                                                             >
                                                                 <div className="flex items-center gap-2">
@@ -642,7 +642,7 @@ export default function PositionsPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 03 // EVOLUÇÃO DE CORRIDA
+                                            &gt; - POSIÇÃO 03 // MILESIMUS LEAGUE
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
@@ -690,14 +690,14 @@ export default function PositionsPage() {
                                                 onClick={() => setOpenDropdown(isOpen ? null : { type: 'evo', index: idx })}
                                                 style={{ minHeight: '3.5rem' }}
                                                 className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${isPicked
-                                                        ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
-                                                        : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
+                                                    ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
+                                                    : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
                                                     } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
                                             >
                                                 {/* Badge lateral no padrão BET */}
                                                 <div className={`w-20 flex items-center justify-center font-bold uppercase text-xs border-r shrink-0 ${isPicked
-                                                        ? 'bg-[#e59914] text-black border-[#e59914]'
-                                                        : 'bg-[#fbaa19] text-black border-[#fbaa19]'
+                                                    ? 'bg-[#e59914] text-black border-[#e59914]'
+                                                    : 'bg-[#fbaa19] text-black border-[#fbaa19]'
                                                     }`}>
                                                     EVO {idx + 1}
                                                 </div>
@@ -748,8 +748,8 @@ export default function PositionsPage() {
                                                                     setOpenDropdown(null);
                                                                 }}
                                                                 className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
-                                                                        ? 'opacity-30 cursor-not-allowed bg-black/40'
-                                                                        : 'hover:bg-[#fbaa19] hover:text-black group'
+                                                                    ? 'opacity-30 cursor-not-allowed bg-black/40'
+                                                                    : 'hover:bg-[#fbaa19] hover:text-black group'
                                                                     }`}
                                                             >
                                                                 <div className="flex items-center gap-2">
@@ -780,11 +780,11 @@ export default function PositionsPage() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 04 // DUELOS DE BOX
+                                            &gt; - POSIÇÃO 04 // MILESIMUS LEAGUE
                                         </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        HEAD TO HEAD // CONFRONTOS DIRETOS
+                                        HEAD TO HEAD // CONFRONTOS ENTRE COMPANHEIROS DE EQUIPE
                                     </h2>
                                     <p className="text-xs text-white/60 mt-1">
                                         Selecione o piloto vencedor de cada duelo. A opção selecionada se destaca em amarelo âmbar com checkmark idêntico a BET.
@@ -838,8 +838,8 @@ export default function PositionsPage() {
                                                             onClick={() => setH2H(prev => ({ ...prev, [match.id]: driver.num }))}
                                                             style={{ minHeight: '3.5rem' }}
                                                             className={`flex-1 flex flex-row items-center justify-between px-4 py-2 transition-all text-left border-r border-white/10 last:border-r-0 cursor-pointer ${isPicked
-                                                                    ? 'bg-[#fbaa19] text-black font-black'
-                                                                    : 'bg-black/50 text-white hover:bg-black/90 hover:text-[#fbaa19]'
+                                                                ? 'bg-[#fbaa19] text-black font-black'
+                                                                : 'bg-black/50 text-white hover:bg-black/90 hover:text-[#fbaa19]'
                                                                 }`}
                                                         >
                                                             <span className="text-base md:text-lg font-black uppercase tracking-widest leading-tight">
@@ -904,8 +904,8 @@ export default function PositionsPage() {
                                                             type="button"
                                                             onClick={() => setMisc(prev => ({ ...prev, [q.id]: opt }))}
                                                             className={`px-6 py-2 rounded text-xs font-black uppercase tracking-widest transition-all cursor-pointer border ${isSelected
-                                                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                                    : 'bg-black/60 text-white/70 border-white/20 hover:border-[#fbaa19]/50 hover:text-white'
+                                                                ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
+                                                                : 'bg-black/60 text-white/70 border-white/20 hover:border-[#fbaa19]/50 hover:text-white'
                                                                 }`}
                                                         >
                                                             {opt} {isSelected && '✔'}
@@ -933,8 +933,8 @@ export default function PositionsPage() {
                                                     type="button"
                                                     onClick={() => setMisc(prev => ({ ...prev, stake: val }))}
                                                     className={`px-3 py-1.5 rounded text-xs font-black tracking-wider transition-all cursor-pointer border ${isCurrent
-                                                            ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                            : 'bg-black/40 text-white/60 border-white/15 hover:border-[#fbaa19]'
+                                                        ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
+                                                        : 'bg-black/40 text-white/60 border-white/15 hover:border-[#fbaa19]'
                                                         }`}
                                                 >
                                                     {val}%
@@ -982,8 +982,8 @@ export default function PositionsPage() {
                             onClick={() => handleSubmit(true)}
                             disabled={!isAllComplete || isSubmitting || isSuccess}
                             className={`w-full sm:w-auto px-8 py-3 rounded text-xs md:text-sm font-black uppercase tracking-widest transition-all cursor-pointer border ${isAllComplete
-                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19] hover:bg-white hover:text-black hover:border-white shadow-[0_0_20px_rgba(251,170,25,0.4)]'
-                                    : 'bg-white/10 text-white/40 border-white/10 cursor-not-allowed'
+                                ? 'bg-[#fbaa19] text-black border-[#fbaa19] hover:bg-white hover:text-black hover:border-white shadow-[0_0_20px_rgba(251,170,25,0.4)]'
+                                : 'bg-white/10 text-white/40 border-white/10 cursor-not-allowed'
                                 }`}
                         >
                             {isSubmitting
