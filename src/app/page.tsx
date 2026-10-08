@@ -1,12 +1,8 @@
 "use client";
 
-import React, { Suspense } from 'react';
-import { InviteFlow } from '@/components/invite-flow';
+import React from 'react';
+import SuperlicenseView from '@/components/superlicense-view';
 
 export default function Home() {
-    return (
-        <Suspense fallback={<div className="w-full h-screen bg-black" />}>
-            <InviteFlow />
-        </Suspense>
-    );
+    return <SuperlicenseView />;
 }
