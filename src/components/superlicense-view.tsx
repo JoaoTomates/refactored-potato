@@ -25,6 +25,12 @@ function SuperlicenseAuthContent() {
     const [successMsg, setSuccessMsg] = useState('');
 
     useEffect(() => {
+        if (searchParams?.get('account_deleted')) {
+            setSuccessMsg('SUPERLICENÇA REVOGADA E CONTA EXCLUÍDA COM SUCESSO DO GRID.');
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
         // If user is already logged in, redirect them to their dashboard
         const checkExistingSession = async () => {
             if (isLoading) return;

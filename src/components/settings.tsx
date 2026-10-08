@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { useThemeStore, FontTheme, THEME_FONTS } from '@/store/useThemeStore';
+import DangerZoneDeleteAccount from '@/components/danger-zone-delete-account';
 
 const THEME_OPTIONS: { id: FontTheme; name: string; desc: string }[] = [
     { id: 'pitwall', name: 'Pitwall Telemetry', desc: 'Rajdhani & Inter. F1 telemetry meets Wall Street.' },
@@ -129,6 +130,9 @@ export default function Settings() {
                     );
                 })}
             </div>
+
+            {/* ZONA DE RISCO: EXCLUIR CONTA */}
+            <DangerZoneDeleteAccount />
         </div>
     );
 }

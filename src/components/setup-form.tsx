@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import DangerZoneDeleteAccount from '@/components/danger-zone-delete-account';
 
 export default function SetupForm() {
     const { user } = useSupabaseAuth();
@@ -371,6 +372,9 @@ export default function SetupForm() {
                     {saving ? 'SAVING...' : success ? 'SAVED!' : 'SAVE PROFILE'}
                 </button>
             </form>
+
+            {/* ZONA DE RISCO: EXCLUIR CONTA */}
+            <DangerZoneDeleteAccount />
         </div>
     );
 }
