@@ -288,16 +288,47 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
 
     return (
         <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={me.teamColor}>
-            <div className="relative aspect-[5/4] overflow-hidden bg-black flex items-center justify-center p-4">
-                {/* Imagem SVG do capacete escondida com background 100% preto */}
-                <div className="hidden" aria-hidden="true">
-                    <img 
-                        alt="Capacete Oficial F1" 
-                        src="/avatar-overlay.svg" 
-                    />
+            <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-black flex items-center justify-center p-2">
+                {/* Capacete Oficial F1 Expandido sobre Fundo 100% Preto */}
+                <div className="w-full h-full max-h-[260px] md:max-h-[280px] flex items-center justify-center relative scale-110 md:scale-120 transition-transform">
+                    <div className="relative w-full h-full flex items-center justify-center">
+                        <img 
+                            alt="Capacete Oficial F1" 
+                            className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)]" 
+                            src="/avatar-overlay.svg" 
+                        />
+                        <div 
+                            className="absolute inset-0 mix-blend-multiply pointer-events-none" 
+                            style={{ 
+                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                maskImage: 'url("/avatar-overlay.svg")', 
+                                WebkitMaskSize: 'contain',
+                                maskSize: 'contain', 
+                                WebkitMaskRepeat: 'no-repeat',
+                                maskRepeat: 'no-repeat', 
+                                WebkitMaskPosition: 'center center',
+                                maskPosition: 'center center', 
+                                backgroundColor: me.teamColor 
+                            }} 
+                        />
+                        <div 
+                            className="absolute inset-0 mix-blend-color opacity-85 pointer-events-none" 
+                            style={{ 
+                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                maskImage: 'url("/avatar-overlay.svg")', 
+                                WebkitMaskSize: 'contain',
+                                maskSize: 'contain', 
+                                WebkitMaskRepeat: 'no-repeat',
+                                maskRepeat: 'no-repeat', 
+                                WebkitMaskPosition: 'center center',
+                                maskPosition: 'center center', 
+                                backgroundColor: me.teamColor 
+                            }} 
+                        />
+                    </div>
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 flex items-end justify-between bg-black z-20">
+                <div className="absolute inset-x-0 bottom-0 pt-10 pb-3 px-4 flex items-end justify-between bg-gradient-to-t from-black via-black/85 to-transparent z-20">
                     <div>
                         <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">ESTRATEGISTA</p>
                         <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">{me.name}</h2>
