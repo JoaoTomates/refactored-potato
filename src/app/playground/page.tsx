@@ -254,48 +254,50 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 /* ---------- Credencial / Capacete ---------- */
 function CredentialCard({ me, number, allianceId }: { me: Strategist; number: string; allianceId: AllianceId }) {
     const last = me.series[me.series.length - 1];
-    const [avatarVariant, setAvatarVariant] = useState<AvatarVariant>('team');
 
     return (
         <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" accentColor={me.teamColor}>
             <div className="relative aspect-[5/4] overflow-hidden bg-[#070604] flex items-center justify-center p-4">
-                {/* Capacete F1 Vetorial Zero Bala com Variações de Fundo */}
                 <div className="w-full h-full max-h-[220px] flex items-center justify-center relative">
-                    <PilotAvatar
-                        teamColor={me.teamColor}
-                        teamName={me.teamName}
-                        driverNumber={number}
-                        variant={avatarVariant}
-                        size="custom"
-                        className="w-full h-full max-h-[220px]"
-                        showBadge={false}
-                    />
-                </div>
-
-                <div className="absolute top-3 left-3 min-w-10 h-10 px-2 bg-white text-black flex items-center justify-center font-black text-xl rounded-sm shadow-lg z-20">
-                    {number}
-                </div>
-
-                {/* Seletor de Variações de Fundo do Avatar */}
-                <div className="absolute top-3 right-3 flex items-center gap-1 z-20">
-                    {(['team', 'carbon', 'neon', 'champion'] as AvatarVariant[]).map((v) => (
-                        <button
-                            key={v}
-                            type="button"
-                            onClick={() => setAvatarVariant(v)}
-                            title={`Fundo ${v.toUpperCase()}`}
-                            className={`text-[8px] uppercase font-mono px-1.5 py-0.5 rounded border transition-colors ${
-                                avatarVariant === v 
-                                    ? 'bg-white text-black font-black border-white shadow' 
-                                    : 'bg-black/70 text-white/50 border-white/20 hover:text-white hover:border-white/40'
-                            }`}
-                        >
-                            {v.charAt(0)}
-                        </button>
-                    ))}
-                    <span className="text-[9px] font-bold tracking-widest border px-2 py-1 rounded-sm bg-black/80 ml-1 shadow" style={{ borderColor: `${me.teamColor}70`, color: me.teamColor }}>
-                        BLOCO {allianceId}
-                    </span>
+                    <div className="relative inline-flex items-center justify-center shrink-0 select-none overflow-hidden rounded-full w-full h-full max-h-[220px]">
+                        <div className="absolute inset-0 flex items-center justify-center p-[6%] pointer-events-none">
+                            <div className="relative w-full h-full flex items-center justify-center">
+                                <img 
+                                    alt="Capacete Oficial F1" 
+                                    className="w-full h-full object-contain select-none drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)]" 
+                                    src="/avatar-overlay.svg" 
+                                />
+                                <div 
+                                    className="absolute inset-0 mix-blend-multiply" 
+                                    style={{ 
+                                        WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                        maskImage: 'url("/avatar-overlay.svg")', 
+                                        WebkitMaskSize: 'contain',
+                                        maskSize: 'contain', 
+                                        WebkitMaskRepeat: 'no-repeat',
+                                        maskRepeat: 'no-repeat', 
+                                        WebkitMaskPosition: 'center center',
+                                        maskPosition: 'center center', 
+                                        backgroundColor: me.teamColor 
+                                    }} 
+                                />
+                                <div 
+                                    className="absolute inset-0 mix-blend-color opacity-75" 
+                                    style={{ 
+                                        WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                        maskImage: 'url("/avatar-overlay.svg")', 
+                                        WebkitMaskSize: 'contain',
+                                        maskSize: 'contain', 
+                                        WebkitMaskRepeat: 'no-repeat',
+                                        maskRepeat: 'no-repeat', 
+                                        WebkitMaskPosition: 'center center',
+                                        maskPosition: 'center center', 
+                                        backgroundColor: me.teamColor 
+                                    }} 
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 flex items-end justify-between bg-gradient-to-t from-black via-black/80 to-transparent z-20">
