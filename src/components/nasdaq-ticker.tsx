@@ -88,8 +88,10 @@ export default function NasdaqTicker() {
 
                 const real: Strategist[] = (contracts || []).map((c: any) => {
                     const p = c.profiles || {};
-                    const name = p.first_name ? `${p.first_name.charAt(0)}. ${p.last_name || ''}`.trim() : 'ESTRATEGISTA';
-                    return makeStrategist(c.user_id, name.toUpperCase(), p.slug || null);
+                    const name = p.first_name 
+                        ? `${p.first_name.trim().charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase().replace(/\s+/g, '')}` 
+                        : 'ESTRATEGISTA';
+                    return makeStrategist(c.user_id, name, p.slug || null);
                 });
 
                 const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
@@ -115,13 +117,11 @@ export default function NasdaqTicker() {
         }));
     }, [field]);
 
-    // Do not show on onboarding or inside playground (called AFTER all hooks to adhere to Rules of Hooks)
+    // Do not show on onboarding / auth screens
     if (
         pathname === '/' ||
         pathname === '/superlicense' ||
         pathname === '/invite' ||
-        pathname === '/invite4' ||
-        pathname === '/playground' ||
         pathname === '/academy'
     ) {
         return null;

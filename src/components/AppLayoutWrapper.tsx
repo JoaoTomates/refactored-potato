@@ -8,25 +8,17 @@ import MobileBottomDock from './mobile-bottom-dock';
 
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isHiddenRoute = pathname === '/' || pathname === '/invite' || pathname === '/invite4' || pathname === '/academy' || pathname === '/headquarters' || pathname === '/superlicense';
+    const isHiddenRoute = pathname === '/' || pathname === '/invite' || pathname === '/academy' || pathname === '/headquarters' || pathname === '/superlicense';
 
     return (
         <div className="flex flex-col min-h-screen w-full relative">
+            {/* Único Ticker Oficial do Sistema */}
             {!isHiddenRoute && <NasdaqTicker />}
             
-            {/* Main content with bottom padding for bottom Navigation */}
-            <div className={`flex-grow flex flex-col w-full ${!isHiddenRoute ? 'pb-20' : ''}`}>
+            {/* Conteúdo Principal com navegação orgânica contextual interna */}
+            <main className="flex-grow flex flex-col w-full">
                 {children}
-            </div>
-
-            {/* Navbar positioned at the bottom of the page */}
-            {!isHiddenRoute && <Navigation />}
-
-            {/* Footer oculto temporariamente conforme solicitado */}
-            {/* {!isHiddenRoute && <Footer />} */}
-            
-            {/* Mobile Thumb Zone Navigation Dock */}
-            {!isHiddenRoute && <MobileBottomDock />}
+            </main>
         </div>
     );
 }

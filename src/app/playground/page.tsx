@@ -585,18 +585,6 @@ export default function PlaygroundPage() {
                     </div>
                 </header>
 
-                {/* Fita de cotações */}
-                <div className="overflow-hidden border-b border-white/5 bg-black/60">
-                    <div className="vg-marquee flex w-max whitespace-nowrap py-2">
-                        {[...tickerItems, ...tickerItems].map((t, i) => (
-                            <span key={i} className="flex items-center gap-2 px-5 text-[11px] tracking-widest border-r border-white/5">
-                                <span className="text-white/80 font-bold">{t.sym}</span>
-                                <span className="text-white/50 tabular-nums">{fmt(t.price)}</span>
-                                <Delta value={t.chg} className="text-[10px]" />
-                            </span>
-                        ))}
-                    </div>
-                </div>
 
                 {isDemo && (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
