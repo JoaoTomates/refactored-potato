@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Pitwall',
+  title: 'Pitwall Global // Matriz Operacional de Garagens & Alianças',
+  description: 'Central de telemetria e alocação de cockpits da Fórmula 1 – VoltGrid 2026',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
