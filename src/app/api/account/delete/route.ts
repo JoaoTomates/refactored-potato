@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
         const userId = user.id;
 
-        // 2. Client administrativo com service role para expurgo total
+        // 2. Client administrativo com service role para expurgo e rescisão contratual
         const adminClient = createClient(supabaseUrl, serviceRoleKey, {
             auth: {
                 autoRefreshToken: false,
@@ -35,18 +35,37 @@ export async function POST(request: Request) {
             }
         });
 
-        // 3. Remove dados das tabelas dependentes
-        await adminClient.from('predictions').delete().eq('user_id', userId);
+        // 3. Rescisão de contrato de equipe: libera o assento imediatamente para novos pilotos no Pitwall
         await adminClient.from('contracts').delete().eq('user_id', userId);
-        await adminClient.from('profiles').delete().eq('id', userId);
 
-        // 4. Remove a identidade e login em auth.users
+        // 4. Cancelamento de apostas da rodada corrente / em aberto
+        await adminClient.from('predictions').delete().eq('user_id', userId).eq('round', 'current');
+
+        // 5. Anonimização estrita do perfil (LGPD / GDPR): descaracterização de dados pessoais
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        await adminClient.from('profiles').update({
+            first_name: 'PILOTO',
+            last_name: 'DESLIGADO',
+            slug: `@desligado_${randomSuffix}`,
+            avatar_url: null,
+            nationality: null,
+            org_color: '#333333',
+            setup_completed: false
+        }).eq('id', userId);
+
+        // 6. Exclui a conta e credenciais permanentemente de auth.users
         const { error: deleteUserError } = await adminClient.auth.admin.deleteUser(userId);
         if (deleteUserError) {
-            console.error('Erro ao excluir usuário em auth.users:', deleteUserError);
+            console.error('Aviso ao excluir em auth.users:', deleteUserError);
+            // Fallback caso a FK não tenha cascade: apaga o perfil diretamente
+            await adminClient.from('profiles').delete().eq('id', userId);
+            await adminClient.auth.admin.deleteUser(userId);
         }
 
-        return NextResponse.json({ success: true, message: 'Conta e credenciais excluídas com sucesso.' });
+        return NextResponse.json({ 
+            success: true, 
+            message: 'Superlicença revogada, vaga no grid liberada e credenciais excluídas com sucesso.' 
+        });
     } catch (err: any) {
         console.error('Erro ao processar exclusão de conta:', err);
         return NextResponse.json({ error: err.message || 'Erro interno ao processar exclusão de conta' }, { status: 500 });

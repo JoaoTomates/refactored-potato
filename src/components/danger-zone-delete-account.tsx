@@ -47,11 +47,17 @@ export default function DangerZoneDeleteAccount() {
                 }
             }
 
-            // Fallback no client para garantir expurgo dos dados públicos
+            // Fallback no client para garantir expurgo e rescisão contratual
             if (!apiSuccess) {
-                await supabase.from('predictions').delete().eq('user_id', user.id);
                 await supabase.from('contracts').delete().eq('user_id', user.id);
-                await supabase.from('profiles').delete().eq('id', user.id);
+                await supabase.from('predictions').delete().eq('user_id', user.id).eq('round', 'current');
+                await supabase.from('profiles').update({
+                    first_name: 'PILOTO',
+                    last_name: 'DESLIGADO',
+                    slug: `@desligado_${Math.floor(1000 + Math.random() * 9000)}`,
+                    avatar_url: null,
+                    nationality: null
+                }).eq('id', user.id);
             }
 
             // Desconectar o usuário
@@ -128,11 +134,11 @@ export default function DangerZoneDeleteAccount() {
                             <p className="font-bold text-white uppercase">
                                 Você tem certeza de que deseja revogar sua Superlicença e destruir todos os seus dados?
                             </p>
-                            <ul className="list-disc list-inside space-y-1 text-white/60 text-[11px]">
-                                <li>Seu perfil de estrategista será deletado</li>
-                                <li>Suas apostas e previsões de GP serão apagadas</li>
-                                <li>Sua vaga na garagem da equipe será liberada no grid</li>
-                                <li>Suas credenciais de acesso serão invalidadas</li>
+                            <ul className="list-disc list-inside space-y-1.5 text-white/70 text-[11px]">
+                                <li><strong className="text-white">Vaga no Grid:</strong> Seu contrato será rescindido e seu assento na equipe liberado no Pitwall para novos pilotos.</li>
+                                <li><strong className="text-white">Apostas Correntes:</strong> Suas ordens para o próximo GP serão canceladas imediatamente.</li>
+                                <li><strong className="text-white">Dados Pessoais & Login:</strong> Seu e-mail, senha e credenciais de acesso serão expurgados definitivamente.</li>
+                                <li><strong className="text-white">Integridade Histórica:</strong> Pontuações em etapas já encerradas permanecem anonimizadas no histórico de construtores.</li>
                             </ul>
 
                             <div className="mt-3 p-3 bg-black/60 border border-white/10 rounded">
