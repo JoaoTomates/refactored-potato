@@ -285,6 +285,7 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 /* ---------- Credencial / Capacete ---------- */
 function CredentialCard({ me, number, allianceId }: { me: Strategist; number: string; allianceId: AllianceId }) {
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
+    const rating = ratingFor(last);
 
     return (
         <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={me.teamColor}>
@@ -328,30 +329,48 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                     </div>
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 pt-10 pb-3 px-4 flex items-end justify-between bg-gradient-to-t from-black via-black/85 to-transparent z-20">
-                    <div>
-                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">ESTRATEGISTA</p>
-                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">{me.name}</h2>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">RATING</p>
-                        <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>{ratingFor(last)}</p>
+                {/* Nome e Estrategista Centralizados Elevados */}
+                <div className="absolute inset-x-0 bottom-10 pt-10 pb-3 px-4 flex items-end justify-center bg-gradient-to-t from-black/50 via-black/50 to-transparent z-0">
+                    <div className="text-center">
+                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">
+                            {me.name}
+                        </h2>
+                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mt-1">
+                            ESTRATEGISTA
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10 bg-black">
-                {[
-                    ['EQUIPE', <span key="t" className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />{me.teamName}</span>],
-                    ['GRUPO', getChampionGroupName(me.groupId)],
-                    ['ALIANÇA', ALLIANCES[allianceId].short],
-                    ['TICKER', `$${(me.slug || me.name).replace(/[@.\s]/g, '').toUpperCase()}`],
-                ].map(([k, v], i) => (
-                    <div key={i} className={`px-4 py-3 ${i % 2 === 0 ? 'border-r' : ''} ${i < 2 ? 'border-b' : ''} border-white/5`}>
-                        <p className="text-white/40 mb-1">{k}</p>
-                        <div className="text-white font-bold uppercase truncate">{v}</div>
+            {/* Grid 2x2: Equipe, Grupo, Aliança e Rating no 4º quadrante */}
+            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-black/10 bg-black">
+                <div className="px-4 py-3 border-r border-b border-black/5">
+                    <p className="text-white/40 mb-1">EQUIPE</p>
+                    <div className="text-white font-bold uppercase truncate">
+                        <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />
+                            {me.teamName}
+                        </span>
                     </div>
-                ))}
+                </div>
+                <div className="px-4 py-3 border-b border-black/5">
+                    <p className="text-white/40 mb-1">GRUPO</p>
+                    <div className="text-white font-bold uppercase truncate">
+                        {getChampionGroupName(me.groupId)}
+                    </div>
+                </div>
+                <div className="px-4 py-3 border-r border-black/5">
+                    <p className="text-white/40 mb-1">ALIANÇA</p>
+                    <div className="text-white font-bold uppercase truncate">
+                        {ALLIANCES[allianceId].short}
+                    </div>
+                </div>
+                <div className="px-4 py-3 border-black/5">
+                    <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mb-1">RATING</p>
+                    <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>
+                        {rating}
+                    </p>
+                </div>
             </div>
         </Panel>
     );
@@ -373,6 +392,8 @@ export default function OfficialStrategistDashboard() {
     const [loading, setLoading] = useState(true);
     const [targetProfile, setTargetProfile] = useState<any>(null);
     const [me, setMe] = useState<Strategist | null>(null);
+    const [userPrediction, setUserPrediction] = useState<any>(null);
+    const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null } | null>(null);
     const [field, setField] = useState<Strategist[]>([]);
     const [range, setRange] = useState<5 | 10 | 24>(10);
     const [feedIdx, setFeedIdx] = useState(0);
@@ -473,6 +494,50 @@ export default function OfficialStrategistDashboard() {
                 setMe(currentStrategist);
                 setField(realStrategists.length >= 4 ? realStrategists : [...realStrategists, ...demos]);
 
+                // 6. Busca dados reais de previsões do usuário do dashboard
+                const activeStrategistId = currentStrategist?.id;
+                if (activeStrategistId && !currentStrategist.isDemo) {
+                    const { data: predData } = await supabase
+                        .from('predictions')
+                        .select('*')
+                        .eq('user_id', activeStrategistId)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (predData) {
+                        setUserPrediction(predData);
+                    } else {
+                        setUserPrediction(null);
+                    }
+
+                    // 7. Busca companheiro de equipe real (mesma equipe e mesmo grupo, outro usuário)
+                    const myTeamId = userContract?.team_id || profileData?.team_id;
+                    const myGroupId = userContract?.group_id || profileData?.group_id || 1;
+                    const partnerContract = (contracts || []).find((c: any) => 
+                        c.team_id === myTeamId && 
+                        c.group_id === myGroupId && 
+                        c.user_id !== activeStrategistId
+                    );
+
+                    if (partnerContract) {
+                        const p = Array.isArray(partnerContract.profiles) ? partnerContract.profiles[0] || {} : partnerContract.profiles || {};
+                        const pName = p.first_name 
+                            ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}` 
+                            : (p.slug ? p.slug.replace('@', '').toUpperCase() : 'COMPANHEIRO');
+                        setTeamPartner({
+                            id: partnerContract.user_id,
+                            name: pName,
+                            slug: p.slug || null
+                        });
+                    } else {
+                        setTeamPartner(null);
+                    }
+                } else {
+                    setUserPrediction(null);
+                    setTeamPartner(null);
+                }
+
             } catch (err) {
                 console.error("Erro ao inicializar dashboard do estrategista:", err);
             } finally {
@@ -491,54 +556,59 @@ export default function OfficialStrategistDashboard() {
     const prev = me && me.series.length >= 2 ? me.series[me.series.length - 2] ?? last : last;
     const isDemo = !targetProfile && (!user || !!me?.isDemo);
 
-    // Métricas das 4 competições baseadas no ID do usuário
+    // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
         if (!me) return null;
         const seedVal = hashString(me.id);
         const rnd = seeded(seedVal);
         
+        const hasPred = Boolean(userPrediction);
+        const poleTimeVal = userPrediction?.poletime || null;
+        const top10Count = Array.isArray(userPrediction?.top10) ? userPrediction.top10.length : 0;
+        
         return {
             poletime: {
-                points: Math.floor(180 + rnd() * 640),
+                hasSubmitted: hasPred,
+                poleTime: poleTimeVal,
+                points: hasPred ? Math.floor(380 + rnd() * 240) : Math.floor(180 + rnd() * 640),
                 rank: `P${Math.floor(1 + rnd() * 12)}`,
-                accuracy: (91.2 + rnd() * 7.5).toFixed(1),
+                accuracy: hasPred ? '98.4' : (91.2 + rnd() * 7.5).toFixed(1),
+                status: hasPred ? 'HOMOLOGADO' : 'PENDENTE',
             },
             master: {
+                hasSubmitted: top10Count > 0,
+                picksCount: top10Count,
                 points: Math.floor(450 + rnd() * 1150),
                 rank: `P${Math.floor(1 + rnd() * 8)}`,
                 podiums: Math.floor(2 + rnd() * 7),
+                status: top10Count > 0 ? `${top10Count}/10 PILOTOS` : 'PENDENTE',
             },
             milesimus: {
-                points: Math.floor(125000 + rnd() * 650000),
+                points: userPrediction?.misc?.stake ? parseInt(userPrediction.misc.stake, 10) * 1000 : Math.floor(125000 + rnd() * 650000),
                 currency: 'mls',
                 tier: rnd() > 0.4 ? 'DIVISÃO OURO' : 'DIVISÃO PRATA',
             },
             teamwork: {
                 duoRank: `P${Math.floor(1 + rnd() * 11)}`,
                 teamScore: Math.floor(1200 + rnd() * 2400),
-                partner: me.isDemo ? 'TELEMETRIA IA' : 'ASSENTO #2 DISPONÍVEL',
-                synergy: Math.floor(75 + rnd() * 23),
+                partner: teamPartner ? teamPartner.name : (me.isDemo ? 'TELEMETRIA IA' : 'ASSENTO #2 DISPONÍVEL'),
+                partnerSlug: teamPartner?.slug || null,
+                hasPartner: Boolean(teamPartner),
+                synergy: teamPartner ? Math.floor(84 + rnd() * 14) : Math.floor(55 + rnd() * 25),
             }
         };
-    }, [me]);
+    }, [me, userPrediction, teamPartner]);
 
     // Histórico de atividades / telemetria de ordens
     const activityHistory = useMemo(() => {
         if (!me) return [];
-        return [
+        const base = [
             {
                 time: '18m atrás',
                 title: 'Ordem de Pit Stop Sincronizada',
                 desc: `Telemetria enviada para a garagem ${me.teamName}.`,
                 badge: 'PITWALL',
                 color: teamColor
-            },
-            {
-                time: '2h atrás',
-                title: 'Previsão Registrada em Poletime',
-                desc: 'Janela Q3 fechada: 1:28.412 alvo.',
-                badge: 'POLETIME',
-                color: '#22c55e'
             },
             {
                 time: 'Ontem',
@@ -562,7 +632,34 @@ export default function OfficialStrategistDashboard() {
                 color: teamColor
             }
         ];
-    }, [me, teamColor, last, allianceId]);
+
+        if (userPrediction) {
+            const predTime = userPrediction.created_at 
+                ? new Date(userPrediction.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+                : 'Recente';
+            return [
+                {
+                    time: predTime,
+                    title: 'Previsão de GP Homologada',
+                    desc: `Pole: ${userPrediction.poletime} · ${Array.isArray(userPrediction.top10) ? userPrediction.top10.length : 0} pilotos no Top 10 salvos.`,
+                    badge: 'PREVISÃO',
+                    color: '#22c55e'
+                },
+                ...base
+            ];
+        }
+
+        return [
+            {
+                time: '2h atrás',
+                title: 'Previsão Registrada em Poletime',
+                desc: 'Janela Q3 fechada: 1:28.412 alvo.',
+                badge: 'POLETIME',
+                color: '#22c55e'
+            },
+            ...base
+        ];
+    }, [me, teamColor, last, allianceId, userPrediction]);
 
     const tickerItems = useMemo(() => {
         const list = field.length ? field : [];
@@ -611,14 +708,21 @@ export default function OfficialStrategistDashboard() {
     const feed = useMemo(() => {
         if (!me) return [''];
         const chg = pct(last, prev);
+        const partnerMsg = teamPartner 
+            ? `Seu parceiro de equipe na ${me.teamName} é ${teamPartner.name}. Telemetria de Teamwork conectada.`
+            : `O ${getChampionGroupName(me.groupId)} ainda tem assentos abertos. A concorrência no grid vai aumentar.`;
+        const predMsg = userPrediction 
+            ? `Previsão ativa: Poletime homologado em ${userPrediction.poletime}. Ordem no grid registrada.`
+            : `Lembre-se: quem prevê o caos, fatura o campeonato. Abra suas posições antes do fechamento do mercado.`;
+
         return [
             `Bom dia, ${me.name}. Sua cotação ${chg >= 0 ? 'subiu' : 'recuou'} ${Math.abs(chg).toFixed(2)}% desde o último GP.`,
             `O ${ALLIANCES[allianceId].name} acompanha seus relatórios. Mantenha o rating ${ratingFor(last)} no Master.`,
+            partnerMsg,
+            predMsg,
             `Competições ativas: Poletime, Master, Milesimus e Teamwork com inscrições sincronizadas.`,
-            `O ${getChampionGroupName(me.groupId)} ainda tem assentos abertos. A concorrência no grid vai aumentar.`,
-            `Lembre-se: quem prevê o caos, fatura o campeonato. Abra suas posições antes do fechamento do mercado.`,
         ];
-    }, [me, allianceId, last, prev]);
+    }, [me, allianceId, last, prev, teamPartner, userPrediction]);
 
     const feedTimer = useRef<ReturnType<typeof setInterval> | null>(null);
     useEffect(() => {
@@ -802,10 +906,18 @@ export default function OfficialStrategistDashboard() {
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Poletime</span>
-                                        <span className="text-[8px] px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-300 font-bold">QUALIFY</span>
+                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.poletime.hasSubmitted ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-white/50'}`}>
+                                            {compStats?.poletime.hasSubmitted ? 'HOMOLOGADO' : 'QUALIFY'}
+                                        </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.poletime.points} <span className="text-[10px] text-white/40">PTS</span></span>
+                                        {compStats?.poletime.hasSubmitted && compStats.poletime.poleTime ? (
+                                            <span className="text-lg md:text-xl font-black tracking-tight text-white font-mono">
+                                                {compStats.poletime.poleTime}
+                                            </span>
+                                        ) : (
+                                            <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.poletime.points} <span className="text-[10px] text-white/40">PTS</span></span>
+                                        )}
                                         <div className="flex items-center justify-between text-[8px] text-emerald-400/80 mt-1 uppercase font-bold">
                                             <span>{compStats?.poletime.rank} GRID</span>
                                             <span>{compStats?.poletime.accuracy}% ACC</span>
@@ -821,13 +933,15 @@ export default function OfficialStrategistDashboard() {
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">Master</span>
-                                        <span className="text-[8px] px-1 py-0.2 rounded bg-blue-500/10 text-blue-300 font-bold">RACE</span>
+                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.master.hasSubmitted ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-500/10 text-blue-300'}`}>
+                                            {compStats?.master.hasSubmitted ? '10 PILOTOS' : 'RACE'}
+                                        </span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.master.points} <span className="text-[10px] text-white/40">PTS</span></span>
                                         <div className="flex items-center justify-between text-[8px] text-blue-400/80 mt-1 uppercase font-bold">
                                             <span>{compStats?.master.rank} GERAL</span>
-                                            <span>{compStats?.master.podiums} PÓDIOS</span>
+                                            <span>{compStats?.master.status}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -860,13 +974,15 @@ export default function OfficialStrategistDashboard() {
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">Teamwork</span>
-                                        <span className="text-[8px] px-1 py-0.2 rounded bg-[#fbaa19]/10 text-[#fbaa19] font-bold">DUPLA</span>
+                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.teamwork.hasPartner ? 'bg-[#fbaa19]/20 text-[#fbaa19]' : 'bg-white/10 text-white/50'}`}>
+                                            {compStats?.teamwork.hasPartner ? 'DUPLA ATIVA' : 'GARAGEM'}
+                                        </span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.teamwork.duoRank} <span className="text-[10px] text-white/40">PAIR</span></span>
                                         <div className="flex items-center justify-between text-[8px] text-[#fbaa19]/80 mt-1 uppercase font-bold truncate">
                                             <span>{compStats?.teamwork.synergy}% SINC</span>
-                                            <span className="truncate max-w-[50px]">{me.teamCode}</span>
+                                            <span className="truncate max-w-[65px]">{compStats?.teamwork.partner}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -985,39 +1101,120 @@ export default function OfficialStrategistDashboard() {
 
                                     {/* ABA 2: BOOK DE PREVISÕES */}
                                     {activeTab === 'book' && (
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center justify-between pb-2 border-b border-white/5 text-[9px] tracking-widest uppercase text-white/40">
-                                                <span>MERCADO / ALVO</span>
-                                                <span>ESCOLHA / ODD</span>
-                                                <span className="text-right">CONFIANÇA</span>
-                                            </div>
-                                            {positions.map((p, i) => (
-                                                <div key={i} className="flex items-center justify-between gap-2 py-2 border-b border-white/5 last:border-0 text-[11px] tracking-widest">
-                                                    <div className="min-w-0">
-                                                        <p className="font-bold text-white truncate">{p.market}</p>
-                                                        <p className="text-[9px] text-white/40">FECHAMENTO T-24H</p>
+                                        <div className="flex flex-col gap-4">
+                                            {userPrediction ? (
+                                                <div className="flex flex-col gap-4 animate-fade-in">
+                                                    {/* Painel Poletime Real */}
+                                                    <div className="p-3.5 rounded-lg border bg-emerald-950/20 border-emerald-500/30 flex items-center justify-between">
+                                                        <div>
+                                                            <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">POLETIME REGISTRADO</span>
+                                                            <p className="text-2xl font-black text-white font-mono mt-0.5">{userPrediction.poletime}</p>
+                                                            <p className="text-[9px] text-white/40 mt-1">TELEMETRIA OFICIAL SINCRONIZADA</p>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                                                HOMOLOGADO
+                                                            </span>
+                                                            <p className="text-[9px] text-white/40 mt-1 tabular-nums">
+                                                                {userPrediction.created_at ? new Date(userPrediction.created_at).toLocaleDateString('pt-BR') : 'RODADA ATUAL'}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    <div className="text-center">
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-block" style={{ backgroundColor: `${p.color}20`, color: p.color }}>
-                                                            {p.pick}
-                                                        </span>
-                                                        <p className="text-[9px] text-white/50 mt-0.5 tabular-nums">@{p.odd}</p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <span className="font-bold tabular-nums text-emerald-400">{p.conf}%</span>
-                                                        <p className="text-[9px] text-white/40">MATCH</p>
-                                                    </div>
-                                                </div>
-                                            ))}
 
-                                            <Link
-                                                href="/positions"
-                                                className="mt-3 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
-                                                style={{ borderColor: `${teamColor}60`, backgroundColor: `${teamColor}15`, color: teamColor }}
-                                            >
-                                                <span>&gt;_ ABRIR TERMINAL // CONSOLIDAR POSIÇÕES DE GP</span>
-                                                <span>»</span>
-                                            </Link>
+                                                    {/* Top 10 Pilotos Master Reais */}
+                                                    {Array.isArray(userPrediction.top10) && userPrediction.top10.length > 0 && (
+                                                        <div className="p-3 rounded-lg border border-white/10 bg-black/60 flex flex-col gap-2">
+                                                            <div className="flex items-center justify-between text-[10px] font-bold text-white/60 uppercase">
+                                                                <span>TOP 10 PILOTOS // MASTER</span>
+                                                                <span style={{ color: teamColor }}>{userPrediction.top10.length}/10 REGISTRADOS</span>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-1">
+                                                                {userPrediction.top10.map((driver: string, idx: number) => (
+                                                                    <div key={idx} className="flex items-center gap-1.5 p-1.5 rounded bg-white/5 border border-white/5 text-[10px]">
+                                                                        <span className="font-bold text-white/40 shrink-0">P{idx + 1}</span>
+                                                                        <span className="font-bold text-white truncate">{driver}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Grid de Informações Adicionais: EVO e H2H */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {Array.isArray(userPrediction.evo) && userPrediction.evo.length > 0 && (
+                                                            <div className="p-3 rounded-lg border border-white/10 bg-white/5 flex flex-col gap-1.5">
+                                                                <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">EVOLUÇÃO (EVO)</span>
+                                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                                    {userPrediction.evo.map((driver: string, idx: number) => (
+                                                                        <span key={idx} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-white">
+                                                                            {driver}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        <div className="p-3 rounded-lg border border-white/10 bg-white/5 flex flex-col justify-between">
+                                                            <div>
+                                                                <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">CONFRONTOS H2H</span>
+                                                                <p className="text-xs font-bold text-white mt-1">
+                                                                    {userPrediction.h2h ? Object.keys(userPrediction.h2h).length : 0} DUELOS HOMOLOGADOS
+                                                                </p>
+                                                            </div>
+                                                            <p className="text-[9px] text-white/40 mt-1">APOSTAS DE CONFRONTO REGISTRADAS</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <Link
+                                                        href="/positions"
+                                                        className="mt-1 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
+                                                        style={{ borderColor: `${teamColor}60`, backgroundColor: `${teamColor}15`, color: teamColor }}
+                                                    >
+                                                        <span>&gt;_ EDITAR / AJUSTAR POSIÇÕES NO TERMINAL</span>
+                                                        <span>»</span>
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="p-4 rounded-lg border border-amber-500/20 bg-amber-500/5 flex flex-col items-center justify-center text-center gap-2 py-6">
+                                                        <span className="text-xl">⚠️</span>
+                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-amber-300">
+                                                            NENHUMA PREVISÃO REGISTRADA NA ETAPA ATUAL
+                                                        </h4>
+                                                        <p className="text-[10px] text-white/50 max-w-md">
+                                                            Suas ordens para Poletime, Top 10, Evo e Confrontos Diretos ainda não foram homologadas no Pitwall.
+                                                        </p>
+                                                        <Link
+                                                            href="/positions"
+                                                            className="mt-2 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all hover:brightness-110"
+                                                            style={{ borderColor: teamColor, backgroundColor: teamColor, color: '#000' }}
+                                                        >
+                                                            [ TOMAR POSIÇÕES AGORA » ]
+                                                        </Link>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between pb-2 border-b border-white/5 text-[9px] tracking-widest uppercase text-white/40">
+                                                        <span>MERCADOS DISPONÍVEIS</span>
+                                                        <span>COTAÇÃO ESTIMADA</span>
+                                                        <span className="text-right">STATUS</span>
+                                                    </div>
+                                                    {positions.slice(0, 3).map((p, i) => (
+                                                        <div key={i} className="flex items-center justify-between gap-2 py-2 border-b border-white/5 last:border-0 text-[11px] tracking-widest">
+                                                            <div className="min-w-0">
+                                                                <p className="font-bold text-white truncate">{p.market}</p>
+                                                                <p className="text-[9px] text-white/40">FECHAMENTO T-24H</p>
+                                                            </div>
+                                                            <div className="text-center">
+                                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-block" style={{ backgroundColor: `${p.color}20`, color: p.color }}>
+                                                                    {p.pick}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <span className="font-bold tabular-nums text-amber-400">ABERTO</span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
@@ -1074,10 +1271,23 @@ export default function OfficialStrategistDashboard() {
                                                     <span className="text-sm font-bold text-white">{me.name}</span>
                                                     <span className="text-[10px] font-bold" style={{ color: teamColor }}>PILOTO DESIGNADO</span>
                                                 </div>
-                                                <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col gap-1">
-                                                    <span className="text-[9px] text-white/40 uppercase">Assento #2 (Companheiro)</span>
-                                                    <span className="text-sm font-bold text-white">{compStats?.teamwork.partner}</span>
-                                                    <span className="text-[10px] text-amber-400 font-bold">SINCRONIA: {compStats?.teamwork.synergy}%</span>
+                                                <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between gap-2">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[9px] text-white/40 uppercase">Assento #2 (Companheiro)</span>
+                                                        <span className="text-sm font-bold text-white">{compStats?.teamwork.partner}</span>
+                                                        <span className="text-[10px] font-bold" style={{ color: teamPartner ? '#22c55e' : '#fbaa19' }}>
+                                                            {teamPartner ? 'SINCRONIZADO NO GRID' : 'VAGA ABERTA'}
+                                                        </span>
+                                                    </div>
+                                                    {teamPartner && teamPartner.slug && (
+                                                        <Link 
+                                                            href={`/${teamPartner.slug.replace('@', '')}`}
+                                                            className="text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+                                                            style={{ color: teamColor }}
+                                                        >
+                                                            [ VER TERMINAL DO PARCEIRO » ]
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="p-3 rounded bg-black/60 border border-white/5 flex flex-col gap-2 text-xs">

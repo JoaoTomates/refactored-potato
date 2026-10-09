@@ -297,30 +297,48 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                     </div>
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 pt-10 pb-3 px-4 flex items-end justify-between bg-gradient-to-t from-black via-black/85 to-transparent z-20">
-                    <div>
-                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">ESTRATEGISTA</p>
-                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">{me.name}</h2>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold">RATING</p>
-                        <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>{ratingFor(last)}</p>
+                {/* Nome e Estrategista Centralizados Elevados */}
+                <div className="absolute inset-x-0 bottom-10 pt-10 pb-3 px-4 flex items-end justify-center bg-gradient-to-t from-black/50 via-black/50 to-transparent z-0">
+                    <div className="text-center">
+                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">
+                            {me.name}
+                        </h2>
+                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mt-1">
+                            ESTRATEGISTA
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10 bg-black">
-                {[
-                    ['EQUIPE', <span key="t" className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />{me.teamName}</span>],
-                    ['GRUPO', getChampionGroupName(me.groupId)],
-                    ['ALIANÇA', ALLIANCES[allianceId].short],
-                    ['TICKER', `$${(me.slug || me.name).replace(/[@.\s]/g, '').toUpperCase()}`],
-                ].map(([k, v], i) => (
-                    <div key={i} className={`px-4 py-3 ${i % 2 === 0 ? 'border-r' : ''} ${i < 2 ? 'border-b' : ''} border-white/5`}>
-                        <p className="text-white/40 mb-1">{k}</p>
-                        <div className="text-white font-bold uppercase truncate">{v}</div>
+            {/* Grid 2x2: Equipe, Grupo, Aliança e Rating no 4º quadrante */}
+            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-black/10 bg-black">
+                <div className="px-4 py-3 border-r border-b border-black/5">
+                    <p className="text-white/40 mb-1">EQUIPE</p>
+                    <div className="text-white font-bold uppercase truncate">
+                        <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />
+                            {me.teamName}
+                        </span>
                     </div>
-                ))}
+                </div>
+                <div className="px-4 py-3 border-b border-black/5">
+                    <p className="text-white/40 mb-1">GRUPO</p>
+                    <div className="text-white font-bold uppercase truncate">
+                        {getChampionGroupName(me.groupId)}
+                    </div>
+                </div>
+                <div className="px-4 py-3 border-r border-black/5">
+                    <p className="text-white/40 mb-1">ALIANÇA</p>
+                    <div className="text-white font-bold uppercase truncate">
+                        {ALLIANCES[allianceId].short}
+                    </div>
+                </div>
+                <div className="px-4 py-3 border-black/5">
+                    <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mb-1">RATING</p>
+                    <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>
+                        {ratingFor(last)}
+                    </p>
+                </div>
             </div>
         </Panel>
     );
