@@ -309,32 +309,36 @@ export default function PositionsPage() {
         }
     }, [calibration.tier]);
 
-    // Popover contextual de calibragem ancorado diretamente no botão ? clicado (sem rolagem ou modal solto)
+    // Popover/tooltip contextual de calibragem (hover no desktop ou clique/toque no mobile)
     const renderCalibrationTooltip = (id: string) => {
-        if (activeTooltipId !== id) return null;
+        const isVisible = activeTooltipId === id;
 
         return (
             <div 
-                className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#0a0a0a]/95 backdrop-blur-md border rounded-lg shadow-2xl p-3.5 z-50 font-mono text-white text-left animate-fade-in"
+                className={`absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#0a0a0a]/95 backdrop-blur-md border rounded-lg shadow-2xl p-3.5 z-50 font-mono text-white text-left transition-all duration-200 pointer-events-auto ${
+                    isVisible ? 'opacity-100 visible' : 'opacity-0 invisible group-hover/help:opacity-100 group-hover/help:visible'
+                }`}
                 style={{ borderColor: autoBtnStyle.helpBorder }}
             >
                 <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2.5">
                     <div className="flex items-center gap-1.5">
                         <span className={`w-2 h-2 rounded-full ${autoBtnStyle.dot}`} />
                         <span className="text-[10px] md:text-[11px] font-black uppercase tracking-wider text-white">
-                            {calibration.blockShort}
+                            CALIBRAGEM // {calibration.blockShort}
                         </span>
                     </div>
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveTooltipId(null);
-                        }}
-                        className="text-white/40 hover:text-white text-[11px] font-bold p-0.5 leading-none transition-colors cursor-pointer"
-                    >
-                        ✕
-                    </button>
+                    {isVisible && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipId(null);
+                            }}
+                            className="text-white/40 hover:text-white text-[11px] font-bold p-0.5 leading-none transition-colors cursor-pointer"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
 
                 <div className="flex items-center justify-between bg-white/[0.04] px-2.5 py-1.5 rounded border border-white/5 mb-2.5 text-[10px]">
@@ -567,11 +571,11 @@ export default function PositionsPage() {
                                         type="button"
                                         onClick={() => setPoletime([0, 0, 0, 0, 0, 0])}
                                         disabled={isAutoLoading || isSubmitting || !isPoletimeSet}
-                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="relative flex items-center gap-1 shrink-0">
+                                    <div className="relative group/help flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -579,18 +583,18 @@ export default function PositionsPage() {
                                                 setPoletime(generated);
                                             }}
                                             disabled={isAutoLoading || isSubmitting}
-                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                            className={`h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
                                         >
                                             <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
-                                            <span>&gt;_ AUTO POLETIME</span>
+                                            <span>[ AUTO ]</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setActiveTooltipId(prev => prev === 'poletime' ? null : 'poletime')}
-                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                            className={`h-8 w-8 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
                                                 activeTooltipId === 'poletime'
                                                     ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
-                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                                    : 'border-white/15 group-hover/help:border-white/40 text-white/60 group-hover/help:text-white bg-black/60 group-hover/help:bg-white/10'
                                             }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
@@ -701,11 +705,11 @@ export default function PositionsPage() {
                                         type="button"
                                         onClick={() => setTop10(Array(10).fill(''))}
                                         disabled={isAutoLoading || isSubmitting || countTop10 === 0}
-                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="relative flex items-center gap-1 shrink-0">
+                                    <div className="relative group/help flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -713,18 +717,18 @@ export default function PositionsPage() {
                                                 setTop10(generated);
                                             }}
                                             disabled={isAutoLoading || isSubmitting}
-                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                            className={`h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
                                         >
                                             <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
-                                            <span>&gt;_ AUTO TOP 10</span>
+                                            <span>[ AUTO ]</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setActiveTooltipId(prev => prev === 'master' ? null : 'master')}
-                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                            className={`h-8 w-8 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
                                                 activeTooltipId === 'master'
                                                     ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
-                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                                    : 'border-white/15 group-hover/help:border-white/40 text-white/60 group-hover/help:text-white bg-black/60 group-hover/help:bg-white/10'
                                             }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
@@ -856,11 +860,11 @@ export default function PositionsPage() {
                                         type="button"
                                         onClick={() => setEvo(Array(5).fill(''))}
                                         disabled={isAutoLoading || isSubmitting || countEvo === 0}
-                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="relative flex items-center gap-1 shrink-0">
+                                    <div className="relative group/help flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -868,18 +872,18 @@ export default function PositionsPage() {
                                                 setEvo(generated);
                                             }}
                                             disabled={isAutoLoading || isSubmitting}
-                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                            className={`h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
                                         >
                                             <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
-                                            <span>&gt;_ AUTO EVO</span>
+                                            <span>[ AUTO ]</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setActiveTooltipId(prev => prev === 'evo' ? null : 'evo')}
-                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                            className={`h-8 w-8 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
                                                 activeTooltipId === 'evo'
                                                     ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
-                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                                    : 'border-white/15 group-hover/help:border-white/40 text-white/60 group-hover/help:text-white bg-black/60 group-hover/help:bg-white/10'
                                             }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
@@ -1011,11 +1015,11 @@ export default function PositionsPage() {
                                         type="button"
                                         onClick={() => setH2H({})}
                                         disabled={isAutoLoading || isSubmitting || countH2H === 0}
-                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="relative flex items-center gap-1 shrink-0">
+                                    <div className="relative group/help flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -1023,18 +1027,18 @@ export default function PositionsPage() {
                                                 setH2H(generated);
                                             }}
                                             disabled={isAutoLoading || isSubmitting}
-                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                            className={`h-8 px-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
                                         >
                                             <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
-                                            <span>&gt;_ AUTO DUELOS</span>
+                                            <span>[ AUTO ]</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setActiveTooltipId(prev => prev === 'h2h' ? null : 'h2h')}
-                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                            className={`h-8 w-8 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
                                                 activeTooltipId === 'h2h'
                                                     ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
-                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                                    : 'border-white/15 group-hover/help:border-white/40 text-white/60 group-hover/help:text-white bg-black/60 group-hover/help:bg-white/10'
                                             }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
