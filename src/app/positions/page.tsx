@@ -119,8 +119,8 @@ export default function PositionsPage() {
         blockShort: 'BLOCO ESTRELA'
     });
 
-    // Modal minimalista de ajuda/observação sobre a calibragem do botão auto
-    const [showHelpModal, setShowHelpModal] = useState(false);
+    // Tooltip/popover contextual de observação de calibragem posicionado diretamente sobre o botão clicado
+    const [activeTooltipId, setActiveTooltipId] = useState<string | null>(null);
 
     // Conexão com a Store oficial de Predições / Posições
     const {
@@ -308,6 +308,59 @@ export default function PositionsPage() {
                 };
         }
     }, [calibration.tier]);
+
+    // Popover contextual de calibragem ancorado diretamente no botão ? clicado (sem rolagem ou modal solto)
+    const renderCalibrationTooltip = (id: string) => {
+        if (activeTooltipId !== id) return null;
+
+        return (
+            <div 
+                className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#0a0a0a]/95 backdrop-blur-md border rounded-lg shadow-2xl p-3.5 z-50 font-mono text-white text-left animate-fade-in"
+                style={{ borderColor: autoBtnStyle.helpBorder }}
+            >
+                <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2.5">
+                    <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${autoBtnStyle.dot}`} />
+                        <span className="text-[10px] md:text-[11px] font-black uppercase tracking-wider text-white">
+                            {calibration.blockShort}
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTooltipId(null);
+                        }}
+                        className="text-white/40 hover:text-white text-[11px] font-bold p-0.5 leading-none transition-colors cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="flex items-center justify-between bg-white/[0.04] px-2.5 py-1.5 rounded border border-white/5 mb-2.5 text-[10px]">
+                    <span className="text-white/60 uppercase">Ordens no Bloco:</span>
+                    <span className="font-black uppercase tracking-wider" style={{ color: autoBtnStyle.helpBorder }}>
+                        {calibration.count} enviada(s)
+                    </span>
+                </div>
+
+                <div className="space-y-1.5 text-[10px] leading-snug">
+                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibration.tier === 'RED' ? 'bg-red-950/30 border-red-500/40 text-red-200' : 'bg-white/[0.02] border-white/5 text-white/50'}`}>
+                        <span className="text-red-400 font-black shrink-0">● RED (&lt; 5):</span>
+                        <span>Amostra inicial. Baixa calibragem e dispersão elevada.</span>
+                    </div>
+                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibration.tier === 'YELLOW' ? 'bg-amber-950/30 border-amber-500/40 text-amber-200' : 'bg-white/[0.02] border-white/5 text-white/50'}`}>
+                        <span className="text-amber-400 font-black shrink-0">● YELLOW (5 a 9):</span>
+                        <span>Alerta moderado. Tendências e consenso em consolidação.</span>
+                    </div>
+                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibration.tier === 'GREEN' ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200' : 'bg-white/[0.02] border-white/5 text-white/50'}`}>
+                        <span className="text-emerald-400 font-black shrink-0">● VERDE (10+):</span>
+                        <span>Calibragem alta. Máximo consenso tático da aliança.</span>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const handleAutoAll = async () => {
         try {
@@ -518,7 +571,7 @@ export default function PositionsPage() {
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="flex items-center gap-1 shrink-0">
+                                    <div className="relative flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -533,13 +586,18 @@ export default function PositionsPage() {
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowHelpModal(true)}
-                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            onClick={() => setActiveTooltipId(prev => prev === 'poletime' ? null : 'poletime')}
+                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                                activeTooltipId === 'poletime'
+                                                    ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
+                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                            }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
                                         >
                                             ?
                                         </button>
+                                        {renderCalibrationTooltip('poletime')}
                                     </div>
                                 </div>
                             </div>
@@ -647,7 +705,7 @@ export default function PositionsPage() {
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="flex items-center gap-1 shrink-0">
+                                    <div className="relative flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -662,13 +720,18 @@ export default function PositionsPage() {
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowHelpModal(true)}
-                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            onClick={() => setActiveTooltipId(prev => prev === 'master' ? null : 'master')}
+                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                                activeTooltipId === 'master'
+                                                    ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
+                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                            }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
                                         >
                                             ?
                                         </button>
+                                        {renderCalibrationTooltip('master')}
                                     </div>
                                 </div>
                             </div>
@@ -797,7 +860,7 @@ export default function PositionsPage() {
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="flex items-center gap-1 shrink-0">
+                                    <div className="relative flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -812,13 +875,18 @@ export default function PositionsPage() {
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowHelpModal(true)}
-                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            onClick={() => setActiveTooltipId(prev => prev === 'evo' ? null : 'evo')}
+                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                                activeTooltipId === 'evo'
+                                                    ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
+                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                            }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
                                         >
                                             ?
                                         </button>
+                                        {renderCalibrationTooltip('evo')}
                                     </div>
                                 </div>
                             </div>
@@ -947,7 +1015,7 @@ export default function PositionsPage() {
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <div className="flex items-center gap-1 shrink-0">
+                                    <div className="relative flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={async () => {
@@ -962,13 +1030,18 @@ export default function PositionsPage() {
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowHelpModal(true)}
-                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            onClick={() => setActiveTooltipId(prev => prev === 'h2h' ? null : 'h2h')}
+                                            className={`w-7 h-7 flex items-center justify-center rounded border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                                                activeTooltipId === 'h2h'
+                                                    ? 'border-[#fbaa19] text-[#fbaa19] bg-[#fbaa19]/20'
+                                                    : 'border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10'
+                                            }`}
                                             title="Calibragem do Bloco"
                                             aria-label="Informações sobre Calibragem do Bloco"
                                         >
                                             ?
                                         </button>
+                                        {renderCalibrationTooltip('h2h')}
                                     </div>
                                 </div>
                             </div>
@@ -1158,70 +1231,7 @@ export default function PositionsPage() {
                 </div>
             </footer>
 
-            {/* MODAL MINIMALISTA E OBJETIVO DE CALIBRAGEM DO BLOCO */}
-            {showHelpModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-                    <div 
-                        className="relative w-full max-w-sm bg-[#0a0a0a] border rounded-lg shadow-2xl p-5 font-mono text-white flex flex-col gap-4 overflow-hidden"
-                        style={{ borderColor: autoBtnStyle.helpBorder }}
-                    >
-                        {/* Header */}
-                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                            <div className="flex items-center gap-2">
-                                <span className={`w-2.5 h-2.5 rounded-full ${autoBtnStyle.dot}`} />
-                                <span className="text-xs font-black uppercase tracking-wider text-white">
-                                    CALIBRAGEM // {calibration.blockShort}
-                                </span>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setShowHelpModal(false)}
-                                className="text-white/40 hover:text-white text-xs font-bold transition-colors cursor-pointer"
-                            >
-                                ✕
-                            </button>
-                        </div>
 
-                        {/* Status Atual */}
-                        <div className="flex items-center justify-between bg-white/[0.03] p-2.5 rounded border border-white/5">
-                            <span className="text-[11px] text-white/60 uppercase">Total do Bloco:</span>
-                            <span className="text-xs font-black uppercase tracking-wider" style={{ color: autoBtnStyle.helpBorder }}>
-                                {calibration.count} ORDEM(NS) REGISTRADA(S)
-                            </span>
-                        </div>
-
-                        {/* Explicação Concisa e Direta */}
-                        <div className="text-[11px] leading-relaxed text-white/80 space-y-2">
-                            <div className={`p-2 rounded border flex items-start gap-2 ${calibration.tier === 'RED' ? 'bg-red-950/30 border-red-500/40 text-red-200' : 'bg-white/[0.02] border-white/5 text-white/60'}`}>
-                                <span className="text-red-400 font-black shrink-0">🔴 RED (&lt; 5):</span>
-                                <span>Amostra inicial. Baixa calibragem e dispersão elevada no bloco.</span>
-                            </div>
-                            <div className={`p-2 rounded border flex items-start gap-2 ${calibration.tier === 'YELLOW' ? 'bg-amber-950/30 border-amber-500/40 text-amber-200' : 'bg-white/[0.02] border-white/5 text-white/60'}`}>
-                                <span className="text-amber-400 font-black shrink-0">🟡 YELLOW (5 a 9):</span>
-                                <span>Alerta moderado. Calibragem média e primeiras tendências.</span>
-                            </div>
-                            <div className={`p-2 rounded border flex items-start gap-2 ${calibration.tier === 'GREEN' ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200' : 'bg-white/[0.02] border-white/5 text-white/60'}`}>
-                                <span className="text-emerald-400 font-black shrink-0">🟢 VERDE (10+):</span>
-                                <span>Calibragem alta. Máximo consenso e precisão tática da aliança.</span>
-                            </div>
-                        </div>
-
-                        {/* Botão de Fechar */}
-                        <button
-                            type="button"
-                            onClick={() => setShowHelpModal(false)}
-                            className="w-full py-2 rounded font-black text-xs uppercase tracking-widest transition-all cursor-pointer border mt-1"
-                            style={{
-                                backgroundColor: `${autoBtnStyle.helpBorder}20`,
-                                borderColor: autoBtnStyle.helpBorder,
-                                color: autoBtnStyle.helpBorder
-                            }}
-                        >
-                            [ ENTENDIDO ]
-                        </button>
-                    </div>
-                </div>
-            )}
 
         </main>
     );
