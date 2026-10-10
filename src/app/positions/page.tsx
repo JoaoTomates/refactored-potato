@@ -119,11 +119,8 @@ export default function PositionsPage() {
         blockShort: 'BLOCO ESTRELA'
     });
 
-    // Modal de diagnóstico / aviso de calibragem ao clicar em Auto
-    const [calibrationModal, setCalibrationModal] = useState<{
-        isOpen: boolean;
-        featureTitle: string;
-    } | null>(null);
+    // Modal minimalista de ajuda/observação sobre a calibragem do botão auto
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     // Conexão com a Store oficial de Predições / Posições
     const {
@@ -142,13 +139,6 @@ export default function PositionsPage() {
     // Hooks oficiais de automação e envio
     const { autoPoletime, autoTop10, autoEvo, autoH2H, isAutoLoading } = useTeamworkAuto();
     const { submit: handleSubmit, isSubmitting, isSuccess } = useSubmitPrediction();
-
-    const handleAutoTriggered = (featureTitle: string) => {
-        setCalibrationModal({
-            isOpen: true,
-            featureTitle
-        });
-    };
 
     // 1. Carrega dados do perfil, contrato e calibragem do bloco do piloto
     useEffect(() => {
@@ -292,31 +282,29 @@ export default function PositionsPage() {
         return TABS.find(t => t.id === activeTab) || TABS[0];
     }, [activeTab]);
 
-    const calibrationBadge = useMemo(() => {
+    // Estilização minimalista do botão Auto baseada na calibragem do bloco (Vermelho / Amarelo / Verde)
+    const autoBtnStyle = useMemo(() => {
         switch (calibration.tier) {
             case 'RED':
                 return {
+                    bg: 'bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-black border-red-500/50 shadow-sm',
                     dot: 'bg-red-500 animate-pulse',
-                    pill: 'bg-red-500/20 text-red-400 border-red-500/40',
-                    badgeText: '🔴 RED !',
-                    title: 'CALIBRAGEM RED (!) // DISPERSÃO INICIAL',
-                    desc: 'Poucos estrategistas do mesmo bloco enviaram ordens nesta rodada.'
+                    label: 'RED !',
+                    helpBorder: '#ef4444'
                 };
             case 'YELLOW':
                 return {
+                    bg: 'bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border-amber-500/50 shadow-sm',
                     dot: 'bg-amber-400',
-                    pill: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-                    badgeText: '🟡 YELLOW',
-                    title: 'CALIBRAGEM YELLOW // ALERTA MODERADO',
-                    desc: 'Calibragem em consolidação intermediária de bloco.'
+                    label: 'YELLOW',
+                    helpBorder: '#f59e0b'
                 };
             case 'GREEN':
                 return {
+                    bg: 'bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black border-emerald-500/50 shadow-sm',
                     dot: 'bg-emerald-400',
-                    pill: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-                    badgeText: '🟢 VERDE',
-                    title: 'CALIBRAGEM VERDE // CONSENSO PLENO',
-                    desc: 'Alta precisão coletiva e consenso tático do bloco.'
+                    label: 'VERDE',
+                    helpBorder: '#10b981'
                 };
         }
     }, [calibration.tier]);
@@ -333,7 +321,6 @@ export default function PositionsPage() {
             setTop10(pTop10);
             setEvo(pEvo);
             setH2H(pH2H);
-            handleAutoTriggered('Consolidado Geral (Todas as Posições)');
         } catch (e) {
             console.error("Erro no auto geral:", e);
         }
@@ -465,63 +452,7 @@ export default function PositionsPage() {
                     </p>
                 </header>
 
-                {/* 2.5 HUD DE CALIBRAGEM DO BLOCO & TELEMETRIA AUTOMÁTICA */}
-                <div 
-                    className="w-full bg-black/85 backdrop-blur-md border rounded-lg p-3 md:p-4 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-                    style={{ 
-                        borderColor: calibration.tier === 'RED' ? 'rgba(239, 68, 68, 0.4)' : calibration.tier === 'YELLOW' ? 'rgba(245, 158, 11, 0.4)' : 'rgba(34, 197, 94, 0.4)' 
-                    }}
-                >
-                    <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full shrink-0 ${calibrationBadge.dot}`} />
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs font-black uppercase tracking-wider text-white">
-                                    {calibration.blockShort} // {calibrationBadge.badgeText}
-                                </span>
-                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-black border uppercase tracking-wider ${calibrationBadge.pill}`}>
-                                    {calibration.count} DE 10 ESTRATEGISTAS
-                                </span>
-                            </div>
-                            <p className="text-[10px] text-white/50 mt-0.5">
-                                {calibrationBadge.desc} · Calibragem assistida de pitwall para a aliança.
-                            </p>
-                        </div>
-                    </div>
 
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
-                        <button
-                            type="button"
-                            onClick={() => handleAutoTriggered('Diagnóstico de Bloco')}
-                            className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest px-2.5 py-1.5 rounded border border-white/10 hover:border-white/30 text-white/70 hover:text-white transition-all whitespace-nowrap shrink-0 cursor-pointer"
-                        >
-                            [ DIAGNÓSTICO ]
-                        </button>
-                        {activeTab === 'all' && (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={handleClearAll}
-                                    disabled={isAutoLoading || isSubmitting}
-                                    className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest px-2.5 py-1.5 bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    [ LIMPAR TUDO ]
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleAutoAll}
-                                    disabled={isAutoLoading || isSubmitting}
-                                    className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 bg-[#fbaa19]/20 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black border border-[#fbaa19]/50 rounded transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow"
-                                >
-                                    <span>&gt;_ AUTO TUDO</span>
-                                    <span className={`text-[8px] px-1 py-0.2 rounded font-black border uppercase ${calibrationBadge.pill}`}>
-                                        {calibration.tier}
-                                    </span>
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
 
                 {/* 3. CONTROLE DE ABAS (PITWALL CONSOLE) */}
                 <nav aria-label="Abas de Posições" className="w-full bg-black/80 backdrop-blur-md border border-white/15 rounded-lg p-1.5 flex flex-wrap md:flex-nowrap gap-1.5 shadow-xl">
@@ -578,30 +509,38 @@ export default function PositionsPage() {
                                     </p>
                                 </div>
 
-                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0">
+                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
                                     <button
                                         type="button"
                                         onClick={() => setPoletime([0, 0, 0, 0, 0, 0])}
                                         disabled={isAutoLoading || isSubmitting || !isPoletimeSet}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            const generated = await autoPoletime();
-                                            setPoletime(generated);
-                                            handleAutoTriggered('Poletime');
-                                        }}
-                                        disabled={isAutoLoading || isSubmitting}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-[#fbaa19]/10 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black border border-[#fbaa19]/40 rounded transition-all whitespace-nowrap shrink-0 flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm"
-                                    >
-                                        <span>&gt;_ AUTO POLETIME</span>
-                                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-black border uppercase tracking-wider ${calibrationBadge.pill}`}>
-                                            {calibrationBadge.badgeText}
-                                        </span>
-                                    </button>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const generated = await autoPoletime();
+                                                setPoletime(generated);
+                                            }}
+                                            disabled={isAutoLoading || isSubmitting}
+                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                        >
+                                            <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
+                                            <span>&gt;_ AUTO POLETIME</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowHelpModal(true)}
+                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            title="Calibragem do Bloco"
+                                            aria-label="Informações sobre Calibragem do Bloco"
+                                        >
+                                            ?
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -699,30 +638,38 @@ export default function PositionsPage() {
                                     </p>
                                 </div>
 
-                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0">
+                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
                                     <button
                                         type="button"
                                         onClick={() => setTop10(Array(10).fill(''))}
                                         disabled={isAutoLoading || isSubmitting || countTop10 === 0}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            const generated = await autoTop10();
-                                            setTop10(generated);
-                                            handleAutoTriggered('Top 10 Finish');
-                                        }}
-                                        disabled={isAutoLoading || isSubmitting}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-[#fbaa19]/10 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black border border-[#fbaa19]/40 rounded transition-all whitespace-nowrap shrink-0 flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm"
-                                    >
-                                        <span>&gt;_ AUTO TOP 10</span>
-                                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-black border uppercase tracking-wider ${calibrationBadge.pill}`}>
-                                            {calibrationBadge.badgeText}
-                                        </span>
-                                    </button>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const generated = await autoTop10();
+                                                setTop10(generated);
+                                            }}
+                                            disabled={isAutoLoading || isSubmitting}
+                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                        >
+                                            <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
+                                            <span>&gt;_ AUTO TOP 10</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowHelpModal(true)}
+                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            title="Calibragem do Bloco"
+                                            aria-label="Informações sobre Calibragem do Bloco"
+                                        >
+                                            ?
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -841,30 +788,38 @@ export default function PositionsPage() {
                                     </p>
                                 </div>
 
-                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0">
+                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
                                     <button
                                         type="button"
                                         onClick={() => setEvo(Array(5).fill(''))}
                                         disabled={isAutoLoading || isSubmitting || countEvo === 0}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            const generated = await autoEvo();
-                                            setEvo(generated);
-                                            handleAutoTriggered('Evo / Escalada');
-                                        }}
-                                        disabled={isAutoLoading || isSubmitting}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-[#fbaa19]/10 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black border border-[#fbaa19]/40 rounded transition-all whitespace-nowrap shrink-0 flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm"
-                                    >
-                                        <span>&gt;_ AUTO EVO</span>
-                                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-black border uppercase tracking-wider ${calibrationBadge.pill}`}>
-                                            {calibrationBadge.badgeText}
-                                        </span>
-                                    </button>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const generated = await autoEvo();
+                                                setEvo(generated);
+                                            }}
+                                            disabled={isAutoLoading || isSubmitting}
+                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                        >
+                                            <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
+                                            <span>&gt;_ AUTO EVO</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowHelpModal(true)}
+                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            title="Calibragem do Bloco"
+                                            aria-label="Informações sobre Calibragem do Bloco"
+                                        >
+                                            ?
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -983,30 +938,38 @@ export default function PositionsPage() {
                                     </p>
                                 </div>
 
-                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0">
+                                <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
                                     <button
                                         type="button"
                                         onClick={() => setH2H({})}
                                         disabled={isAutoLoading || isSubmitting || countH2H === 0}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                        className="px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white/5 hover:bg-red-950/40 text-white/50 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded transition-all whitespace-nowrap shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         [ LIMPAR ]
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            const generated = await autoH2H();
-                                            setH2H(generated);
-                                            handleAutoTriggered('Duelos Táticos');
-                                        }}
-                                        disabled={isAutoLoading || isSubmitting}
-                                        className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-[#fbaa19]/10 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black border border-[#fbaa19]/40 rounded transition-all whitespace-nowrap shrink-0 flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm"
-                                    >
-                                        <span>&gt;_ AUTO DUELOS</span>
-                                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-black border uppercase tracking-wider ${calibrationBadge.pill}`}>
-                                            {calibrationBadge.badgeText}
-                                        </span>
-                                    </button>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const generated = await autoH2H();
+                                                setH2H(generated);
+                                            }}
+                                            disabled={isAutoLoading || isSubmitting}
+                                            className={`px-3 py-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${autoBtnStyle.bg}`}
+                                        >
+                                            <span className={`w-1.5 h-1.5 rounded-full ${autoBtnStyle.dot}`} />
+                                            <span>&gt;_ AUTO DUELOS</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowHelpModal(true)}
+                                            className="w-7 h-7 flex items-center justify-center rounded border border-white/15 hover:border-white/40 text-white/60 hover:text-white bg-black/60 hover:bg-white/10 text-xs font-bold transition-all cursor-pointer shrink-0"
+                                            title="Calibragem do Bloco"
+                                            aria-label="Informações sobre Calibragem do Bloco"
+                                        >
+                                            ?
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1195,108 +1158,66 @@ export default function PositionsPage() {
                 </div>
             </footer>
 
-            {/* MODAL DE DIAGNÓSTICO E ALERTA DE CALIBRAGEM DO BLOCO */}
-            {calibrationModal?.isOpen && (
+            {/* MODAL MINIMALISTA E OBJETIVO DE CALIBRAGEM DO BLOCO */}
+            {showHelpModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
                     <div 
-                        className="relative w-full max-w-lg bg-[#0a0a0a] border-2 rounded-lg shadow-2xl p-5 md:p-6 font-mono text-white flex flex-col gap-4 overflow-hidden"
-                        style={{ 
-                            borderColor: calibration.tier === 'RED' ? '#ef4444' : calibration.tier === 'YELLOW' ? '#f59e0b' : '#10b981' 
-                        }}
+                        className="relative w-full max-w-sm bg-[#0a0a0a] border rounded-lg shadow-2xl p-5 font-mono text-white flex flex-col gap-4 overflow-hidden"
+                        style={{ borderColor: autoBtnStyle.helpBorder }}
                     >
-                        {/* Header do modal */}
+                        {/* Header */}
                         <div className="flex items-center justify-between border-b border-white/10 pb-3">
                             <div className="flex items-center gap-2">
-                                <span className={`w-2.5 h-2.5 rounded-full ${calibrationBadge.dot}`} />
-                                <span className="text-xs font-black uppercase tracking-widest" style={{
-                                    color: calibration.tier === 'RED' ? '#f87171' : calibration.tier === 'YELLOW' ? '#fbbf24' : '#34d399'
-                                }}>
-                                    DIAGNÓSTICO // AUTO TELEMETRIA
+                                <span className={`w-2.5 h-2.5 rounded-full ${autoBtnStyle.dot}`} />
+                                <span className="text-xs font-black uppercase tracking-wider text-white">
+                                    CALIBRAGEM // {calibration.blockShort}
                                 </span>
                             </div>
                             <button
-                                onClick={() => setCalibrationModal(null)}
+                                type="button"
+                                onClick={() => setShowHelpModal(false)}
                                 className="text-white/40 hover:text-white text-xs font-bold transition-colors cursor-pointer"
                             >
-                                [ ✕ FECHAR ]
+                                ✕
                             </button>
                         </div>
 
-                        {/* Módulo acionado */}
-                        <div className="text-[10px] uppercase tracking-widest text-white/50">
-                            ORDEM AUTOMATIZADA: <span className="text-white font-bold">{calibrationModal.featureTitle}</span>
+                        {/* Status Atual */}
+                        <div className="flex items-center justify-between bg-white/[0.03] p-2.5 rounded border border-white/5">
+                            <span className="text-[11px] text-white/60 uppercase">Total do Bloco:</span>
+                            <span className="text-xs font-black uppercase tracking-wider" style={{ color: autoBtnStyle.helpBorder }}>
+                                {calibration.count} ORDEM(NS) REGISTRADA(S)
+                            </span>
                         </div>
 
-                        {/* Card com nível de Calibragem */}
-                        <div className={`p-4 rounded-lg border flex flex-col gap-2.5 ${
-                            calibration.tier === 'RED' ? 'bg-red-950/20 border-red-500/30' :
-                            calibration.tier === 'YELLOW' ? 'bg-amber-950/20 border-amber-500/30' :
-                            'bg-emerald-950/20 border-emerald-500/30'
-                        }`}>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-black uppercase tracking-wider text-white">
-                                    {calibrationBadge.title}
-                                </span>
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded border uppercase ${calibrationBadge.pill}`}>
-                                    {calibrationBadge.badgeText}
-                                </span>
+                        {/* Explicação Concisa e Direta */}
+                        <div className="text-[11px] leading-relaxed text-white/80 space-y-2">
+                            <div className={`p-2 rounded border flex items-start gap-2 ${calibration.tier === 'RED' ? 'bg-red-950/30 border-red-500/40 text-red-200' : 'bg-white/[0.02] border-white/5 text-white/60'}`}>
+                                <span className="text-red-400 font-black shrink-0">🔴 RED (&lt; 5):</span>
+                                <span>Amostra inicial. Baixa calibragem e dispersão elevada no bloco.</span>
                             </div>
-
-                            {/* Medidor visual de Calibragem */}
-                            <div className="flex flex-col gap-1.5 mt-2">
-                                <div className="flex justify-between text-[9px] uppercase tracking-wider text-white/50 font-bold">
-                                    <span className={calibration.tier === 'RED' ? 'text-red-400 font-black' : ''}>RED (1 a 4)</span>
-                                    <span className={calibration.tier === 'YELLOW' ? 'text-amber-400 font-black' : ''}>YELLOW (5 a 9)</span>
-                                    <span className={calibration.tier === 'GREEN' ? 'text-emerald-400 font-black' : ''}>VERDE (10+)</span>
-                                </div>
-                                <div className="w-full h-2.5 bg-black/60 rounded-full overflow-hidden border border-white/10 p-0.5 flex">
-                                    <div 
-                                        className="h-full rounded-full transition-all duration-700" 
-                                        style={{ 
-                                            width: `${Math.min(100, Math.max(10, calibration.count * 10))}%`,
-                                            backgroundColor: calibration.tier === 'RED' ? '#ef4444' : calibration.tier === 'YELLOW' ? '#f59e0b' : '#10b981'
-                                        }} 
-                                    />
-                                </div>
-                                <div className="text-right text-[10px] text-white/60 tabular-nums font-bold">
-                                    {calibration.count} estrategista(s) do {calibration.blockShort} com ordens enviadas nesta rodada
-                                </div>
+                            <div className={`p-2 rounded border flex items-start gap-2 ${calibration.tier === 'YELLOW' ? 'bg-amber-950/30 border-amber-500/40 text-amber-200' : 'bg-white/[0.02] border-white/5 text-white/60'}`}>
+                                <span className="text-amber-400 font-black shrink-0">🟡 YELLOW (5 a 9):</span>
+                                <span>Alerta moderado. Calibragem média e primeiras tendências.</span>
                             </div>
-                        </div>
-
-                        {/* Explicação da Calibragem conforme regra do sistema */}
-                        <div className="text-xs leading-relaxed text-white/80 space-y-2 bg-white/[0.02] p-3.5 rounded border border-white/5">
-                            <p className="font-bold text-white text-[11px] uppercase tracking-wider">
-                                Como funciona a Calibragem do seu Bloco:
-                            </p>
-                            <div className="text-[11px] text-white/70 space-y-2">
-                                <div className="flex items-start gap-2">
-                                    <span className="text-red-400 font-black shrink-0">● RED (1 a 4):</span>
-                                    <span>Se você for um dos primeiros do seu Bloco a enviar ordens, a calibragem é <strong>RED (!)</strong>. Poucos estrategistas enviaram ordens, gerando dados com maior dispersão exploratória.</span>
-                                </div>
-                                <div className="flex items-start gap-2">
-                                    <span className="text-amber-400 font-black shrink-0">● YELLOW (5 a 9):</span>
-                                    <span>Com 5 a 9 estrategistas do mesmo Bloco, a calibragem é <strong>YELLOW (Alerta)</strong>. O algoritmo já identifica tendências e convergências médias de pitwall.</span>
-                                </div>
-                                <div className="flex items-start gap-2">
-                                    <span className="text-emerald-400 font-black shrink-0">● VERDE (10+):</span>
-                                    <span>Com 10 ou mais estrategistas do seu Bloco com ordens homologadas, a calibragem é <strong>VERDE</strong>. Consenso tático amplo e máxima assertividade da aliança.</span>
-                                </div>
+                            <div className={`p-2 rounded border flex items-start gap-2 ${calibration.tier === 'GREEN' ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200' : 'bg-white/[0.02] border-white/5 text-white/60'}`}>
+                                <span className="text-emerald-400 font-black shrink-0">🟢 VERDE (10+):</span>
+                                <span>Calibragem alta. Máximo consenso e precisão tática da aliança.</span>
                             </div>
                         </div>
 
                         {/* Botão de Fechar */}
                         <button
                             type="button"
-                            onClick={() => setCalibrationModal(null)}
-                            className="w-full py-2.5 rounded font-black text-xs uppercase tracking-widest transition-all cursor-pointer border"
+                            onClick={() => setShowHelpModal(false)}
+                            className="w-full py-2 rounded font-black text-xs uppercase tracking-widest transition-all cursor-pointer border mt-1"
                             style={{
-                                backgroundColor: calibration.tier === 'RED' ? 'rgba(239, 68, 68, 0.2)' : calibration.tier === 'YELLOW' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)',
-                                borderColor: calibration.tier === 'RED' ? '#ef4444' : calibration.tier === 'YELLOW' ? '#f59e0b' : '#10b981',
-                                color: calibration.tier === 'RED' ? '#f87171' : calibration.tier === 'YELLOW' ? '#fbbf24' : '#34d399'
+                                backgroundColor: `${autoBtnStyle.helpBorder}20`,
+                                borderColor: autoBtnStyle.helpBorder,
+                                color: autoBtnStyle.helpBorder
                             }}
                         >
-                            [ OK, COMPREENDIDO » ]
+                            [ ENTENDIDO ]
                         </button>
                     </div>
                 </div>
