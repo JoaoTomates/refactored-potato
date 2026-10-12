@@ -1,15 +1,15 @@
-﻿import React from 'react';
+import React from 'react';
 import type { Metadata } from 'next';
 import FantasyClient from './fantasy-client';
 
 export const metadata: Metadata = {
-  title: 'VoltGrid | Fantasy Competitions',
-  description: 'Join the F1 fantasy competitions and compete globally.',
+  title: 'VoltGrid | Central de Ligas & Competições Fantasy 2026',
+  description: 'Acompanhe as tabelas, resultados de rodadas e regras de pontuação de Poletime, Master League, Milesimus e Teamwork.',
 };
 
 export default function FantasyPage() {
     return (
-        <main className="w-full max-w-5xl mx-auto p-4 md:p-8 pt-6 pb-24 min-h-screen">
+        <main className="w-full min-h-screen bg-[#050401] p-0 m-0">
             <FantasyClient />
         </main>
     );

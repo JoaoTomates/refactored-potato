@@ -1,476 +1,1033 @@
 "use client";
-import React, { useState } from 'react';
-import CompetitionsRemoteControl from '@/components/competitions-remote-control';
-import TeamworkCompetition from '@/components/teamwork-competition';
-import RaceRemoteControl from '@/components/race-remote-control';
-import TelemetryLeaderboard from '@/components/telemetry-leaderboard';
-import { useSwipe } from '@/hooks/useSwipe';
-import FantasyIntro from '@/components/fantasy-intro';
-import CompetitionHero from '@/components/competition-hero';
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
-const FANTASY_TABS = [
-    { id: 'race-results', label: 'Results' },
-    { id: 'ranking', label: 'Ranking' },
-    { id: 'stats', label: 'Stats' },
-    { id: 'rules', label: 'Rules' }
+import React, { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/utils/supabase';
+import { F1_TEAMS } from '@/lib/teams';
+
+// Golden Rule (Naming): Pilotos e Usuários SEMPRE no formato "L.GUSTAVO"
+function formatPilotName(firstName?: string | null, lastName?: string | null, fallback?: string | null): string {
+    if (firstName && lastName) {
+        const initial = firstName.trim().charAt(0).toUpperCase();
+        const cleanLast = lastName.trim().toUpperCase().replace(/\s+/g, '');
+        return `${initial}.${cleanLast}`;
+    }
+    if (firstName && !lastName) {
+        return firstName.trim().toUpperCase();
+    }
+    if (fallback) {
+        const clean = fallback.replace(/^@/, '').trim().toUpperCase();
+        return clean;
+    }
+    return 'PILOTO';
+}
+
+// Grupos Oficiais (Campeões Históricos)
+const CHAMPION_GROUPS = [
+    { id: 1, name: "G. FARINA", year: "1950", leader: "L.GUSTAVO" },
+    { id: 2, name: "J. M. FANGIO", year: "1951", leader: "M.VERSTAPPEN" },
+    { id: 3, name: "A. ASCARI", year: "1952", leader: "C.LECLERC" },
+    { id: 4, name: "M. HAWTHORN", year: "1958", leader: "L.NORRIS" },
+    { id: 5, name: "J. BRABHAM", year: "1959", leader: "O.PIASTRI" },
+    { id: 6, name: "P. HILL", year: "1961", leader: "G.RUSSELL" },
+    { id: 7, name: "G. HILL", year: "1962", leader: "L.HAMILTON" },
+    { id: 8, name: "J. CLARK", year: "1963", leader: "F.ALONSO" },
+    { id: 9, name: "J. SURTEES", year: "1964", leader: "C.SAINZ" },
+    { id: 10, name: "D. HULME", year: "1967", leader: "A.ALBON" },
+];
+
+// Rodadas da Temporada 2026
+const SEASON_ROUNDS = [
+    { id: '01', name: 'BAHRAIN GP', track: 'Sakhir Circuit', poleTime: '1:29.179', status: 'CONCLUÍDO' },
+    { id: '02', name: 'SAUDI ARABIA GP', track: 'Jeddah Corniche', poleTime: '1:27.472', status: 'CONCLUÍDO' },
+    { id: '03', name: 'AUSTRALIAN GP', track: 'Albert Park Circuit', poleTime: '1:15.915', status: 'EM DISPUTA' },
+    { id: '04', name: 'JAPANESE GP', track: 'Suzuka International', poleTime: '1:28.197', status: 'ABERTO' },
+    { id: '05', name: 'CHINESE GP', track: 'Shanghai Circuit', poleTime: '1:33.660', status: 'PREGÃO ABERTO' },
+    { id: '06', name: 'MIAMI GP', track: 'Miami International', poleTime: '1:27.241', status: 'AGUARDANDO' },
+];
+
+// Configuração das Competições
+type CompetitionKey = 'poletime' | 'master' | 'milesimus' | 'teamwork';
+
+interface CompetitionDef {
+    id: CompetitionKey;
+    code: string;
+    title: string;
+    subtitle: string;
+    badge: string;
+    desc: string;
+    icon: string;
+}
+
+const COMPETITIONS: CompetitionDef[] = [
+    {
+        id: 'poletime',
+        code: 'POLE',
+        title: 'POLETIME COMPETITION',
+        subtitle: 'PRECISÃO MILIMÉTRICA NO Q3',
+        badge: 'CIRÚRGICO',
+        desc: 'Desafio individual contra o relógio: adivinhe o tempo exato da pole position até os milésimos de segundo.',
+        icon: '⏱'
+    },
+    {
+        id: 'master',
+        code: 'MASTER',
+        title: 'MASTER LEAGUE',
+        subtitle: 'O GRID FECHADO DE 22 PILOTOS',
+        badge: 'LIGA OFICIAL',
+        desc: 'Micro-campeonato fechado dentro do seu grupo de 22 assentos com pontuação oficial FIA e desempate em 3 camadas táticas.',
+        icon: '🏆'
+    },
+    {
+        id: 'milesimus',
+        code: 'MILES',
+        title: 'MILESIMUS LEAGUE',
+        subtitle: 'RANKING GERAL SUPREMO',
+        badge: 'GLOBAL',
+        desc: 'A somatória absoluta de todo o repertório técnico de cada estrategista ao longo de toda a temporada mundial.',
+        icon: '🌐'
+    },
+    {
+        id: 'teamwork',
+        code: 'TEAM',
+        title: 'TEAMWORK COMPETITION',
+        subtitle: 'GUERRA DE ESCUDERIAS & BLOCOS',
+        badge: 'ALIANÇAS',
+        desc: 'A disputa entre os construtores e alianças de motores da F1. Cada ponto conquistado soma para a honra da sua equipe.',
+        icon: '⚡'
+    }
+];
+
+// Mock de Leaderboards e Resultados com nomes rigorosamente formatados
+const MOCK_POLETIME_RESULTS = [
+    { pos: 1, pilot: 'L.GUSTAVO', team: 'McLaren', teamColor: '#FF8000', betTime: '1:15.918', gapMs: 3, points: 4997, timestamp: '14:28:11' },
+    { pos: 2, pilot: 'C.LECLERC', team: 'Ferrari', teamColor: '#DC0000', betTime: '1:15.909', gapMs: 6, points: 4994, timestamp: '14:15:02' },
+    { pos: 3, pilot: 'M.VERSTAPPEN', team: 'Red Bull', teamColor: '#3671C6', betTime: '1:15.928', gapMs: 13, points: 4987, timestamp: '13:58:44' },
+    { pos: 4, pilot: 'L.NORRIS', team: 'McLaren', teamColor: '#FF8000', betTime: '1:15.895', gapMs: 20, points: 4980, timestamp: '14:29:40' },
+    { pos: 5, pilot: 'O.PIASTRI', team: 'McLaren', teamColor: '#FF8000', betTime: '1:15.942', gapMs: 27, points: 4973, timestamp: '14:10:19' },
+    { pos: 6, pilot: 'G.RUSSELL', team: 'Mercedes', teamColor: '#00D2BE', betTime: '1:15.870', gapMs: 45, points: 4955, timestamp: '14:02:11' },
+    { pos: 7, pilot: 'L.HAMILTON', team: 'Ferrari', teamColor: '#DC0000', betTime: '1:15.975', gapMs: 60, points: 4940, timestamp: '12:44:30' },
+    { pos: 8, pilot: 'F.ALONSO', team: 'Aston Martin', teamColor: '#229971', betTime: '1:15.830', gapMs: 85, points: 4915, timestamp: '11:15:00' },
+];
+
+const MOCK_MASTER_GROUP_STANDINGS = [
+    { rank: 1, pilot: 'L.GUSTAVO', team: 'McLaren', teamColor: '#FF8000', racePoints: 68, top10Hits: 8, annualPoints: 75, tieBreakerDetail: 'Top 10: 8 pilotos (+0.8)' },
+    { rank: 2, pilot: 'C.LECLERC', team: 'Ferrari', teamColor: '#DC0000', racePoints: 68, top10Hits: 7, annualPoints: 58, tieBreakerDetail: 'Top 10: 7 pilotos (+0.7)' },
+    { rank: 3, pilot: 'M.VERSTAPPEN', team: 'Red Bull', teamColor: '#3671C6', racePoints: 55, top10Hits: 7, annualPoints: 52, tieBreakerDetail: 'Top 10: 7 pilotos (+0.7)' },
+    { rank: 4, pilot: 'L.NORRIS', team: 'McLaren', teamColor: '#FF8000', racePoints: 48, top10Hits: 6, annualPoints: 40, tieBreakerDetail: 'Qualifying Mirror: P2' },
+    { rank: 5, pilot: 'O.PIASTRI', team: 'McLaren', teamColor: '#FF8000', racePoints: 48, top10Hits: 6, annualPoints: 37, tieBreakerDetail: 'Timestamp: 13:40:15' },
+    { rank: 6, pilot: 'G.RUSSELL', team: 'Mercedes', teamColor: '#00D2BE', racePoints: 40, top10Hits: 5, annualPoints: 30, tieBreakerDetail: 'Top 10: 5 pilotos' },
+    { rank: 7, pilot: 'L.HAMILTON', team: 'Ferrari', teamColor: '#DC0000', racePoints: 32, top10Hits: 5, annualPoints: 24, tieBreakerDetail: 'Timestamp: 11:20:00' },
+    { rank: 8, pilot: 'C.SAINZ', team: 'Williams', teamColor: '#005AFF', racePoints: 26, top10Hits: 4, annualPoints: 18, tieBreakerDetail: 'Top 10: 4 pilotos' },
+    { rank: 9, pilot: 'F.ALONSO', team: 'Aston Martin', teamColor: '#229971', racePoints: 20, top10Hits: 4, annualPoints: 12, tieBreakerDetail: 'Top 10: 4 pilotos' },
+    { rank: 10, pilot: 'A.ALBON', team: 'Williams', teamColor: '#005AFF', racePoints: 15, top10Hits: 3, annualPoints: 8, tieBreakerDetail: 'Top 10: 3 pilotos' },
+    { rank: 11, pilot: 'E.OCON', team: 'Haas', teamColor: '#E6002B', racePoints: 12, top10Hits: 2, annualPoints: 0, tieBreakerDetail: 'Fora da zona de pontos' },
+    { rank: 12, pilot: 'P.GASLY', team: 'Alpine', teamColor: '#FD4BC7', racePoints: 10, top10Hits: 2, annualPoints: 0, tieBreakerDetail: 'Fora da zona de pontos' },
+];
+
+const MOCK_MILESIMUS_OVERALL = [
+    { rank: 1, pilot: 'L.GUSTAVO', group: 'G. FARINA', team: 'McLaren', teamColor: '#FF8000', poletime: 14850, master: 172, evo: 45, h2h: 30, misc: 18, total: 15115 },
+    { rank: 2, pilot: 'C.LECLERC', group: 'G. FARINA', team: 'Ferrari', teamColor: '#DC0000', poletime: 14780, master: 165, evo: 40, h2h: 25, misc: 20, total: 15030 },
+    { rank: 3, pilot: 'M.VERSTAPPEN', group: 'J. M. FANGIO', team: 'Red Bull', teamColor: '#3671C6', poletime: 14690, master: 158, evo: 50, h2h: 25, misc: 16, total: 14939 },
+    { rank: 4, pilot: 'L.NORRIS', group: 'G. FARINA', team: 'McLaren', teamColor: '#FF8000', poletime: 14610, master: 150, evo: 35, h2h: 30, misc: 20, total: 14845 },
+    { rank: 5, pilot: 'G.RUSSELL', group: 'A. ASCARI', team: 'Mercedes', teamColor: '#00D2BE', poletime: 14520, master: 142, evo: 40, h2h: 20, misc: 14, total: 14736 },
+    { rank: 6, pilot: 'O.PIASTRI', group: 'M. HAWTHORN', team: 'McLaren', teamColor: '#FF8000', poletime: 14450, master: 138, evo: 35, h2h: 25, misc: 18, total: 14666 },
+    { rank: 7, pilot: 'L.HAMILTON', group: 'A. ASCARI', team: 'Ferrari', teamColor: '#DC0000', poletime: 14380, master: 130, evo: 30, h2h: 20, misc: 16, total: 14576 },
+    { rank: 8, pilot: 'C.SAINZ', group: 'J. BRABHAM', team: 'Williams', teamColor: '#005AFF', poletime: 14210, master: 122, evo: 45, h2h: 15, misc: 12, total: 14404 },
+];
+
+const MOCK_TEAMWORK_STANDINGS = [
+    { rank: 1, team: 'McLaren', block: 'BLOCO A (ESTRELA)', color: '#FF8000', pilots: ['L.GUSTAVO', 'L.NORRIS'], totalPts: 322, avgPts: 161.0 },
+    { rank: 2, team: 'Scuderia Ferrari', block: 'BLOCO B (MARANELLO)', color: '#DC0000', pilots: ['C.LECLERC', 'L.HAMILTON'], totalPts: 295, avgPts: 147.5 },
+    { rank: 3, team: 'Red Bull Racing', block: 'BLOCO C (VANGUARDA)', color: '#3671C6', pilots: ['M.VERSTAPPEN', 'Y.TSUNODA'], totalPts: 278, avgPts: 139.0 },
+    { rank: 4, team: 'Mercedes-AMG', block: 'BLOCO A (ESTRELA)', color: '#00D2BE', pilots: ['G.RUSSELL', 'K.ANTONELLI'], totalPts: 246, avgPts: 123.0 },
+    { rank: 5, team: 'Williams Racing', block: 'BLOCO A (ESTRELA)', color: '#005AFF', pilots: ['C.SAINZ', 'A.ALBON'], totalPts: 212, avgPts: 106.0 },
+    { rank: 6, team: 'Aston Martin', block: 'BLOCO C (VANGUARDA)', color: '#229971', pilots: ['F.ALONSO', 'L.STROLL'], totalPts: 184, avgPts: 92.0 },
 ];
 
 export default function FantasyClient() {
-    const { user, isLoading } = useSupabaseAuth();
-    const [activeId, setActiveId] = useState('poletime-competition'); // actually milesimus / teamwork in the control
-    const [activeTab, setActiveTab] = useState('race-results');
-    const [activeResultRound, setActiveResultRound] = useState('03'); // Default to last mock active event
-    const [isStuck, setIsStuck] = useState(false);
-    const menuRef = React.useRef<HTMLDivElement>(null);
+    const { user } = useSupabaseAuth();
+    const [activeComp, setActiveComp] = useState<CompetitionKey>('poletime');
+    const [activeTab, setActiveTab] = useState<'ranking' | 'results' | 'rules'>('ranking');
+    const [selectedRound, setSelectedRound] = useState<string>('03');
+    const [selectedGroupId, setSelectedGroupId] = useState<number>(1);
+    const [userProfile, setUserProfile] = useState<any>(null);
 
-    const COMPETITIONS_ORDER = [
-        'poletime-competition',
-        'master-competition',
-        'milesimus',
-        'teamwork',
-        'silly-season',
-        'paddock'
-    ];
-
-    const { onTouchStart, onTouchEnd } = useSwipe({
-        onSwipeLeft: () => {
-            const currentIndex = COMPETITIONS_ORDER.indexOf(activeId);
-            if (currentIndex < COMPETITIONS_ORDER.length - 1) setActiveId(COMPETITIONS_ORDER[currentIndex + 1]);
-        },
-        onSwipeRight: () => {
-            const currentIndex = COMPETITIONS_ORDER.indexOf(activeId);
-            if (currentIndex > 0) setActiveId(COMPETITIONS_ORDER[currentIndex - 1]);
-        }
-    });
-
-    React.useEffect(() => {
-        const handleScroll = () => {
-            if (menuRef.current) {
-                const top = menuRef.current.getBoundingClientRect().top;
-                const threshold = window.innerWidth >= 768 ? 83 : 67;
-                setIsStuck(top <= threshold);
+    // Carrega perfil real do usuário logado se existir
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (!user) return;
+            try {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('slug, first_name, last_name, driver_number')
+                    .eq('id', user.id)
+                    .single();
+                if (data) setUserProfile(data);
+            } catch (e) {
+                // silencioso
             }
         };
-        
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Check initially
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+        fetchUser();
+    }, [user]);
 
-    const renderContent = () => {
-        if (activeId === 'teamwork') {
-            return <TeamworkCompetition activeTab={activeTab} />;
-        }
-        
-        return (
-            <div className="bg-white dark:bg-[#1a1a1a] border border-black/20 dark:border-[#ffffff3d] p-4 md:p-6 rounded-sm">
-                {activeTab === 'race-results' && (
-                    <div className="flex flex-col gap-6">
-                        <RaceRemoteControl 
-                            activeRound={activeResultRound} 
-                            baseUrl="#"
-                            onRoundSelect={(round) => setActiveResultRound(round)}
-                        />
-                        
-                        <div className="p-8 text-center flex flex-col items-center justify-center gap-4 bg-black/5 dark:bg-white/5 border border-dashed border-black/20 dark:border-white/20 mt-4">
-                            <h3 className="text-xl font-bold text-black dark:text-white uppercase tracking-widest">{getCompetitionTitle(activeId)} Results</h3>
-                            <p className="text-gray-500">
-                                Simulating results for <strong>ROUND {activeResultRound}</strong> for competition {getCompetitionTitle(activeId)}.
-                            </p>
-                            <div className="mt-4 text-xs font-mono bg-white dark:bg-black p-4 rounded-md border border-black/10 dark:border-white/10">
-                                {/* Fake table placeholder */}
-                                <div className="flex justify-between border-b pb-2 mb-2 w-64">
-                                    <span>P1</span><span className="text-[#fbaa19] font-bold">100 pts</span>
-                                </div>
-                                <div className="flex justify-between border-b pb-2 mb-2 w-64">
-                                    <span>P2</span><span className="text-gray-500">80 pts</span>
-                                </div>
-                                <div className="flex justify-between w-64">
-                                    <span>P3</span><span className="text-gray-500">60 pts</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {activeTab === 'ranking' && (
-                    <div className="flex flex-col gap-4 animate-fade-in">
-                        <TelemetryLeaderboard />
-                    </div>
-                )}
-                {activeTab === 'stats' && (
-                    <div className="p-12 text-center flex flex-col items-center justify-center gap-4">
-                        <svg className="w-12 h-12 text-[#fbaa19]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        <h3 className="text-xl font-bold text-black dark:text-white uppercase tracking-widest">Analytics</h3>
-                        <p className="text-gray-500">Performance data is currently being processed.</p>
-                    </div>
-                )}
-                {activeTab === 'rules' && (
-                    <div className="flex flex-col">
-                        {activeId === 'poletime-competition' ? (
-                            <div className="flex flex-col gap-8 max-w-3xl mx-auto p-4 md:p-8">
-                                <div className="text-center mb-6">
-                                    <h3 className="text-2xl md:text-3xl font-black text-black dark:text-white uppercase tracking-widest font-display mb-4">
-                                        POLETIME RULES
-                                    </h3>
-                                    <p className="text-gray-500 max-w-xl mx-auto">
-                                        Master the milliseconds and nail the perfect Qualifying time.
-                                    </p>
-                                </div>
+    const userDisplayName = useMemo(() => {
+        if (!userProfile) return 'L.GUSTAVO';
+        return formatPilotName(userProfile.first_name, userProfile.last_name, userProfile.slug);
+    }, [userProfile]);
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 hover:border-[#fbaa19] transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] mb-2">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                        </div>
-                                        <h4 className="font-bold uppercase tracking-widest text-sm">O Objetivo</h4>
-                                        <p className="text-gray-500 text-sm leading-relaxed">
-                                            Your mission is to predict with the highest precision possible what will be the <strong>exact Pole Position time</strong> (the fastest Q3 time in the Qualifying session).
-                                        </p>
-                                    </div>
-                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 hover:border-[#fbaa19] transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] mb-2">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                        </div>
-                                        <h4 className="font-bold uppercase tracking-widest text-sm">The Math</h4>
-                                        <p className="text-gray-500 text-sm leading-relaxed">
-                                            The perfect maximum score is <strong>5,000 points</strong>. Each 1 millisecond (ms) of error costs 1 point.<br/>
-                                            <span className="inline-block mt-2 font-mono text-[#fbaa19] bg-black/5 dark:bg-white/5 p-2 rounded">Pts = 5.000 - GAP(ms)</span>
-                                        </p>
-                                    </div>
-                                </div>
+    const activeRoundData = useMemo(() => {
+        return SEASON_ROUNDS.find(r => r.id === selectedRound) || SEASON_ROUNDS[2];
+    }, [selectedRound]);
 
-                                <div className="bg-black/5 dark:bg-white/5 border border-dashed border-black/20 dark:border-white/20 p-6 md:p-8 rounded-lg flex flex-col items-center text-center">
-                                    <h4 className="font-bold uppercase tracking-widest text-[#fbaa19] mb-6">Practical Example</h4>
-                                    
-                                    <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 w-full max-w-xl">
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-xs text-gray-500 uppercase tracking-widest mb-1">Tempo Oficial</span>
-                                            <span className="text-xl md:text-2xl font-mono font-black text-black dark:text-white">1:24.000</span>
-                                        </div>
-                                        
-                                        <div className="hidden md:flex flex-col items-center opacity-50">
-                                            <div className="w-16 h-px bg-current"></div>
-                                        </div>
-                                        
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-xs text-gray-500 uppercase tracking-widest mb-1">Seu Palpite</span>
-                                            <span className="text-xl md:text-2xl font-mono font-bold text-gray-400">1:24.250</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 w-full max-w-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                                        <div className="text-left">
-                                            <span className="block text-xs text-gray-500 uppercase tracking-widest">Gap (Erro)</span>
-                                            <span className="block font-mono font-bold text-red-500">250 ms</span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="block text-xs text-gray-500 uppercase tracking-widest">Final Score</span>
-                                            <span className="block text-2xl font-black text-[#fbaa19]">4.750 pts</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="mt-6 p-6 border-l-4 border-[#fbaa19] bg-white dark:bg-[#111]">
-                                    <h4 className="font-bold uppercase tracking-widest text-sm mb-3">Prazos e Desempate</h4>
-                                    <ul className="text-gray-500 text-sm space-y-3">
-                                        <li className="flex gap-2">
-                                            <span className="text-[#fbaa19] font-bold">⏱</span> 
-                                            <span><strong>Prazo Limite:</strong> O envio ou edição de ordens encerra no exato <strong>início do Q1 (Qualifying)</strong>. Abertura do sinal verde congela o pregão para auditoria da FIA.</span>
-                                        </li>
-                                        <li className="flex gap-2">
-                                            <span className="text-[#fbaa19] font-bold">✓</span> 
-                                            <span><strong>Bullseye:</strong> Acerto milimétrico exato garante os <strong>5.000 pontos</strong> integrais!</span>
-                                        </li>
-                                        <li className="flex gap-2">
-                                            <span className="text-[#fbaa19] font-bold">⚠</span> 
-                                            <span><strong>Limite de 5s:</strong> Erros superiores a 5.000 ms (5s) recebem <strong>0 pontos</strong>. Não há pontuação negativa.</span>
-                                        </li>
-                                        <li className="flex gap-2">
-                                            <span className="text-[#fbaa19] font-bold">⚡</span> 
-                                            <span><strong>Critério de Desempate:</strong> Em caso de empate de pontuação, tem prioridade o palpite <strong>mais antigo</strong> no sistema. Caso o usuário atualize suas posições, valerá a data/hora da última alteração.</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        ) : activeId === 'master-competition' ? (
-                            <div className="flex flex-col gap-8 max-w-4xl mx-auto p-4 md:p-8">
-                                <div className="text-center mb-8">
-                                    <h3 className="text-2xl md:text-3xl font-black text-black dark:text-white uppercase tracking-widest font-display mb-4">
-                                        MASTER RULES
-                                    </h3>
-                                    <p className="text-gray-500 max-w-2xl mx-auto">
-                                        Simulação de alta fidelidade com o formato oficial da Fórmula 1: disputa interna restrita ao seu grupo fechado de 22 participantes.
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Card 1: Grupos */}
-                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                            </div>
-                                            <h4 className="font-bold uppercase tracking-widest text-sm">Estrutura de Grupos</h4>
-                                        </div>
-                                        <p className="text-gray-500 text-sm leading-relaxed">
-                                            Cada grupo contém exatamente <strong>22 participantes</strong> (o grid oficial da F1). Existem 500 grupos disponíveis no total.
-                                        </p>
-                                        <div className="mt-2 text-xs p-3 bg-black/5 dark:bg-white/5 border-l-2 border-[#fbaa19]">
-                                            <strong>Nota Histórica:</strong> Os primeiros 34 grupos homenageiam os Campeões Mundiais da F1, do Grupo 1 (G. Farina) ao Grupo 34 (L. Norris).
-                                        </div>
-                                    </div>
-
-                                    {/* Card 2: Prediction Score */}
-                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                            </div>
-                                            <h4 className="font-bold uppercase tracking-widest text-sm">1. Acertos do Evento</h4>
-                                        </div>
-                                        <p className="text-gray-500 text-sm leading-relaxed mb-2">
-                                            Acertar a posição exata de chegada de um piloto rende a pontuação oficial da FIA:
-                                        </p>
-                                        <div className="grid grid-cols-5 gap-1 text-[10px] sm:text-xs font-mono text-center">
-                                            <div className="bg-[#fbaa19] text-black font-bold p-1 rounded">P1<br/>25</div>
-                                            <div className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-1 rounded">P2<br/>18</div>
-                                            <div className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-1 rounded">P3<br/>15</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P4<br/>12</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P5<br/>10</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P6<br/>8</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P7<br/>6</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P8<br/>4</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P9<br/>2</div>
-                                            <div className="bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 p-1 rounded">P10<br/>1</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Card 3: O Ranking do Grupo */}
-                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 md:col-span-2 border-l-4 border-l-[#fbaa19]">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                            </div>
-                                            <h4 className="font-bold uppercase tracking-widest text-sm">2. O Ranking Acumulado no Grupo</h4>
-                                        </div>
-                                        <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                                            A pontuação da corrida classifica você contra os outros <strong>21 pilotos do seu grupo</strong>. Apenas os 10 primeiros da rodada somam pontos para o Campeonato Anual do Grupo:
-                                        </p>
-                                        
-                                        <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 text-center text-[10px] sm:text-xs font-mono mb-2">
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-[#fbaa19]/50 shadow-sm">
-                                                <span className="block text-gray-500 mb-1">1º</span>
-                                                <span className="block font-bold text-[#fbaa19]">25</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">2º</span>
-                                                <span className="block font-bold text-gray-700 dark:text-gray-300">18</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">3º</span>
-                                                <span className="block font-bold text-gray-700 dark:text-gray-300">15</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">4º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">12</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">5º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">10</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">6º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">8</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">7º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">6</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">8º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">4</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">9º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">2</span>
-                                            </div>
-                                            <div className="bg-black/5 dark:bg-white/5 p-1 rounded border border-black/10 dark:border-white/10">
-                                                <span className="block text-gray-500 mb-1">10º</span>
-                                                <span className="block font-bold text-gray-600 dark:text-gray-400">1</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-center text-xs text-gray-400 mt-2">
-                                            Do 11º ao 22º colocado: <strong>0 pontos</strong> no ranking anual.
-                                        </div>
-                                    </div>
-
-                                    {/* Card 4: Critério de Desempate da Master League */}
-                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 md:col-span-2">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 18h12l3-18H3z"></path></svg>
-                                            </div>
-                                            <h4 className="font-bold uppercase tracking-widest text-sm text-black dark:text-white">
-                                                3. Critérios de Desempate da Master League
-                                            </h4>
-                                        </div>
-                                        <p className="text-gray-500 text-sm leading-relaxed mb-3">
-                                            Se dois ou mais pilotos do grupo empatarem em pontos na corrida, a classificação é definida por <strong>três camadas técnicas sucessivas</strong>:
-                                        </p>
-                                        <div className="space-y-3 text-xs text-gray-500">
-                                            <div className="p-3 bg-black/5 dark:bg-white/5 rounded border border-black/10 dark:border-white/10">
-                                                <strong className="text-black dark:text-white block uppercase tracking-wider mb-1">Camada 1 — Presença no Top 10 (+0,1 pt por piloto):</strong>
-                                                Cada piloto que você colocou no palpite que de fato terminou no Top 10 (mesmo que fora da posição exata) concede <strong>+0,1 décimo de ponto</strong> (até +1,0 pt para 10 acertos). Quem tiver maior índice de presença desempata.
-                                            </div>
-                                            <div className="p-3 bg-black/5 dark:bg-white/5 rounded border border-black/10 dark:border-white/10">
-                                                <strong className="text-black dark:text-white block uppercase tracking-wider mb-1">Camada 2 — Espelhamento com o Qualifying (Q3 FIA):</strong>
-                                                Persistindo o empate, o palpite de corrida é comparado com o resultado do <strong>Treino de Classificação (Qualifying do sábado)</strong>, usando os mesmos pontos de acerto de posição (25, 18, 15... 1) mais o bônus fracionário de pilotos presentes no Top 10 da tomada de tempos.
-                                            </div>
-                                            <div className="p-3 bg-black/5 dark:bg-white/5 rounded border border-black/10 dark:border-white/10">
-                                                <strong className="text-black dark:text-white block uppercase tracking-wider mb-1">Camada 3 — Antiguidade do Registro (Timestamp):</strong>
-                                                Se ainda persistir o empate, prevalece quem consolidou as posições <strong>mais cedo</strong> no sistema (data e hora da última atualização).
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                                <div className="text-center mt-4">
-                                    <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                        Prazo Limite: Envio de ordens encerra impreterivelmente na abertura do Q1 (Qualifying).
-                                    </p>
-                                </div>
-                            </div>
-                        ) : activeId === 'milesimus' ? (
-                            <div className="flex flex-col gap-8 max-w-4xl mx-auto p-4 md:p-8">
-                                <div className="text-center mb-8">
-                                    <h3 className="text-2xl md:text-3xl font-black text-black dark:text-white uppercase tracking-widest font-display mb-4">
-                                        MILESIMUS RULES
-                                    </h3>
-                                    <p className="text-gray-500 max-w-2xl mx-auto">
-                                        The supreme global ranking. There are no groups here, just the raw and absolute sum of all your Formula 1 knowledge.
-                                    </p>
-                                </div>
-
-                                <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 md:p-10 rounded-lg flex flex-col items-center gap-6">
-                                    <div className="w-16 h-16 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0 mb-2">
-                                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                    <div className="text-center">
-                                        <h4 className="font-black text-xl uppercase tracking-widest mb-4">Como Funciona</h4>
-                                        <p className="text-gray-500 leading-relaxed max-w-2xl mx-auto mb-6">
-                                            The Milesimus competition represents the <strong>total sum of points</strong> earned by you in absolute terms, regardless of the prediction format. It is the gross accumulation throughout the season.
-                                        </p>
-                                    </div>
-
-                                    <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 text-sm font-bold uppercase tracking-widest">
-                                        <div className="bg-black/5 dark:bg-white/5 py-3 px-6 rounded-lg text-gray-500 w-full md:w-auto text-center">Poletime</div>
-                                        <div className="text-[#fbaa19] hidden md:block">+</div>
-                                        <div className="bg-black/5 dark:bg-white/5 py-3 px-6 rounded-lg text-gray-500 w-full md:w-auto text-center">Master</div>
-                                        <div className="text-[#fbaa19] hidden md:block">+</div>
-                                        <div className="bg-black/5 dark:bg-white/5 py-3 px-6 rounded-lg text-gray-500 w-full md:w-auto text-center">Evo</div>
-                                        <div className="text-[#fbaa19] hidden md:block">+</div>
-                                        <div className="bg-black/5 dark:bg-white/5 py-3 px-6 rounded-lg text-gray-500 w-full md:w-auto text-center">H2H</div>
-                                        <div className="text-[#fbaa19] hidden md:block">+</div>
-                                        <div className="bg-black/5 dark:bg-white/5 py-3 px-6 rounded-lg text-gray-500 w-full md:w-auto text-center">Misc</div>
-                                    </div>
-                                    
-                                    <div className="mt-4 flex flex-col items-center">
-                                        <div className="w-px h-8 bg-[#fbaa19] mb-4"></div>
-                                        <div className="bg-[#fbaa19] text-black py-4 px-12 rounded-lg text-center shadow-[0_0_15px_rgba(251,170,25,0.3)]">
-                                            <span className="block text-xs uppercase tracking-[0.2em] mb-1">TOTAL ACUMULADO =</span>
-                                            <span className="block text-2xl font-black font-display uppercase tracking-widest">Milesimus Score</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="mt-6 p-6 border-l-4 border-[#fbaa19] bg-white dark:bg-[#111]">
-                                    <h4 className="font-bold uppercase tracking-widest text-sm mb-3">Prazos e Desempate</h4>
-                                    <ul className="text-gray-500 text-sm space-y-3">
-                                        <li className="flex gap-2">
-                                            <span className="text-[#fbaa19] font-bold">⏱</span> 
-                                            <span><strong>Prazo Limite:</strong> O fechamento do pregão ocorre no <strong>início do Q1 (Qualifying)</strong> de cada Grande Prêmio. Nenhuma ordem pode ser alterada após a bandeira verde.</span>
-                                        </li>
-                                        <li className="flex gap-2">
-                                            <span className="text-[#fbaa19] font-bold">⚡</span> 
-                                            <span><strong>Critério de Desempate:</strong> No caso de empate na pontuação geral acumulada da Milesimus, o desempate segue a regra da <strong>antiguidade do envio</strong> (prevalece quem registrou mais cedo, considerando a data/hora da última alteração de palpites).</span>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div className="text-center mt-4">
-                                    <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                        O estrategista que atingir a maior pontuação acumulada ao fim da temporada será coroado o Campeão Absoluto do ano!
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="p-12 text-center flex flex-col items-center justify-center gap-4">
-                                <svg className="w-12 h-12 text-[#fbaa19]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                                <h3 className="text-xl font-bold text-black dark:text-white uppercase tracking-widest">Competition Rules</h3>
-                                <p className="text-gray-500">Official rules and point distributions for {getCompetitionTitle(activeId)}.</p>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    const getCompetitionTitle = (id: string) => {
-        switch (id) {
-            case 'poletime-competition': return 'POLETIME COMPETITION';
-            case 'master-competition': return 'MASTER COMPETITION';
-            case 'milesimus': return 'MILESIMUS';
-            case 'teamwork': return 'TEAMWORK';
-            case 'silly-season': return 'SILLY SEASON';
-            case 'paddock': return 'PADDOCK';
-            case 'stats': return 'GLOBAL STATS';
-            default: return 'COMPETITIONS';
-        }
-    };
+    const activeCompData = useMemo(() => {
+        return COMPETITIONS.find(c => c.id === activeComp) || COMPETITIONS[0];
+    }, [activeComp]);
 
     return (
-        <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="flex flex-col gap-8 w-full">
-            {!isLoading && !user && <FantasyIntro />}
-            <div className="flex flex-col md:flex-row gap-4 w-full items-stretch min-h-[300px]">
-                <div className="w-full md:w-1/4 flex-shrink-0 order-2 md:order-1">
-                    <CompetitionsRemoteControl activeId={activeId} setActiveId={setActiveId} />
-                </div>
-                <div className="w-full md:w-3/4 flex-shrink-0 order-1 md:order-2">
-                    <CompetitionHero activeId={activeId} />
-                </div>
-            </div>
+        <div className="w-full min-h-screen bg-[#050401] text-white flex flex-col font-mono relative overflow-x-hidden selection:bg-[#fbaa19] selection:text-black">
             
-            {/* Global Fantasy Sub-menu (Sticky) */}
-            <div 
-                ref={menuRef}
-                className={`w-full sticky top-[66px] md:top-[82px] z-40 transition-all duration-300 ${
-                    isStuck 
-                        ? 'bg-gray-100 dark:bg-[#0a0a0a] py-1 shadow-sm border-b border-black/10 dark:border-white/10' 
-                        : 'bg-transparent pt-4'
-                }`}
-            >
-                <div className="flex flex-nowrap overflow-x-auto scrollbar-hide gap-1 md:gap-4 border-b border-black/20 dark:border-[#ffffff3d] transition-all duration-300 pb-0">
-                    {FANTASY_TABS.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`uppercase font-bold tracking-widest transition-all duration-300 py-3 px-4 md:px-6 text-[10px] md:text-xs whitespace-nowrap shrink-0 ${
-                                activeTab === tab.id 
-                                ? "bg-[#fbaa19] text-black" 
-                                : "text-gray-500 hover:text-black dark:hover:text-white"
-                            }`}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
+            {/* Background Pixel Art Imersivo com Scanlines Analógicas */}
+            <img 
+                src="/pixel_invite_bg_v2.jpg"
+                alt=""
+                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none opacity-30"
+                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+            />
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#050401]/90 via-[#050401]/95 to-[#050401] pointer-events-none"></div>
+                <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)', backgroundSize: '100% 4px' }}></div>
             </div>
 
-            <section className="mt-2 min-h-screen" aria-live="polite">
-                {renderContent()}
-            </section>
+            {/* CONTEÚDO PRINCIPAL (Z-INDEX 10) */}
+            <div className="relative z-10 w-full flex flex-col flex-1 pb-24">
+                
+                {/* 1. TOP HEADER OPERACIONAL COM TICKER F1 (ESTILO TERMINAL) */}
+                <header className="border-b border-white/10 bg-black/85 backdrop-blur-md px-4 sm:px-6 py-4 sticky top-0 z-40 shadow-2xl">
+                    <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        
+                        {/* Terminal ID & Título */}
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span className="text-[10px] md:text-xs font-black tracking-[0.25em] text-[#fbaa19] uppercase">
+                                    &gt;_ FANTASY AUDIT ENGINE // TEMPORADA 2026
+                                </span>
+                                <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/50">
+                                    FIA OFFICIAL SPEC
+                                </span>
+                            </div>
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
+                                Central de Ligas & Competições
+                            </h1>
+                            <p className="text-[11px] text-white/50 uppercase tracking-widest flex items-center gap-2">
+                                <span>PILOTO ATIVO: <strong className="text-white">{userDisplayName}</strong></span>
+                                <span className="opacity-30">|</span>
+                                <span className="text-emerald-400 font-bold">PREGÃO ABERTO: R03 ALBERT PARK</span>
+                            </p>
+                        </div>
+
+                        {/* Ações & Atalhos Rápidos */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+                            <Link
+                                href="/positions"
+                                className="px-3.5 py-2 rounded bg-[#fbaa19] hover:bg-white text-black font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(251,170,25,0.3)] flex items-center gap-1.5"
+                            >
+                                <span>[ ENVIAR ORDENS ]</span>
+                            </Link>
+
+                            <Link
+                                href="/pitwall"
+                                className="px-3 py-2 rounded bg-white/5 hover:bg-white/15 border border-white/20 text-white font-bold tracking-widest uppercase transition-all flex items-center gap-1.5"
+                            >
+                                <span>[ PITWALL ]</span>
+                            </Link>
+
+                            <Link
+                                href="/fantasy2"
+                                className="px-2.5 py-2 rounded bg-white/5 hover:bg-white/15 border border-white/10 text-white/40 hover:text-white text-[10px] tracking-widest uppercase transition-all"
+                                title="Versão Clássica do Fantasy"
+                            >
+                                <span>[ LEGACY v1 ]</span>
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* FAIXA INFORMATIVA DO DEADLINE DE MERCADO */}
+                    <div className="max-w-[1500px] mx-auto mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between text-[11px] text-white/60 gap-3">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[#fbaa19] font-black animate-pulse">⚡ DEADLINE:</span>
+                            <span>O fechamento definitivo do pregão ocorre no **início da Classificação (Q1 / Qualifying)**.</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] text-white/40 uppercase">
+                            <span>SISTEMA DE DESEMPATE: CRONOLÓGICO & TRIPLA CAMADA</span>
+                        </div>
+                    </div>
+                </header>
+
+                {/* 2. CONSOLE SELETOR DE COMPETIÇÕES (HUD EM 4 MÓDULOS) */}
+                <div className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-6 w-full">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        {COMPETITIONS.map((comp) => {
+                            const isSelected = activeComp === comp.id;
+                            return (
+                                <button
+                                    key={comp.id}
+                                    onClick={() => setActiveComp(comp.id)}
+                                    className={`relative p-4 rounded-lg text-left transition-all duration-200 border flex flex-col justify-between overflow-hidden group ${
+                                        isSelected
+                                            ? 'bg-black/85 border-[#fbaa19] shadow-[0_0_20px_rgba(251,170,25,0.2)]'
+                                            : 'bg-black/50 border-white/10 hover:border-white/30 hover:bg-black/70'
+                                    }`}
+                                >
+                                    {/* Linha decorativa no topo quando selecionado */}
+                                    {isSelected && (
+                                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#fbaa19] via-amber-300 to-[#fbaa19]"></div>
+                                    )}
+
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                            <span className={`text-[10px] px-2 py-0.5 rounded font-black tracking-widest uppercase ${
+                                                isSelected ? 'bg-[#fbaa19] text-black' : 'bg-white/10 text-white/60'
+                                            }`}>
+                                                [{comp.code}]
+                                            </span>
+                                            <span className="text-[10px] tracking-widest text-white/40 uppercase font-semibold">
+                                                {comp.badge}
+                                            </span>
+                                        </div>
+
+                                        <h3 className={`text-base font-black uppercase tracking-wider transition-colors ${
+                                            isSelected ? 'text-[#fbaa19]' : 'text-white group-hover:text-white'
+                                        }`}>
+                                            {comp.title}
+                                        </h3>
+                                        <p className="text-[10px] text-white/50 tracking-wider uppercase mt-0.5">
+                                            {comp.subtitle}
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px]">
+                                        <span className="text-white/40 line-clamp-1">{comp.desc}</span>
+                                        <span className={`text-xs ml-2 ${isSelected ? 'text-[#fbaa19]' : 'text-white/30'}`}>
+                                            {isSelected ? '● ATIVO' : '○ VER'}
+                                        </span>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* 3. BARRA DE CONTROLE DA COMPETIÇÃO (SUB-ABAS & FILTROS) */}
+                <div className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-6 w-full">
+                    <div className="bg-black/80 border border-white/10 rounded-lg p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-md">
+                        
+                        {/* Seletor de Abas Principais */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                onClick={() => setActiveTab('ranking')}
+                                className={`px-4 py-2 rounded text-xs font-black tracking-widest uppercase transition-all ${
+                                    activeTab === 'ranking'
+                                        ? 'bg-[#fbaa19] text-black shadow-[0_0_12px_rgba(251,170,25,0.3)]'
+                                        : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
+                                }`}
+                            >
+                                [ CLASSIFICAÇÃO GERAL ]
+                            </button>
+
+                            <button
+                                onClick={() => setActiveTab('results')}
+                                className={`px-4 py-2 rounded text-xs font-black tracking-widest uppercase transition-all ${
+                                    activeTab === 'results'
+                                        ? 'bg-[#fbaa19] text-black shadow-[0_0_12px_rgba(251,170,25,0.3)]'
+                                        : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
+                                }`}
+                            >
+                                [ RESULTADOS DA ETAPA ]
+                            </button>
+
+                            <button
+                                onClick={() => setActiveTab('rules')}
+                                className={`px-4 py-2 rounded text-xs font-black tracking-widest uppercase transition-all ${
+                                    activeTab === 'rules'
+                                        ? 'bg-[#fbaa19] text-black shadow-[0_0_12px_rgba(251,170,25,0.3)]'
+                                        : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
+                                }`}
+                            >
+                                [ REGRAS & DESEMPATE ]
+                            </button>
+                        </div>
+
+                        {/* Filtros Contextuais (Etapa ou Grupo) */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+                            {/* Seletor de Rodadas / GP */}
+                            <div className="flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded border border-white/10">
+                                <span className="text-[10px] text-white/40 uppercase">ETAPA:</span>
+                                <select
+                                    value={selectedRound}
+                                    onChange={(e) => setSelectedRound(e.target.value)}
+                                    className="bg-transparent text-[#fbaa19] font-black uppercase text-xs focus:outline-none cursor-pointer"
+                                >
+                                    {SEASON_ROUNDS.map(r => (
+                                        <option key={r.id} value={r.id} className="bg-neutral-900 text-white">
+                                            R{r.id} - {r.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Seletor de Grupo (Apenas para Master League) */}
+                            {activeComp === 'master' && (
+                                <div className="flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded border border-white/10">
+                                    <span className="text-[10px] text-white/40 uppercase">LIGA:</span>
+                                    <select
+                                        value={selectedGroupId}
+                                        onChange={(e) => setSelectedGroupId(Number(e.target.value))}
+                                        className="bg-transparent text-emerald-400 font-black uppercase text-xs focus:outline-none cursor-pointer"
+                                    >
+                                        {CHAMPION_GROUPS.map(g => (
+                                            <option key={g.id} value={g.id} className="bg-neutral-900 text-white">
+                                                GRUPO {g.id} - {g.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. ÁREA CENTRAL DE CONTEÚDO (BASEADO NA ABA ATIVA) */}
+                <div className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-6 w-full">
+                    
+                    {/* ===== ABA: CLASSIFICAÇÃO / RANKING ===== */}
+                    {activeTab === 'ranking' && (
+                        <div className="flex flex-col gap-6 animate-fade-in">
+                            
+                            {/* Card Hero com Estatísticas da Competição Selecionada */}
+                            <div className="bg-black/75 border border-white/10 rounded-lg p-5 backdrop-blur-md">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xl">{activeCompData.icon}</span>
+                                            <h2 className="text-lg md:text-xl font-black uppercase tracking-wider text-white">
+                                                {activeCompData.title} // TABELA DO CAMPEONATO
+                                            </h2>
+                                        </div>
+                                        <p className="text-xs text-white/60 max-w-2xl">
+                                            {activeCompData.desc}
+                                        </p>
+                                    </div>
+
+                                    {/* Call to action de envio de posições */}
+                                    <div className="flex items-center gap-3">
+                                        <Link
+                                            href="/positions"
+                                            className="px-4 py-2.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-black text-xs tracking-widest uppercase transition-all flex items-center gap-2"
+                                        >
+                                            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                            <span>LANÇAR ORDENS NO GRID</span>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* TABELAS ESPECÍFICAS DE CADA COMPETIÇÃO */}
+
+                            {/* 1. POLETIME LEADERBOARD */}
+                            {activeComp === 'poletime' && (
+                                <div className="bg-black/85 border border-white/10 rounded-lg overflow-hidden shadow-2xl">
+                                    <div className="px-5 py-3 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[#fbaa19] text-xs font-bold">⏱</span>
+                                            <span className="text-xs font-black tracking-widest uppercase text-white">
+                                                CLASSIFICAÇÃO ACUMULADA // POLETIME WORLD CHAMPIONSHIP
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] text-white/40 uppercase">
+                                            REGRA DE DESEMPATE: CRONOLOGIA (ANTIGUIDADE DE ENVIO)
+                                        </span>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-xs">
+                                            <thead className="bg-white/5 text-white/50 border-b border-white/10 uppercase text-[10px] tracking-widest">
+                                                <tr>
+                                                    <th className="py-3 px-4">POS</th>
+                                                    <th className="py-3 px-4">ESTRATEGISTA</th>
+                                                    <th className="py-3 px-4">ESCUDERIA</th>
+                                                    <th className="py-3 px-4 text-center">TEMPO DO PALPITE</th>
+                                                    <th className="py-3 px-4 text-center">DISPERSÃO (GAP)</th>
+                                                    <th className="py-3 px-4 text-right">SCORE POLE</th>
+                                                    <th className="py-3 px-4 text-center">HORA DO ENVIO</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {MOCK_POLETIME_RESULTS.map((row) => (
+                                                    <tr key={row.pos} className="hover:bg-white/[0.03] transition-colors">
+                                                        <td className="py-3 px-4 font-black">
+                                                            <span className={`inline-block w-6 text-center ${
+                                                                row.pos === 1 ? 'text-[#fbaa19]' : row.pos <= 3 ? 'text-amber-200' : 'text-white/60'
+                                                            }`}>
+                                                                #{row.pos}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 font-black text-white flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: row.teamColor }}></span>
+                                                            <span>{row.pilot}</span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white/60 uppercase">
+                                                            {row.team}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center font-mono font-bold text-white">
+                                                            {row.betTime}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center font-mono text-[#fbaa19]">
+                                                            +{row.gapMs} ms
+                                                        </td>
+                                                        <td className="py-3 px-4 text-right font-black text-emerald-400">
+                                                            {row.points.toLocaleString('pt-BR')} pts
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/40 font-mono text-[11px]">
+                                                            {row.timestamp}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 2. MASTER LEAGUE STANDINGS */}
+                            {activeComp === 'master' && (
+                                <div className="bg-black/85 border border-white/10 rounded-lg overflow-hidden shadow-2xl">
+                                    <div className="px-5 py-3 border-b border-white/10 bg-white/[0.02] flex flex-wrap items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[#fbaa19] text-xs font-bold">🏆</span>
+                                            <span className="text-xs font-black tracking-widest uppercase text-white">
+                                                GRUPO {selectedGroupId}: {CHAMPION_GROUPS.find(g => g.id === selectedGroupId)?.name} // 22 PILOTOS
+                                            </span>
+                                        </div>
+                                        <div className="text-[10px] text-white/40 uppercase flex items-center gap-2">
+                                            <span>DESEMPATE ATIVO:</span>
+                                            <span className="text-[#fbaa19] font-bold">1º TOP 10 (+0,1) • 2º QUALIFYING • 3º TIMESTAMP</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-xs">
+                                            <thead className="bg-white/5 text-white/50 border-b border-white/10 uppercase text-[10px] tracking-widest">
+                                                <tr>
+                                                    <th className="py-3 px-4">RANK</th>
+                                                    <th className="py-3 px-4">ESTRATEGISTA</th>
+                                                    <th className="py-3 px-4">EQUIPE</th>
+                                                    <th className="py-3 px-4 text-center">PTS RODADA (FASE 1)</th>
+                                                    <th className="py-3 px-4 text-center">ACERTOS TOP 10</th>
+                                                    <th className="py-3 px-4 text-center">CRITÉRIO DESEMPATE</th>
+                                                    <th className="py-3 px-4 text-right">PTS CAMPEONATO (FASE 2)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {MOCK_MASTER_GROUP_STANDINGS.map((row) => (
+                                                    <tr key={row.rank} className="hover:bg-white/[0.03] transition-colors">
+                                                        <td className="py-3 px-4 font-black">
+                                                            <span className={`inline-block w-6 text-center ${
+                                                                row.rank === 1 ? 'text-[#fbaa19]' : row.rank <= 3 ? 'text-amber-200' : 'text-white/60'
+                                                            }`}>
+                                                                {row.rank}º
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 font-black text-white flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: row.teamColor }}></span>
+                                                            <span>{row.pilot}</span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white/60 uppercase">
+                                                            {row.team}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center font-bold text-white">
+                                                            {row.racePoints} pts
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/80">
+                                                            <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-emerald-400 font-bold">
+                                                                {row.top10Hits} / 10
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-[11px] text-white/50">
+                                                            {row.tieBreakerDetail}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-right font-black text-[#fbaa19]">
+                                                            {row.annualPoints} pts
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 3. MILESIMUS STANDINGS */}
+                            {activeComp === 'milesimus' && (
+                                <div className="bg-black/85 border border-white/10 rounded-lg overflow-hidden shadow-2xl">
+                                    <div className="px-5 py-3 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[#fbaa19] text-xs font-bold">🌐</span>
+                                            <span className="text-xs font-black tracking-widest uppercase text-white">
+                                                RANKING GERAL ABSOLUTO // MILESIMUS LEAGUE
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] text-white/40 uppercase">
+                                            SOMA GERAL: POLETIME + MASTER + EVO + H2H + PROPS
+                                        </span>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-xs">
+                                            <thead className="bg-white/5 text-white/50 border-b border-white/10 uppercase text-[10px] tracking-widest">
+                                                <tr>
+                                                    <th className="py-3 px-4">POS</th>
+                                                    <th className="py-3 px-4">ESTRATEGISTA</th>
+                                                    <th className="py-3 px-4">GRUPO</th>
+                                                    <th className="py-3 px-4">EQUIPE</th>
+                                                    <th className="py-3 px-4 text-center">POLETIME</th>
+                                                    <th className="py-3 px-4 text-center">MASTER</th>
+                                                    <th className="py-3 px-4 text-center">EVO</th>
+                                                    <th className="py-3 px-4 text-center">H2H</th>
+                                                    <th className="py-3 px-4 text-center">PROPS</th>
+                                                    <th className="py-3 px-4 text-right">TOTAL BRUTO</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {MOCK_MILESIMUS_OVERALL.map((row) => (
+                                                    <tr key={row.rank} className="hover:bg-white/[0.03] transition-colors">
+                                                        <td className="py-3 px-4 font-black">
+                                                            <span className={`inline-block w-6 text-center ${
+                                                                row.rank === 1 ? 'text-[#fbaa19]' : row.rank <= 3 ? 'text-amber-200' : 'text-white/60'
+                                                            }`}>
+                                                                #{row.rank}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 font-black text-white flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: row.teamColor }}></span>
+                                                            <span>{row.pilot}</span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white/50 uppercase text-[11px]">
+                                                            {row.group}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white/60 uppercase">
+                                                            {row.team}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/70 font-mono">
+                                                            {row.poletime}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/70 font-mono">
+                                                            {row.master}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/70 font-mono">
+                                                            {row.evo}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/70 font-mono">
+                                                            {row.h2h}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/70 font-mono">
+                                                            {row.misc}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-right font-black text-[#fbaa19]">
+                                                            {row.total.toLocaleString('pt-BR')} pts
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 4. TEAMWORK STANDINGS */}
+                            {activeComp === 'teamwork' && (
+                                <div className="bg-black/85 border border-white/10 rounded-lg overflow-hidden shadow-2xl">
+                                    <div className="px-5 py-3 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[#fbaa19] text-xs font-bold">⚡</span>
+                                            <span className="text-xs font-black tracking-widest uppercase text-white">
+                                                CAMPEONATO DE CONSTRUTORES & ALIANÇAS DE MOTORES
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] text-white/40 uppercase">
+                                            BLOCO ESTRELA (A) • BLOCO MARANELLO (B) • BLOCO VANGUARDA (C)
+                                        </span>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-xs">
+                                            <thead className="bg-white/5 text-white/50 border-b border-white/10 uppercase text-[10px] tracking-widest">
+                                                <tr>
+                                                    <th className="py-3 px-4">POS</th>
+                                                    <th className="py-3 px-4">ESCUDERIA</th>
+                                                    <th className="py-3 px-4">ALIANÇA TÉCNICA</th>
+                                                    <th className="py-3 px-4">PILOTOS TITULARES</th>
+                                                    <th className="py-3 px-4 text-center">MÉDIA / PILOTO</th>
+                                                    <th className="py-3 px-4 text-right">PONTOS TOTAIS</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {MOCK_TEAMWORK_STANDINGS.map((row) => (
+                                                    <tr key={row.rank} className="hover:bg-white/[0.03] transition-colors">
+                                                        <td className="py-3 px-4 font-black">
+                                                            <span className={`inline-block w-6 text-center ${
+                                                                row.rank === 1 ? 'text-[#fbaa19]' : row.rank <= 3 ? 'text-amber-200' : 'text-white/60'
+                                                            }`}>
+                                                                {row.rank}º
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 font-black text-white flex items-center gap-2">
+                                                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: row.color }}></span>
+                                                            <span>{row.team}</span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white/60 uppercase text-[11px]">
+                                                            {row.block}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white/80 font-bold">
+                                                            {row.pilots.join(' & ')}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center text-white/60 font-mono">
+                                                            {row.avgPts.toFixed(1)}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-right font-black text-[#fbaa19]">
+                                                            {row.totalPts} pts
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    )}
+
+                    {/* ===== ABA: RESULTADOS DA ETAPA ===== */}
+                    {activeTab === 'results' && (
+                        <div className="flex flex-col gap-6 animate-fade-in">
+                            {/* Card de Informação da Etapa Selecionada */}
+                            <div className="bg-black/80 border border-white/10 rounded-lg p-5 backdrop-blur-md">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xs px-2 py-0.5 rounded bg-[#fbaa19] text-black font-black uppercase">
+                                                ETAPA R{activeRoundData.id}
+                                            </span>
+                                            <h2 className="text-xl font-black uppercase tracking-wider text-white">
+                                                {activeRoundData.name}
+                                            </h2>
+                                        </div>
+                                        <p className="text-xs text-white/60 uppercase tracking-wider">
+                                            CIRCUITO: {activeRoundData.track} • POLE POSITION OFICIAL FIA: <strong className="text-[#fbaa19] font-mono">{activeRoundData.poleTime}</strong>
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-[10px] px-3 py-1.5 rounded font-black tracking-widest uppercase border ${
+                                            activeRoundData.status === 'CONCLUÍDO'
+                                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                                : 'bg-[#fbaa19]/10 border-[#fbaa19]/30 text-[#fbaa19]'
+                                        }`}>
+                                            STATUS: {activeRoundData.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Comparativo de Resultados da Rodada */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                
+                                {/* Painel: Top 10 Oficial da Corrida */}
+                                <div className="bg-black/85 border border-white/10 rounded-lg p-5">
+                                    <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+                                        <span className="text-xs font-black tracking-widest uppercase text-white">
+                                            🏁 RESULTADO OFICIAL FIA // {activeRoundData.name}
+                                        </span>
+                                        <span className="text-[10px] text-white/40 uppercase">AUDITADO</span>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {[
+                                            { p: 'P1', pilot: 'M.VERSTAPPEN', team: 'Red Bull', pts: '25 pts', color: '#3671C6' },
+                                            { p: 'P2', pilot: 'C.LECLERC', team: 'Ferrari', pts: '18 pts', color: '#DC0000' },
+                                            { p: 'P3', pilot: 'L.NORRIS', team: 'McLaren', pts: '15 pts', color: '#FF8000' },
+                                            { p: 'P4', pilot: 'O.PIASTRI', team: 'McLaren', pts: '12 pts', color: '#FF8000' },
+                                            { p: 'P5', pilot: 'G.RUSSELL', team: 'Mercedes', pts: '10 pts', color: '#00D2BE' },
+                                            { p: 'P6', pilot: 'L.HAMILTON', team: 'Ferrari', pts: '8 pts', color: '#DC0000' },
+                                            { p: 'P7', pilot: 'C.SAINZ', team: 'Williams', pts: '6 pts', color: '#005AFF' },
+                                            { p: 'P8', pilot: 'F.ALONSO', team: 'Aston Martin', pts: '4 pts', color: '#229971' },
+                                            { p: 'P9', pilot: 'Y.TSUNODA', team: 'Racing Bulls', pts: '2 pts', color: '#6692FF' },
+                                            { p: 'P10', pilot: 'A.ALBON', team: 'Williams', pts: '1 pt', color: '#005AFF' },
+                                        ].map((row) => (
+                                            <div key={row.p} className="flex items-center justify-between p-2.5 rounded bg-white/[0.02] border border-white/5 text-xs">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-black text-[#fbaa19] w-6">{row.p}</span>
+                                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: row.color }}></span>
+                                                    <span className="font-bold text-white">{row.pilot}</span>
+                                                    <span className="text-[10px] text-white/40 uppercase">{row.team}</span>
+                                                </div>
+                                                <span className="font-mono font-bold text-emerald-400">{row.pts}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Painel: Destaques de Performance dos Estrategistas */}
+                                <div className="bg-black/85 border border-white/10 rounded-lg p-5 flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+                                            <span className="text-xs font-black tracking-widest uppercase text-white">
+                                                📊 RADAR DE PRECISÃO // ROUND {activeRoundData.id}
+                                            </span>
+                                            <span className="text-[10px] text-[#fbaa19] uppercase">TELEMETRIA</span>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="p-4 rounded bg-white/[0.02] border border-white/5">
+                                                <span className="text-[10px] text-white/40 uppercase tracking-widest block mb-1">
+                                                    MELHOR PALPITE POLETIME
+                                                </span>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-base font-black text-white">L.GUSTAVO</span>
+                                                    <span className="text-xs font-mono text-[#fbaa19] font-bold">GAP: +0.003s (4.997 pts)</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 rounded bg-white/[0.02] border border-white/5">
+                                                <span className="text-[10px] text-white/40 uppercase tracking-widest block mb-1">
+                                                    MAIOR PONTUAÇÃO MASTER LEAGUE (FASE 1)
+                                                </span>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-base font-black text-white">C.LECLERC & L.GUSTAVO</span>
+                                                    <span className="text-xs font-mono text-emerald-400 font-bold">68 pts (8 no Top 10)</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 rounded bg-white/[0.02] border border-white/5">
+                                                <span className="text-[10px] text-white/40 uppercase tracking-widest block mb-1">
+                                                    EQUIPE DESTAQUE TEAMWORK
+                                                </span>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-base font-black text-white">MCLAREN F1 TEAM</span>
+                                                    <span className="text-xs font-mono text-[#fbaa19] font-bold">116 pts somados</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 pt-4 border-t border-white/10 text-center">
+                                        <Link
+                                            href="/positions"
+                                            className="inline-block w-full py-3 rounded bg-white/5 hover:bg-white/10 border border-white/15 text-white font-black text-xs tracking-widest uppercase transition-all"
+                                        >
+                                            [ REVISAR SUAS ORDENS NESTA ETAPA ]
+                                        </Link>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ===== ABA: REGRAS & DESEMPATE (O NOVO MANUAL DO ESTRATEGISTA) ===== */}
+                    {activeTab === 'rules' && (
+                        <div className="flex flex-col gap-6 animate-fade-in max-w-5xl mx-auto">
+                            
+                            {/* Bloco 1: A Regra de Ouro (Deadline) */}
+                            <div className="bg-black/85 border border-[#fbaa19]/40 rounded-lg p-6 shadow-[0_0_25px_rgba(251,170,25,0.15)] relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#fbaa19]/10 rounded-full blur-2xl pointer-events-none"></div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-emerald-400 text-base font-black animate-pulse">●</span>
+                                    <span className="text-xs font-black tracking-[0.25em] text-[#fbaa19] uppercase">
+                                        REGRA DE OURO // FECHAMENTO DO MERCADO
+                                    </span>
+                                </div>
+                                <h3 className="text-lg md:text-2xl font-black uppercase text-white mb-2">
+                                    Prazo Limite Improrrogável: Início do Q1 (Qualifying)
+                                </h3>
+                                <p className="text-xs md:text-sm text-white/80 leading-relaxed">
+                                    O prazo limite para envio, consolidação ou alteração de qualquer ordem na central <strong className="text-white">/positions</strong> é o 
+                                    <strong className="text-[#fbaa19]"> exato instante em que as luzes verdes se acendem para o início do Q1 (Sessão de Classificação oficial da FIA)</strong>.
+                                    A partir deste momento, o terminal entra no modo <span className="text-amber-300 font-mono">[PREGÃO FECHADO // AUDITORIA]</span> e nenhuma nova aposta é computada.
+                                </p>
+                            </div>
+
+                            {/* Bloco 2: As 4 Competições e Pontuações */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                
+                                {/* Poletime */}
+                                <div className="bg-black/80 border border-white/10 rounded-lg p-5">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#fbaa19] text-base font-bold">⏱</span>
+                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">1. POLETIME COMPETITION</h4>
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-3">
+                                        Previsão cirúrgica do tempo de volta mais rápida na classificação até os milésimos (ex: <code className="text-white font-mono">1:23.456</code>).
+                                    </p>
+                                    <div className="bg-white/[0.03] p-3 rounded border border-white/5 text-xs space-y-1.5 font-mono">
+                                        <div className="text-emerald-400 font-bold">FÓRMULA: 5.000 - GAP (milissegundos)</div>
+                                        <div className="text-white/50 text-[11px]">• Acerto exato (Bullseye): 5.000 pontos integrais.</div>
+                                        <div className="text-white/50 text-[11px]">• Dispersão acima de 5.000 ms = 0 pontos (sem pontos negativos).</div>
+                                    </div>
+                                </div>
+
+                                {/* Master League */}
+                                <div className="bg-black/80 border border-white/10 rounded-lg p-5">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#fbaa19] text-base font-bold">🏆</span>
+                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">2. MASTER LEAGUE (GRID DE 22)</h4>
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-3">
+                                        Micro-campeonato disputado estritamente dentro do seu grupo de 22 assentos com duas fases de pontuação:
+                                    </p>
+                                    <div className="bg-white/[0.03] p-3 rounded border border-white/5 text-xs space-y-1.5 font-mono">
+                                        <div className="text-[#fbaa19] font-bold">FASE 1: ACERTOS DE CORRIDA (P1 a P10)</div>
+                                        <div className="text-white/50 text-[11px]">Pontuação oficial FIA: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1.</div>
+                                        <div className="text-emerald-400 font-bold mt-2">FASE 2: TABELA DO CAMPEONATO ANUAL</div>
+                                        <div className="text-white/50 text-[11px]">Os 10 melhores da rodada do grupo recebem: 25 a 1 ponto na tabela geral.</div>
+                                    </div>
+                                </div>
+
+                                {/* Milesimus League */}
+                                <div className="bg-black/80 border border-white/10 rounded-lg p-5">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#fbaa19] text-base font-bold">🌐</span>
+                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">3. MILESIMUS LEAGUE</h4>
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-3">
+                                        O ranking geral supremo e unificado com todos os pilotos do mundo:
+                                    </p>
+                                    <div className="bg-white/[0.03] p-3 rounded border border-white/5 text-xs space-y-1 font-mono text-white/70">
+                                        <div>SOMA TOTAL BRUTA DE:</div>
+                                        <div className="text-[#fbaa19]">• Poletime + Master (Fase 1) + Evo + H2H + Props</div>
+                                    </div>
+                                </div>
+
+                                {/* Teamwork Competition */}
+                                <div className="bg-black/80 border border-white/10 rounded-lg p-5">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#fbaa19] text-base font-bold">⚡</span>
+                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">4. TEAMWORK COMPETITION</h4>
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-3">
+                                        A batalha das escuderias e alianças de motores da F1:
+                                    </p>
+                                    <div className="bg-white/[0.03] p-3 rounded border border-white/5 text-xs space-y-1 font-mono text-white/70">
+                                        <div>PONTUAÇÃO DE EQUIPE:</div>
+                                        <div className="text-emerald-400">• Soma dos pontos conquistados pelos pilotos da mesma escuderia e bloco.</div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {/* Bloco 3: CRITÉRIOS DE DESEMPATE OFICIAIS */}
+                            <div className="bg-black/90 border border-white/10 rounded-lg p-6">
+                                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+                                    <span className="text-[#fbaa19] font-black">⚖</span>
+                                    <h3 className="text-base font-black uppercase tracking-widest text-white">
+                                        CRITÉRIOS OFICIAIS DE DESEMPATE
+                                    </h3>
+                                </div>
+
+                                {/* Critério Geral: Poletime, Milesimus e Teamwork */}
+                                <div className="mb-6 p-4 rounded bg-white/[0.02] border border-white/5">
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-[#fbaa19] mb-1">
+                                        A. POLETIME, MILESIMUS & TEAMWORK // CRONOLOGIA (ANTIGUIDADE)
+                                    </h4>
+                                    <p className="text-xs text-white/70 leading-relaxed">
+                                        Em caso de empate em pontos, a prioridade absoluta é do estrategista que enviou sua aposta <strong className="text-white">mais cedo</strong>.
+                                        <br />
+                                        <span className="text-amber-300 font-bold">Aviso sobre edições:</span> Ao atualizar suas posições, o sistema carimba o novo horário da modificação. A data válida para desempate é sempre a do <strong>último registro transmitido</strong>.
+                                    </p>
+                                </div>
+
+                                {/* Critério Exclusivo: MASTER LEAGUE EM 3 CAMADAS TÁTICAS */}
+                                <div className="p-4 rounded bg-gradient-to-b from-black to-[#050401] border border-[#fbaa19]/30">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-xs px-2 py-0.5 rounded bg-[#fbaa19] text-black font-black uppercase">EXCLUSIVO</span>
+                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">
+                                            B. MASTER LEAGUE // DESEMPATE EM 3 CAMADAS TÁTICAS
+                                        </h4>
+                                    </div>
+                                    <p className="text-xs text-white/70 mb-4">
+                                        Para desempatar competidores com a mesma pontuação na Master League, o sistema aplica sucessivamente três camadas de auditoria técnica:
+                                    </p>
+
+                                    {/* Visual em 3 Camadas Sucessivas */}
+                                    <div className="space-y-3">
+                                        
+                                        {/* Camada 1 */}
+                                        <div className="p-3.5 rounded bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">CAMADA 1</span>
+                                                    <span className="text-xs font-black text-white uppercase">Presença de Pilotos no Top 10</span>
+                                                </div>
+                                                <p className="text-[11px] text-white/60 mt-1">
+                                                    Cada piloto que você acertou dentro do Top 10 (mesmo que em posição diferente da cravada) concede <strong className="text-[#fbaa19]">+0,1 décimo de ponto</strong> de desempate.
+                                                </p>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <span className="text-xs font-mono font-black text-[#fbaa19] bg-black px-2 py-1 rounded border border-white/10">
+                                                    10 ACERTOS = +1,0 PT
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Camada 2 */}
+                                        <div className="p-3.5 rounded bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold uppercase">CAMADA 2</span>
+                                                    <span className="text-xs font-black text-white uppercase">Espelhamento contra o Treino de Classificação (Qualifying)</span>
+                                                </div>
+                                                <p className="text-[11px] text-white/60 mt-1">
+                                                    Se persistir o empate, sua aposta de corrida é confrontada contra o resultado oficial do Qualifying (grid de largada oficial da FIA), aplicando o mesmo critério de pontuação e os acertos no P10.
+                                                </p>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <span className="text-xs font-mono font-black text-amber-300 bg-black px-2 py-1 rounded border border-white/10">
+                                                    GRID Q3 OFICIAL
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Camada 3 */}
+                                        <div className="p-3.5 rounded bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold uppercase">CAMADA 3</span>
+                                                    <span className="text-xs font-black text-white uppercase">Antiguidade do Envio (Timestamp da Ordem)</span>
+                                                </div>
+                                                <p className="text-[11px] text-white/60 mt-1">
+                                                    Se após as duas etapas técnicas os estrategistas permanecerem rigorosamente empatados, a ordem mais antiga (enviada primeiro) vence.
+                                                </p>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <span className="text-xs font-mono font-black text-blue-400 bg-black px-2 py-1 rounded border border-white/10">
+                                                    TIMESTAMP AUDIT
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    )}
+
+                </div>
+
+            </div>
         </div>
     );
 }
