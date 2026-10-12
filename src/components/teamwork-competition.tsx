@@ -162,6 +162,23 @@ export default function TeamworkCompetition({ activeTab }: { activeTab: string }
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Card 4: Prazos e Desempate */}
+                            <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 md:col-span-2">
+                                <h4 className="font-bold uppercase tracking-widest text-sm text-black dark:text-white">
+                                    4. Prazo Limite e Critério de Desempate
+                                </h4>
+                                <ul className="text-gray-500 text-sm space-y-2">
+                                    <li className="flex gap-2">
+                                        <span className="text-[#fbaa19] font-bold">⏱</span>
+                                        <span><strong>Prazo Limite:</strong> O envio ou edição de ordens de qualquer membro encerra pontualmente no <strong>início do Q1 (Qualifying)</strong> de cada Grande Prêmio.</span>
+                                    </li>
+                                    <li className="flex gap-2">
+                                        <span className="text-[#fbaa19] font-bold">⚡</span>
+                                        <span><strong>Desempate:</strong> Em caso de empate na média da Teamwork, a prioridade é dada pela <strong>antiguidade do envio</strong> (a equipe cujos membros consolidaram suas ordens mais cedo no sistema). Caso alguém atualize o palpite, conta a data/hora do último envio.</span>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 )}

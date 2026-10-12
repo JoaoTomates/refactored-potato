@@ -172,15 +172,23 @@ export default function FantasyClient() {
                                 </div>
                                 
                                 <div className="mt-6 p-6 border-l-4 border-[#fbaa19] bg-white dark:bg-[#111]">
-                                    <h4 className="font-bold uppercase tracking-widest text-sm mb-3">Limites (Edge Cases)</h4>
+                                    <h4 className="font-bold uppercase tracking-widest text-sm mb-3">Prazos e Desempate</h4>
                                     <ul className="text-gray-500 text-sm space-y-3">
                                         <li className="flex gap-2">
+                                            <span className="text-[#fbaa19] font-bold">⏱</span> 
+                                            <span><strong>Prazo Limite:</strong> O envio ou edição de ordens encerra no exato <strong>início do Q1 (Qualifying)</strong>. Abertura do sinal verde congela o pregão para auditoria da FIA.</span>
+                                        </li>
+                                        <li className="flex gap-2">
                                             <span className="text-[#fbaa19] font-bold">✓</span> 
-                                            <span><strong>Bullseye:</strong> If you nail the exact time, you take all 5,000 points!</span>
+                                            <span><strong>Bullseye:</strong> Acerto milimétrico exato garante os <strong>5.000 pontos</strong> integrais!</span>
                                         </li>
                                         <li className="flex gap-2">
                                             <span className="text-[#fbaa19] font-bold">⚠</span> 
-                                            <span><strong>Error greater than 5s:</strong> If the gap is greater than 5,000 ms, your score will be <strong>0</strong>. There are no negative scores in Poletime.</span>
+                                            <span><strong>Limite de 5s:</strong> Erros superiores a 5.000 ms (5s) recebem <strong>0 pontos</strong>. Não há pontuação negativa.</span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="text-[#fbaa19] font-bold">⚡</span> 
+                                            <span><strong>Critério de Desempate:</strong> Em caso de empate de pontuação, tem prioridade o palpite <strong>mais antigo</strong> no sistema. Caso o usuário atualize suas posições, valerá a data/hora da última alteração.</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -192,7 +200,7 @@ export default function FantasyClient() {
                                         MASTER RULES
                                     </h3>
                                     <p className="text-gray-500 max-w-2xl mx-auto">
-                                        A brutal simulation based on the official Formula 1 format, where the dispute happens within your own group of 22 competitors.
+                                        Simulação de alta fidelidade com o formato oficial da Fórmula 1: disputa interna restrita ao seu grupo fechado de 22 participantes.
                                     </p>
                                 </div>
 
@@ -206,10 +214,10 @@ export default function FantasyClient() {
                                             <h4 className="font-bold uppercase tracking-widest text-sm">Estrutura de Grupos</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed">
-                                            You compete in a micro-championship. Each group holds exactly <strong>22 participantes</strong> (the official F1 grid). There are 500 groups available in total.
+                                            Cada grupo contém exatamente <strong>22 participantes</strong> (o grid oficial da F1). Existem 500 grupos disponíveis no total.
                                         </p>
                                         <div className="mt-2 text-xs p-3 bg-black/5 dark:bg-white/5 border-l-2 border-[#fbaa19]">
-                                            <strong>Historical Note:</strong> The first 34 groups honor all F1 World Champions, indo do Grupo 1 (G. Farina) ao Grupo 34 (L. Norris).
+                                            <strong>Nota Histórica:</strong> Os primeiros 34 grupos homenageiam os Campeões Mundiais da F1, do Grupo 1 (G. Farina) ao Grupo 34 (L. Norris).
                                         </div>
                                     </div>
 
@@ -222,7 +230,7 @@ export default function FantasyClient() {
                                             <h4 className="font-bold uppercase tracking-widest text-sm">1. Acertos do Evento</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed mb-2">
-                                            Your initial goal is to predict the race result. By predicting the exact position of a driver, you earn performance points based on real F1:
+                                            Acertar a posição exata de chegada de um piloto rende a pontuação oficial da FIA:
                                         </p>
                                         <div className="grid grid-cols-5 gap-1 text-[10px] sm:text-xs font-mono text-center">
                                             <div className="bg-[#fbaa19] text-black font-bold p-1 rounded">P1<br/>25</div>
@@ -247,7 +255,7 @@ export default function FantasyClient() {
                                             <h4 className="font-bold uppercase tracking-widest text-sm">2. O Ranking Acumulado no Grupo</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                                            The points you score from predictions rank you <strong>against the other 21 players in your group</strong> in that event. After the tally, Annual Championship points are distributed only to the top 10 scorers in the group, identical to real F1:
+                                            A pontuação da corrida classifica você contra os outros <strong>21 pilotos do seu grupo</strong>. Apenas os 10 primeiros da rodada somam pontos para o Campeonato Anual do Grupo:
                                         </p>
                                         
                                         <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 text-center text-[10px] sm:text-xs font-mono mb-2">
@@ -293,14 +301,43 @@ export default function FantasyClient() {
                                             </div>
                                         </div>
                                         <div className="text-center text-xs text-gray-400 mt-2">
-                                            Do 11º ao 22º colocado: <strong>0 pontos</strong> no acumulado do ranking.
+                                            Do 11º ao 22º colocado: <strong>0 pontos</strong> no ranking anual.
+                                        </div>
+                                    </div>
+
+                                    {/* Card 4: Critério de Desempate da Master League */}
+                                    <div className="bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 p-6 rounded-lg flex flex-col gap-3 md:col-span-2">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-full bg-[#fbaa19]/20 flex items-center justify-center text-[#fbaa19] shrink-0">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 18h12l3-18H3z"></path></svg>
+                                            </div>
+                                            <h4 className="font-bold uppercase tracking-widest text-sm text-black dark:text-white">
+                                                3. Critérios de Desempate da Master League
+                                            </h4>
+                                        </div>
+                                        <p className="text-gray-500 text-sm leading-relaxed mb-3">
+                                            Se dois ou mais pilotos do grupo empatarem em pontos na corrida, a classificação é definida por <strong>três camadas técnicas sucessivas</strong>:
+                                        </p>
+                                        <div className="space-y-3 text-xs text-gray-500">
+                                            <div className="p-3 bg-black/5 dark:bg-white/5 rounded border border-black/10 dark:border-white/10">
+                                                <strong className="text-black dark:text-white block uppercase tracking-wider mb-1">Camada 1 — Presença no Top 10 (+0,1 pt por piloto):</strong>
+                                                Cada piloto que você colocou no palpite que de fato terminou no Top 10 (mesmo que fora da posição exata) concede <strong>+0,1 décimo de ponto</strong> (até +1,0 pt para 10 acertos). Quem tiver maior índice de presença desempata.
+                                            </div>
+                                            <div className="p-3 bg-black/5 dark:bg-white/5 rounded border border-black/10 dark:border-white/10">
+                                                <strong className="text-black dark:text-white block uppercase tracking-wider mb-1">Camada 2 — Espelhamento com o Qualifying (Q3 FIA):</strong>
+                                                Persistindo o empate, o palpite de corrida é comparado com o resultado do <strong>Treino de Classificação (Qualifying do sábado)</strong>, usando os mesmos pontos de acerto de posição (25, 18, 15... 1) mais o bônus fracionário de pilotos presentes no Top 10 da tomada de tempos.
+                                            </div>
+                                            <div className="p-3 bg-black/5 dark:bg-white/5 rounded border border-black/10 dark:border-white/10">
+                                                <strong className="text-black dark:text-white block uppercase tracking-wider mb-1">Camada 3 — Antiguidade do Registro (Timestamp):</strong>
+                                                Se ainda persistir o empate, prevalece quem consolidou as posições <strong>mais cedo</strong> no sistema (data e hora da última atualização).
+                                            </div>
                                         </div>
                                     </div>
                                     
                                 </div>
                                 <div className="text-center mt-4">
                                     <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                        The Master Champion of your group will be the one who accumulates the most points in the final Ranking!
+                                        Prazo Limite: Envio de ordens encerra impreterivelmente na abertura do Q1 (Qualifying).
                                     </p>
                                 </div>
                             </div>
@@ -347,9 +384,23 @@ export default function FantasyClient() {
                                     </div>
                                 </div>
                                 
+                                <div className="mt-6 p-6 border-l-4 border-[#fbaa19] bg-white dark:bg-[#111]">
+                                    <h4 className="font-bold uppercase tracking-widest text-sm mb-3">Prazos e Desempate</h4>
+                                    <ul className="text-gray-500 text-sm space-y-3">
+                                        <li className="flex gap-2">
+                                            <span className="text-[#fbaa19] font-bold">⏱</span> 
+                                            <span><strong>Prazo Limite:</strong> O fechamento do pregão ocorre no <strong>início do Q1 (Qualifying)</strong> de cada Grande Prêmio. Nenhuma ordem pode ser alterada após a bandeira verde.</span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="text-[#fbaa19] font-bold">⚡</span> 
+                                            <span><strong>Critério de Desempate:</strong> No caso de empate na pontuação geral acumulada da Milesimus, o desempate segue a regra da <strong>antiguidade do envio</strong> (prevalece quem registrou mais cedo, considerando a data/hora da última alteração de palpites).</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
                                 <div className="text-center mt-4">
                                     <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                        The player who reaches the end of the season with the highest Milesimus Score is crowned the Absolute Champion of the year!
+                                        O estrategista que atingir a maior pontuação acumulada ao fim da temporada será coroado o Campeão Absoluto do ano!
                                     </p>
                                 </div>
                             </div>
