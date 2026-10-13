@@ -12,5 +12,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # User Workflow Requirements
 - ALWAYS run `npm run build` (or via `cmd.exe /c "npm run build"`) and check for errors BEFORE committing and pushing to GitHub.
 - ALWAYS push changes to the repository immediately after successfully completing a task and verifying the build.
-- Golden Rule (Naming): Os nomes de usuários e pilotos são SEMPRE no padrão "L.GUSTAVO" (maiúsculo, primeira letra do primeiro nome, ponto sem espaço, sobrenome, ex: "L.GUSTAVO", "C.LECLERC").
+- Golden Rule (Naming): Os nomes de usuários e pilotos são SEMPRE no padrão "L.GUSTAVO88" (maiúsculo, primeira letra do primeiro nome, ponto sem espaço, sobrenome, número opcional, ex: "L.GUSTAVO88", "C.LECLERC12").
 <!-- END:user-workflow-rules -->

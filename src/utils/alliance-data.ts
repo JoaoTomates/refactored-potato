@@ -133,8 +133,8 @@ export const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', FactionData> = {
     C: {
         id: 'C',
         badge: 'BLOCO C',
-        title: 'A VANGUARDA',
-        sub: '"Ousadia Tecnológica & A Força do Caos"',
+        title: 'A VANGUARDA TECNOLOGICA',
+        sub: '"Ousadia, estratégia & A Força do Caos"',
         engineSpec: 'Red Bull Ford Powertrains / Honda / Audi F1 PU',
         teamsString: 'Red Bull • Racing Bulls • Aston Martin • Audi',
         teams: ['RBR', 'RBA', 'AST', 'AUD'],

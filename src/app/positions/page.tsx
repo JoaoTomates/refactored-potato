@@ -37,7 +37,23 @@ function getTeamColor(teamName: string): string {
 }
 
 // Formatação rigorosa de nomes no padrão de ouro do sistema: "L.GUSTAVO"
-function formatPilotName(firstName?: string | null, lastName?: string | null, fallback?: string | null): string {
+function formatPilotName(firstName?: string | null, lastName?: string | null, driverNumber?: string | null, fallback?: string | null): string {
+    if (firstName && lastName) {
+        const initial = firstName.trim().charAt(0).toUpperCase();
+        const cleanLast = lastName.trim().toUpperCase().replace(/\s+/g, '');
+        const num = driverNumber ? driverNumber.replace(/\D/g, '') : '';
+        return `${initial}.${cleanLast}${num}`;
+    }
+    if (firstName && !lastName) {
+        const num = driverNumber ? driverNumber.replace(/\D/g, '') : '';
+        return `${firstName.trim().toUpperCase()}${num}`;
+    }
+    if (fallback) {
+        const clean = fallback.replace(/^@/, '').trim().toUpperCase();
+        return clean;
+    }
+    return 'PILOTO';
+}
     if (firstName && lastName) {
         const initial = firstName.trim().charAt(0).toUpperCase();
         const cleanLast = lastName.trim().toUpperCase().replace(/\s+/g, '');
