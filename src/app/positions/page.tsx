@@ -9,7 +9,8 @@ import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
 import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails } from '@/api/f1-data';
-import { PilotAvatar } from '@/components/pilot-avatar';
+import { nextRaceStart, isRaceWeek } from '@/lib/race';
+
 
 // --- Paleta Oficial de Equipes (Conforme NARRATIVE_STYLE_GUIDE.md) ---
 const TEAM_COLORS: Record<string, string> = {
@@ -54,21 +55,7 @@ function formatPilotName(firstName?: string | null, lastName?: string | null, dr
     }
     return 'PILOTO';
 }
-    if (firstName && lastName) {
-        const initial = firstName.trim().charAt(0).toUpperCase();
-        const cleanLast = lastName.trim().toUpperCase().replace(/\s+/g, '');
-        return `${initial}.${cleanLast}`;
-    }
-    if (firstName && !lastName) {
-        return firstName.trim().toUpperCase();
-    }
-    if (fallback) {
-        const clean = fallback.replace(/^@/, '').trim().toUpperCase();
-        if (clean.includes('.')) return clean;
-        return clean;
-    }
-    return 'PILOTO';
-}
+
 
 const QUESTIONS = [
     { id: 'q1', text: 'Safety car durante o Grande Prêmio?', options: ['SIM', 'NÃO'] },
@@ -128,6 +115,12 @@ export default function PositionsPage() {
     const [openDropdown, setOpenDropdown] = useState<{ type: 'top10' | 'evo', index: number } | null>(null);
 
     // Estado da calibragem do Bloco do usuário
+
+
+
+
+
+
     const [calibration, setCalibration] = useState<BlockCalibration>({
         tier: 'RED',
         count: 0,
@@ -422,12 +415,21 @@ export default function PositionsPage() {
             <header className="relative z-10 w-full border-b border-[#fbaa19]/25 bg-black/90 backdrop-blur-md px-4 py-2.5 overflow-hidden shadow-lg">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 text-[10px] md:text-xs uppercase tracking-widest">
                     <div className="flex items-center gap-3 shrink-0">
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#fbaa19]/20 text-[#fbaa19] font-black border border-[#fbaa19]/30">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#fbaa19] animate-ping" />
-                            PREGÃO: ABERTO
-                        </span>
-                        <span className="hidden sm:inline text-white/50">|</span>
-                        <span className="hidden sm:inline text-white/70">MERCADO DE POSIÇÕES DE GP</span>
+                        {/* Link to GP Positions */}
+                        <Link href="/positions" className={isRaceWeek() ? 'text-[#fbaa19] hover:text-[#fbaa19]' : 'text-white hover:text-white'}>
+                          PITLANE OPEN
+                        </Link>
+                        {/* Countdown during race week */}
+                        {isRaceWeek() && (
+                          <span className="ml-2 text-sm text-[#fbaa19]">
+                            ⏱ {(() => {
+                              const diff = nextRaceStart() - new Date();
+                              const hrs = Math.floor(diff / 3600000);
+                              const mins = Math.floor((diff % 3600000) / 60000);
+                              return `${hrs}h ${mins}m`;
+                            })()}
+                          </span>
+                        )}
                     </div>
 
                     {/* Ticker contínuo */}

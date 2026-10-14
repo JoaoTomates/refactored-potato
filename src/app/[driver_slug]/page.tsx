@@ -13,6 +13,8 @@ import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
+import { usePathname } from 'next/navigation';
+
 
 /* ============================================================
  * VOLTGRID // DASHBOARD OFICIAL DO ESTRATEGISTA (PÁGINA DO ARROBA)
@@ -383,7 +385,13 @@ export default function OfficialStrategistDashboard() {
     const router = useRouter();
     const params = useParams();
     const { user, isLoading: authLoading, logout } = useSupabaseAuth();
-    const now = useNow();
+    const pathname = usePathname();
+    // Detect if we are on the fantasy3 route and render its page directly
+    if (pathname === '/fantasy3') {
+        return <Fantasy3Page />;
+    }
+    const isRaceWeek = now && (nextRaceStart(now).getTime() - now.getTime() <= 7 * 24 * 60 * 60 * 1000);
+
 
     const rawSlug = (params?.driver_slug as string) || '';
     const decodedSlug = rawSlug ? decodeURIComponent(rawSlug) : '';
@@ -735,7 +743,8 @@ export default function OfficialStrategistDashboard() {
     if (now) {
         const diff = Math.max(0, nextRaceStart(now).getTime() - now.getTime());
         const d = Math.floor(diff / 86400000), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
-        countdown = `${String(d).padStart(2, '0')}D ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        const isRaceWeek = now && (nextRaceStart(now).getTime() - now.getTime() <= 7 * 24 * 60 * 60 * 1000);
+
     }
 
     const handleLogout = async () => {

@@ -24,20 +24,8 @@ function formatPilotName(firstName?: string | null, lastName?: string | null, dr
     }
     return 'PILOTO';
 }
-    if (firstName && lastName) {
-        const initial = firstName.trim().charAt(0).toUpperCase();
-        const cleanLast = lastName.trim().toUpperCase().replace(/\s+/g, '');
-        return `${initial}.${cleanLast}`;
-    }
-    if (firstName && !lastName) {
-        return firstName.trim().toUpperCase();
-    }
-    if (fallback) {
-        const clean = fallback.replace(/^@/, '').trim().toUpperCase();
-        return clean;
-    }
-    return 'PILOTO';
-}
+
+
 
 // Grupos Oficiais (Campeões Históricos)
 const CHAMPION_GROUPS = [

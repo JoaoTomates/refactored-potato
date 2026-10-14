@@ -1,4 +1,3 @@
-"use client";
 import type { Metadata } from 'next';
 import Fantasy3Client from './fantasy3-client';
 
