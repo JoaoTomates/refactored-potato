@@ -14,6 +14,7 @@ import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
 import { usePathname } from 'next/navigation';
+import { nextRaceStart, isRaceWeek } from '@/lib/race';
 
 
 /* ============================================================
@@ -124,15 +125,6 @@ function useNow() {
         return () => clearInterval(t);
     }, []);
     return now;
-}
-
-function nextRaceStart(from: Date) {
-    const d = new Date(from);
-    d.setHours(14, 0, 0, 0);
-    const add = (7 - d.getDay()) % 7;
-    d.setDate(d.getDate() + add);
-    if (d <= from) d.setDate(d.getDate() + 7);
-    return d;
 }
 
 /* ============================================================
@@ -386,11 +378,7 @@ export default function OfficialStrategistDashboard() {
     const params = useParams();
     const { user, isLoading: authLoading, logout } = useSupabaseAuth();
     const pathname = usePathname();
-    // Detect if we are on the fantasy3 route and render its page directly
-    if (pathname === '/fantasy3') {
-        return <Fantasy3Page />;
-    }
-    const isRaceWeek = now && (nextRaceStart(now).getTime() - now.getTime() <= 7 * 24 * 60 * 60 * 1000);
+    const now = useNow();
 
 
     const rawSlug = (params?.driver_slug as string) || '';
@@ -740,11 +728,11 @@ export default function OfficialStrategistDashboard() {
 
     // Countdown
     let countdown = '--D --:--:--';
+    const raceWeek = isRaceWeek(now || new Date());
     if (now) {
         const diff = Math.max(0, nextRaceStart(now).getTime() - now.getTime());
         const d = Math.floor(diff / 86400000), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
-        const isRaceWeek = now && (nextRaceStart(now).getTime() - now.getTime() <= 7 * 24 * 60 * 60 * 1000);
-
+        countdown = `${String(d).padStart(2, '0')}D ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
     const handleLogout = async () => {
@@ -799,8 +787,14 @@ export default function OfficialStrategistDashboard() {
                         )}
                     </div>
                     <div className="flex items-center gap-4 md:gap-6 text-[10px] tracking-widest">
-                        <span className="flex items-center gap-1.5 text-emerald-400 font-bold"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />MERCADO ABERTO</span>
-                        <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: teamColor }}>T-{countdown}</span></span>
+                        <Link 
+                            href="/positions"
+                            className={`flex items-center gap-1.5 font-bold transition-all hover:opacity-80 ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}
+                        >
+                            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
+                            <span>{raceWeek ? 'PITLANE OPEN // PISTA DISPONÍVEL' : 'PITLANE OPEN'}</span>
+                        </Link>
+                        <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: raceWeek ? '#fbaa19' : teamColor }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
                         
                         {isOwner ? (
@@ -905,7 +899,30 @@ export default function OfficialStrategistDashboard() {
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
                         <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
                             
-                            {/* 1. OS 4 CARDS DE COMPETIÇÃO NO TOPO (Clicáveis) */}
+                            {/* BANNER / BOTÃO OPERACIONAL DE TOMADA DE POSIÇÕES (MOVIDO PARA O TOPO ACIMA DAS COMPETIÇÕES) */}
+                            <Link
+                                href="/positions"
+                                className="w-full py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-lg cursor-pointer"
+                                style={{ 
+                                    borderColor: raceWeek ? '#fbaa19' : `${teamColor}60`, 
+                                    backgroundColor: raceWeek ? 'rgba(251, 170, 25, 0.15)' : `${teamColor}18`, 
+                                    color: raceWeek ? '#fbaa19' : teamColor 
+                                }}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full animate-ping inline-block ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
+                                    <span>&gt;_ TOMADA DE POSIÇÕES // {raceWeek ? 'PISTA DISPONÍVEL (PITLANE OPEN)' : 'PITLANE OPEN'}</span>
+                                    <span className="hidden sm:inline-block text-[10px] opacity-80 font-mono">
+                                        [PRAZO: {countdown}]
+                                    </span>
+                                </div>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded bg-black/70 border flex items-center gap-1 ${raceWeek ? 'border-[#fbaa19]/40 text-[#fbaa19]' : 'border-white/10 text-white'}`}>
+                                    <span>TOMAR POSIÇÕES</span>
+                                    <span>»</span>
+                                </span>
+                            </Link>
+
+                            {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {/* POLETIME */}
                                 <button 
@@ -996,26 +1013,6 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </button>
                             </div>
-
-                            {/* BANNER / BOTÃO OPERACIONAL DE TOMADA DE POSIÇÕES */}
-                            <Link
-                                href="/positions"
-                                className="w-full py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-lg cursor-pointer"
-                                style={{ 
-                                    borderColor: `${teamColor}60`, 
-                                    backgroundColor: `${teamColor}18`, 
-                                    color: teamColor 
-                                }}
-                            >
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
-                                    <span>&gt;_ TOMADA DE POSIÇÕES DE GP // MERCADO ABERTO</span>
-                                </div>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/70 border border-white/10 text-white flex items-center gap-1">
-                                    <span>ENVIAR ORDENS</span>
-                                    <span>»</span>
-                                </span>
-                            </Link>
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
                             <div 
