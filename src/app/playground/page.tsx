@@ -651,11 +651,11 @@ export default function PlaygroundPage() {
                                     <span style={{ color: teamColor }}>GRID »</span>
                                 </Link>
                                 <Link 
-                                    href="/bet"
+                                    href="/positions"
                                     className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
                                 >
-                                    <span>CENTRAL DE APOSTAS</span>
-                                    <span style={{ color: teamColor }}>ODDS »</span>
+                                    <span>CENTRAL DE POSIÇÕES</span>
+                                    <span style={{ color: teamColor }}>GRID »</span>
                                 </Link>
                             </div>
                         </Panel>
@@ -888,7 +888,7 @@ export default function PlaygroundPage() {
 
                                         <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
                                             <span className="text-[9px] text-white/40 uppercase">Vinculado a Poletime (Pole) e Master (Corrida)</span>
-                                            <Link href="/bet" className="text-[10px] md:text-xs font-bold tracking-widest hover:text-white transition-colors animate-pulse" style={{ color: teamColor }}>
+                                            <Link href="/positions" className="text-[10px] md:text-xs font-bold tracking-widest hover:text-white transition-colors animate-pulse" style={{ color: teamColor }}>
                                                 [ ABRIR NOVA POSIÇÃO NO PITWALL ] »
                                             </Link>
                                         </div>

@@ -83,10 +83,10 @@ const Navigation = () => {
                         {/* RIGHT: Action Buttons & Hamburger Menu */}
                         <div className="flex items-center gap-3 md:gap-4">
                             <Link 
-                                href="/bet" 
+                                href="/positions" 
                                 className="hidden sm:flex bg-[#fbaa19] text-black border border-[#fbaa19] px-4 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-bold uppercase tracking-wider rounded-sm hover:bg-yellow-500 transition-colors"
                             >
-                                Bet
+                                Positions
                             </Link>
                             
                             <Link 
@@ -175,11 +175,11 @@ const Navigation = () => {
                     {/* ACTION BUTTONS */}
                     <div className="mt-12 flex flex-col md:flex-row gap-4 max-w-5xl mx-auto w-full pb-8">
                         <Link 
-                            href="/bet" 
+                            href="/positions" 
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="bg-[#fbaa19] text-black w-full md:w-auto text-center px-10 py-5 text-xl font-black uppercase tracking-wider rounded-sm hover:bg-white transition-colors"
                         >
-                            Bet
+                            Positions
                         </Link>
                         <Link 
                             href={user ? dashboardUrl : "/superlicense"} 

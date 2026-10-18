@@ -310,10 +310,10 @@ export default function TelemetryPage() {
 
                     <div className="flex items-center gap-3">
                         <Link
-                            href="/bet"
+                            href="/positions"
                             className="bg-[#fbaa19] text-black px-4 py-2 font-black uppercase tracking-widest text-xs hover:bg-white transition-colors rounded-sm shadow-md"
                         >
-                            + Fazer / Editar Minhas Apostas
+                            + Lançar / Editar Posições
                         </Link>
                         <Link
                             href="/pitwall"
@@ -384,8 +384,8 @@ export default function TelemetryPage() {
                                             <div className="flex flex-col items-center justify-center gap-3">
                                                 <span className="text-lg font-bold uppercase text-[#fbaa19]">NENHUMA APOSTA ENCONTRADA NESTA ETAPA</span>
                                                 <span className="text-sm text-gray-500">Seja o primeiro estrategista a lançar previsões no grid!</span>
-                                                <Link href="/bet" className="mt-2 px-6 py-2 bg-[#fbaa19] text-black font-black uppercase tracking-wider text-xs rounded hover:bg-white transition-colors">
-                                                    Ir para o formulário de apostas &rarr;
+                                                <Link href="/positions" className="mt-2 px-6 py-2 bg-[#fbaa19] text-black font-black uppercase tracking-wider text-xs rounded hover:bg-white transition-colors">
+                                                    Ir para o protocolo de posições &rarr;
                                                 </Link>
                                             </div>
                                         </td>
@@ -568,8 +568,8 @@ export default function TelemetryPage() {
                     <Link href="/pitwall" className="bg-transparent text-gray-400 border border-gray-700 px-6 py-3 font-bold uppercase tracking-widest text-xs hover:text-white hover:border-gray-500 transition-colors">
                         Pit Wall
                     </Link>
-                    <Link href="/bet" className="bg-[#fbaa19] text-black px-6 py-3 font-black uppercase tracking-widest text-xs hover:bg-white transition-colors">
-                        Fazer / Editar Apostas &rarr;
+                    <Link href="/positions" className="bg-[#fbaa19] text-black px-6 py-3 font-black uppercase tracking-widest text-xs hover:bg-white transition-colors">
+                        Lançar / Editar Posições &rarr;
                     </Link>
                 </div>
             </section>
