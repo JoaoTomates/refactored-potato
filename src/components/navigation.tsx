@@ -83,6 +83,13 @@ const Navigation = () => {
                         {/* RIGHT: Action Buttons & Hamburger Menu */}
                         <div className="flex items-center gap-3 md:gap-4">
                             <Link 
+                                href="/next-race" 
+                                className="hidden md:flex text-gray-300 hover:text-[#fbaa19] text-xs font-bold uppercase tracking-wider transition-colors px-2"
+                            >
+                                Next Race
+                            </Link>
+
+                            <Link 
                                 href="/positions" 
                                 className="hidden sm:flex bg-[#fbaa19] text-black border border-[#fbaa19] px-4 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-bold uppercase tracking-wider rounded-sm hover:bg-yellow-500 transition-colors"
                             >
@@ -135,8 +142,16 @@ const Navigation = () => {
 
                     <div className="flex flex-col flex-grow max-w-5xl mx-auto w-full gap-8 mt-4">
                         
-                        {/* F1, NEWS AND SOCIAL MEDIA ON THE SAME ROW */}
+                        {/* NEXT RACE, F1, NEWS AND SOCIAL MEDIA ON THE SAME ROW */}
                         <div className="flex flex-row flex-wrap items-center gap-4 md:gap-8 border-b border-white/10 pb-6 w-full">
+                            <Link 
+                                href="/next-race"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="text-[#fbaa19] text-xl md:text-3xl font-black uppercase tracking-widest hover:text-white transition-colors"
+                            >
+                                Next Race
+                            </Link>
+                            <span className="text-white/20 text-xl hidden sm:block">/</span>
                             <Link 
                                 href="/f1"
                                 onClick={() => setIsMobileMenuOpen(false)}
