@@ -2,15 +2,14 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { 
     CIRCUITS_INTEL, 
     getCircuitIntel, 
     CircuitTelemetryIntel 
 } from '@/lib/circuits-intel';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/utils/supabase';
 import { 
-    Flag, 
-    Compass, 
     Wind, 
     Thermometer, 
     Droplets, 
@@ -28,14 +27,61 @@ import {
     Sparkles, 
     Radio,
     CircleDot,
-    ArrowRight
+    ArrowRight,
+    FileText,
+    Lock,
+    Unlock,
+    Fingerprint,
+    CheckCircle2
 } from 'lucide-react';
 
+type FactionKey = 'A' | 'B' | 'C';
+
+const FACTION_THEMES: Record<FactionKey, {
+    name: string;
+    sub: string;
+    color: string;
+    borderClass: string;
+    bgClass: string;
+    textClass: string;
+    badge: string;
+}> = {
+    A: {
+        name: 'CONSÓRCIO DA ESTRELA',
+        sub: 'Mercedes-AMG • McLaren • Alpine • Williams',
+        color: '#00D2BE',
+        borderClass: 'border-[#00D2BE]',
+        bgClass: 'bg-[#00D2BE]/10',
+        textClass: 'text-[#00D2BE]',
+        badge: 'BLOCO A // ESTRELA'
+    },
+    B: {
+        name: 'A DINASTIA DE MARANELLO',
+        sub: 'Scuderia Ferrari • Haas F1 • Cadillac Racing',
+        color: '#DC0000',
+        borderClass: 'border-[#DC0000]',
+        bgClass: 'bg-[#DC0000]/10',
+        textClass: 'text-[#DC0000]',
+        badge: 'BLOCO B // MARANELLO'
+    },
+    C: {
+        name: 'A VANGUARDA TECNOLÓGICA',
+        sub: 'Red Bull Racing • Racing Bulls • Aston Martin • Audi',
+        color: '#fbaa19',
+        borderClass: 'border-[#fbaa19]',
+        bgClass: 'bg-[#fbaa19]/10',
+        textClass: 'text-[#fbaa19]',
+        badge: 'BLOCO C // VANGUARDA'
+    }
+};
+
 export default function NextRacePage() {
+    const { user } = useSupabaseAuth();
+    
     // Estado do circuito ativo para inspeção
     const [selectedCircuitKey, setSelectedCircuitKey] = useState<string>('americas');
-    const [liveEventLoading, setLiveEventLoading] = useState<boolean>(true);
-    const [liveNextRaceName, setLiveNextRaceName] = useState<string | null>(null);
+    const [activeFaction, setActiveFaction] = useState<FactionKey>('A');
+    const [userContractGroup, setUserContractGroup] = useState<string | null>(null);
 
     // Contagem regressiva ao vivo
     const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
@@ -45,7 +91,39 @@ export default function NextRacePage() {
         seconds: 0
     });
 
-    // 1. Tenta sincronizar com a API Jolpica para detectar a próxima etapa oficial
+    // 1. Tenta recuperar o contrato do usuário no Supabase para pré-selecionar o Diretor do seu Bloco
+    useEffect(() => {
+        if (!user) return;
+        async function fetchUserAlliance() {
+            try {
+                const { data: contract } = await supabase
+                    .from('contracts')
+                    .select('group_id, teams(name, code)')
+                    .eq('user_id', user!.id)
+                    .maybeSingle();
+
+                if (contract?.teams) {
+                    const team = Array.isArray(contract.teams) ? contract.teams[0] : contract.teams;
+                    const code = team.code?.toUpperCase();
+                    if (['MER', 'MCL', 'ALP', 'WIL'].includes(code)) {
+                        setActiveFaction('A');
+                        setUserContractGroup('BLOCO A // CONSÓRCIO DA ESTRELA');
+                    } else if (['FER', 'HAA', 'CAD'].includes(code)) {
+                        setActiveFaction('B');
+                        setUserContractGroup('BLOCO B // DINASTIA DE MARANELLO');
+                    } else if (['RBR', 'RBA', 'AST', 'AUD'].includes(code)) {
+                        setActiveFaction('C');
+                        setUserContractGroup('BLOCO C // A VANGUARDA');
+                    }
+                }
+            } catch (err) {
+                console.warn('Erro ao carregar contrato para o briefing do diretor:', err);
+            }
+        }
+        fetchUserAlliance();
+    }, [user]);
+
+    // 2. Sincronização com Jolpica para detectar a próxima etapa oficial
     useEffect(() => {
         let isMounted = true;
         async function detectNextEvent() {
@@ -55,13 +133,10 @@ export default function NextRacePage() {
                     const data = await res.json();
                     const race = data.MRData?.RaceTable?.Races?.[0];
                     if (race && isMounted) {
-                        setLiveNextRaceName(race.raceName);
-                        // Verifica se temos este circuito no banco
                         const circuitId = race.Circuit?.circuitId || '';
                         if (CIRCUITS_INTEL[circuitId]) {
                             setSelectedCircuitKey(circuitId);
                         } else {
-                            // Se não tiver chave exata, busca no intel
                             const intel = getCircuitIntel(circuitId || race.Circuit?.circuitName || race.raceName);
                             setSelectedCircuitKey(intel.id);
                         }
@@ -69,8 +144,6 @@ export default function NextRacePage() {
                 }
             } catch (err) {
                 console.warn('Jolpica next race fallback to local intel:', err);
-            } finally {
-                if (isMounted) setLiveEventLoading(false);
             }
         }
         detectNextEvent();
@@ -82,10 +155,16 @@ export default function NextRacePage() {
         return getCircuitIntel(selectedCircuitKey);
     }, [selectedCircuitKey]);
 
+    // Memorando ativo do diretor técnico selecionado
+    const activeDirectorMemo = useMemo(() => {
+        return circuit.directorMemos[activeFaction];
+    }, [circuit, activeFaction]);
+
+    const activeTheme = FACTION_THEMES[activeFaction];
+
     // Cálculo da contagem regressiva para a largada da corrida
     useEffect(() => {
         function updateTimer() {
-            // Data alvo da corrida (25 de Outubro de 2026 às 20:00 UTC para Austin, ou proporcional)
             const targetDate = new Date('2026-10-25T20:00:00Z').getTime();
             const now = new Date().getTime();
             const diff = targetDate - now;
@@ -135,41 +214,179 @@ export default function NextRacePage() {
                 style={{ imageRendering: 'pixelated' }}
             />
             {/* Scanlines Overlay sutil */}
-            <div className="fixed inset-0 bg-gradient-to-b from-transparent via-[#050401]/50 to-[#050401] pointer-events-none z-0"></div>
+            <div className="fixed inset-0 bg-gradient-to-b from-transparent via-[#050401]/60 to-[#050401] pointer-events-none z-0"></div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
                 
-                {/* TOP BAR / TERMINAL HUD */}
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
-                    <div className="flex items-center gap-3">
-                        <span className="w-2.5 h-2.5 bg-[#fbaa19] rounded-full animate-ping"></span>
-                        <div className="text-xs uppercase tracking-[0.25em] text-[#fbaa19] font-bold flex items-center gap-2">
-                            <span>VOLTGRID TELEMETRY // INTELLIGENCE SYSTEM</span>
-                            <span className="text-white/30 hidden sm:inline">|</span>
-                            <span className="text-white/60 hidden sm:inline">FIA 2026 CALENDAR</span>
+                {/* CABEÇALHO DO PROTOCOLO CONFIDENCIAL // ENVELOPE DE DESPACHO */}
+                <div className="bg-black/95 border border-white/20 p-4 sm:p-5 rounded-sm mb-6 shadow-2xl relative overflow-hidden">
+                    {/* Linha decorativa no topo com cor do bloco */}
+                    <div className="absolute top-0 left-0 right-0 h-1 transition-all duration-500" style={{ backgroundColor: activeTheme.color }}></div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 mb-3">
+                        <div className="flex items-center gap-2 text-xs">
+                            <span className="px-2 py-0.5 bg-red-600/90 text-white font-black tracking-widest text-[10px] uppercase animate-pulse flex items-center gap-1">
+                                <Lock className="w-3 h-3" />
+                                <span>CLASSIFICAÇÃO: NÍVEL 5 — EYES ONLY</span>
+                            </span>
+                            <span className="text-white/40 hidden sm:inline">|</span>
+                            <span className="text-white/60 text-[11px] hidden sm:inline">USO INTERNO DO PITWALL</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase">
+                            <Fingerprint className="w-3.5 h-3.5 text-[#fbaa19]" />
+                            <span>PROTOCOLO: #DOC-2026-RND{circuit.round}-DESPATCH</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs">
-                        <Link 
-                            href="/positions" 
-                            className="bg-[#fbaa19] text-black hover:bg-white px-4 py-1.5 text-xs font-black uppercase tracking-wider rounded-sm transition-all shadow-[0_0_15px_rgba(251,170,25,0.4)] flex items-center gap-1.5"
-                        >
-                            <Target className="w-3.5 h-3.5" />
-                            <span>Lançar Prognósticos</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                        </Link>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs border-b border-white/10 pb-3 mb-3">
+                        <div>
+                            <span className="text-[9px] text-white/40 uppercase block">Origem do Despacho:</span>
+                            <span className="font-bold text-white uppercase text-[11px] flex items-center gap-1.5" style={{ color: activeTheme.color }}>
+                                <Terminal className="w-3.5 h-3.5" />
+                                <span>{activeDirectorMemo.headquarters}</span>
+                            </span>
+                        </div>
+                        <div>
+                            <span className="text-[9px] text-white/40 uppercase block">Autoridade Técnica:</span>
+                            <span className="font-bold text-white uppercase text-[11px] truncate block">
+                                {activeDirectorMemo.directorTitle.split('//')[0]}
+                            </span>
+                        </div>
+                        <div>
+                            <span className="text-[9px] text-white/40 uppercase block">Destinatário:</span>
+                            <span className="font-bold text-white uppercase text-[11px]">
+                                {user ? `ESTRATEGISTA HOMOLOGADO (${userContractGroup || 'ALIANÇA GLOBAL'})` : 'ESTRATEGISTA CHEFE DE PITWALL'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/50 uppercase">
+                        <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>DESCRIPTOGRAFADO EM TEMPO REAL VIA REDE DE TELEMETRIA VOLTGRID</span>
+                        </span>
+                        <span className="text-[#fbaa19] font-bold">
+                            CODINOME: {activeDirectorMemo.codeWord}
+                        </span>
                     </div>
                 </div>
 
-                {/* ETAPA SELECTOR / SWITCHER TÁTICO */}
+                {/* SELETOR DE PERSPECTIVA DA DIRETORIA TÉCNICA (FACÇÕES) */}
+                <div className="mb-6 bg-black/90 border border-white/10 p-3 sm:p-4 rounded-sm">
+                    <div className="flex items-center justify-between text-[11px] text-white/50 uppercase tracking-widest mb-3 pb-2 border-b border-white/10">
+                        <span className="flex items-center gap-2 text-[#fbaa19] font-bold">
+                            <Radio className="w-3.5 h-3.5" />
+                            <span>CANAL DE COMUNICAÇÃO DO DIRETOR TÉCNICO:</span>
+                        </span>
+                        <span className="text-[10px] text-white/40 hidden sm:inline">Selecione para alternar o ponto de vista da engenharia</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {(['A', 'B', 'C'] as FactionKey[]).map((fKey) => {
+                            const isSelected = activeFaction === fKey;
+                            const theme = FACTION_THEMES[fKey];
+                            return (
+                                <button
+                                    key={fKey}
+                                    onClick={() => setActiveFaction(fKey)}
+                                    className={`p-3 text-left rounded transition-all border relative overflow-hidden ${
+                                        isSelected 
+                                            ? `bg-black/90 ${theme.borderClass} shadow-[0_0_15px_rgba(0,0,0,0.8)] ring-1` 
+                                            : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:border-white/30'
+                                    }`}
+                                    style={{ ringColor: isSelected ? theme.color : undefined }}
+                                >
+                                    {isSelected && (
+                                        <div className="absolute top-0 right-0 w-2 h-2 rounded-full m-2 animate-ping" style={{ backgroundColor: theme.color }}></div>
+                                    )}
+                                    <div className="flex items-center justify-between text-[10px] font-bold tracking-wider mb-1 uppercase">
+                                        <span style={{ color: theme.color }}>{theme.badge}</span>
+                                        {isSelected && <span className="text-[9px] bg-white/10 px-1.5 py-0.2 rounded text-white">ATIVO</span>}
+                                    </div>
+                                    <div className="text-xs font-black uppercase text-white truncate">{theme.name}</div>
+                                    <div className="text-[9px] text-white/40 truncate">{theme.sub}</div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* MEMORANDO CONFIDENCIAL DO DIRETOR TÉCNICO // DESTAQUE EM PRIMEIRA PESSOA */}
+                <div 
+                    className="relative overflow-hidden bg-black/95 border-2 rounded-sm p-6 sm:p-8 mb-8 shadow-2xl transition-all duration-300"
+                    style={{ borderColor: activeTheme.color }}
+                >
+                    {/* Carimbo de Fundo Translúcido */}
+                    <div className="absolute -right-8 -bottom-8 pointer-events-none opacity-5 font-black text-8xl uppercase tracking-tighter text-white">
+                        {activeTheme.name.split(' ')[0]}
+                    </div>
+
+                    <div className="relative z-10">
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 mb-4">
+                            <div>
+                                <span className="text-[10px] uppercase tracking-[0.25em] font-bold block" style={{ color: activeTheme.color }}>
+                                    &gt;_ DESPACHO OFICIAL DO DIRETOR TÉCNICO // DISSECAÇÃO DE PISTA
+                                </span>
+                                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white mt-1">
+                                    {activeDirectorMemo.directorTitle}
+                                </h2>
+                            </div>
+                            <span className="text-xs px-3 py-1 bg-white/5 border border-white/10 text-white/70 uppercase tracking-widest font-bold">
+                                {activeDirectorMemo.confidentialityLevel}
+                            </span>
+                        </div>
+
+                        {/* Texto do Memorando em tom confidencial */}
+                        <div className="bg-white/[0.03] border border-white/10 p-5 rounded-sm mb-6 relative">
+                            <span className="text-4xl text-[#fbaa19] opacity-30 absolute top-2 left-3 font-serif select-none">“</span>
+                            <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-mono pl-6 italic">
+                                {activeDirectorMemo.memo}
+                            </p>
+                        </div>
+
+                        {/* Diretrizes Táticas de Paddock & Alerta Secreto */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <div className="lg:col-span-2 bg-black/60 border border-white/10 p-4 rounded-sm">
+                                <span className="text-[10px] uppercase font-bold tracking-widest mb-2 block" style={{ color: activeTheme.color }}>
+                                    &gt; - DIRETRIZES TÁTICAS PRIORITÁRIAS DA ENGENHARIA:
+                                </span>
+                                <ul className="space-y-2">
+                                    {activeDirectorMemo.tacticalDirectives.map((directive, idx) => (
+                                        <li key={idx} className="flex items-start gap-2 text-xs text-white/80">
+                                            <span className="font-bold text-[#fbaa19] mt-0.5">[{idx + 1}]</span>
+                                            <span>{directive}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="bg-red-950/20 border border-red-500/40 p-4 rounded-sm flex flex-col justify-between">
+                                <div>
+                                    <span className="text-[10px] text-red-400 uppercase font-black tracking-widest flex items-center gap-1.5 mb-2">
+                                        <ShieldAlert className="w-4 h-4 text-red-400" />
+                                        <span>ALERTA DE SEGURANÇA TÁTICA</span>
+                                    </span>
+                                    <p className="text-[11px] text-red-200/90 leading-relaxed">
+                                        {activeDirectorMemo.secretWarning}
+                                    </p>
+                                </div>
+                                <div className="mt-3 pt-2 border-t border-red-500/20 text-[9px] text-red-400/60 uppercase">
+                                    Transmissão criptografada via rádio do diretor
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ETAPA SELECTOR / SWITCHER TÁTICO DE CIRCUITOS */}
                 <div className="mb-8 bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 p-3 sm:p-4 rounded-sm">
                     <div className="flex items-center justify-between text-[11px] text-white/50 uppercase tracking-widest mb-3 pb-2 border-b border-white/10">
-                        <span className="flex items-center gap-2 text-[#fbaa19]">
-                            <Terminal className="w-3.5 h-3.5" />
-                            <span>SELEÇÃO DE DOSSIÊ DO CALENDÁRIO:</span>
+                        <span className="flex items-center gap-2 text-[#fbaa19] font-bold">
+                            <CalendarIcon className="w-3.5 h-3.5" />
+                            <span>ARQUIVO DE ETAPAS DO CALENDÁRIO 2026:</span>
                         </span>
-                        <span className="hidden sm:inline text-white/40">Sincronizado com OpenF1 & Jolpica</span>
+                        <span className="hidden sm:inline text-white/40">Selecione para carregar o dossiê correspondente</span>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -197,7 +414,7 @@ export default function NextRacePage() {
                     </div>
                 </div>
 
-                {/* HERO BANNER DA PRÓXIMA ETAPA COM CONTAGEM REGRESSIVA */}
+                {/* HERO BANNER DA ETAPA ATIVA COM CRONÔMETRO REGRESSIVO */}
                 <div className="relative overflow-hidden bg-black/90 border-2 border-[#fbaa19] p-6 sm:p-8 rounded-sm mb-8 shadow-[0_0_40px_rgba(251,170,25,0.15)]">
                     <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                         <Activity className="w-64 h-64 text-[#fbaa19]" />
@@ -214,7 +431,7 @@ export default function NextRacePage() {
                                 </span>
                                 <span className="text-emerald-400 text-xs font-bold flex items-center gap-1.5 animate-pulse">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                    PREGÃO DE PROGNÓSTICOS ABERTO
+                                    PREGÃO DE PROGNÓSTICOS ABERTO NO PITWALL
                                 </span>
                             </div>
 
@@ -230,7 +447,7 @@ export default function NextRacePage() {
                         </div>
 
                         {/* CRONÔMETRO REGRESSIVO DO PITWALL */}
-                        <div className="bg-black/90 border border-white/20 p-4 rounded-sm flex flex-col items-center sm:items-end justify-center min-w-[280px]">
+                        <div className="bg-black/95 border border-white/20 p-4 rounded-sm flex flex-col items-center sm:items-end justify-center min-w-[280px]">
                             <div className="text-[10px] text-white/50 uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
                                 <Clock className="w-3.5 h-3.5 text-[#fbaa19]" />
                                 <span>LARGADA EM CONTAGEM REGRESSIVA</span>
@@ -262,24 +479,24 @@ export default function NextRacePage() {
                                 href="/positions" 
                                 className="mt-4 w-full bg-[#fbaa19] hover:bg-white text-black py-2 text-center text-xs font-black uppercase tracking-widest transition-all rounded-sm flex items-center justify-center gap-2"
                             >
-                                <span>ABRIR POSIÇÃO AGORA</span>
+                                <span>ABRIR PROTOCOLO DE POSIÇÕES</span>
                                 <ArrowRight className="w-3.5 h-3.5" />
                             </Link>
                         </div>
                     </div>
                 </div>
 
-                {/* GRID DE INFORMAÇÕES TÉCNICAS: 3 COLUNAS */}
+                {/* DISSECAÇÃO TÉCNICA ENVELOPADA // 3 ANEXOS DE ENGENHARIA */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-                    {/* COLUNA 1: GEOMETRIA & CONDIÇÕES DA PISTA */}
-                    <div className="bg-black/85 backdrop-blur-sm border border-white/10 p-5 rounded-sm flex flex-col gap-4">
+                    {/* ANEXO 1: RELATÓRIO DO ENGENHEIRO DE DINÂMICA VEICULAR & CHASSI */}
+                    <div className="bg-black/90 backdrop-blur-sm border border-white/15 p-5 rounded-sm flex flex-col gap-4 shadow-xl">
                         <div className="flex items-center justify-between border-b border-white/10 pb-3">
                             <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] flex items-center gap-2">
                                 <Gauge className="w-4 h-4" />
-                                <span>[01] GEOMETRIA & SUPERFÍCIE</span>
+                                <span>ANEXO I // DINÂMICA VEICULAR</span>
                             </span>
-                            <span className="text-[10px] text-white/40 uppercase">TELEMETRIA OFICIAL</span>
+                            <span className="text-[10px] text-white/40 uppercase">CHASSI SPEC</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 text-xs">
@@ -288,7 +505,7 @@ export default function NextRacePage() {
                                 <span className="text-base font-black text-white">{circuit.circuitLengthKm} km</span>
                             </div>
                             <div className="bg-white/5 p-2.5 rounded border border-white/5">
-                                <span className="text-[9px] text-white/40 uppercase block">Voltas / Corrida</span>
+                                <span className="text-[9px] text-white/40 uppercase block">Voltas / GP</span>
                                 <span className="text-base font-black text-white">{circuit.laps} voltas</span>
                             </div>
                             <div className="bg-white/5 p-2.5 rounded border border-white/5">
@@ -315,7 +532,7 @@ export default function NextRacePage() {
 
                             <div>
                                 <div className="flex items-center justify-between text-[11px] uppercase mb-1">
-                                    <span className="text-white/70">Nível de Grip (Aderência):</span>
+                                    <span className="text-white/70">Aderência do Asfalto (Grip):</span>
                                     <span className="text-xs font-bold text-emerald-400">
                                         {circuit.trackGrip >= 4 ? 'ELEVADO' : 'MÉDIO'}
                                     </span>
@@ -334,7 +551,7 @@ export default function NextRacePage() {
                             </div>
 
                             <div className="flex items-center justify-between text-xs pt-2 border-t border-white/5">
-                                <span className="text-white/50 uppercase">Carga Aerodinâmica:</span>
+                                <span className="text-white/50 uppercase">Downforce Exigido:</span>
                                 <span className="font-black text-[#fbaa19]">{circuit.downforceLevel}</span>
                             </div>
 
@@ -344,7 +561,7 @@ export default function NextRacePage() {
                             </div>
 
                             <div className="flex items-center justify-between text-xs">
-                                <span className="text-white/50 uppercase">Top Speed Estimada:</span>
+                                <span className="text-white/50 uppercase">Top Speed Projetada:</span>
                                 <span className="font-black text-white">{circuit.topSpeedKmh} km/h</span>
                             </div>
                         </div>
@@ -361,19 +578,19 @@ export default function NextRacePage() {
                         </div>
                     </div>
 
-                    {/* COLUNA 2: PNEUS, DEGRADAÇÃO & ESTRATÉGIA DE BOX */}
-                    <div className="bg-black/85 backdrop-blur-sm border border-white/10 p-5 rounded-sm flex flex-col gap-4">
+                    {/* ANEXO 2: DOSSIÊ PIRELLI DO ENGENHEIRO-CHEFE DE PNEUS & BOX */}
+                    <div className="bg-black/90 backdrop-blur-sm border border-white/15 p-5 rounded-sm flex flex-col gap-4 shadow-xl">
                         <div className="flex items-center justify-between border-b border-white/10 pb-3">
                             <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] flex items-center gap-2">
                                 <CircleDot className="w-4 h-4" />
-                                <span>[02] PNEUS & ESTRATÉGIA</span>
+                                <span>ANEXO II // PNEUS & ESTRATÉGIA</span>
                             </span>
-                            <span className="text-[10px] text-white/40 uppercase">PIRELLI SPEC</span>
+                            <span className="text-[10px] text-white/40 uppercase">PIRELLI DOSSIER</span>
                         </div>
 
-                        {/* ALOCAÇÃO DE COMPOSTOS PIRELLI */}
+                        {/* COMPOSTOS HOMOLOGADOS */}
                         <div className="bg-white/5 p-3 rounded border border-white/10">
-                            <span className="text-[10px] text-white/50 uppercase tracking-widest block mb-2">Compostos Homologados:</span>
+                            <span className="text-[10px] text-white/50 uppercase tracking-widest block mb-2">Alocação Oficial de Compostos:</span>
                             <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold">
                                 <div className="p-2 rounded bg-black/60 border border-white/40">
                                     <span className="w-3 h-3 rounded-full bg-white inline-block mb-1 mx-auto"></span>
@@ -410,7 +627,7 @@ export default function NextRacePage() {
                             </div>
 
                             <div className="flex items-center justify-between p-2 rounded bg-white/5">
-                                <span className="text-white/60 uppercase">Tempo Médio no Pitlane:</span>
+                                <span className="text-white/60 uppercase">Perda Média no Pitlane:</span>
                                 <span className="font-black text-white">{circuit.pitLaneTimeLossSec}s</span>
                             </div>
 
@@ -434,7 +651,7 @@ export default function NextRacePage() {
                         <div className="mt-auto p-3 rounded bg-[#fbaa19]/10 border border-[#fbaa19]/40">
                             <div className="text-[10px] text-[#fbaa19] font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
                                 <Radio className="w-3 h-3" />
-                                <span>ESTRATÉGIA DE CORRIDA RECOMENDADA:</span>
+                                <span>ESTRATÉGIA DO DIRETOR DE CORRIDA:</span>
                             </div>
                             <p className="text-xs text-white/90 font-bold">
                                 {circuit.optimalStrategy}
@@ -442,21 +659,21 @@ export default function NextRacePage() {
                         </div>
                     </div>
 
-                    {/* COLUNA 3: TELEMETRIA METEOROLÓGICA & MICROCLIMA */}
-                    <div className="bg-black/85 backdrop-blur-sm border border-white/10 p-5 rounded-sm flex flex-col gap-4">
+                    {/* ANEXO 3: BOLETIM DA ESTAÇÃO METEOROLÓGICA DE PITWALL */}
+                    <div className="bg-black/90 backdrop-blur-sm border border-white/15 p-5 rounded-sm flex flex-col gap-4 shadow-xl">
                         <div className="flex items-center justify-between border-b border-white/10 pb-3">
                             <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] flex items-center gap-2">
                                 <Wind className="w-4 h-4" />
-                                <span>[03] CLIMA & METEOROLOGIA</span>
+                                <span>ANEXO III // RADAR METEOROLÓGICO</span>
                             </span>
-                            <span className="text-[10px] text-white/40 uppercase">LIVE RADAR</span>
+                            <span className="text-[10px] text-white/40 uppercase">LIVE PIT RADAR</span>
                         </div>
 
-                        {/* CONDIÇÃO ATUAL / TEMPERATURAS */}
+                        {/* STATUS METEOROLÓGICO */}
                         <div className="bg-gradient-to-br from-white/10 to-transparent p-4 rounded border border-white/10">
                             <div className="flex items-center justify-between mb-3">
                                 <span className="text-[10px] text-[#fbaa19] font-bold uppercase tracking-widest">
-                                    STATUS METEOROLÓGICO
+                                    CONDIÇÃO AMBIENTAL
                                 </span>
                                 <span className="text-xs font-bold text-emerald-400">PISTA SECA</span>
                             </div>
@@ -476,7 +693,7 @@ export default function NextRacePage() {
                             </div>
                         </div>
 
-                        {/* RISCO DE CHUVA & VENTO */}
+                        {/* CHUVA & VENTO */}
                         <div className="flex flex-col gap-2.5 text-xs">
                             <div className="p-2.5 rounded bg-white/5 border border-white/5">
                                 <div className="flex items-center justify-between mb-1.5">
@@ -502,7 +719,7 @@ export default function NextRacePage() {
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-white/60 uppercase flex items-center gap-1.5">
                                         <Wind className="w-3.5 h-3.5 text-sky-400" />
-                                        <span>Velocidade do Vento:</span>
+                                        <span>Vento no Traçado:</span>
                                     </span>
                                     <span className="font-black text-white">{circuit.weather.windSpeedKmh} km/h ({circuit.weather.windDirection})</span>
                                 </div>
@@ -523,10 +740,10 @@ export default function NextRacePage() {
                             </div>
                         </div>
 
-                        {/* RISCO DE CURVA 1 & SAFETY CAR */}
+                        {/* RISCO T1 & SAFETY CAR */}
                         <div className="mt-auto grid grid-cols-2 gap-2 text-center">
                             <div className="p-2.5 rounded bg-black/60 border border-red-500/30">
-                                <span className="text-[9px] text-red-400 uppercase block font-bold">Risco na Curva 1</span>
+                                <span className="text-[9px] text-red-400 uppercase block font-bold">Risco Curva 1</span>
                                 <span className="text-xs font-black text-red-500">{circuit.t1IncidentRisk}</span>
                             </div>
                             <div className="p-2.5 rounded bg-black/60 border border-[#fbaa19]/30">
@@ -537,15 +754,15 @@ export default function NextRacePage() {
                     </div>
                 </div>
 
-                {/* HISTÓRICO TÁTICO & BENCHMARKS DE POLETIME */}
-                <div className="bg-black/90 border border-white/10 p-6 rounded-sm mb-8">
+                {/* ANEXO IV: ARQUIVO CRIPTOGRAFADO DE BENCHMARKS HISTÓRICOS */}
+                <div className="bg-black/90 border border-white/15 p-6 rounded-sm mb-8 shadow-xl">
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 mb-6">
                         <div>
                             <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] flex items-center gap-2">
                                 <Trophy className="w-4 h-4" />
-                                <span>[04] HISTÓRICO & TEMPOS DE REFERÊNCIA (BENCHMARKS)</span>
+                                <span>ANEXO IV // ARQUIVO CRIPTOGRAFADO DE BENCHMARKS HISTÓRICOS</span>
                             </span>
-                            <span className="text-xs text-white/40 mt-1 block">Dados históricos para calibrar sua volta de Poletime e apostas de pódio</span>
+                            <span className="text-xs text-white/40 mt-1 block">Dados homologados para calibrar o Poletime ao milésimo e previsões de pódio</span>
                         </div>
                         <div className="bg-white/5 px-3 py-1 rounded border border-white/10 text-xs">
                             <span className="text-white/50">Taxa Pole-to-Win:</span> <span className="font-bold text-[#fbaa19]">{circuit.poleToWinRate}%</span>
@@ -555,7 +772,7 @@ export default function NextRacePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="p-4 bg-white/[0.03] border border-white/5 rounded">
                             <span className="text-[10px] text-[#fbaa19] uppercase tracking-widest font-bold block mb-1">
-                                ÚLTIMA POLE POSITION (REFERÊNCIA)
+                                ÚLTIMA POLE (REFERÊNCIA DE POLETIME)
                             </span>
                             <span className="text-2xl font-black text-white tracking-wider block font-mono">
                                 {circuit.lastPoleTime.time}
@@ -585,16 +802,16 @@ export default function NextRacePage() {
                                 {circuit.scProbability}%
                             </span>
                             <span className="text-xs text-white/60 uppercase">
-                                VSC: {circuit.vscProbability}% das corridas
+                                VSC: {circuit.vscProbability}% das edições
                             </span>
                         </div>
 
                         <div className="p-4 bg-white/[0.03] border border-white/5 rounded">
                             <span className="text-[10px] text-rose-400 uppercase tracking-widest font-bold block mb-1">
-                                MÉDIA DE ABANDONOS (DNF)
+                                MÉDIA HISTÓRICA DE ABANDONOS (DNF)
                             </span>
                             <span className="text-2xl font-black text-rose-400 tracking-wider block font-mono">
-                                {circuit.dnfAverage} CARROS
+                                {circuit.dnfAverage} MONOPOSTOS
                             </span>
                             <span className="text-xs text-white/60 uppercase">
                                 Risco de Red Flag: Moderado
@@ -603,132 +820,97 @@ export default function NextRacePage() {
                     </div>
                 </div>
 
-                {/* DOSSIÊ TÁTICO DE PADDOCK: IMPACTO POR ALIANÇA & GUIA DE PROGNÓSTICOS */}
+                {/* ANEXO V: DIRETRIZES DE COMBATE OPERACIONAL (OS 5 PROGNÓSTICOS DO VOLTGRID) */}
                 <div className="bg-black/95 border-2 border-[#fbaa19]/40 p-6 sm:p-8 rounded-sm mb-8 shadow-2xl">
                     <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                         <div className="flex items-center gap-3">
-                            <Terminal className="w-5 h-5 text-[#fbaa19]" />
+                            <FileText className="w-5 h-5 text-[#fbaa19]" />
                             <span className="text-base sm:text-lg font-black uppercase tracking-wider text-white">
-                                [05] DOSSIÊ DE INTELIGÊNCIA // GUIA ESTRATÉGICO PARA OS PROGNÓSTICOS
+                                ANEXO V // INSTRUÇÕES OPERACIONAIS PARA AS 5 TOMADAS DE POSIÇÃO
                             </span>
                         </div>
-                        <span className="text-xs text-[#fbaa19] font-bold hidden sm:inline">CONFIDENCIAL // USO INTERNO</span>
+                        <span className="text-xs text-[#fbaa19] font-bold hidden sm:inline">ORDENS DE PITWALL</span>
                     </div>
 
-                    <p className="text-xs sm:text-sm text-white/80 leading-relaxed mb-6 bg-white/5 p-4 rounded border border-white/10">
-                        {circuit.briefing.circuitOverview}
-                    </p>
-
-                    {/* ANÁLISE DAS 3 ALIANÇAS DE MOTORES (RPG DE FACÇÕES) */}
-                    <div className="mb-6">
-                        <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] block mb-3">
-                            &gt; - IMPACTO DO TRAÇADO POR ALIANÇA DE MOTORES (GUERRA DAS FACÇÕES):
-                        </span>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 rounded bg-[#00D2BE]/10 border border-[#00D2BE]/40">
-                                <span className="text-xs font-black uppercase text-[#00D2BE] block mb-1">
-                                    BLOCO A: CONSÓRCIO DA ESTRELA
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
+                            <div>
+                                <span className="text-xs font-black uppercase text-[#fbaa19] block mb-2 flex items-center gap-1.5">
+                                    <span>⚡ 01. POLETIME</span>
                                 </span>
-                                <span className="text-[10px] text-white/40 block mb-2">Mercedes, McLaren, Alpine, Williams</span>
-                                <p className="text-xs text-white/80 leading-relaxed">
-                                    {circuit.briefing.allianceImpact.estrela}
+                                <p className="text-[11px] text-white/80 leading-relaxed">
+                                    {circuit.briefing.poletimeTactics}
                                 </p>
                             </div>
-
-                            <div className="p-4 rounded bg-[#DC0000]/10 border border-[#DC0000]/40">
-                                <span className="text-xs font-black uppercase text-[#DC0000] block mb-1">
-                                    BLOCO B: DINASTIA DE MARANELLO
-                                </span>
-                                <span className="text-[10px] text-white/40 block mb-2">Ferrari, Haas, Cadillac</span>
-                                <p className="text-xs text-white/80 leading-relaxed">
-                                    {circuit.briefing.allianceImpact.maranello}
-                                </p>
-                            </div>
-
-                            <div className="p-4 rounded bg-[#fbaa19]/10 border border-[#fbaa19]/40">
-                                <span className="text-xs font-black uppercase text-[#fbaa19] block mb-1">
-                                    BLOCO C: A VANGUARDA
-                                </span>
-                                <span className="text-[10px] text-white/40 block mb-2">Red Bull, Racing Bulls, Aston Martin, Audi</span>
-                                <p className="text-xs text-white/80 leading-relaxed">
-                                    {circuit.briefing.allianceImpact.vanguarda}
-                                </p>
-                            </div>
+                            <span className="text-[9px] text-white/40 uppercase mt-3 pt-2 border-t border-white/5">
+                                Cravar tempo ao milésimo
+                            </span>
                         </div>
-                    </div>
 
-                    {/* GUIA DE DICAS DIRECIONADAS POR MODALIDADE DO VOLTGRID */}
-                    <div>
-                        <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] block mb-3">
-                            &gt; - RECOMENDAÇÕES DIRETAS PARA SUAS TOMADAS DE POSIÇÃO NO PITWALL:
-                        </span>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                            <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase text-[#fbaa19] block mb-1">
-                                        ⚡ POLETIME
-                                    </span>
-                                    <p className="text-[11px] text-white/70 leading-relaxed">
-                                        {circuit.briefing.poletimeTactics}
-                                    </p>
-                                </div>
+                        <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
+                            <div>
+                                <span className="text-xs font-black uppercase text-emerald-400 block mb-2 flex items-center gap-1.5">
+                                    <span>🏆 02. TOP 10 FINISH</span>
+                                </span>
+                                <p className="text-[11px] text-white/80 leading-relaxed">
+                                    {circuit.briefing.masterTactics}
+                                </p>
                             </div>
+                            <span className="text-[9px] text-white/40 uppercase mt-3 pt-2 border-t border-white/5">
+                                Ordem exata de chegada
+                            </span>
+                        </div>
 
-                            <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase text-emerald-400 block mb-1">
-                                        🏆 TOP 10 FINISH
-                                    </span>
-                                    <p className="text-[11px] text-white/70 leading-relaxed">
-                                        {circuit.briefing.masterTactics}
-                                    </p>
-                                </div>
+                        <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
+                            <div>
+                                <span className="text-xs font-black uppercase text-blue-400 block mb-2 flex items-center gap-1.5">
+                                    <span>📈 03. EVO (ESCALADA)</span>
+                                </span>
+                                <p className="text-[11px] text-white/80 leading-relaxed">
+                                    {circuit.briefing.evoTactics}
+                                </p>
                             </div>
+                            <span className="text-[9px] text-white/40 uppercase mt-3 pt-2 border-t border-white/5">
+                                Pilotos com maior ganho de posições
+                            </span>
+                        </div>
 
-                            <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase text-blue-400 block mb-1">
-                                        📈 EVO (ESCALADA)
-                                    </span>
-                                    <p className="text-[11px] text-white/70 leading-relaxed">
-                                        {circuit.briefing.evoTactics}
-                                    </p>
-                                </div>
+                        <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
+                            <div>
+                                <span className="text-xs font-black uppercase text-purple-400 block mb-2 flex items-center gap-1.5">
+                                    <span>⚔️ 04. DUELOS TÁTICOS (H2H)</span>
+                                </span>
+                                <p className="text-[11px] text-white/80 leading-relaxed">
+                                    {circuit.briefing.h2hTactics}
+                                </p>
                             </div>
+                            <span className="text-[9px] text-white/40 uppercase mt-3 pt-2 border-t border-white/5">
+                                Confrontos internos diretos
+                            </span>
+                        </div>
 
-                            <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase text-purple-400 block mb-1">
-                                        ⚔️ DUELOS (H2H)
-                                    </span>
-                                    <p className="text-[11px] text-white/70 leading-relaxed">
-                                        {circuit.briefing.h2hTactics}
-                                    </p>
-                                </div>
+                        <div className="p-4 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
+                            <div>
+                                <span className="text-xs font-black uppercase text-amber-400 block mb-2 flex items-center gap-1.5">
+                                    <span>🎲 05. EVENT PROPS (MISC)</span>
+                                </span>
+                                <p className="text-[11px] text-white/80 leading-relaxed">
+                                    {circuit.briefing.miscTactics}
+                                </p>
                             </div>
-
-                            <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase text-amber-400 block mb-1">
-                                        🎲 EVENT PROPS (MISC)
-                                    </span>
-                                    <p className="text-[11px] text-white/70 leading-relaxed">
-                                        {circuit.briefing.miscTactics}
-                                    </p>
-                                </div>
-                            </div>
+                            <span className="text-[9px] text-white/40 uppercase mt-3 pt-2 border-t border-white/5">
+                                Safety Car, voltas mais rápidas e DNF
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                {/* HORÁRIOS DO FIM DE SEMANA */}
+                {/* CRONOGRAMA OFICIAL DAS SESSÕES */}
                 <div className="bg-black/90 border border-white/10 p-6 rounded-sm mb-12">
                     <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
                         <span className="text-xs font-bold uppercase tracking-widest text-[#fbaa19] flex items-center gap-2">
-                            <CalendarIcon className="w-4 h-4" />
-                            <span>[06] CRONOGRAMA OFICIAL DA ETAPA (HORÁRIOS UTC)</span>
+                            <Clock className="w-4 h-4" />
+                            <span>ANEXO VI // CRONOGRAMA DAS SESSÕES OFICIAIS (HORÁRIOS UTC)</span>
                         </span>
                         <span className="text-xs text-white/40">FUSO: UTC / LONDRES</span>
                     </div>
@@ -786,24 +968,32 @@ export default function NextRacePage() {
                     </div>
                 </div>
 
-                {/* BOTTOM CALL TO ACTION TÁTICO */}
-                <div className="text-center bg-gradient-to-r from-black via-black/90 to-black border-2 border-[#fbaa19] p-8 rounded-sm shadow-[0_0_50px_rgba(251,170,25,0.2)] flex flex-col items-center justify-center gap-4">
-                    <span className="text-xs font-bold tracking-[0.3em] uppercase text-[#fbaa19] animate-pulse">
-                        &gt;_ O PITWALL AGUARDA SUAS INSTRUÇÕES ESTRATÉGICAS
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-white max-w-2xl">
-                        PRONTO PARA GRAVAR SEUS PROGNÓSTICOS OFICIAIS?
+                {/* AUTENTICAÇÃO DIGITAL & CALL TO ACTION // ENCERRAMENTO DO BRIEFING */}
+                <div className="text-center bg-gradient-to-r from-black via-black/95 to-black border-2 border-[#fbaa19] p-8 sm:p-10 rounded-sm shadow-[0_0_50px_rgba(251,170,25,0.2)] flex flex-col items-center justify-center gap-5 relative overflow-hidden">
+                    <div className="flex items-center gap-2 text-xs text-white/50 uppercase tracking-[0.2em]">
+                        <Fingerprint className="w-4 h-4 text-[#fbaa19]" />
+                        <span>ASSINATURA DIGITAL CERTIFICADA // HASH: 8f46a381a0854d8c92a281794fb17a2a</span>
+                    </div>
+
+                    <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-white max-w-3xl leading-snug">
+                        DIRETRIZES TÉCNICAS RECONHECIDAS. É HORA DE GRAVAR SEUS PROGNÓSTICOS NO GRID.
                     </h2>
-                    <p className="text-xs text-white/60 max-w-xl mb-2">
-                        Poletime, Top 10 Finish, Escalada EVO, Duelos H2H e Event Props da etapa de {circuit.name}. Suas escolhas pontuam diretamente na sua Superlicença e no ranking da sua escuderia.
+
+                    <p className="text-xs text-white/70 max-w-2xl leading-relaxed">
+                        Você possui os dados do túnel de vento, o dossiê térmico dos pneus Pirelli, os benchmarks de tempo de pole e o despacho confidencial do Diretor Técnico da sua aliança. O Pitwall do VoltGrid está pronto para receber suas 5 tomadas de posição oficiais.
                     </p>
+
                     <Link 
                         href="/positions" 
-                        className="bg-[#fbaa19] hover:bg-white text-black px-8 py-4 text-sm sm:text-base font-black uppercase tracking-widest transition-all rounded-sm shadow-xl flex items-center gap-2"
+                        className="bg-[#fbaa19] hover:bg-white text-black px-8 py-4 sm:px-10 sm:py-5 text-sm sm:text-base font-black uppercase tracking-widest transition-all rounded-sm shadow-[0_0_30px_rgba(251,170,25,0.4)] flex items-center gap-3 cursor-pointer"
                     >
                         <span>[ &gt;_ ABRIR PROTOCOLO DE POSIÇÕES ]</span>
                         <ArrowRight className="w-5 h-5" />
                     </Link>
+
+                    <span className="text-[10px] text-white/30 uppercase tracking-widest">
+                        VOLTGRID PITWALL TELEMETRY SYSTEM © 2026 // NÍVEL 5 CLASSIFICADO
+                    </span>
                 </div>
 
             </div>

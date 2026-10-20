@@ -1,7 +1,18 @@
 /**
  * VoltGrid Intelligence System - Circuit & Telemetry Database
  * Dados canônicos dos circuitos da F1 2026 para análise pré-corrida e embasamento de prognósticos.
+ * Envelopado sob a perspectiva confidencial da Diretoria Técnica dos Blocos de Motores.
  */
+
+export interface DirectorMemo {
+    directorTitle: string;
+    headquarters: string;
+    codeWord: string;
+    confidentialityLevel: string;
+    memo: string;
+    tacticalDirectives: string[];
+    secretWarning: string;
+}
 
 export interface CircuitTelemetryIntel {
     id: string;
@@ -65,6 +76,12 @@ export interface CircuitTelemetryIntel {
         evoTactics: string;
         h2hTactics: string;
         miscTactics: string;
+    };
+    // Memorandos Confidenciais da Diretoria Técnica por Bloco
+    directorMemos: {
+        A: DirectorMemo;
+        B: DirectorMemo;
+        C: DirectorMemo;
     };
     // Horários das sessões
     schedule: {
@@ -144,6 +161,47 @@ export const CIRCUITS_INTEL: Record<string, CircuitTelemetryIntel> = {
             h2hTactics: 'A confiança nas frenagens de T1 e T12 define o duelo interno. Pilotos que freiam mais tarde levam clara vantagem.',
             miscTactics: 'A chance de Safety Car é de 67% e o risco de bandeira amarela nos primeiros 3 setores é quase certo. Atenção para opção "SIM" em Safety Car.'
         },
+        directorMemos: {
+            A: {
+                directorTitle: "Dr. Helmut Von Klausen // Diretor Geral de Engenharia de Brackley",
+                headquarters: "Brackley & Brixworth Operations Hub // Reino Unido",
+                codeWord: "PROTOCOLO SILBER-TEXAS // CLASSIFICAÇÃO NÍVEL 5",
+                confidentialityLevel: "ULTRA-CONFIDENCIAL // APENAS ESTRATEGISTAS DA ESTRELA",
+                memo: "Puxe uma cadeira e tranque a porta do motorhome. Nossas simulações em túnel de vento rodaram 14.800 iterações para Austin. Nossos dados provam que o Setor 1 é nosso feudo sagrado: a rigidez do nosso assoalho nas curvas 3, 4 e 5 garante 0.28s de vantagem pura sobre a concorrência. Porém, não se iluda com o cronômetro de volta única: o calor do asfalto texano destrói o pneu dianteiro esquerdo. Se você calibrar nossas tomadas de posição com excesso de agressividade precoce, nossos carros entram em degradação terminal antes da volta 16. Exijo disciplina matemática nos prognósticos.",
+                tacticalDirectives: [
+                    "No Poletime, calcule o vácuo na reta oposta: a pole cairá abaixo de 1:32.100 se a pista emborrachar no Q3.",
+                    "No Top 10, posicione as escuderias Mercedes e McLaren entre os 4 primeiros sem hesitar.",
+                    "No H2H, aposte no piloto que gerenciar melhor as zebras agressivas da curva 9."
+                ],
+                secretWarning: "ALERTA DA FIA: Sensores de limite de pista nas curvas 19 e 20 serão intolerantes. Não confie em tempos de volta que beirem a linha branca."
+            },
+            B: {
+                directorTitle: "Ing. Lorenzo Casali // Diretor de Operações de Pista de Maranello",
+                headquarters: "Gestione Sportiva Reparto Corse // Maranello & Detroit",
+                codeWord: "ORDINE DEL CAVALLINO // OPERAÇÃO CORSA ROSSA",
+                confidentialityLevel: "CONFIDENCIAL TÁTICO // ACESSO RESTRITO GESTIONE CORSE",
+                memo: "Feche as persianas da sala de telemetria. Não tolerarei nada menos que o topo da tabela em Austin. A nossa unidade de potência 067/3 foi ajustada no dinamômetro para descarregar o pico do E-Turbo exatamente na saída da curva 11 rumo à reta de 1.200 metros. Nós temos 8 km/h a mais de velocidade final que o Bloco A no final do Setor 2. Na subida da Curva 1, o nosso piloto vai frear mais tarde que qualquer outro ser humano na pista. Seus prognósticos devem refletir essa agressividade. Se errar a chamada da primeira volta, o peso da fábrica cairá sobre seu pitwall.",
+                tacticalDirectives: [
+                    "Poletime é prioridade absoluta: coloque a Ferrari na disputa direta com tempo de 1:32.050 a 1:32.300.",
+                    "No Top 10, confie no poder do undercut: antecipar a primeira parada para a volta 14 renderá posições de pódio.",
+                    "Em Event Props, aposte forte na ativação do Safety Car: a primeira perna do grampo da T1 é puro caos."
+                ],
+                secretWarning: "RISCO TÉRMICO: As temperaturas de óleo sobem criticamente no ar turbulento. Nossos carros precisam de ar limpo no primeiro stint."
+            },
+            C: {
+                directorTitle: "Viktor Vance // Diretor de Estratégias Secretas da Vanguarda",
+                headquarters: "Milton Keynes Skunkworks & Ingolstadt Prototype Lab",
+                codeWord: "CHAOS THEORY 26 // DESPACHO SHADOW LABS",
+                confidentialityLevel: "SIGILOSO // DESTRUIÇÃO AUTOMÁTICA PÓS-GP",
+                memo: "Esqueça o manual burocrático que a FIA distribui. Austin é uma armadilha perfeita para quem aposta em linearidade. O asfalto ondulado de COTA e o vento traiçoeiro na curva 1 foram feitos sob medida para a nossa filosofia de caos planejado. Nossos pilotos não vão brigar por milésimos no Q1; nosso mapa de motor foi configurado para matar a corrida na segunda metade, quando os pneus dos outros blocos estiverem em bolhas. Use seus prognósticos para pescar as zebras: o pelotão intermediário vai quebrar e nós estaremos no pódio.",
+                tacticalDirectives: [
+                    "Na Escalada (EVO), selecione nosso segundo carro: largando do pelotão médio, ele passará pelo menos 5 carros na reta oposta.",
+                    "Em Duelos H2H, a agressividade em disputas roda a roda nas curvas 12 a 15 definirá o vencedor.",
+                    "Em Misc, aposta imperativa em Safety Car e chances reais de bandeira vermelha no Setor 1."
+                ],
+                secretWarning: "INSTABILIDADE AERODINÂMICA: Rajadas de vento de cauda na curva 1 podem provocar saídas de traseira violentas na largada."
+            }
+        },
         schedule: {
             fp1: { date: '23 OUT 2026', timeUtc: '17:30 UTC', label: 'TREINO LIVRE 1' },
             fp2: { date: '23 OUT 2026', timeUtc: '21:00 UTC', label: 'TREINO LIVRE 2' },
@@ -217,6 +275,47 @@ export const CIRCUITS_INTEL: Record<string, CircuitTelemetryIntel> = {
             evoTactics: 'Zona DRS tripla e vácuo gigante permitem grande recuperação de quem larga fora de posição.',
             h2hTactics: 'Resfriamento de freios é crítico; quem gerenciar melhor a temperatura vence a batalha de final de prova.',
             miscTactics: 'Incidentes na Curva 1 são frequentes. Alta chance de Safety Car na primeira volta.'
+        },
+        directorMemos: {
+            A: {
+                directorTitle: "Dr. Helmut Von Klausen // Diretor Geral de Engenharia de Brackley",
+                headquarters: "Brackley Operations // Divisão de Turbocompressores",
+                codeWord: "ALTITUDE-OXIGÊNIO // PROTOCOLO SILBER-MEX",
+                confidentialityLevel: "ULTRA-CONFIDENCIAL",
+                memo: "A física nesta altitude não aceita concessões. O ar rarefeito força nossos compressores a girarem a 105.000 RPM para compensar a densidade. Nossos radiadores foram alargados para evitar superaquecimento de bateria. Seus prognósticos no Master devem levar em conta a confiabilidade: o carro que gerenciar as temperaturas de freio na curva 1 chegará inteiro ao Foro Sol.",
+                tacticalDirectives: [
+                    "Poletime de referência: 1:15.800 a 1:16.100 no asfalto liso.",
+                    "Previsão de Top 10 com ênfase em motores consistentes.",
+                    "No H2H, atenção à disciplina no tráfego de retardatários."
+                ],
+                secretWarning: "TEMPERATURA DE FREIOS: Ponto de ebulição fluido nas curvas 1 e 4 após a longa reta de 1.2km."
+            },
+            B: {
+                directorTitle: "Ing. Lorenzo Casali // Diretor de Operações de Maranello",
+                headquarters: "Reparto Corse Gestione Sportiva // Maranello",
+                codeWord: "FORO SOL IMPERIUM // PROTOCOLO MEX-CORSE",
+                confidentialityLevel: "CONFIDENCIAL TÁTICO",
+                memo: "Esta pista é uma catedral para a nossa arrancada. São 890 metros da largada até a Curva 1. Se o nosso piloto largar em 2º ou 3º, o vácuo vai engolir o líder antes da placa de 150 metros. Exijo que seus prognósticos posicionem nossa escuderia na liderança logo na primeira volta. No Foro Sol, a torcida vai empurrar o carro.",
+                tacticalDirectives: [
+                    "Aposte em liderança imediata na volta 1.",
+                    "Poletime ultra-agressivo com pneus C5 Macios.",
+                    "Previsão de vitória com estratégia de parada única."
+                ],
+                secretWarning: "TRAVAMENTO DE RODA: Asfalto de baixíssima aderência gera flat spots irreparáveis na primeira freada."
+            },
+            C: {
+                directorTitle: "Viktor Vance // Diretor de Estratégias Secretas da Vanguarda",
+                headquarters: "Milton Keynes Advanced Research Lab",
+                codeWord: "VORTEX-HIGH-ALTITUDE // SKUNKWORKS",
+                confidentialityLevel: "SIGILOSO",
+                memo: "As outras equipes entram em pânico com o ar rarefeito; nós prosperamos nele. Nossa asa traseira tem o arrasto mais eficiente do grid. Chegaremos a 355 km/h no speed trap sem esforço. Se houver bandeira amarela na T1 — e haverá —, a nossa estratégia alternativa de box vai nos colocar na frente.",
+                tacticalDirectives: [
+                    "Top speed líder absoluto em telemetria.",
+                    "Aposte em ganho de posições massivo na largada (EVO).",
+                    "Safety Car confirmado na primeira volta em Event Props."
+                ],
+                secretWarning: "TURBULÊNCIA NO FORO SOL: Baixa pressão faz o carro escorregar na saída para a curva Peraltada."
+            }
         },
         schedule: {
             fp1: { date: '30 OUT 2026', timeUtc: '18:30 UTC', label: 'TREINO LIVRE 1' },
@@ -292,6 +391,47 @@ export const CIRCUITS_INTEL: Record<string, CircuitTelemetryIntel> = {
             h2hTactics: 'Sensibilidade no asfalto molhado e gerenciamento do pneu dianteiro direito definem a vitória no duelo interno.',
             miscTactics: 'Probabilidade de Safety Car e chuva é a mais alta do campeonato (80%). Apostas "SIM" em Safety Car são fortemente indicadas.'
         },
+        directorMemos: {
+            A: {
+                directorTitle: "Dr. Helmut Von Klausen // Diretor Geral de Engenharia de Brackley",
+                headquarters: "Brackley Operations // UK",
+                codeWord: "TEMPESTADE-PAULISTA // PROTOCOLO SILBER-BRA",
+                confidentialityLevel: "ULTRA-CONFIDENCIAL",
+                memo: "Interlagos pune a hesitação. O traçado anti-horário massacra o pescoço do piloto e o ombro direito dos pneus. No S do Senna, nossa geometria dianteira garante entrada cirúrgica. Se a chuva cair — e a probabilidade de 65% indica que sim —, acione imediatamente o mapa de conservação de pneus intermediários. Quem parar no momento exato da garoa vence a rodada.",
+                tacticalDirectives: [
+                    "Poletime ultracurto: cravar entre 1:09.600 e 1:10.100.",
+                    "Monitore o radar minuto a minuto: undercut em pista molhada vale 4 segundos.",
+                    "Top 10 aberto para reviravoltas dramáticas no terço final."
+                ],
+                secretWarning: "COMPRESSÃO NA JUNÇÃO: A força G vertical esmaga o fundo do carro. Risco de desgaste na prancha de madeira sob o chassi."
+            },
+            B: {
+                directorTitle: "Ing. Lorenzo Casali // Diretor de Operações de Maranello",
+                headquarters: "Reparto Corse Gestione Sportiva // Maranello",
+                codeWord: "PASSIONE SENNA // OPERAÇÃO INTERLAGOS",
+                confidentialityLevel: "CONFIDENCIAL TÁTICO",
+                memo: "Em Interlagos se corre com a alma e o motor no talo. A subida dos boxes é onde nosso motor Ferrari vai empurrar tudo o que tem na bateria. Se nosso piloto contornar a Junção colado no adversário, a ultrapassagem no fim da reta principal é inevitável. Prepare seus palpites para uma batalha de gladiadores.",
+                tacticalDirectives: [
+                    "Aposte em duelos ferozes na freada do S do Senna.",
+                    "Safety Car com probabilidade máxima de 80%: marque 'SIM'.",
+                    "Top 10 com pódio duplo dos nossos motores se a corrida for seca."
+                ],
+                secretWarning: "AQUAPLANAGEM NA CURVA DO SOL: Se chover, a água escorre transversalmente na pista criando um rio invisível."
+            },
+            C: {
+                directorTitle: "Viktor Vance // Diretor de Estratégias Secretas da Vanguarda",
+                headquarters: "Milton Keynes Skunkworks Labs",
+                codeWord: "SENNA-RAIN-PROTOCOL // VANGUARD BLACK",
+                confidentialityLevel: "SIGILOSO",
+                memo: "Nenhuma pista do mundo recompensa tanto o instinto predatório quanto São Paulo. O S do Senna e a Descida do Lago são nossos campos de caça. Nossos estrategistas foram treinados para acionar paradas sob Virtual Safety Car antes de qualquer outro box. Calibre seus prognósticos sabendo que em Interlagos tudo pode acontecer.",
+                tacticalDirectives: [
+                    "Maior índice de ultrapassagens e escalada EVO do campeonato.",
+                    "Volta mais rápida disputada até a última volta com pneus macios.",
+                    "Aposte em surpresas no Top 5 final."
+                ],
+                secretWarning: "ZEBRAS DO BICO DE PATO: Evite cortes excessivos na zebra interna para não danificar suspensão dianteira."
+            }
+        },
         schedule: {
             fp1: { date: '06 NOV 2026', timeUtc: '14:30 UTC', label: 'TREINO LIVRE 1' },
             sprintQuali: { date: '06 NOV 2026', timeUtc: '18:30 UTC', label: 'CLASSIFICAÇÃO SPRINT' },
@@ -365,6 +505,47 @@ export const CIRCUITS_INTEL: Record<string, CircuitTelemetryIntel> = {
             evoTactics: '3 zonas de DRS tornam a recuperação viável para quem larga de trás.',
             h2hTactics: 'A curva 10 é uma freada cega em apoio onde pilotos costumam travar a roda dianteira esquerda.',
             miscTactics: 'Safety Car geralmente aparece após disputas na curva 1 ou quebras mecânicas térmicas.'
+        },
+        directorMemos: {
+            A: {
+                directorTitle: "Dr. Helmut Von Klausen // Diretor Geral de Engenharia de Brackley",
+                headquarters: "Brackley Operations // UK",
+                codeWord: "SAKHIR-OPENING // PROTOCOLO SILBER-BHR",
+                confidentialityLevel: "ULTRA-CONFIDENCIAL",
+                memo: "O deserto não perdoa erros de termodinâmica. O asfalto de granito de Sakhir vai mastigar qualquer pneu traseiro mal gerenciado. A nossa prioridade absoluta é garantir estabilidade de frenagem na curva 10 e tração na saída da curva 4. Estrategista, mantenha a calma e calibre os palpites com precisão de laboratório.",
+                tacticalDirectives: [
+                    "Poletime de abertura na faixa de 1:29.100.",
+                    "Dois pitstops obrigatórios no plano de prova.",
+                    "Previsão de consistência para pontuar dobrado na Superlicença."
+                ],
+                secretWarning: "AREIA NA PISTA: Quedas bruscas de temperatura aumentam a granulação (graining) dos pneus dianteiros."
+            },
+            B: {
+                directorTitle: "Ing. Lorenzo Casali // Diretor de Operações de Maranello",
+                headquarters: "Reparto Corse Gestione Sportiva // Maranello",
+                codeWord: "DESERT HAWK // OPERAÇÃO SAKHIR",
+                confidentialityLevel: "CONFIDENCIAL TÁTICO",
+                memo: "Primeira corrida do ano, primeiro teste de fogo para a nossa aliança. As 4 retas de Sakhir foram feitas para a potência do nosso V6 e a fúria dos nossos pilotos. Quero a pole position carimbada no sábado para ditar o ritmo no domingo. Nenhum recuo.",
+                tacticalDirectives: [
+                    "Poletime agressivo com quebra de marca histórica.",
+                    "Ataque total na primeira curva após as luzes se apagarem.",
+                    "Aposte em Top 10 dominante dos motores Ferrari."
+                ],
+                secretWarning: "FREADA DA CURVA 10: Roda dianteira esquerda sem peso no declive, risco de travamento grave."
+            },
+            C: {
+                directorTitle: "Viktor Vance // Diretor de Estratégias Secretas da Vanguarda",
+                headquarters: "Milton Keynes Skunkworks Labs",
+                codeWord: "DUNES OF CHAOS // SHADOW SAKHIR",
+                confidentialityLevel: "SIGILOSO",
+                memo: "Enquanto eles se preocupam com o desgaste dos pneus, nós ajustamos o diferencial para engolir as saídas de curva lenta. Sakhir premia quem sabe atacar nas zonas DRS 2 e 3. Nossos carros estão leves, rápidos e com sede de vitória.",
+                tacticalDirectives: [
+                    "Estratégia de undercut agressivo na volta 13.",
+                    "Ganho de posições nas relargadas de Safety Car.",
+                    "Volta mais rápida confirmada na janela final com tanque vazio."
+                ],
+                secretWarning: "RAJADAS DE VENTO CRUZADO: Curvas 1 e 4 vulneráveis a ventos do norte desestabilizando a asa dianteira."
+            }
         },
         schedule: {
             fp1: { date: '27 FEV 2026', timeUtc: '11:30 UTC', label: 'TREINO LIVRE 1' },
