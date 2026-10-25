@@ -7,6 +7,7 @@ import {
     getCircuitIntel, 
     CircuitTelemetryIntel 
 } from '@/lib/circuits-intel';
+import SeniorStrategistCard from '@/components/senior-strategist-card';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
 import { 
@@ -484,6 +485,11 @@ export default function NextRacePage() {
                             </Link>
                         </div>
                     </div>
+                </div>
+
+                {/* A VOZ DO BRIEFING // ESTRATEGISTA SÊNIOR DA ETAPA */}
+                <div className="mb-8">
+                    <SeniorStrategistCard roundNumber={circuit.round} />
                 </div>
 
                 {/* DISSECAÇÃO TÉCNICA ENVELOPADA // 3 ANEXOS DE ENGENHARIA */}
