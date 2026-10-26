@@ -138,8 +138,8 @@ type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'ENLIST' | 'EMAIL_SENT' | 'SU
 
 const customDialogs = [
     "Entre e feche a porta.",
-    "Os relatórios da sua telemetria caíram na minha mesa. Seus números são impressionantes.",
-    "Você decifra o traçado antes mesmo das luzes vermelhas se apagarem.",
+    "O mercado não procura apostadores de sorte. Ele quer estrategistas capazes de cravar o Poletime dentro da margem de 5 segundos, prever a linha de chegada, identificar os maiores escaladores do grid e antecipar quem domina os duelos internos.",
+    "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento sobre se M.VERSTAPPEN fará a volta mais rápida da corrida?",
     "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
     "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
 ];
