@@ -586,17 +586,9 @@ export default function PositionsPage() {
                         <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3">
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 01 // POLETIME COMPETITION & MILESIMUS LEAGUE
-                                        </span>
-                                    </div>
-                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        POLETIME // TEMPO DA POLE POSITION
+                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
+                                        POLETIME
                                     </h2>
-                                    <p className="text-xs text-white/60 mt-1">
-                                        Defina o tempo exato da pole nos treinos de qualificação. Clique em cada dígito para incrementar o valor.
-                                    </p>
                                 </div>
 
                                 <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
@@ -720,17 +712,9 @@ export default function PositionsPage() {
                         <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3">
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 02 // MASTER LEAGUE & MILESIMUS LEAGUE
-                                        </span>
-                                    </div>
-                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        TOP 10 FINISH // POSIÇÕES DE CHEGADA
+                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
+                                        TOP 10 FINISH
                                     </h2>
-                                    <p className="text-xs text-white/60 mt-1">
-                                        Selecione os 10 pilotos na ordem exata de chegada. Ao selecionar, a opção se destaca em âmbar/amarelo no padrão oficial de BET.
-                                    </p>
                                 </div>
 
                                 <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
@@ -875,17 +859,9 @@ export default function PositionsPage() {
                         <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3">
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 03 // MILESIMUS LEAGUE
-                                        </span>
-                                    </div>
-                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        EVO // MAIOR GANHO DE POSIÇÕES (TOP 5)
+                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
+                                        EVO / ESCALADA
                                     </h2>
-                                    <p className="text-xs text-white/60 mt-1">
-                                        Indique os 5 pilotos que mais ganharão posições. Destaque em amarelo âmbar com badge `#e59914` no padrão BET.
-                                    </p>
                                 </div>
 
                                 <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
@@ -1030,17 +1006,9 @@ export default function PositionsPage() {
                         <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3">
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 04 // MILESIMUS LEAGUE
-                                        </span>
-                                    </div>
-                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        HEAD TO HEAD // CONFRONTOS ENTRE COMPANHEIROS DE EQUIPE
+                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
+                                        DUELOS TÁTICOS
                                     </h2>
-                                    <p className="text-xs text-white/60 mt-1">
-                                        Selecione o piloto vencedor de cada duelo. A opção selecionada se destaca em amarelo âmbar com checkmark idêntico a BET.
-                                    </p>
                                 </div>
 
                                 <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0">
@@ -1139,17 +1107,9 @@ export default function PositionsPage() {
                         <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4 gap-2">
                                 <div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                            &gt; - POSIÇÃO 05 // MILESIMUS LEAGUE
-                                        </span>
-                                    </div>
-                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider mt-1">
-                                        TELEMETRIA ADICIONAL & CONDIÇÕES DE PISTA
+                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
+                                        EVENT PROPS
                                     </h2>
-                                    <p className="text-xs text-white/60 mt-1">
-                                        Responda às questões táticas da prova e ajuste sua alocação de confiança de pitwall.
-                                    </p>
                                 </div>
                             </div>
 
