@@ -865,3 +865,81 @@ export function getSeniorStrategistForRound(roundNumber: number): SeniorStrategi
     const idx = (roundNumber - 1) % SENIOR_STRATEGISTS.length;
     return SENIOR_STRATEGISTS[idx];
 }
+
+export type AllianceBlock = 'A' | 'B' | 'C';
+
+export interface StrategistVoiceMessage {
+    callsign: string;
+    toneTitle: string;
+    radioTransmission: string;
+    tacticalOrder: string;
+    accentBadge: string;
+}
+
+/**
+ * Matriz de Personalidade e Tom do Estrategista Sênior:
+ * Modula a transmissão de rádio conforme o Bloco/Aliança (A, B ou C),
+ * a nacionalidade do piloto e o histórico do veterano.
+ */
+export function getStrategistVoice(
+    strategist: SeniorStrategist,
+    alliance: AllianceBlock = 'A',
+    userNationality?: string | null,
+    userName?: string
+): StrategistVoiceMessage {
+    const pilotName = userName ? userName.split(' ')[0].toUpperCase() : 'ESTRATEGISTA';
+    const nat = (userNationality || '').toLowerCase().trim();
+
+    // 1. Matriz de Tom por Bloco
+    let toneTitle = '';
+    let blockTone = '';
+    let tacticalOrder = '';
+    let accentBadge = '';
+
+    if (alliance === 'A') {
+        // Bloco A: Frio, cirúrgico, teleimétrico (Consórcio da Estrela)
+        toneTitle = 'TELEMETRIA CIRÚRGICA // PROTOCOLO ESTRELA';
+        accentBadge = 'CIRÚRGICO // TELEMÉTRICO';
+        blockTone = `“${pilotName}, telemetria em parâmetros nominais. No Consórcio da Estrela não apostamos na sorte: calibramos o delta do Q3 com margem milimétrica. Menos pulso acelerado, mais cálculo de eficiência. Mantenha os pneus na janela de 102°C e confie na simulação de túnel de vento.”`;
+        tacticalOrder = `Cravar o Poletime dentro da margem de ${strategist.briefingTips.poletimeTarget}. Tolerância zero para hesitação.`;
+    } else if (alliance === 'B') {
+        // Bloco B: Passional, aristocrático, combativo (Dinastia de Maranello)
+        toneTitle = 'ORDEM DE BATALHA // DINASTIA DE MARANELLO';
+        accentBadge = 'PASSIONAL // COMBATIVO';
+        blockTone = `“${pilotName}! Em Maranello o asfalto sangra respeito. Não admito piloto tirando o pé na freada da Curva 1. O segundo lugar é apenas o primeiro dos perdedores. O motor turbo precisa rugir no limite da temperatura de escape. Sangue frio na estratégia e agressividade voraz no corpo a corpo!”`;
+        tacticalOrder = `Atacar no Top 3 (${strategist.briefingTips.predictedTop3.slice(0, 2).join(' e ')}) e defender a honra do cavallino no grid.`;
+    } else {
+        // Bloco C: Disruptivo, agressivo, cínico (A Vanguarda Tecnológica)
+        toneTitle = 'INCURSÃO DISRUPTIVA // A VANGUARDA';
+        accentBadge = 'DISRUPTIVO // CÍNICO';
+        blockTone = `“${pilotName}, ouça bem: as regras tradicionais são desculpas de quem anda atrás. Na Vanguarda nós antecipamos o caos. Enquanto os burocratas discutem desgaste no pitlane, nós atacamos o undercut e quebramos o ritmo da corrida. Se não estivermos no limite da desclassificação técnica, não estamos tentando o suficiente.”`;
+        tacticalOrder = `Executar aposta de risco no EVO com ${strategist.briefingTips.evoTargetDriver}. Surpreenda os burocratas do pelotão.`;
+    }
+
+    // 2. Modulação Cultural / Gírias de Paddock por Nacionalidade
+    let natFlavor = '';
+    if (nat.includes('br') || nat.includes('bra')) {
+        natFlavor = ` Da nossa terra, a gente aprendeu a acelerar com pé no porão e acertar o miolo do traçado no braço. Deixe os gringos quebrando a cabeça com telemetria furada.`;
+    } else if (nat.includes('it') || nat.includes('ita')) {
+        natFlavor = ` Staccata secca alla prima curva! Testa fredda e piede pesante: l'asfalto si rispetta solo col gas a martello.`;
+    } else if (nat.includes('gb') || nat.includes('uk') || nat.includes('ing') || nat.includes('brit')) {
+        natFlavor = ` Keep your head down, cold tyres, razor-sharp focus. Proper racing manners on entry, ruthless on the exit.`;
+    } else if (nat.includes('de') || nat.includes('ale')) {
+        natFlavor = ` Volle Konzentration. Keine Fehler im ersten Sektor. Absolute Präzision überwindet jeden Hitzkopf.`;
+    } else if (nat.includes('fr')) {
+        natFlavor = ` Sang-froid absolu. L'attaque doit être propre et chirurgicale au millième près.`;
+    } else if (nat.includes('es') || nat.includes('esp') || nat.includes('arg') || nat.includes('mex')) {
+        natFlavor = ` Con garra en cada vértice. No regales ni un milímetro de asfalto en la frenada.`;
+    }
+
+    // 3. Toque Histórico do Veterano
+    const veteranWisdom = ` Lembra-se: na minha era (${strategist.decade}), ${strategist.specialty.toLowerCase()}.`;
+
+    return {
+        callsign: `[${strategist.code} // FREQUÊNCIA PRIVADA DO CONSELHEIRO]`,
+        toneTitle,
+        radioTransmission: `${blockTone}${natFlavor}${veteranWisdom}`,
+        tacticalOrder,
+        accentBadge
+    };
+}

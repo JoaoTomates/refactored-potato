@@ -15,6 +15,13 @@ import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
+import { 
+    SeniorStrategist, 
+    getSeniorStrategistById, 
+    getSeniorStrategistForRound, 
+    getStrategistVoice, 
+    AllianceBlock 
+} from '@/lib/race-directors';
 
 
 /* ============================================================
@@ -277,7 +284,17 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 }
 
 /* ---------- Credencial / Capacete ---------- */
-function CredentialCard({ me, number, allianceId }: { me: Strategist; number: string; allianceId: AllianceId }) {
+function CredentialCard({ 
+    me, 
+    number, 
+    allianceId, 
+    mentor 
+}: { 
+    me: Strategist; 
+    number: string; 
+    allianceId: AllianceId; 
+    mentor?: SeniorStrategist | null;
+}) {
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
 
@@ -366,6 +383,19 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                     </p>
                 </div>
             </div>
+
+            {/* Conselheiro Sênior Vinculado */}
+            {mentor && (
+                <div className="px-4 py-2.5 border-t border-white/10 bg-white/[0.02] flex items-center justify-between text-[10px] font-mono">
+                    <div>
+                        <span className="text-white/40 block text-[8px] uppercase tracking-widest">CONSELHEIRO SÊNIOR</span>
+                        <span className="font-bold text-[#fbaa19] tracking-wider">{mentor.code}</span>
+                    </div>
+                    <span className="text-[9px] text-white/60 border border-white/10 px-2 py-0.5 rounded bg-black/40">
+                        {mentor.displayName} ({mentor.decade})
+                    </span>
+                </div>
+            )}
         </Panel>
     );
 }
@@ -393,6 +423,7 @@ export default function OfficialStrategistDashboard() {
     const [field, setField] = useState<Strategist[]>([]);
     const [range, setRange] = useState<5 | 10 | 24>(10);
     const [feedIdx, setFeedIdx] = useState(0);
+    const [assignedMentor, setAssignedMentor] = useState<SeniorStrategist | null>(null);
 
     // Estado da Tab ativa no Painel Central Multifuncional
     const [activeTab, setActiveTab] = useState<MainTab>('quotes');
@@ -431,6 +462,18 @@ export default function OfficialStrategistDashboard() {
                 }
 
                 setTargetProfile(profileData);
+
+                // Carrega o Estrategista Sênior designado ao perfil
+                if (profileData?.senior_strategist_id) {
+                    const mentor = getSeniorStrategistById(profileData.senior_strategist_id);
+                    if (mentor) {
+                        setAssignedMentor(mentor);
+                    } else {
+                        setAssignedMentor(getSeniorStrategistForRound(19));
+                    }
+                } else {
+                    setAssignedMentor(getSeniorStrategistForRound(19));
+                }
 
                 // 3. Busca todos os contratos ativos no grid
                 const { data: contracts } = await supabase
@@ -551,6 +594,17 @@ export default function OfficialStrategistDashboard() {
     const last = series.length > 0 ? series[series.length - 1] ?? 0 : 0;
     const prev = me && me.series.length >= 2 ? me.series[me.series.length - 2] ?? last : last;
     const isDemo = !targetProfile && (!user || !!me?.isDemo);
+
+    // Voz e transmissão adaptada do Estrategista Sênior (Matriz de Tom: Bloco + Nacionalidade + Veterano)
+    const mentorVoice = useMemo(() => {
+        if (!assignedMentor) return null;
+        return getStrategistVoice(
+            assignedMentor,
+            allianceId as AllianceBlock,
+            targetProfile?.nationality,
+            me?.name
+        );
+    }, [assignedMentor, allianceId, targetProfile, me]);
 
     // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
@@ -853,7 +907,57 @@ export default function OfficialStrategistDashboard() {
 
                         {/* COLUNA ESQUERDA: Credencial + Briefing Oficial */}
                         <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
-                            <CredentialCard me={me} number={String(targetProfile?.driver_number || '00')} allianceId={allianceId} />
+                            <CredentialCard 
+                                me={me} 
+                                number={String(targetProfile?.driver_number || '00')} 
+                                allianceId={allianceId} 
+                                mentor={assignedMentor}
+                            />
+
+                            {/* Card do Conselheiro Sênior de Paddock */}
+                            {assignedMentor && mentorVoice && (
+                                <Panel 
+                                    title="Conselheiro de Paddock" 
+                                    tag={mentorVoice.accentBadge} 
+                                    accentColor={teamColor}
+                                >
+                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                                            <div>
+                                                <span className="font-black text-white text-sm tracking-wider block">
+                                                    {assignedMentor.code}
+                                                </span>
+                                                <span className="text-[9px] text-white/40 uppercase">
+                                                    {assignedMentor.displayName} ({assignedMentor.decade})
+                                                </span>
+                                            </div>
+                                            <span 
+                                                className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest border"
+                                                style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}15` }}
+                                            >
+                                                {ALLIANCES[allianceId].short}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-white/90 text-xs italic leading-relaxed border-l-2 pl-2.5 py-0.5" style={{ borderLeftColor: teamColor }}>
+                                            {mentorVoice.radioTransmission}
+                                        </p>
+
+                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                            <span className="text-white/40 uppercase">ORDEM DE PITWALL:</span>
+                                            <span className="font-bold text-emerald-400">{mentorVoice.tacticalOrder}</span>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setActiveTab('radio')}
+                                            className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                                        >
+                                            <span>[ ABRIR FREQUÊNCIA NO RÁDIO ]</span>
+                                            <span style={{ color: teamColor }}>»</span>
+                                        </button>
+                                    </div>
+                                </Panel>
+                            )}
 
                             {/* Card Briefing de Garagem */}
                             <Panel title="Briefing do Paddock" tag="TRANSMISSÃO" accentColor={teamColor}>
@@ -1224,25 +1328,77 @@ export default function OfficialStrategistDashboard() {
                                         </div>
                                     )}
 
-                                    {/* ABA 3: RÁDIO DO DIRETOR */}
+                                    {/* ABA 3: RÁDIO DO DIRETOR & CONSELHEIRO SÊNIOR */}
                                     {activeTab === 'radio' && (
-                                        <div className="flex flex-col gap-3 text-xs leading-relaxed">
+                                        <div className="flex flex-col gap-3.5 text-xs leading-relaxed font-mono">
+                                            {/* Transmissão do Conselheiro Sênior com Tom de Bloco e Nacionalidade */}
+                                            {assignedMentor && mentorVoice && (
+                                                <div 
+                                                    className="p-4 rounded-sm bg-black/90 border-2 flex flex-col gap-3 shadow-lg"
+                                                    style={{ borderColor: teamColor }}
+                                                >
+                                                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                                                            <span className="font-black tracking-wider text-[11px]" style={{ color: teamColor }}>
+                                                                {mentorVoice.callsign}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest bg-white/10 text-white">
+                                                                {mentorVoice.accentBadge}
+                                                            </span>
+                                                            <span className="text-[9px] text-white/40 uppercase">
+                                                                CANAL DIRETO
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">
+                                                            &gt;_ {mentorVoice.toneTitle}:
+                                                        </span>
+                                                        <p className="text-white/95 text-xs sm:text-sm leading-relaxed italic border-l-2 pl-3 py-1 bg-white/[0.02] rounded-r" style={{ borderLeftColor: teamColor }}>
+                                                            {mentorVoice.radioTransmission}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="p-3 rounded bg-black/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
+                                                        <div>
+                                                            <span className="text-white/40 uppercase block text-[9px]">DIRETRIZ DE COMBATE:</span>
+                                                            <span className="font-black text-emerald-400">{mentorVoice.tacticalOrder}</span>
+                                                        </div>
+                                                        <span className="text-[9px] text-[#fbaa19] uppercase font-bold shrink-0">
+                                                            POLETIME: {assignedMentor.briefingTips.poletimeTarget}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[9px] text-white/40 uppercase pt-2 border-t border-white/5">
+                                                        <span>HISTÓRICO REAL: {assignedMentor.careerStat}</span>
+                                                        <span className="text-emerald-400 font-bold">{assignedMentor.evaluation.accuracyRate}% ASSERTIVIDADE HOMOLOGADA</span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Comunicado da Aliança */}
+                                            <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col gap-1.5">
+                                                <div className="flex items-center justify-between text-[9px] text-white/40 border-b border-white/5 pb-1">
+                                                    <span className="font-bold text-[#fbaa19]">[COMUNICADO DA ALIANÇA // {ALLIANCES[allianceId].name}]</span>
+                                                    <span>HOMOLOGADO PELA FIA</span>
+                                                </div>
+                                                <p className="text-white/80 text-[11px]">
+                                                    "Atenção a todos os estrategistas do bloco: atualização de mapa de motor homologada pela FIA. O multiplicador de construtores está ativo para o próximo Grande Prêmio."
+                                                </p>
+                                            </div>
+
+                                            {/* Despacho Técnico da Garagem */}
                                             <div className="p-3 rounded bg-white/5 border border-white/5 flex flex-col gap-1.5">
                                                 <div className="flex items-center justify-between text-[9px] text-white/40">
                                                     <span className="font-bold" style={{ color: teamColor }}>[DIRETOR TÉCNICO // {me.teamName.toUpperCase()}]</span>
-                                                    <span>AO VIVO</span>
+                                                    <span>TELEMETRIA DA GARAGEM</span>
                                                 </div>
-                                                <p className="text-white/90 italic">
-                                                    "{me.name}, mantivemos telemetria limpa na asa móvel. Sua janela de parada no GP anterior foi cirúrgica. Para a próxima corrida, precisamos que você maximize as apostas de Poletime."
-                                                </p>
-                                            </div>
-                                            <div className="p-3 rounded bg-white/5 border border-white/5 flex flex-col gap-1.5">
-                                                <div className="flex items-center justify-between text-[9px] text-white/40">
-                                                    <span className="font-bold text-amber-400">[COMUNICADO DA ALIANÇA // {ALLIANCES[allianceId].name}]</span>
-                                                    <span>1H ATRÁS</span>
-                                                </div>
-                                                <p className="text-white/80">
-                                                    "Atenção a todos os estrategistas do bloco: atualização de mapa de motor homologada pela FIA. O multiplicador de construtores está ativo."
+                                                <p className="text-white/80 text-[11px] italic">
+                                                    "{me.name}, mantivemos telemetria limpa na asa móvel. Sua janela de parada anterior foi cirúrgica. Siga a orientação do seu Conselheiro Sênior para o Poletime."
                                                 </p>
                                             </div>
                                         </div>
