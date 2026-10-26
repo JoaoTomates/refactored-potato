@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, ALLIANCE_KEYS, FactionData } from '@/utils/alliance-data';
+import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
@@ -164,6 +165,7 @@ export function InviteFlow() {
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
+    const [assignedStrategist, setAssignedStrategist] = useState<SeniorStrategist | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const initialCheckDone = useRef(false);
@@ -378,8 +380,12 @@ export function InviteFlow() {
 
             if (authError) throw authError;
 
-            // Se o usuário foi criado, inicializa o perfil básico
+            // Se o usuário foi criado, inicializa o perfil básico com um Estrategista Sênior sorteado
             if (authData.user) {
+                // Sorteia aleatoriamente um dos 24 Estrategistas Sêniores para acompanhar o novo usuário
+                const randomStrategist = SENIOR_STRATEGISTS[Math.floor(Math.random() * SENIOR_STRATEGISTS.length)];
+                setAssignedStrategist(randomStrategist);
+
                 await supabase.from('profiles').upsert({
                     id: authData.user.id,
                     email: emailToUse,
@@ -388,7 +394,8 @@ export function InviteFlow() {
                     nationality: null,
                     org_color: '#000000',
                     setup_completed: false,
-                    slug: slug
+                    slug: slug,
+                    senior_strategist_id: randomStrategist.id
                 });
             }
 
@@ -774,6 +781,37 @@ export function InviteFlow() {
                                 />
                             </p>
                         </div>
+
+                        {/* Estrategista Sênior Sorteado para Acompanhar o Novo Estrategista */}
+                        {assignedStrategist && (
+                            <div className="border border-[#fbaa19]/40 bg-[#fbaa19]/10 p-4 sm:p-5 rounded-lg flex flex-col gap-3 shadow-[0_0_20px_rgba(251,170,25,0.1)]">
+                                <div className="flex items-center justify-between text-[10px] text-[#fbaa19] font-bold uppercase tracking-widest border-b border-[#fbaa19]/20 pb-2">
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-ping inline-block"></span>
+                                        <span>CONSELHEIRO SÊNIOR DESIGNADO AO SEU PITWALL</span>
+                                    </span>
+                                    <span className="border border-[#fbaa19]/40 px-2 py-0.5 rounded bg-black/60 font-mono text-white">
+                                        {assignedStrategist.code}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                    <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">
+                                        {assignedStrategist.displayName}
+                                        <span className="text-white/40 text-xs font-normal ml-2">({assignedStrategist.originalDriver})</span>
+                                    </h3>
+                                    <span className="text-[10px] text-[#fbaa19] uppercase tracking-wider font-bold">
+                                        ERA: {assignedStrategist.decade} // {assignedStrategist.nationality}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-white/90 leading-relaxed italic font-mono bg-black/40 p-3 rounded border border-white/5">
+                                    {assignedStrategist.signatureQuote}
+                                </p>
+                                <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/50 uppercase pt-2 border-t border-white/10">
+                                    <span>HISTÓRICO: {assignedStrategist.careerStat}</span>
+                                    <span className="text-emerald-400 font-bold">{assignedStrategist.evaluation.accuracyRate}% Assertividade Homologada</span>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Tabela Bloomberg de Status da Convocação */}
                         <div className="border border-white/10 rounded overflow-hidden text-xs font-mono bg-black/40">

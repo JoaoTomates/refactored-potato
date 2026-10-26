@@ -83,6 +83,7 @@ export default function NextRacePage() {
     const [selectedCircuitKey, setSelectedCircuitKey] = useState<string>('americas');
     const [activeFaction, setActiveFaction] = useState<FactionKey>('A');
     const [userContractGroup, setUserContractGroup] = useState<string | null>(null);
+    const [userSeniorStrategistId, setUserSeniorStrategistId] = useState<string | undefined>(undefined);
 
     // Contagem regressiva ao vivo
     const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
@@ -97,11 +98,23 @@ export default function NextRacePage() {
         if (!user) return;
         async function fetchUserAlliance() {
             try {
+                // Busca contrato da equipe e aliança
                 const { data: contract } = await supabase
                     .from('contracts')
                     .select('group_id, teams(name, code)')
                     .eq('user_id', user!.id)
                     .maybeSingle();
+
+                // Busca o estrategista sênior designado ao usuário no perfil
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('senior_strategist_id')
+                    .eq('id', user!.id)
+                    .maybeSingle();
+
+                if (profile?.senior_strategist_id) {
+                    setUserSeniorStrategistId(profile.senior_strategist_id);
+                }
 
                 if (contract?.teams) {
                     const team = Array.isArray(contract.teams) ? contract.teams[0] : contract.teams;
@@ -489,7 +502,10 @@ export default function NextRacePage() {
 
                 {/* A VOZ DO BRIEFING // ESTRATEGISTA SÊNIOR DA ETAPA */}
                 <div className="mb-8">
-                    <SeniorStrategistCard roundNumber={circuit.round} />
+                    <SeniorStrategistCard 
+                        roundNumber={circuit.round} 
+                        initialStrategistId={userSeniorStrategistId}
+                    />
                 </div>
 
                 {/* DISSECAÇÃO TÉCNICA ENVELOPADA // 3 ANEXOS DE ENGENHARIA */}

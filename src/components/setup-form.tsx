@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import DangerZoneDeleteAccount from '@/components/danger-zone-delete-account';
+import { SENIOR_STRATEGISTS } from '@/lib/race-directors';
 
 export default function SetupForm() {
     const { user } = useSupabaseAuth();
@@ -90,15 +91,20 @@ export default function SetupForm() {
         setSuccess(false);
 
         try {
-            // Fetch existing profile to check if we already have a slug/number
-            const { data: currentProfile } = await supabase.from('profiles').select('driver_number, slug').eq('id', user.id).single();
+            // Fetch existing profile to check if we already have a slug/number/senior_strategist
+            const { data: currentProfile } = await supabase.from('profiles').select('driver_number, slug, senior_strategist_id').eq('id', user.id).single();
             
             let driverNumber = currentProfile?.driver_number;
             let slug = currentProfile?.slug;
+            let seniorStrategistId = currentProfile?.senior_strategist_id;
             
             if (!driverNumber) {
                 // Temporary logic: assign a random number between 23 and 99
                 driverNumber = Math.floor(Math.random() * (99 - 23 + 1)) + 23;
+            }
+            if (!seniorStrategistId) {
+                const randomStrategist = SENIOR_STRATEGISTS[Math.floor(Math.random() * SENIOR_STRATEGISTS.length)];
+                seniorStrategistId = randomStrategist.id;
             }
             if (!slug && cleanFirst && cleanLast) {
                 // e.g. "Ayrton Senna" -> "a.senna99"
@@ -118,7 +124,8 @@ export default function SetupForm() {
                     nationality: formData.nationality,
                     org_color: formData.org_color,
                     driver_number: driverNumber,
-                    slug: slug
+                    slug: slug,
+                    senior_strategist_id: seniorStrategistId
                 })
                 .eq('id', user.id);
 

@@ -49,11 +49,18 @@ export default function SeniorStrategistCard({
     });
     const [showSelector, setShowSelector] = useState(false);
 
-    // Atualiza quando o roundNumber muda
+    // Atualiza quando o roundNumber ou initialStrategistId muda
     useEffect(() => {
+        if (initialStrategistId) {
+            const userStrat = SENIOR_STRATEGISTS.find(s => s.id === initialStrategistId);
+            if (userStrat) {
+                setSelectedStrategist(userStrat);
+                return;
+            }
+        }
         const strat = getSeniorStrategistForRound(roundNumber);
         setSelectedStrategist(strat);
-    }, [roundNumber]);
+    }, [roundNumber, initialStrategistId]);
 
     // Carrega votos salvos do localStorage
     useEffect(() => {
@@ -125,6 +132,11 @@ export default function SeniorStrategistCard({
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5 mb-6">
                 <div>
                     <div className="flex flex-wrap items-center gap-2 mb-2">
+                        {initialStrategistId && selectedStrategist.id === initialStrategistId && (
+                            <span className="px-2 py-0.5 bg-emerald-500 text-black font-black text-[10px] tracking-widest uppercase flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                                ★ SEU CONSELHEIRO PESSOAL
+                            </span>
+                        )}
                         <span className="px-2 py-0.5 bg-[#fbaa19] text-black font-black text-[10px] tracking-widest uppercase flex items-center gap-1.5">
                             <Radio className="w-3 h-3 animate-pulse" />
                             <span>A VOZ DO BRIEFING // ESTRATEGISTA SÊNIOR</span>
