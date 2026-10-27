@@ -16,6 +16,7 @@ import SillySeason from "@/components/silly-season";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { formatMls, formatTimeAgo } from '@/lib/mls';
+import { TeamworkSquad, getStrategistSquad, createTeamworkSquad, joinTeamworkSquad, leaveTeamworkSquad } from '@/lib/teamwork';
 import {
     SeniorStrategist, 
     getSeniorStrategistById, 
@@ -423,6 +424,12 @@ export default function OfficialStrategistDashboard() {
     const [userPrediction, setUserPrediction] = useState<any>(null);
     const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null } | null>(null);
     const [activeContract, setActiveContract] = useState<any>(null);
+    const [squad, setSquad] = useState<TeamworkSquad | null>(null);
+    const [squadNameInput, setSquadNameInput] = useState('');
+    const [inviteCodeInput, setInviteCodeInput] = useState('');
+    const [squadActionLoading, setSquadActionLoading] = useState(false);
+    const [squadActionMsg, setSquadActionMsg] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
+    const [copiedCode, setCopiedCode] = useState(false);
     const [field, setField] = useState<Strategist[]>([]);
     const [range, setRange] = useState<5 | 10 | 24>(10);
     const [feedIdx, setFeedIdx] = useState(0);
@@ -559,6 +566,10 @@ export default function OfficialStrategistDashboard() {
                         setUserPrediction(null);
                     }
 
+                    // Busca esquadrão Teamwork real (máx 20 membros, independente de bloco)
+                    const userSquad = await getStrategistSquad(activeStrategistId);
+                    setSquad(userSquad);
+
                     // 7. Busca companheiro de equipe real (mesma equipe e mesmo grupo, outro usuário)
                     const myTeamId = userContract?.team_id || profileData?.team_id;
                     const myGroupId = userContract?.group_id || profileData?.group_id || 1;
@@ -597,6 +608,61 @@ export default function OfficialStrategistDashboard() {
     }, [authLoading, user, targetSlug]);
 
     const isOwner = Boolean(user && targetProfile && user.id === targetProfile.id);
+
+    const handleCreateSquad = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) return;
+        setSquadActionLoading(true);
+        setSquadActionMsg(null);
+        const res = await createTeamworkSquad(user.id, squadNameInput);
+        setSquadActionLoading(false);
+        if (res.success && res.squad) {
+            setSquad(res.squad);
+            setSquadNameInput('');
+            setSquadActionMsg({ type: 'success', text: `Esquadrão ${res.squad.name} fundado! Média inicial de 000.100 mls / 1.` });
+        } else {
+            setSquadActionMsg({ type: 'error', text: res.error || 'Erro ao fundar esquadrão.' });
+        }
+    };
+
+    const handleJoinSquad = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) return;
+        setSquadActionLoading(true);
+        setSquadActionMsg(null);
+        const res = await joinTeamworkSquad(user.id, inviteCodeInput);
+        setSquadActionLoading(false);
+        if (res.success && res.squad) {
+            setSquad(res.squad);
+            setInviteCodeInput('');
+            setSquadActionMsg({ type: 'success', text: `Integrado ao esquadrão ${res.squad.name}! Média atualizada.` });
+        } else {
+            setSquadActionMsg({ type: 'error', text: res.error || 'Erro ao ingressar no esquadrão.' });
+        }
+    };
+
+    const handleLeaveSquad = async () => {
+        if (!user) return;
+        if (!confirm('Deseja realmente sair deste esquadrão Teamwork?')) return;
+        setSquadActionLoading(true);
+        setSquadActionMsg(null);
+        const res = await leaveTeamworkSquad(user.id);
+        setSquadActionLoading(false);
+        if (res.success) {
+            setSquad(null);
+            setSquadActionMsg({ type: 'success', text: 'Você se desvinculou do esquadrão.' });
+        } else {
+            setSquadActionMsg({ type: 'error', text: res.error || 'Erro ao sair do time.' });
+        }
+    };
+
+    const handleCopyCode = (code: string) => {
+        if (typeof window !== 'undefined' && navigator.clipboard) {
+            navigator.clipboard.writeText(code);
+            setCopiedCode(true);
+            setTimeout(() => setCopiedCode(false), 2500);
+        }
+    };
     const allianceId = allianceForCode(me?.teamCode);
     const teamColor = me?.teamColor || '#fbaa19';
     const series = me ? me.series.slice(-range) : [];
@@ -648,15 +714,16 @@ export default function OfficialStrategistDashboard() {
                 tier: balance >= 1000 ? 'DIVISÃO OURO' : balance >= 500 ? 'DIVISÃO PRATA' : 'DIVISÃO BRONZE',
             },
             teamwork: {
-                duoRank: teamPartner ? 'DUPLA CONECTADA' : 'INDIVIDUAL',
-                teamScore: 0,
-                partner: teamPartner ? teamPartner.name : 'ASSENTO #2 DISPONÍVEL',
-                partnerSlug: teamPartner?.slug || null,
-                hasPartner: Boolean(teamPartner),
-                synergy: teamPartner ? 100 : 0,
+                hasSquad: Boolean(squad),
+                squadName: squad ? squad.name : 'SOLO',
+                memberCount: squad ? squad.memberCount : 1,
+                maxMembers: 20,
+                averageMls: squad ? squad.formattedAverage : '000.100',
+                inviteCode: squad?.inviteCode || null,
+                members: squad?.members || [],
             }
         };
-    }, [me, userPrediction, teamPartner, targetProfile]);
+    }, [me, userPrediction, teamPartner, targetProfile, squad]);
 
     // Histórico de atividades / telemetria de ordens baseado 100% em dados reais
     const activityHistory = useMemo(() => {
@@ -1107,15 +1174,17 @@ export default function OfficialStrategistDashboard() {
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">Teamwork</span>
-                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.teamwork.hasPartner ? 'bg-[#fbaa19]/20 text-[#fbaa19]' : 'bg-white/10 text-white/50'}`}>
-                                            {compStats?.teamwork.hasPartner ? 'DUPLA ATIVA' : 'GARAGEM'}
+                                        <span className={`text-[8px] px-1.5 py-0.2 rounded font-bold ${compStats?.teamwork.hasSquad ? 'bg-[#fbaa19]/20 text-[#fbaa19]' : 'bg-white/10 text-white/50'}`}>
+                                            {compStats?.teamwork.hasSquad ? `${compStats.teamwork.memberCount}/20 MEMBROS` : 'SOLO [ 1/1 ]'}
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.teamwork.duoRank} <span className="text-[10px] text-white/40">PAIR</span></span>
+                                        <span className="text-xl md:text-2xl font-black tracking-tight font-mono text-white">
+                                            {compStats?.teamwork.averageMls} <span className="text-[10px] text-white/40">mls</span>
+                                        </span>
                                         <div className="flex items-center justify-between text-[8px] text-[#fbaa19]/80 mt-1 uppercase font-bold truncate">
-                                            <span>{compStats?.teamwork.synergy}% SINC</span>
-                                            <span className="truncate max-w-[65px]">{compStats?.teamwork.partner}</span>
+                                            <span>MÉDIA COLETIVA</span>
+                                            <span className="truncate max-w-[90px]">{compStats?.teamwork.squadName}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -1429,43 +1498,223 @@ export default function OfficialStrategistDashboard() {
                                         </div>
                                     )}
 
-                                    {/* ABA 5: GESTÃO DE TEAMWORK */}
+                                    {/* ABA 5: GESTÃO DE TEAMWORK (ESQUADRÃO DE ATÉ 20 MEMBROS · MÉDIA ARITMÉTICA) */}
                                     {activeTab === 'teamwork' && (
-                                        <div className="flex flex-col gap-4">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col gap-1">
-                                                    <span className="text-[9px] text-white/40 uppercase">Assento #1 (Titular)</span>
-                                                    <span className="text-sm font-bold text-white">{me.name}</span>
-                                                    <span className="text-[10px] font-bold" style={{ color: teamColor }}>PILOTO DESIGNADO</span>
+                                        <div className="flex flex-col gap-4 font-mono text-xs animate-fade-in">
+                                            {/* Notificação de Sucesso/Erro */}
+                                            {squadActionMsg && (
+                                                <div className={`p-3 rounded border text-xs font-bold ${squadActionMsg.type === 'success' ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-red-950/40 border-red-500/40 text-red-300'}`}>
+                                                    {squadActionMsg.text}
                                                 </div>
-                                                <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col justify-between gap-2">
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="text-[9px] text-white/40 uppercase">Assento #2 (Companheiro)</span>
-                                                        <span className="text-sm font-bold text-white">{compStats?.teamwork.partner}</span>
-                                                        <span className="text-[10px] font-bold" style={{ color: teamPartner ? '#22c55e' : '#fbaa19' }}>
-                                                            {teamPartner ? 'SINCRONIZADO NO GRID' : 'VAGA ABERTA'}
-                                                        </span>
+                                            )}
+
+                                            {squad ? (
+                                                /* VISUALIZAÇÃO DO ESQUADRÃO ATIVO */
+                                                <div className="flex flex-col gap-4">
+                                                    {/* Header do Esquadrão */}
+                                                    <div className="p-4 rounded-lg border bg-black/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderColor: `${teamColor}50` }}>
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[10px] uppercase font-bold tracking-widest text-[#fbaa19]">ESQUADRÃO TEAMWORK</span>
+                                                                <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase bg-white/10 text-white">
+                                                                    {squad.memberCount}/20 MEMBROS
+                                                                </span>
+                                                            </div>
+                                                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-wider">
+                                                                {squad.name}
+                                                            </h3>
+                                                        </div>
+
+                                                        {/* Painel da Média Oficial */}
+                                                        <div className="flex flex-col items-start sm:items-end">
+                                                            <span className="text-[9px] uppercase tracking-widest text-white/50">MÉDIA DO ESQUADRÃO (Σ / N)</span>
+                                                            <div className="flex items-baseline gap-1.5">
+                                                                <span className="text-2xl md:text-3xl font-black font-mono text-[#fbaa19]">
+                                                                    {squad.formattedAverage}
+                                                                </span>
+                                                                <span className="text-xs text-white/50">mls</span>
+                                                            </div>
+                                                            <span className="text-[8px] text-emerald-400 font-bold uppercase tracking-widest">
+                                                                PONTUAÇÃO COLETIVA VÁLIDA
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    {teamPartner && teamPartner.slug && (
-                                                        <Link 
-                                                            href={`/${teamPartner.slug.replace('@', '')}`}
-                                                            className="text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
-                                                            style={{ color: teamColor }}
-                                                        >
-                                                            [ VER TERMINAL DO PARCEIRO » ]
-                                                        </Link>
+
+                                                    {/* Card de Código de Convite */}
+                                                    <div className="p-3.5 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">
+                                                                CÓDIGO DE CONVOCAÇÃO (COMPARTILHE COM ATÉ 20 AMIGOS)
+                                                            </span>
+                                                            <p className="text-xs text-white/80">
+                                                                Apostadores de qualquer bloco (A, B ou C) podem usar este código para ingressar.
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            <span className="px-3 py-1.5 rounded bg-black border border-[#fbaa19]/40 font-mono text-sm font-black text-[#fbaa19] tracking-widest">
+                                                                {squad.inviteCode}
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleCopyCode(squad.inviteCode)}
+                                                                className="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                                                            >
+                                                                {copiedCode ? '✓ COPIADO!' : '[ COPIAR ]'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Lista de Membros do Esquadrão */}
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/50 px-2">
+                                                            <span>INTEGRANTES DO TIME ({squad.memberCount})</span>
+                                                            <span>SALDO INDIVIDUAL</span>
+                                                        </div>
+
+                                                        <div className="flex flex-col gap-1.5">
+                                                            {squad.members.map((mem, idx) => (
+                                                                <div 
+                                                                    key={mem.id}
+                                                                    className="p-2.5 rounded bg-white/[0.03] border border-white/5 flex items-center justify-between gap-3 text-xs"
+                                                                >
+                                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                                        <span className="font-bold text-white/30 text-[10px] w-4 text-right">
+                                                                            {idx + 1}
+                                                                        </span>
+                                                                        <div className="flex flex-col min-w-0">
+                                                                            <div className="flex items-center gap-1.5">
+                                                                                <span className="font-bold text-white truncate">
+                                                                                    {mem.name}
+                                                                                </span>
+                                                                                {mem.isCaptain && (
+                                                                                    <span className="text-[8px] px-1 py-0.2 rounded font-black uppercase bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30">
+                                                                                        CAPITÃO
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            {mem.slug && (
+                                                                                <span className="text-[9px] text-white/40">
+                                                                                    {mem.slug}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="text-right shrink-0">
+                                                                        <span className="font-mono font-bold text-white text-xs">
+                                                                            {formatMls(mem.mlsBalance)}
+                                                                        </span>
+                                                                        <span className="text-[9px] text-white/40 ml-1">mls</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Botão de Deixar Esquadrão */}
+                                                    {isOwner && (
+                                                        <div className="pt-2 flex justify-end">
+                                                            <button
+                                                                type="button"
+                                                                disabled={squadActionLoading}
+                                                                onClick={handleLeaveSquad}
+                                                                className="text-[10px] text-red-400/70 hover:text-red-400 font-bold uppercase tracking-widest transition-colors cursor-pointer"
+                                                            >
+                                                                [ DEIXAR ESQUADRÃO ]
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </div>
-                                            </div>
-                                            <div className="p-3 rounded bg-black/60 border border-white/5 flex flex-col gap-2 text-xs">
-                                                <div className="flex items-center justify-between text-[10px] font-bold">
-                                                    <span className="text-white/60">DESEMPENHO DA DUPLA NO GRUPO</span>
-                                                    <span style={{ color: teamColor }}>{compStats?.teamwork.duoRank} / 11 DUPLAS</span>
+                                            ) : (
+                                                /* VISUALIZAÇÃO SOLO // FORMULÁRIOS DE CRIAÇÃO E INGRESSO */
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="p-4 rounded-lg border border-white/10 bg-black/60 flex flex-col gap-2">
+                                                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                                                            <span className="text-[10px] uppercase font-bold tracking-widest text-[#fbaa19]">
+                                                                &gt;_ DIRETRIZ TÁTICA // TEAMWORK LEAGUE
+                                                            </span>
+                                                            <span className="text-[9px] text-white/40 uppercase">
+                                                                CAPACIDADE: ATÉ 20 PILOTOS
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-xs text-white/80 leading-relaxed">
+                                                            Teamwork é a disputa coletiva onde estrategistas somam forças independentemente do bloco de motor (A, B ou C). A pontuação é calculada pela <strong>média aritmética</strong> dos membros.
+                                                        </p>
+                                                        <p className="text-[10px] text-white/50 italic">
+                                                            Pontuação inicial: seu bônus de 000.100 mls dividido por 1 membro (000.100 / 1).
+                                                        </p>
+                                                    </div>
+
+                                                    {isOwner ? (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            {/* OPÇÃO 1: CRIAR NOVO ESQUADRÃO */}
+                                                            <form 
+                                                                onSubmit={handleCreateSquad}
+                                                                className="p-4 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col justify-between gap-3"
+                                                            >
+                                                                <div className="flex flex-col gap-1.5">
+                                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                                                                        [ OPÇÃO 01 ] FUNDAR ESQUADRÃO
+                                                                    </span>
+                                                                    <p className="text-[11px] text-white/60">
+                                                                        Você se torna Capitão e gera um código exclusivo para recrutar até 19 colegas.
+                                                                    </p>
+                                                                    <input 
+                                                                        type="text"
+                                                                        placeholder="NOME DO ESQUADRÃO (EX: APEX RACING)"
+                                                                        value={squadNameInput}
+                                                                        onChange={e => setSquadNameInput(e.target.value)}
+                                                                        maxLength={30}
+                                                                        className="mt-2 w-full bg-black/80 border border-white/20 p-2.5 rounded text-white text-xs font-mono uppercase focus:border-[#fbaa19] outline-none"
+                                                                    />
+                                                                </div>
+                                                                <button
+                                                                    type="submit"
+                                                                    disabled={squadActionLoading || !squadNameInput.trim()}
+                                                                    className="w-full py-2.5 rounded font-black uppercase tracking-wider text-xs border transition-all cursor-pointer disabled:opacity-40"
+                                                                    style={{ borderColor: teamColor, backgroundColor: teamColor, color: '#000' }}
+                                                                >
+                                                                    {squadActionLoading ? 'FUNDANDO...' : '[ FUNDAR ESQUADRÃO (MÁX 20) » ]'}
+                                                                </button>
+                                                            </form>
+
+                                                            {/* OPÇÃO 2: INGRESSAR COM CÓDIGO */}
+                                                            <form 
+                                                                onSubmit={handleJoinSquad}
+                                                                className="p-4 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col justify-between gap-3"
+                                                            >
+                                                                <div className="flex flex-col gap-1.5">
+                                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">
+                                                                        [ OPÇÃO 02 ] INGRESSAR COM CÓDIGO
+                                                                    </span>
+                                                                    <p className="text-[11px] text-white/60">
+                                                                        Recebeu o código de convite de outro capitão? Cole aqui para entrar no time.
+                                                                    </p>
+                                                                    <input 
+                                                                        type="text"
+                                                                        placeholder="CÓDIGO (EX: BF-8K21)"
+                                                                        value={inviteCodeInput}
+                                                                        onChange={e => setInviteCodeInput(e.target.value)}
+                                                                        maxLength={12}
+                                                                        className="mt-2 w-full bg-black/80 border border-white/20 p-2.5 rounded text-white text-xs font-mono uppercase focus:border-blue-400 outline-none"
+                                                                    />
+                                                                </div>
+                                                                <button
+                                                                    type="submit"
+                                                                    disabled={squadActionLoading || !inviteCodeInput.trim()}
+                                                                    className="w-full py-2.5 rounded font-black uppercase tracking-wider text-xs border border-blue-400 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-all cursor-pointer disabled:opacity-40"
+                                                                >
+                                                                    {squadActionLoading ? 'CONECTANDO...' : '[ ENTRAR NO ESQUADRÃO » ]'}
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="p-4 rounded-lg border border-white/10 text-center text-xs text-white/40">
+                                                            Este estrategista ainda não integra nenhum esquadrão Teamwork.
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${compStats?.teamwork.synergy || 0}%`, backgroundColor: teamColor }} />
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
