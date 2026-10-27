@@ -146,7 +146,7 @@ export default function PositionsPage() {
     } = usePredictionStore();
 
     // Hooks oficiais de automação e envio
-    const { autoPoletime, autoTop10, autoEvo, autoH2H, isAutoLoading } = useTeamworkAuto();
+    const { autoPoletime, autoTop10, autoEvo, autoH2H, isAutoLoading, calibrationSource } = useTeamworkAuto();
     const { submit: handleSubmit, isSubmitting, isSuccess } = useSubmitPrediction();
 
     // 1. Carrega dados do perfil, contrato e calibragem do bloco do piloto
@@ -291,9 +291,10 @@ export default function PositionsPage() {
         return TABS.find(t => t.id === activeTab) || TABS[0];
     }, [activeTab]);
 
-    // Estilização minimalista do botão Auto baseada na calibragem do bloco (Vermelho / Amarelo / Verde)
+    // Estilização minimalista do botão Auto baseada na calibragem em cascata (Amigos -> Mercado Geral -> F1)
     const autoBtnStyle = useMemo(() => {
-        switch (calibration.tier) {
+        const tier = calibrationSource?.tier || calibration.tier;
+        switch (tier) {
             case 'RED':
                 return {
                     bg: 'bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-black border-red-500/50 shadow-sm',
@@ -316,7 +317,7 @@ export default function PositionsPage() {
                     helpBorder: '#10b981'
                 };
         }
-    }, [calibration.tier]);
+    }, [calibrationSource, calibration.tier]);
 
     // Popover/tooltip contextual de calibragem (hover no desktop ou clique/toque no mobile)
     const renderCalibrationTooltip = (id: string) => {
@@ -333,7 +334,7 @@ export default function PositionsPage() {
                     <div className="flex items-center gap-1.5">
                         <span className={`w-2 h-2 rounded-full ${autoBtnStyle.dot}`} />
                         <span className="text-[10px] md:text-[11px] font-black uppercase tracking-wider text-white">
-                            CALIBRAGEM // {calibration.blockShort}
+                            CALIBRAGEM // {calibrationSource?.type === 'SQUAD' ? 'ESQUADRÃO (AMIGOS)' : calibrationSource?.type === 'MARKET' ? 'MERCADO GERAL' : 'F1 BENCHMARK'}
                         </span>
                     </div>
                     {isVisible && (
@@ -350,25 +351,30 @@ export default function PositionsPage() {
                     )}
                 </div>
 
-                <div className="flex items-center justify-between bg-white/[0.04] px-2.5 py-1.5 rounded border border-white/5 mb-2.5 text-[10px]">
-                    <span className="text-white/60 uppercase">Ordens no Bloco:</span>
-                    <span className="font-black uppercase tracking-wider" style={{ color: autoBtnStyle.helpBorder }}>
-                        {calibration.count} enviada(s)
-                    </span>
+                <div className="flex flex-col gap-1 bg-white/[0.04] p-2.5 rounded border border-white/5 mb-2.5 text-[10px]">
+                    <div className="flex items-center justify-between">
+                        <span className="text-white/60 uppercase">FONTE:</span>
+                        <span className="font-black uppercase tracking-wider text-white" style={{ color: autoBtnStyle.helpBorder }}>
+                            {calibrationSource?.label}
+                        </span>
+                    </div>
+                    <p className="text-[9px] text-white/50 leading-tight mt-0.5">
+                        {calibrationSource?.description}
+                    </p>
                 </div>
 
                 <div className="space-y-1.5 text-[10px] leading-snug">
-                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibration.tier === 'RED' ? 'bg-red-950/30 border-red-500/40 text-red-200' : 'bg-white/[0.02] border-white/5 text-white/50'}`}>
-                        <span className="text-red-400 font-black shrink-0">● RED (&lt; 5):</span>
-                        <span>Amostra inicial. Baixa calibragem e dispersão elevada.</span>
+                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibrationSource?.type === 'SQUAD' ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200' : 'bg-white/[0.02] border-white/5 text-white/40'}`}>
+                        <span className="text-emerald-400 font-black shrink-0">1. AMIGOS:</span>
+                        <span>Prioridade máxima. Média e tendências do seu esquadrão Teamwork.</span>
                     </div>
-                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibration.tier === 'YELLOW' ? 'bg-amber-950/30 border-amber-500/40 text-amber-200' : 'bg-white/[0.02] border-white/5 text-white/50'}`}>
-                        <span className="text-amber-400 font-black shrink-0">● YELLOW (5 a 9):</span>
-                        <span>Alerta moderado. Tendências e consenso em consolidação.</span>
+                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibrationSource?.type === 'MARKET' ? 'bg-amber-950/40 border-amber-500/50 text-amber-200' : 'bg-white/[0.02] border-white/5 text-white/40'}`}>
+                        <span className="text-amber-400 font-black shrink-0">2. MERCADO:</span>
+                        <span>Fallback público. Consenso de todas as apostas do grid.</span>
                     </div>
-                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibration.tier === 'GREEN' ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200' : 'bg-white/[0.02] border-white/5 text-white/50'}`}>
-                        <span className="text-emerald-400 font-black shrink-0">● VERDE (10+):</span>
-                        <span>Calibragem alta. Máximo consenso tático da aliança.</span>
+                    <div className={`p-1.5 rounded border flex items-start gap-1.5 ${calibrationSource?.type === 'BASELINE' ? 'bg-red-950/40 border-red-500/50 text-red-200' : 'bg-white/[0.02] border-white/5 text-white/40'}`}>
+                        <span className="text-red-400 font-black shrink-0">3. BASE F1:</span>
+                        <span>Benchmark de fábrica caso não haja ordens registradas.</span>
                     </div>
                 </div>
             </div>
