@@ -1,7 +1,7 @@
-# Guia de Estilo Narrativo, Visual & Design System — VoltGrid
+# Guia de Estilo Narrativo, Visual & Design System — BAEFF1
 ## Cinemática Tática em Terminal Noir: Cyberpunk, Pixel Art & Pregão Financeiro
 
-Este documento é a diretriz canônica e definitiva de tom de voz, redação, direção de arte visual e padrões de interface para o **VoltGrid**. Todos os módulos, fluxos de onboarding, dashboards, tabelas de telemetria, relatórios e comunicações do sistema devem seguir rigorosamente este manual.
+Este documento é a diretriz canônica e definitiva de tom de voz, redação, direção de arte visual e padrões de interface para o **BAEFF1**. Todos os módulos, fluxos de onboarding, dashboards, tabelas de telemetria, relatórios e comunicações do sistema devem seguir rigorosamente este manual.
 
 ---
 
@@ -38,7 +38,7 @@ Este documento é a diretriz canônica e definitiva de tom de voz, redação, di
 
 ### 2. Direção de Arte Visual: Backgrounds em Pixel Art
 
-O universo visual do VoltGrid combina interfaces de dados de alta precisão com **cenários ricos em Pixel Art atmosférica (16-bit / 32-bit)**:
+O universo visual do BAEFF1 combina interfaces de dados de alta precisão com **cenários ricos em Pixel Art atmosférica (16-bit / 32-bit)**:
 
 1. **Atmosfera dos Cenários:**
    - Centrais de telemetria noturnas iluminadas apenas pelo brilho de monitores CRT e telas âmbar.
@@ -62,7 +62,7 @@ O universo visual do VoltGrid combina interfaces de dados de alta precisão com 
 
 ---
 
-### 3. Paleta de Cores Oficial do Projeto (VoltGrid Core Palette)
+### 3. Paleta de Cores Oficial do Projeto (BAEFF1 Core Palette)
 
 A identidade cromática equilibra a escuridão do paddock com acentos de telemetria analógica e cores oficiais do automobilismo:
 
@@ -70,7 +70,7 @@ A identidade cromática equilibra a escuridão do paddock com acentos de telemet
 | Nome | Hex | Uso Principal |
 | :--- | :--- | :--- |
 | **Black Void / Asfalto** | `#050401` / `#000000` | Background geral da aplicação, superfícies primárias. |
-| **Terminal Gold / Âmbar** | `#fbaa19` | Cor assinatura VoltGrid, cursor `>_`, botões primários, colchetes `[BLOCO A]`, alertas táticos. |
+| **Terminal Gold / Âmbar** | `#fbaa19` | Cor assinatura BAEFF1, cursor `>_`, botões primários, colchetes `[BLOCO A]`, alertas táticos. |
 | **Pure Surgical White** | `#ffffff` | Títulos principais de blocos, dados de telemetria, texto de alta ênfase. |
 | **Console Dimmed** | `rgba(255,255,255,0.7)` | Subtítulos, descrições técnicas, dados secundários. |
 | **Subtle Border** | `rgba(251,170,25,0.3)` / `rgba(255,255,255,0.15)` | Bordas finas de caixas de terminal e divisórias. |
@@ -99,7 +99,7 @@ A identidade cromática equilibra a escuridão do paddock com acentos de telemet
 
 ### 4. Componentes Estilo Bolsa de Valores (Stock Exchange & Financial Terminal)
 
-O grid do VoltGrid é tratado conceitualmente como um **pregão financeiro de velocidade e capital técnico (Wall Street / Bloomberg Terminal do Paddock)**. Equipes, motores, pilotos e contratos operam sob as convenções estéticas de mercados de capitais:
+O grid do BAEFF1 é tratado conceitualmente como um **pregão financeiro de velocidade e capital técnico (Wall Street / Bloomberg Terminal do Paddock)**. Equipes, motores, pilotos e contratos operam sob as convenções estéticas de mercados de capitais:
 
 #### I. Painéis de Cotação & Livro de Ofertas (Order Book / Ticker Tape)
 - **Letreiros Monospaçados Contínuos:** Tickers com código do ativo (`TICKER`), preço/cotação atual e variação percentual (Δ%).
@@ -129,7 +129,7 @@ O grid do VoltGrid é tratado conceitualmente como um **pregão financeiro de ve
 
 ### 5. Manual de Redação e Vocabulário
 
-| Evitar (Linguagem Comum) | Preferir (Estilo VoltGrid Terminal / Stock Noir) |
+| Evitar (Linguagem Comum) | Preferir (Estilo BAEFF1 Terminal / Stock Noir) |
 | :--- | :--- |
 | Criar conta / Registrar | Emitir Superlicença / Abrir Custódia de Piloto |
 | Escolha seu time | Requisite sua vaga no grid / Escolha sua aliança |
@@ -151,4 +151,4 @@ O grid do VoltGrid é tratado conceitualmente como um **pregão financeiro de ve
 ```
 
 ---
-*VoltGrid Technical Telemetry & Market Protocol — Strictly Confidential*
+*BAEFF1 Technical Telemetry & Market Protocol — Strictly Confidential*

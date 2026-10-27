@@ -278,7 +278,7 @@ export default function NextRacePage() {
                     <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/50 uppercase">
                         <span className="text-emerald-400 font-bold flex items-center gap-1.5">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>DESCRIPTOGRAFADO EM TEMPO REAL VIA REDE DE TELEMETRIA VOLTGRID</span>
+                            <span>DESCRIPTOGRAFADO EM TEMPO REAL VIA REDE DE TELEMETRIA BAEFF1</span>
                         </span>
                         <span className="text-[#fbaa19] font-bold">
                             CODINOME: {activeDirectorMemo.codeWord}
@@ -842,7 +842,7 @@ export default function NextRacePage() {
                     </div>
                 </div>
 
-                {/* ANEXO V: DIRETRIZES DE COMBATE OPERACIONAL (OS 5 PROGNÓSTICOS DO VOLTGRID) */}
+                {/* ANEXO V: DIRETRIZES DE COMBATE OPERACIONAL (OS 5 PROGNÓSTICOS DO BAEFF1) */}
                 <div className="bg-black/95 border-2 border-[#fbaa19]/40 p-6 sm:p-8 rounded-sm mb-8 shadow-2xl">
                     <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                         <div className="flex items-center gap-3">
@@ -1002,7 +1002,7 @@ export default function NextRacePage() {
                     </h2>
 
                     <p className="text-xs text-white/70 max-w-2xl leading-relaxed">
-                        Você possui os dados do túnel de vento, o dossiê térmico dos pneus Pirelli, os benchmarks de tempo de pole e o despacho confidencial do Diretor Técnico da sua aliança. O Pitwall do VoltGrid está pronto para receber suas 5 tomadas de posição oficiais.
+                        Você possui os dados do túnel de vento, o dossiê térmico dos pneus Pirelli, os benchmarks de tempo de pole e o despacho confidencial do Diretor Técnico da sua aliança. O Pitwall do BAEFF1 está pronto para receber suas 5 tomadas de posição oficiais.
                     </p>
 
                     <Link 
@@ -1014,7 +1014,7 @@ export default function NextRacePage() {
                     </Link>
 
                     <span className="text-[10px] text-white/30 uppercase tracking-widest">
-                        VOLTGRID PITWALL TELEMETRY SYSTEM © 2026 // NÍVEL 5 CLASSIFICADO
+                        BAEFF1 PITWALL TELEMETRY SYSTEM © 2026 // NÍVEL 5 CLASSIFICADO
                     </span>
                 </div>
 

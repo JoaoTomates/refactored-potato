@@ -207,7 +207,7 @@ const Navigation = () => {
 
                     {/* FOOTER */}
                     <div className="mt-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-5xl mx-auto w-full text-xs text-gray-500 font-mono">
-                        <span>VOLTGRID TELEMETRY SYSTEM © 2026</span>
+                        <span>BAEFF1 TELEMETRY SYSTEM © 2026</span>
                         <div className="flex items-center gap-4">
                             <Link href="/terms-conditions" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white">Termos & Condições</Link>
                             <Link 

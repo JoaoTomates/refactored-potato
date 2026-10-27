@@ -338,7 +338,7 @@ export function InviteFlow() {
         try {
             let emailToUse = email.trim();
             if (!emailToUse.includes('@')) {
-                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@voltgrid.app`;
+                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@baeff1.com`;
             }
 
             const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';

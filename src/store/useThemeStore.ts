@@ -28,7 +28,7 @@ export const useThemeStore = create<ThemeState>()(
             toggleMode: () => set((state) => ({ mode: state.mode === 'dark' ? 'light' : 'dark' })),
         }),
         {
-            name: 'voltgrid-theme-storage',
+            name: 'baeff1-theme-storage',
         }
     )
 );

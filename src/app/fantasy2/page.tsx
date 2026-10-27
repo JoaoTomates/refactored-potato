@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import FantasyClient from './fantasy-client';
 
 export const metadata: Metadata = {
-  title: 'VoltGrid | Fantasy (Legacy v1)',
-  description: 'Versão legada das competições e regras do VoltGrid Fantasy.',
+  title: 'BAEFF1 | Fantasy (Legacy v1)',
+  description: 'Versão legada das competições e regras do BAEFF1 Fantasy.',
 };
 
 export default function FantasyPage() {

@@ -15,8 +15,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | VoltGrid',
-    default: 'VoltGrid | Next-Gen F1 Fantasy',
+    template: '%s | BAEFF1',
+    default: 'BAEFF1',
   },
   description: 'The ultimate F1 Fantasy and Racing Management experience.',
 };
@@ -37,7 +37,7 @@ export default function RootLayout({
             __html: `
               try {
                 let mode = 'dark';
-                const stored = localStorage.getItem('voltgrid-theme-storage');
+                const stored = localStorage.getItem('baeff1-theme-storage') || localStorage.getItem('voltgrid-theme-storage');
                 if (stored) {
                   const parsed = JSON.parse(stored);
                   if (parsed.state && parsed.state.mode) {

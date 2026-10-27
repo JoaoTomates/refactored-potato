@@ -209,7 +209,7 @@ export default function LoreStudioPage() {
 
     // Load from localStorage on mount
     useEffect(() => {
-        const saved = localStorage.getItem('voltgrid_lore_chapters');
+        const saved = localStorage.getItem('baeff1_lore_chapters') || localStorage.getItem('voltgrid_lore_chapters');
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
@@ -225,7 +225,7 @@ export default function LoreStudioPage() {
     // Save to localStorage on change
     const saveChapters = (updated: NarrativeChapter[]) => {
         setChapters(updated);
-        localStorage.setItem('voltgrid_lore_chapters', JSON.stringify(updated));
+        localStorage.setItem('baeff1_lore_chapters', JSON.stringify(updated));
     };
 
     const currentChapter = chapters.find(c => c.id === selectedChapterId) || chapters[0];
@@ -343,7 +343,7 @@ export default function LoreStudioPage() {
                     <div>
                         <div className="flex items-center gap-2">
                             <h1 className="text-sm md:text-base font-black tracking-wider uppercase">
-                                FICHÁRIO DE NARRATIVAS // VOLTGRID LORE
+                                FICHÁRIO DE NARRATIVAS // BAEFF1 LORE
                             </h1>
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                                 OFFLINE SYNC ON

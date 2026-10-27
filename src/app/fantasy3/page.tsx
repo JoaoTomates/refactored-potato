@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Fantasy3Client from './fantasy3-client';
 
 export const metadata: Metadata = {
-  title: 'VoltGrid | Fantasy 3 – Minimal',
+  title: 'BAEFF1 | Fantasy 3 – Minimal',
   description: 'Versão minimalista da central de ligas e competições Fantasy, mantendo o estilo noir.',
 };
 

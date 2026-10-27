@@ -594,7 +594,7 @@ export default function PitwallPage() {
                     <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <span className="text-[#fbaa19] font-bold">&gt;_</span>
-                            <span>VOLTGRID PITWALL PROTOCOL // CENTRAL OFICIAL DE TELEMETRIA</span>
+                            <span>BAEFF1 PITWALL PROTOCOL // CENTRAL OFICIAL DE TELEMETRIA</span>
                         </div>
                         <div className="flex items-center gap-4 text-[10px]">
                             <span>ENCRYPTION: AES-256</span>

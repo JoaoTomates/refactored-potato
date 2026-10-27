@@ -1,5 +1,5 @@
 /**
- * VoltGrid Intelligence System - Circuit & Telemetry Database
+ * BAEFF1 Intelligence System - Circuit & Telemetry Database
  * Dados canônicos dos circuitos da F1 2026 para análise pré-corrida e embasamento de prognósticos.
  * Envelopado sob a perspectiva confidencial da Diretoria Técnica dos Blocos de Motores.
  */

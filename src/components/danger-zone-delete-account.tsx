@@ -92,7 +92,7 @@ export default function DangerZoneDeleteAccount() {
                             Revogar Superlicença & Excluir Conta
                         </h3>
                         <p className="text-white/60 text-xs max-w-xl leading-relaxed">
-                            A exclusão da conta é permanente e irreversível. Todas as suas previsões, contratos com alianças, histórico de telemetria e o identificador do seu piloto serão purgados dos bancos de dados oficiais do VoltGrid.
+                            A exclusão da conta é permanente e irreversível. Todas as suas previsões, contratos com alianças, histórico de telemetria e o identificador do seu piloto serão purgados dos bancos de dados oficiais do BAEFF1.
                         </p>
                     </div>
 

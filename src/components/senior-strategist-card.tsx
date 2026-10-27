@@ -65,7 +65,7 @@ export default function SeniorStrategistCard({
     // Carrega votos salvos do localStorage
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        const storageKey = `voltgrid_vote_${selectedStrategist.id}`;
+        const storageKey = `baeff1_vote_${selectedStrategist.id}`;
         const savedVote = localStorage.getItem(storageKey);
         if (savedVote === 'up' || savedVote === 'down') {
             setUserVote(savedVote);
@@ -85,7 +85,7 @@ export default function SeniorStrategistCard({
 
     const handleVote = (vote: 'up' | 'down') => {
         if (typeof window === 'undefined') return;
-        const storageKey = `voltgrid_vote_${selectedStrategist.id}`;
+        const storageKey = `baeff1_vote_${selectedStrategist.id}`;
 
         if (userVote === vote) {
             // Desfazer voto

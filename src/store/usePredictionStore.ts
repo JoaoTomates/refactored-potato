@@ -50,7 +50,7 @@ export const usePredictionStore = create<PredictionState>()(
             })),
         }),
         {
-            name: 'voltgrid-predictions-storage', // key in localStorage
+            name: 'baeff1-predictions-storage', // key in localStorage
             version: 1, // bump version to clear old cached data (like the 1:25.000 poletime)
         }
     )

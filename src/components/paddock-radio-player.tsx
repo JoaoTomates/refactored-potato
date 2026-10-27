@@ -31,9 +31,9 @@ export default function PaddockRadioPlayer() {
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
-        const savedMute = localStorage.getItem('voltgrid_radio_muted') === 'true';
-        const savedVol = localStorage.getItem('voltgrid_radio_volume');
-        const autoStartPref = localStorage.getItem('voltgrid_radio_autoplay_enabled');
+        const savedMute = (localStorage.getItem('baeff1_radio_muted') ?? localStorage.getItem('voltgrid_radio_muted')) === 'true';
+        const savedVol = localStorage.getItem('baeff1_radio_volume') ?? localStorage.getItem('voltgrid_radio_volume');
+        const autoStartPref = localStorage.getItem('baeff1_radio_autoplay_enabled') ?? localStorage.getItem('voltgrid_radio_autoplay_enabled');
 
         if (savedVol) {
             const v = parseInt(savedVol, 10);
@@ -52,7 +52,7 @@ export default function PaddockRadioPlayer() {
             if (!hasInteracted) {
                 setHasInteracted(true);
                 // Se o usuário não desativou explicitamente antes, pode iniciar
-                const userOff = localStorage.getItem('voltgrid_radio_off') === 'true';
+                const userOff = (localStorage.getItem('baeff1_radio_off') ?? localStorage.getItem('voltgrid_radio_off')) === 'true';
                 if (!userOff && !arcadeAudioEngine.getIsPlaying()) {
                     arcadeAudioEngine.start();
                     setIsPlaying(true);
@@ -95,11 +95,11 @@ export default function PaddockRadioPlayer() {
         if (isPlaying) {
             arcadeAudioEngine.stop();
             setIsPlaying(false);
-            localStorage.setItem('voltgrid_radio_off', 'true');
+            localStorage.setItem('baeff1_radio_off', 'true');
         } else {
             arcadeAudioEngine.start();
             setIsPlaying(true);
-            localStorage.removeItem('voltgrid_radio_off');
+            localStorage.removeItem('baeff1_radio_off');
         }
     };
 
@@ -107,18 +107,18 @@ export default function PaddockRadioPlayer() {
         const next = !isMuted;
         setIsMuted(next);
         arcadeAudioEngine.setMute(next);
-        localStorage.setItem('voltgrid_radio_muted', String(next));
+        localStorage.setItem('baeff1_radio_muted', String(next));
     };
 
     const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = parseInt(e.target.value, 10);
         setVolume(val);
         arcadeAudioEngine.setVolume(val / 100);
-        localStorage.setItem('voltgrid_radio_volume', String(val));
+        localStorage.setItem('baeff1_radio_volume', String(val));
         if (isMuted && val > 0) {
             setIsMuted(false);
             arcadeAudioEngine.setMute(false);
-            localStorage.setItem('voltgrid_radio_muted', 'false');
+            localStorage.setItem('baeff1_radio_muted', 'false');
         }
     };
 
@@ -135,7 +135,7 @@ export default function PaddockRadioPlayer() {
                         <div className="flex items-center gap-2">
                             <RadioTower className={`w-4 h-4 ${isPlaying ? 'text-[#fbaa19] animate-pulse' : 'text-white/40'}`} />
                             <span className="text-[10px] uppercase font-black tracking-widest text-[#fbaa19]">
-                                VOLTGRID PADDOCK FM // 88.4 MHz
+                                BAEFF1 PADDOCK FM // 88.4 MHz
                             </span>
                         </div>
                         <button

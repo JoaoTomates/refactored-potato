@@ -1,5 +1,5 @@
 /**
- * VoltGrid Intelligence System // Senior Paddock Strategists & Race Directors
+ * BAEFF1 Intelligence System // Senior Paddock Strategists & Race Directors
  * 
  * Lendas do paddock que correram entre os anos 1950 e 1980:
  * Todos pontuaram ou conquistaram pódios na F1, mas NUNCA venceram um GP.
@@ -19,7 +19,7 @@ export interface StrategistEvaluation {
 
 export interface SeniorStrategist {
     id: string;
-    code: string;               // Padrão VoltGrid: "M.AMON"
+    code: string;               // Padrão BAEFF1: "M.AMON"
     displayName: string;        // "M. Amon"
     firstNameModified: string;  // Nome fictício alterado (ex: "Marcus")
     originalDriver: string;     // Piloto real (ex: "Chris Amon")
@@ -127,7 +127,7 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
         countryCode: 'ITA',
         specialty: 'Agressividade de largada, pilotagem sob pressão extrema e apostas de alto risco',
         title: 'CONSULTOR DE CENÁRIOS DE CAOS & AGRESSIVIDADE NO GRID',
-        signatureQuote: '“Corri mais de duzentos GPs no fio da navalha. Se você quer ganhar pontos altos no VoltGrid, não aposte no óbvio: aposte onde o asfalto vai quebrar os fracos.”',
+        signatureQuote: '“Corri mais de duzentos GPs no fio da navalha. Se você quer ganhar pontos altos no BAEFF1, não aposte no óbvio: aposte onde o asfalto vai quebrar os fracos.”',
         evaluation: {
             upvotes: 1530,
             downvotes: 110,
@@ -523,7 +523,7 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
         countryCode: 'USA',
         title: 'DIRETOR DE ENGENHARIA DE SUSPENSÃO & PRESSÃO DE PNEU',
         specialty: 'Distribuição de peso, rigidez de amortecedores e velocidade em curvas de raio longo',
-        signatureQuote: '“Eles chamavam minha busca por velocidade de \'The Unfair Advantage\'. Se você quer vencer no VoltGrid, use a inteligência para encontrar a brecha que os outros não viram.”',
+        signatureQuote: '“Eles chamavam minha busca por velocidade de \'The Unfair Advantage\'. Se você quer vencer no BAEFF1, use a inteligência para encontrar a brecha que os outros não viram.”',
         evaluation: {
             upvotes: 1410,
             downvotes: 52,
