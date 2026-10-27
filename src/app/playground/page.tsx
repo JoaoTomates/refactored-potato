@@ -411,33 +411,32 @@ export default function PlaygroundPage() {
     const open = series[0] ?? 0;
     const isDemo = !user || !!me?.isDemo;
 
-    // Métricas das 4 competições baseadas no ID do usuário
+    // Métricas das 4 competições baseadas em dados reais (Bônus inicial de 000.100 mls)
     const compStats = useMemo(() => {
         if (!me) return null;
-        const seedVal = hashString(me.id);
-        const rnd = seeded(seedVal);
         
         return {
             poletime: {
-                points: Math.floor(180 + rnd() * 640),
-                rank: `P${Math.floor(1 + rnd() * 12)}`,
-                accuracy: (91.2 + rnd() * 7.5).toFixed(1),
+                points: 0,
+                rank: '--',
+                accuracy: 'PENDENTE',
             },
             master: {
-                points: Math.floor(450 + rnd() * 1150),
-                rank: `P${Math.floor(1 + rnd() * 8)}`,
-                podiums: Math.floor(2 + rnd() * 7),
+                points: 0,
+                rank: '--',
+                podiums: 0,
             },
             milesimus: {
-                points: Math.floor(125000 + rnd() * 650000),
+                points: 100,
+                formatted: '000.100',
                 currency: 'mls',
-                tier: rnd() > 0.4 ? 'DIVISÃO OURO' : 'DIVISÃO PRATA',
+                tier: 'DIVISÃO BRONZE',
             },
             teamwork: {
-                duoRank: `P${Math.floor(1 + rnd() * 11)}`,
-                teamScore: Math.floor(1200 + rnd() * 2400),
-                partner: me.isDemo ? 'TELEMETRIA IA' : 'ASSENTO #2 DISPONÍVEL',
-                synergy: Math.floor(75 + rnd() * 23),
+                duoRank: 'INDIVIDUAL',
+                teamScore: 0,
+                partner: 'ASSENTO #2 DISPONÍVEL',
+                synergy: 0,
             }
         };
     }, [me]);
@@ -715,8 +714,8 @@ export default function PlaygroundPage() {
                                     <span className="text-[8px] px-1 py-0.2 rounded font-bold" style={{ backgroundColor: `${teamColor}15`, color: teamColor }}>CURRENCY</span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xl md:text-2xl font-black tracking-tight" style={{ color: teamColor }}>
-                                        {(compStats?.milesimus.points || 0).toLocaleString()} <span className="text-[9px] opacity-75">mls</span>
+                                    <span className="text-xl md:text-2xl font-black tracking-tight font-mono" style={{ color: teamColor }}>
+                                        {compStats?.milesimus.formatted || '000.100'} <span className="text-[9px] opacity-75">mls</span>
                                     </span>
                                     <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold text-white/50">
                                         <span>{compStats?.milesimus.tier}</span>

@@ -395,7 +395,8 @@ export function InviteFlow() {
                     org_color: '#000000',
                     setup_completed: false,
                     slug: slug,
-                    senior_strategist_id: randomStrategist.id
+                    senior_strategist_id: randomStrategist.id,
+                    mls_balance: 100
                 });
             }
 
@@ -823,6 +824,12 @@ export function InviteFlow() {
                                 <span className="text-gray-400 uppercase tracking-widest text-[10px]">ALIANÇA ESCOLHIDA</span>
                                 <span className="text-[#fbaa19] font-bold text-[11px]">
                                     [{ENGINE_FACTIONS[selectedGroup].badge}] {ENGINE_FACTIONS[selectedGroup].title}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center p-3 border-b border-white/5">
+                                <span className="text-gray-400 uppercase tracking-widest text-[10px]">BÔNUS INICIAL (MILESIMUS)</span>
+                                <span className="text-emerald-400 font-bold tracking-widest text-[11px] font-mono">
+                                    +000.100 mls (creditados)
                                 </span>
                             </div>
                             <div className="flex justify-between items-center p-3 border-b border-white/5">

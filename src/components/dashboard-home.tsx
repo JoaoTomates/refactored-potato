@@ -138,12 +138,12 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                             <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-4">
                                 <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">BAEFF1 Currency</span>
                                 <div className="flex items-baseline gap-1" style={{ filter: `drop-shadow(0 0 10px ${teamColor}50)` }}>
-                                    <span className="text-4xl md:text-5xl font-black font-display tracking-tighter" style={{ color: teamColor }}>000.000</span>
+                                    <span className="text-4xl md:text-5xl font-black font-display tracking-tighter" style={{ color: teamColor }}>000.100</span>
                                     <span className="text-sm font-bold" style={{ color: teamColor }}>mls</span>
                                 </div>
                                 <div className="mt-3 flex gap-2 text-[8px] md:text-[9px] uppercase font-bold text-gray-400 tracking-widest w-full justify-center">
                                     <span className="bg-white/5 px-2 py-1.5 rounded text-center border border-white/10">Perf: 000.000</span>
-                                    <span className="px-2 py-1.5 rounded text-center border" style={{ backgroundColor: `${teamColor}15`, color: teamColor, borderColor: `${teamColor}40` }}>Bonus: 000.000</span>
+                                    <span className="px-2 py-1.5 rounded text-center border" style={{ backgroundColor: `${teamColor}15`, color: teamColor, borderColor: `${teamColor}40` }}>Bonus: 000.100</span>
                                 </div>
                             </div>
 

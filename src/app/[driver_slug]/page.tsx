@@ -15,7 +15,8 @@ import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
-import { 
+import { formatMls, formatTimeAgo } from '@/lib/mls';
+import {
     SeniorStrategist, 
     getSeniorStrategistById, 
     getSeniorStrategistForRound, 
@@ -108,16 +109,17 @@ interface Strategist {
     groupId: number;
     series: number[];
     isDemo?: boolean;
+    mlsBalance?: number;
 }
 
 type MainTab = 'quotes' | 'book' | 'radio' | 'history' | 'teamwork';
 
 const DEMO_NAMES = ['M. KOVAC', 'J. TANAKA', 'R. SILVA', 'A. BERG', 'L. MOREAU', 'D. OKAFOR', 'I. PETROVA', 'C. VEGA', 'T. NAKAMURA', 'H. LINDQVIST'];
 
-function makeStrategist(id: string, name: string, slug: string | null, teamId: string | undefined, groupId: number, isDemo = false): Strategist {
+function makeStrategist(id: string, name: string, slug: string | null, teamId: string | undefined, groupId: number, isDemo = false, mlsBalance: number = 100): Strategist {
     const team = F1_TEAMS.find(t => t.id === teamId || t.logo === teamId) || F1_TEAMS[hashString(id) % F1_TEAMS.length];
     return {
-        id, slug, name, isDemo, groupId,
+        id, slug, name, isDemo, groupId, mlsBalance,
         teamCode: team.logo, teamName: team.name, teamColor: team.color,
         series: buildSeries(id),
     };
@@ -420,6 +422,7 @@ export default function OfficialStrategistDashboard() {
     const [me, setMe] = useState<Strategist | null>(null);
     const [userPrediction, setUserPrediction] = useState<any>(null);
     const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null } | null>(null);
+    const [activeContract, setActiveContract] = useState<any>(null);
     const [field, setField] = useState<Strategist[]>([]);
     const [range, setRange] = useState<5 | 10 | 24>(10);
     const [feedIdx, setFeedIdx] = useState(0);
@@ -475,21 +478,22 @@ export default function OfficialStrategistDashboard() {
                     setAssignedMentor(getSeniorStrategistForRound(19));
                 }
 
-                // 3. Busca todos os contratos ativos no grid
+                // 3. Busca todos os contratos ativos no grid (com perfis reais e saldos MLS)
                 const { data: contracts } = await supabase
                     .from('contracts')
-                    .select('user_id, group_id, team_id, profiles(slug, first_name, last_name, driver_number)');
+                    .select('user_id, group_id, team_id, created_at, profiles(slug, first_name, last_name, driver_number, mls_balance)');
 
                 const realStrategists: Strategist[] = (contracts || []).map((c: any) => {
                     const p = Array.isArray(c.profiles) ? c.profiles[0] || {} : c.profiles || {};
                     const name = p.first_name 
                         ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}` 
                         : 'ESTRATEGISTA';
-                    return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1);
+                    return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
                 });
 
                 // Verifica se o usuário atual já possui contrato assinado
                 const userContract = (contracts || []).find((c: any) => c.user_id === (profileData?.id || user?.id));
+                setActiveContract(userContract || null);
 
                 // 4. Se o usuário atual está sem contrato assinado E não completou setup, vai para headquarters
                 if (user && profileData && user.id === profileData.id) {
@@ -512,13 +516,13 @@ export default function OfficialStrategistDashboard() {
                         profileData.slug || targetSlug,
                         userContract?.team_id || profileData.team_id,
                         userContract?.group_id || 1,
-                        false
+                        false,
+                        profileData.mls_balance ?? 100
                     );
                 } else if (user) {
                     currentStrategist = realStrategists.find(s => s.id === user.id) || null;
                 }
 
-                const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null, F1_TEAMS[i % F1_TEAMS.length].id, 1, true));
                 if (!currentStrategist) {
                     currentStrategist = makeStrategist(
                         'demo-visitor', 
@@ -526,12 +530,17 @@ export default function OfficialStrategistDashboard() {
                         targetSlug || null, 
                         F1_TEAMS[1].id, 
                         1, 
-                        true
+                        true,
+                        100
                     );
                 }
 
                 setMe(currentStrategist);
-                setField(realStrategists.length >= 4 ? realStrategists : [...realStrategists, ...demos]);
+                // Exibe estrategistas reais sem dados mockados / bots falsos
+                const visibleField = realStrategists.length > 0 
+                    ? realStrategists 
+                    : (currentStrategist ? [currentStrategist] : []);
+                setField(visibleField);
 
                 // 6. Busca dados reais de previsões do usuário do dashboard
                 const activeStrategistId = currentStrategist?.id;
@@ -609,125 +618,125 @@ export default function OfficialStrategistDashboard() {
     // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
         if (!me) return null;
-        const seedVal = hashString(me.id);
-        const rnd = seeded(seedVal);
         
         const hasPred = Boolean(userPrediction);
         const poleTimeVal = userPrediction?.poletime || null;
         const top10Count = Array.isArray(userPrediction?.top10) ? userPrediction.top10.length : 0;
+        const balance = targetProfile?.mls_balance ?? 100;
         
         return {
             poletime: {
                 hasSubmitted: hasPred,
                 poleTime: poleTimeVal,
-                points: hasPred ? Math.floor(380 + rnd() * 240) : Math.floor(180 + rnd() * 640),
-                rank: `P${Math.floor(1 + rnd() * 12)}`,
-                accuracy: hasPred ? '98.4' : (91.2 + rnd() * 7.5).toFixed(1),
+                points: 0,
+                rank: hasPred ? 'HOMOLOGADO' : '--',
+                accuracy: hasPred ? 'Q3 ATIVO' : 'PENDENTE',
                 status: hasPred ? 'HOMOLOGADO' : 'PENDENTE',
             },
             master: {
                 hasSubmitted: top10Count > 0,
                 picksCount: top10Count,
-                points: Math.floor(450 + rnd() * 1150),
-                rank: `P${Math.floor(1 + rnd() * 8)}`,
-                podiums: Math.floor(2 + rnd() * 7),
+                points: 0,
+                rank: top10Count > 0 ? `${top10Count}/10` : '--',
+                podiums: 0,
                 status: top10Count > 0 ? `${top10Count}/10 PILOTOS` : 'PENDENTE',
             },
             milesimus: {
-                points: userPrediction?.misc?.stake ? parseInt(userPrediction.misc.stake, 10) * 1000 : Math.floor(125000 + rnd() * 650000),
+                points: balance,
+                formatted: formatMls(balance),
                 currency: 'mls',
-                tier: rnd() > 0.4 ? 'DIVISÃO OURO' : 'DIVISÃO PRATA',
+                tier: balance >= 1000 ? 'DIVISÃO OURO' : balance >= 500 ? 'DIVISÃO PRATA' : 'DIVISÃO BRONZE',
             },
             teamwork: {
-                duoRank: `P${Math.floor(1 + rnd() * 11)}`,
-                teamScore: Math.floor(1200 + rnd() * 2400),
-                partner: teamPartner ? teamPartner.name : (me.isDemo ? 'TELEMETRIA IA' : 'ASSENTO #2 DISPONÍVEL'),
+                duoRank: teamPartner ? 'DUPLA CONECTADA' : 'INDIVIDUAL',
+                teamScore: 0,
+                partner: teamPartner ? teamPartner.name : 'ASSENTO #2 DISPONÍVEL',
                 partnerSlug: teamPartner?.slug || null,
                 hasPartner: Boolean(teamPartner),
-                synergy: teamPartner ? Math.floor(84 + rnd() * 14) : Math.floor(55 + rnd() * 25),
+                synergy: teamPartner ? 100 : 0,
             }
         };
-    }, [me, userPrediction, teamPartner]);
+    }, [me, userPrediction, teamPartner, targetProfile]);
 
-    // Histórico de atividades / telemetria de ordens
+    // Histórico de atividades / telemetria de ordens baseado 100% em dados reais
     const activityHistory = useMemo(() => {
         if (!me) return [];
-        const base = [
-            {
-                time: '18m atrás',
-                title: 'Ordem de Pit Stop Sincronizada',
-                desc: `Telemetria enviada para a garagem ${me.teamName}.`,
-                badge: 'PITWALL',
-                color: teamColor
-            },
-            {
-                time: 'Ontem',
-                title: 'Contrato Master Atualizado',
-                desc: `Rating ${ratingFor(last)} atribuído no ${getChampionGroupName(me.groupId)}.`,
-                badge: 'MASTER',
-                color: '#3b82f6'
-            },
-            {
-                time: '2 dias atrás',
-                title: 'Recompensa de Milésimos Creditada',
-                desc: '+45.000 mls por consistência de voltas rápidas.',
-                badge: 'MILESIMUS',
-                color: '#fbaa19'
-            },
-            {
-                time: '4 dias atrás',
-                title: 'Aliança Confirmada no Bloco',
-                desc: `Entrada autorizada na ${ALLIANCES[allianceId].name}.`,
-                badge: 'ALIANÇA',
-                color: teamColor
-            }
-        ];
+        const items = [];
 
+        // 1. Previsão de GP (se enviada)
         if (userPrediction) {
-            const predTime = userPrediction.created_at 
-                ? new Date(userPrediction.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-                : 'Recente';
-            return [
-                {
+            const predTime = formatTimeAgo(userPrediction.created_at);
+            const top10Len = Array.isArray(userPrediction.top10) ? userPrediction.top10.length : 0;
+            const evoLen = Array.isArray(userPrediction.evo) ? userPrediction.evo.length : 0;
+            const h2hLen = userPrediction.h2h ? Object.keys(userPrediction.h2h).length : 0;
+            
+            items.push({
+                time: predTime,
+                title: 'Telemetria de Prognósticos Homologada',
+                desc: `Poletime: ${userPrediction.poletime} · ${top10Len}/10 Top 10 · ${evoLen} Evo · ${h2hLen} Duelos H2H.`,
+                badge: 'PREVISÃO',
+                color: '#22c55e'
+            });
+
+            if (userPrediction.misc?.stake) {
+                items.push({
                     time: predTime,
-                    title: 'Previsão de GP Homologada',
-                    desc: `Pole: ${userPrediction.poletime} · ${Array.isArray(userPrediction.top10) ? userPrediction.top10.length : 0} pilotos no Top 10 salvos.`,
-                    badge: 'PREVISÃO',
-                    color: '#22c55e'
-                },
-                ...base
-            ];
+                    title: 'Ordem de Alocação de Risco',
+                    desc: `Aposta de ${userPrediction.misc.stake}% de capital em mercado de evento registrada.`,
+                    badge: 'MERCADO',
+                    color: '#3b82f6'
+                });
+            }
         }
 
-        return [
-            {
-                time: '2h atrás',
-                title: 'Previsão Registrada em Poletime',
-                desc: 'Janela Q3 fechada: 1:28.412 alvo.',
-                badge: 'POLETIME',
-                color: '#22c55e'
-            },
-            ...base
-        ];
-    }, [me, teamColor, last, allianceId, userPrediction]);
+        // 2. Contrato de equipe
+        if (activeContract) {
+            items.push({
+                time: formatTimeAgo(activeContract.created_at),
+                title: 'Contrato de Garagem Homologado',
+                desc: `Assento oficial confirmado na ${me.teamName} · Grupo ${me.groupId}.`,
+                badge: 'CONTRATO',
+                color: teamColor
+            });
+        }
+
+        // 3. Aliança
+        items.push({
+            time: formatTimeAgo(targetProfile?.created_at),
+            title: 'Entrada Homologada na Aliança',
+            desc: `Conexão técnica autorizada com o ${ALLIANCES[allianceId].name}.`,
+            badge: 'ALIANÇA',
+            color: teamColor
+        });
+
+        // 4. Bônus Inicial de Superlicença
+        items.push({
+            time: formatTimeAgo(targetProfile?.created_at),
+            title: 'Superlicença Emitida // Bônus Inicial',
+            desc: '+000.100 mls (pontos) creditados no saldo oficial Milesimus.',
+            badge: 'BÔNUS',
+            color: '#fbaa19'
+        });
+
+        return items;
+    }, [me, userPrediction, activeContract, targetProfile, teamColor, allianceId]);
 
     const tickerItems = useMemo(() => {
-        const list = field.length ? field : [];
+        const list = field.length ? field : (me ? [me] : []);
         return list.map(s => ({
-            sym: `$${(s.slug || s.name).replace(/[@.\s]/g, '').toUpperCase()}`,
-            price: s.series.length > 0 ? s.series[s.series.length - 1] : 100,
-            chg: s.series.length >= 2 ? pct(s.series[s.series.length - 1], s.series[s.series.length - 2]) : 0,
+            sym: `${(s.slug || s.name).replace(/[@.\s]/g, '').toUpperCase()}`,
+            price: s.mlsBalance ?? 100,
+            chg: 0,
         }));
-    }, [field]);
+    }, [field, me]);
 
     const groupRanking = useMemo(() => {
         if (!me) return [];
         const pool = field.filter(s => s.groupId === me.groupId && s.id !== me.id);
         return [...pool, me]
             .map(s => {
-                const sLast = s.series.length > 0 ? s.series[s.series.length - 1] : 100;
-                const sPrev = s.series.length >= 2 ? s.series[s.series.length - 2] : sLast;
-                return { s, v: sLast, c: pct(sLast, sPrev) };
+                const bal = s.mlsBalance ?? 100;
+                return { s, v: bal, c: 0 };
             })
             .sort((a, b) => b.v - a.v);
     }, [field, me]);
@@ -737,23 +746,13 @@ export default function OfficialStrategistDashboard() {
         return { k, s, v: s[s.length - 1], c: pct(s[s.length - 1], s[s.length - 2]) };
     }), []);
 
-    const positions = useMemo(() => {
-        if (!me) return [];
-        const rnd = seeded(hashString(`pos-${me.id}`));
-        const markets = ['POLE POSITION (POLETIME)', 'VENCEDOR (MASTER)', 'PÓDIO DUPLO', 'VOLTA MAIS RÁPIDA (MLS)', 'SAFETY CAR'];
-        return markets.map(m => {
-            const team = F1_TEAMS[Math.floor(rnd() * F1_TEAMS.length)];
-            const seat = rnd() > 0.5 ? 1 : 2;
-            return {
-                market: m,
-                pick: m === 'SAFETY CAR' ? (rnd() > 0.5 ? 'SIM' : 'NÃO') : `${team.logo} · CARRO ${seat}`,
-                color: m === 'SAFETY CAR' ? '#fbaa19' : team.color,
-                odd: (1.4 + rnd() * 6).toFixed(2),
-                conf: Math.round(35 + rnd() * 60),
-                pl: (rnd() - 0.4) * 30,
-            };
-        });
-    }, [me]);
+    const availableMarkets = useMemo(() => [
+        { market: 'POLE POSITION (POLETIME)', detail: 'Janela Q3 Oficial', status: 'ABERTO' },
+        { market: 'TOP 10 FINISH (MASTER)', detail: '10 Vagas na Zona de Pontuação', status: 'ABERTO' },
+        { market: 'EVO / ESCALADA', detail: '5 Pilotos em Recuperação de Grid', status: 'ABERTO' },
+        { market: 'DUELOS TÁTICOS (H2H)', detail: '11 Confrontos Diretos entre Duplas', status: 'ABERTO' },
+        { market: 'VOLTA MAIS RÁPIDA (MLS)', detail: 'Alocação de até 50% de Saldo', status: 'ABERTO' },
+    ], []);
 
     const feed = useMemo(() => {
         if (!me) return [''];
@@ -828,7 +827,7 @@ export default function OfficialStrategistDashboard() {
                 <header className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-black/80 backdrop-blur" style={{ borderBottomColor: `${teamColor}25` }}>
                     <div className="flex items-center gap-3">
                         <Link href="/" className="text-lg md:text-xl font-black tracking-widest hover:opacity-80 transition-opacity">
-                            VOLT<span style={{ color: teamColor }}>GRID</span>
+                            BAEFF<span style={{ color: teamColor }}>1</span>
                         </Link>
                         <span className="hidden md:inline text-[10px] tracking-[0.3em] text-white/40">// TERMINAL DO ESTRATEGISTA</span>
                         <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest hidden sm:inline border" style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}>
@@ -1046,11 +1045,11 @@ export default function OfficialStrategistDashboard() {
                                                 {compStats.poletime.poleTime}
                                             </span>
                                         ) : (
-                                            <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.poletime.points} <span className="text-[10px] text-white/40">PTS</span></span>
+                                            <span className="text-xl md:text-2xl font-black tracking-tight text-white">-- <span className="text-[10px] text-white/40">PTS</span></span>
                                         )}
                                         <div className="flex items-center justify-between text-[8px] text-emerald-400/80 mt-1 uppercase font-bold">
                                             <span>{compStats?.poletime.rank} GRID</span>
-                                            <span>{compStats?.poletime.accuracy}% ACC</span>
+                                            <span>{compStats?.poletime.accuracy}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -1068,9 +1067,12 @@ export default function OfficialStrategistDashboard() {
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xl md:text-2xl font-black tracking-tight text-white">{compStats?.master.points} <span className="text-[10px] text-white/40">PTS</span></span>
+                                        <span className="text-xl md:text-2xl font-black tracking-tight text-white">
+                                            {compStats?.master.hasSubmitted ? `${compStats.master.picksCount}/10` : '--'}{' '}
+                                            <span className="text-[10px] text-white/40">{compStats?.master.hasSubmitted ? 'PILOTOS' : 'PTS'}</span>
+                                        </span>
                                         <div className="flex items-center justify-between text-[8px] text-blue-400/80 mt-1 uppercase font-bold">
-                                            <span>{compStats?.master.rank} GERAL</span>
+                                            <span>{compStats?.master.hasSubmitted ? 'HOMOLOGADO' : 'GRID ABERTO'}</span>
                                             <span>{compStats?.master.status}</span>
                                         </div>
                                     </div>
@@ -1087,10 +1089,11 @@ export default function OfficialStrategistDashboard() {
                                         <span className="text-[8px] px-1 py-0.2 rounded font-bold" style={{ backgroundColor: `${teamColor}15`, color: teamColor }}>CURRENCY</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xl md:text-2xl font-black tracking-tight" style={{ color: teamColor }}>
-                                            {(compStats?.milesimus.points || 0).toLocaleString()} <span className="text-[9px] opacity-75">mls</span>
+                                        <span className="text-xl md:text-2xl font-black tracking-tight font-mono" style={{ color: teamColor }}>
+                                            {compStats?.milesimus.formatted || '000.100'} <span className="text-[9px] opacity-75">mls</span>
                                         </span>
                                         <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold text-white/50">
+                                            <span>BÔNUS INICIAL ATIVO</span>
                                             <span>{compStats?.milesimus.tier}</span>
                                         </div>
                                     </div>
@@ -1192,11 +1195,13 @@ export default function OfficialStrategistDashboard() {
                                             <div className="flex flex-wrap items-baseline justify-between gap-3">
                                                 <div>
                                                     <div className="flex items-baseline gap-3">
-                                                        <span className="text-2xl md:text-3xl font-black tabular-nums">{fmt(last)}</span>
+                                                        <span className="text-2xl md:text-3xl font-black tabular-nums font-mono">
+                                                            {compStats?.milesimus.formatted || '000.100'}
+                                                        </span>
                                                         <span className="text-xs text-white/40">MLS</span>
-                                                        <Delta value={pct(last, prev)} className="text-xs" />
+                                                        <span className="text-xs text-emerald-400 font-bold">● BÔNUS INICIAL</span>
                                                     </div>
-                                                    <p className="text-[10px] tracking-widest text-white/40 mt-0.5">VARIAÇÃO ÚLTIMO GP · SPREAD 0.08</p>
+                                                    <p className="text-[10px] tracking-widest text-white/40 mt-0.5">SALDO DISPONÍVEL NO MERCADO MILESIMUS</p>
                                                 </div>
                                                 <div className="flex items-center gap-4 text-[10px] tracking-widest">
                                                     <div><span className="text-white/40">MÁX:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.max(...series) : 0)}</span></div>
@@ -1303,23 +1308,23 @@ export default function OfficialStrategistDashboard() {
                                                     </div>
 
                                                     <div className="flex items-center justify-between pb-2 border-b border-white/5 text-[9px] tracking-widest uppercase text-white/40">
-                                                        <span>MERCADOS DISPONÍVEIS</span>
-                                                        <span>COTAÇÃO ESTIMADA</span>
+                                                        <span>MERCADOS OFICIAIS</span>
+                                                        <span>PARÂMETRO</span>
                                                         <span className="text-right">STATUS</span>
                                                     </div>
-                                                    {positions.slice(0, 3).map((p, i) => (
+                                                    {availableMarkets.slice(0, 3).map((m, i) => (
                                                         <div key={i} className="flex items-center justify-between gap-2 py-2 border-b border-white/5 last:border-0 text-[11px] tracking-widest">
                                                             <div className="min-w-0">
-                                                                <p className="font-bold text-white truncate">{p.market}</p>
-                                                                <p className="text-[9px] text-white/40">FECHAMENTO T-24H</p>
+                                                                <p className="font-bold text-white truncate">{m.market}</p>
+                                                                <p className="text-[9px] text-white/40">PITLANE ABERTO</p>
                                                             </div>
                                                             <div className="text-center">
-                                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-block" style={{ backgroundColor: `${p.color}20`, color: p.color }}>
-                                                                    {p.pick}
+                                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-block bg-white/10 text-white">
+                                                                    {m.detail}
                                                                 </span>
                                                             </div>
                                                             <div className="text-right">
-                                                                <span className="font-bold tabular-nums text-amber-400">ABERTO</span>
+                                                                <span className="font-bold tabular-nums text-emerald-400">{m.status}</span>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -1565,7 +1570,7 @@ export default function OfficialStrategistDashboard() {
                                 ))}
                             </Panel>
 
-                            <Panel title={`Ranking · ${getChampionGroupName(me.groupId)}`} tag={`${groupRanking.filter(r => !r.s.isDemo).length}/22`} bodyClass="p-0" accentColor={teamColor}>
+                            <Panel title={`Ranking · ${getChampionGroupName(me.groupId)}`} tag={`${groupRanking.length}/22 PILOTOS`} bodyClass="p-0" accentColor={teamColor}>
                                 <div className="max-h-[420px] overflow-y-auto">
                                     {groupRanking.map((r, i) => {
                                         const isMe = r.s.id === me.id;
@@ -1578,8 +1583,8 @@ export default function OfficialStrategistDashboard() {
                                                     <p className="text-[9px] text-white/40">{r.s.teamCode}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-bold tabular-nums">{fmt(r.v)}</p>
-                                                    <Delta value={r.c} className="text-[9px]" />
+                                                    <p className="font-bold tabular-nums font-mono">{formatMls(r.s.mlsBalance ?? 100)}</p>
+                                                    <span className="text-[9px] text-white/40">MLS</span>
                                                 </div>
                                             </div>
                                         );
