@@ -21,6 +21,7 @@ function SuperlicenseAuthContent() {
     // Form fields: aceita e-mail, @slug ou código do piloto (ex: L.GUSTAVO88)
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     
     // UI states
     const [errorMsg, setErrorMsg] = useState('');
@@ -63,7 +64,7 @@ function SuperlicenseAuthContent() {
             .or(`slug.eq.@${clean},slug.eq.${clean},slug.ilike.@${clean},slug.ilike.${clean}`)
             .maybeSingle();
 
-        if (pSlug?.email) return pSlug.email;
+        if (pSlug?.email) return pSlug.email.toLowerCase();
 
         // 2. Tenta buscar pelo formato padrão de piloto (ex: L.GUSTAVO88 ou L.GUSTAVO)
         const match = raw.match(/^([a-zA-Z])\s*\.?\s*([a-zA-Z]+)\s*(\d*)$/);
@@ -78,7 +79,7 @@ function SuperlicenseAuthContent() {
                 query = query.eq('driver_number', parseInt(num, 10));
             }
             const { data: pPilot } = await query.maybeSingle();
-            if (pPilot?.email) return pPilot.email;
+            if (pPilot?.email) return pPilot.email.toLowerCase();
         }
 
         // 3. Tenta buscar pelo prefixo do e-mail
@@ -88,9 +89,9 @@ function SuperlicenseAuthContent() {
             .ilike('email', `${clean}@%`)
             .maybeSingle();
 
-        if (pPref?.email) return pPref.email;
+        if (pPref?.email) return pPref.email.toLowerCase();
 
-        return raw;
+        return raw.toLowerCase();
     };
 
     const handleMagicLink = async (e: React.FormEvent) => {
@@ -130,18 +131,43 @@ function SuperlicenseAuthContent() {
                 throw new Error('Informe seu e-mail, slug ou código de piloto.');
             }
 
-            const { data, error } = await supabase.auth.signInWithPassword({ 
-                email: resolvedEmail, 
-                password 
-            });
+            // Tenta variações comuns de senha (ex: original, sem espaços, 1a maiúscula, maiúscula ou minúscula)
+            const rawPass = password;
+            const trimmedPass = rawPass.trim();
+            const capitalizedPass = trimmedPass.charAt(0).toUpperCase() + trimmedPass.slice(1).toLowerCase();
+            const candidates = Array.from(new Set([
+                rawPass,
+                trimmedPass,
+                capitalizedPass,
+                trimmedPass.toLowerCase(),
+                trimmedPass.toUpperCase()
+            ]));
 
-            if (error) throw error;
+            let authData = null;
+            let authError = null;
 
-            if (data?.user) {
+            for (const candidate of candidates) {
+                const res = await supabase.auth.signInWithPassword({ 
+                    email: resolvedEmail, 
+                    password: candidate 
+                });
+                if (res.data?.user) {
+                    authData = res.data;
+                    authError = null;
+                    break;
+                }
+                authError = res.error;
+            }
+
+            if (authError || !authData?.user) {
+                throw authError || new Error('Credenciais inválidas.');
+            }
+
+            if (authData?.user) {
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('slug')
-                    .eq('id', data.user.id)
+                    .eq('id', authData.user.id)
                     .maybeSingle();
 
                 if (profile?.slug) {
@@ -217,24 +243,37 @@ function SuperlicenseAuthContent() {
                         <input 
                             type="text" 
                             required
-                            placeholder="E-MAIL, @SLUG OU PILOTO (EX: L.GUSTAVO88)"
+                            placeholder="E-mail, @slug ou piloto (ex: L.GUSTAVO88)"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
                             autoCapitalize="none"
                             autoCorrect="off"
                             spellCheck={false}
-                            className="w-full bg-black border border-white/20 text-white placeholder-white/35 px-4 py-3.5 font-mono text-xs uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-none"
+                            className="w-full bg-black border border-white/20 text-white placeholder-white/35 px-4 py-3.5 font-mono text-xs normal-case tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-none"
                         />
                         
                         {mode === 'PASSWORD' && (
-                            <input 
-                                type="password" 
-                                required
-                                placeholder="SUA SENHA"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-black border border-white/20 text-white placeholder-white/35 px-4 py-3.5 font-mono text-xs uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-none"
-                            />
+                            <div className="relative w-full">
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    required
+                                    placeholder="Sua senha (ex: Password123!)"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoCapitalize="none"
+                                    autoCorrect="off"
+                                    spellCheck={false}
+                                    className="w-full bg-black border border-white/20 text-white placeholder-white/35 px-4 py-3.5 pr-20 font-mono text-xs normal-case tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-none"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/50 hover:text-[#fbaa19] font-mono tracking-widest uppercase transition-colors px-1 py-1"
+                                    title={showPassword ? "Ocultar senha" : "Ver senha em texto"}
+                                >
+                                    {showPassword ? '[OCULTAR]' : '[VER]'}
+                                </button>
+                            </div>
                         )}
 
                         <button 
