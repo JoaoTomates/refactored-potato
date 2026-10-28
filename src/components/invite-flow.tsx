@@ -349,7 +349,9 @@ export function InviteFlow() {
             const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
             const cleanLastName = rawLast.toUpperCase();
             const generatedNumber = Math.floor(Math.random() * 99) + 1;
-            const slug = `@${cleanFirstName.toLowerCase().replace(/[^a-z0-9]/g, '')}${cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '')}${generatedNumber}`;
+            const initial = cleanFirstName.charAt(0).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const lastName = cleanLastName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const slug = `@${initial}${lastName}${generatedNumber}`;
 
             localStorage.setItem('draft_name', `${cleanFirstName} ${cleanLastName}`);
             localStorage.setItem('draft_email', emailToUse);

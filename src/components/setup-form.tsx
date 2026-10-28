@@ -108,9 +108,9 @@ export default function SetupForm() {
             }
             if (!slug && cleanFirst && cleanLast) {
                 // e.g. "Ayrton Senna" -> "a.senna99"
-                const firstInitial = cleanFirst.charAt(0).toLowerCase();
-                const lastName = cleanLast.toLowerCase().replace(/\s+/g, '');
-                slug = `${firstInitial}.${lastName}${driverNumber}`;
+                const firstInitial = cleanFirst.charAt(0).toLowerCase().replace(/[^a-z0-9]/g, '');
+                const lastName = cleanLast.toLowerCase().replace(/[^a-z0-9]/g, '');
+                slug = `@${firstInitial}${lastName}${driverNumber}`;
             }
 
             const formattedFirstName = cleanFirst.charAt(0).toUpperCase() + cleanFirst.slice(1).toLowerCase();

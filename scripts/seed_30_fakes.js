@@ -70,7 +70,7 @@ async function seedFakes() {
     for (let i = 0; i < PILOTS_DATA.length; i++) {
         const p = PILOTS_DATA[i];
         const codeName = `${p.first.charAt(0).toUpperCase()}.${p.last.toUpperCase()}${p.num}`;
-        const slug = `@${p.first.toLowerCase()}${p.last.toLowerCase()}${p.num}`;
+        const slug = `@${p.first.charAt(0).toLowerCase()}${p.last.toLowerCase()}${p.num}`;
         const seniorId = SENIOR_IDS[i % SENIOR_IDS.length];
 
         // 1. Cria usuário no Supabase Auth
