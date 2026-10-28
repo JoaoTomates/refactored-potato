@@ -18,8 +18,8 @@ function SuperlicenseAuthContent() {
     });
     const [loadingAction, setLoadingAction] = useState(false);
     
-    // Form fields
-    const [email, setEmail] = useState('');
+    // Form fields: aceita e-mail, @slug ou código do piloto (ex: L.GUSTAVO88)
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     
     // UI states
@@ -33,18 +33,65 @@ function SuperlicenseAuthContent() {
     }, [searchParams]);
 
     useEffect(() => {
-        // If user is already logged in, redirect them to their dashboard
+        // Se usuário já autenticado, redireciona diretamente para seu pitwall
         const checkExistingSession = async () => {
             if (isLoading) return;
             if (user) {
-                const { data } = await supabase.from('profiles').select('slug').eq('id', user.id).single();
+                const { data } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
                 if (data?.slug) {
-                    window.location.replace(`/${data.slug}`);
+                    const target = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
+                    window.location.replace(`/${target}`);
                 }
             }
         };
         checkExistingSession();
     }, [user, isLoading]);
+
+    // Resolução resiliente do e-mail oficial a partir de E-mail, @slug, slug ou formato L.GUSTAVO88
+    const resolveLoginEmail = async (rawInput: string): Promise<string> => {
+        const raw = (rawInput || '').trim();
+        if (!raw) return '';
+        if (raw.includes('@') && raw.includes('.')) {
+            return raw.toLowerCase();
+        }
+        const clean = raw.replace(/^@/, '').toLowerCase();
+
+        // 1. Tenta buscar pelo slug (@clean ou clean)
+        const { data: pSlug } = await supabase
+            .from('profiles')
+            .select('email')
+            .or(`slug.eq.@${clean},slug.eq.${clean},slug.ilike.@${clean},slug.ilike.${clean}`)
+            .maybeSingle();
+
+        if (pSlug?.email) return pSlug.email;
+
+        // 2. Tenta buscar pelo formato padrão de piloto (ex: L.GUSTAVO88 ou L.GUSTAVO)
+        const match = raw.match(/^([a-zA-Z])\s*\.?\s*([a-zA-Z]+)\s*(\d*)$/);
+        if (match) {
+            const [, initial, lastName, num] = match;
+            let query = supabase
+                .from('profiles')
+                .select('email')
+                .ilike('first_name', `${initial}%`)
+                .ilike('last_name', lastName);
+            if (num) {
+                query = query.eq('driver_number', parseInt(num, 10));
+            }
+            const { data: pPilot } = await query.maybeSingle();
+            if (pPilot?.email) return pPilot.email;
+        }
+
+        // 3. Tenta buscar pelo prefixo do e-mail
+        const { data: pPref } = await supabase
+            .from('profiles')
+            .select('email')
+            .ilike('email', `${clean}@%`)
+            .maybeSingle();
+
+        if (pPref?.email) return pPref.email;
+
+        return raw;
+    };
 
     const handleMagicLink = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,14 +100,18 @@ function SuperlicenseAuthContent() {
         setSuccessMsg('');
 
         try {
+            const resolvedEmail = await resolveLoginEmail(identifier);
+            if (!resolvedEmail || !resolvedEmail.includes('@')) {
+                throw new Error('Não foi possível identificar o e-mail correspondente para este piloto/slug.');
+            }
             const { error } = await supabase.auth.signInWithOtp({
-                email,
+                email: resolvedEmail,
                 options: {
                     emailRedirectTo: `${window.location.origin}/superlicense`
                 }
             });
             if (error) throw error;
-            setSuccessMsg('LINK DE ACESSO ENVIADO PARA O SEU E-MAIL. VERIFIQUE SUA CAIXA DE ENTRADA.');
+            setSuccessMsg(`LINK DE ACESSO ENVIADO PARA ${resolvedEmail.toUpperCase()}. VERIFIQUE SUA CAIXA DE ENTRADA.`);
         } catch (err: any) {
             setErrorMsg(err.message || 'Erro ao enviar link mágico.');
         } finally {
@@ -74,12 +125,36 @@ function SuperlicenseAuthContent() {
         setErrorMsg('');
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const resolvedEmail = await resolveLoginEmail(identifier);
+            if (!resolvedEmail) {
+                throw new Error('Informe seu e-mail, slug ou código de piloto.');
+            }
+
+            const { data, error } = await supabase.auth.signInWithPassword({ 
+                email: resolvedEmail, 
+                password 
+            });
+
             if (error) throw error;
-            // The useEffect will handle the redirect once user is populated
+
+            if (data?.user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('slug')
+                    .eq('id', data.user.id)
+                    .maybeSingle();
+
+                if (profile?.slug) {
+                    const target = profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`;
+                    window.location.href = `/${target}`;
+                    return;
+                } else {
+                    window.location.href = '/headquarters';
+                    return;
+                }
+            }
         } catch (err: any) {
             setErrorMsg(err.message || 'Credenciais inválidas.');
-        } finally {
             setLoadingAction(false);
         }
     };
@@ -140,11 +215,14 @@ function SuperlicenseAuthContent() {
 
                     <form onSubmit={mode === 'MAGIC_LINK' ? handleMagicLink : handlePasswordLogin} className="flex flex-col gap-4">
                         <input 
-                            type="email" 
+                            type="text" 
                             required
-                            placeholder="SEU E-MAIL CADASTRADO"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="E-MAIL, @SLUG OU PILOTO (EX: L.GUSTAVO88)"
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
                             className="w-full bg-black border border-white/20 text-white placeholder-white/35 px-4 py-3.5 font-mono text-xs uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-none"
                         />
                         
