@@ -14,6 +14,15 @@ const supabase = createClient(
 async function wipeDatabase() {
     console.log("Iniciando limpeza completa do banco de dados...");
 
+    // 0. Limpa membros e esquadrões de teamwork
+    const { error: errTeamMem } = await supabase.from('teamwork_members').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (errTeamMem) console.warn("Aviso ao limpar teamwork_members:", errTeamMem.message);
+    else console.log("✓ Tabela 'teamwork_members' limpa com sucesso.");
+
+    const { error: errTeamSq } = await supabase.from('teamwork_squads').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (errTeamSq) console.warn("Aviso ao limpar teamwork_squads:", errTeamSq.message);
+    else console.log("✓ Tabela 'teamwork_squads' limpa com sucesso.");
+
     // 1. Limpa apostas / previsões
     const { error: errPred } = await supabase.from('predictions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     if (errPred) console.warn("Aviso ao limpar predictions:", errPred.message);
