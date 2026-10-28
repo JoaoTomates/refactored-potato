@@ -175,6 +175,14 @@ const Navigation = () => {
                             >
                                 Social Media
                             </Link>
+                            <span className="text-white/20 text-xl hidden sm:block">/</span>
+                            <Link 
+                                href="/race-week"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="text-[#fbaa19] text-xl md:text-3xl font-black uppercase tracking-widest hover:text-white transition-colors"
+                            >
+                                Race Week
+                            </Link>
                         </div>
 
                         {/* FANTASY LINK */}
