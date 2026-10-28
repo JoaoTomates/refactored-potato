@@ -90,7 +90,7 @@ function makeStrategist(id: string, name: string, slug: string | null, teamId: s
     return {
         id, slug, name, isDemo, groupId,
         teamCode: team.logo, teamName: team.name, teamColor: team.color,
-        series: buildSeries(id),
+        series: Array(24).fill(100),
     };
 }
 
@@ -159,7 +159,14 @@ function Panel({
 }
 
 function Delta({ value, className = '' }: { value: number; className?: string }) {
-    const up = value >= 0;
+    if (value === 0 || !isFinite(value)) {
+        return (
+            <span className={`text-white/40 font-bold tabular-nums ${className}`}>
+                ● 0,00%
+            </span>
+        );
+    }
+    const up = value > 0;
     return (
         <span className={`${up ? 'text-emerald-400' : 'text-red-400'} font-bold tabular-nums ${className}`}>
             {up ? '▲' : '▼'} {Math.abs(value).toFixed(2)}%
@@ -168,10 +175,14 @@ function Delta({ value, className = '' }: { value: number; className?: string })
 }
 
 function Sparkline({ data, width = 90, height = 26, strokeColor }: { data: number[]; width?: number; height?: number; strokeColor?: string }) {
-    const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
-    const pts = data.map((v, i) => `${(i / (data.length - 1)) * width},${height - ((v - min) / r) * height}`).join(' ');
+    if (!data || data.length < 2) return <div style={{ width, height }} />;
+    const min = Math.min(...data), max = Math.max(...data), r = max - min;
+    const pts = data.map((v, i) => {
+        const y = r === 0 ? height / 2 : height - ((v - min) / r) * height;
+        return `${(i / (data.length - 1)) * width},${y}`;
+    }).join(' ');
     const up = data[data.length - 1] >= data[0];
-    const color = strokeColor || (up ? '#34d399' : '#f87171');
+    const color = strokeColor || (r === 0 ? '#38bdf8' : (up ? '#34d399' : '#f87171'));
     return (
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
             <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />

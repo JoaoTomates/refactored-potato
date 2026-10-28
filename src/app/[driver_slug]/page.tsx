@@ -115,14 +115,15 @@ interface Strategist {
 
 type MainTab = 'quotes' | 'book' | 'radio' | 'history' | 'teamwork';
 
-const DEMO_NAMES = ['M. KOVAC', 'J. TANAKA', 'R. SILVA', 'A. BERG', 'L. MOREAU', 'D. OKAFOR', 'I. PETROVA', 'C. VEGA', 'T. NAKAMURA', 'H. LINDQVIST'];
-
 function makeStrategist(id: string, name: string, slug: string | null, teamId: string | undefined, groupId: number, isDemo = false, mlsBalance: number = 100): Strategist {
     const team = F1_TEAMS.find(t => t.id === teamId || t.logo === teamId) || F1_TEAMS[hashString(id) % F1_TEAMS.length];
+    const baseVal = typeof mlsBalance === 'number' ? mlsBalance : 100;
+    // Cotação real estável no saldo atual de abertura (100.00 MLS), sem resultados de GP homologados
+    const realSeries = Array(24).fill(baseVal);
     return {
-        id, slug, name, isDemo, groupId, mlsBalance,
+        id, slug, name, isDemo, groupId, mlsBalance: baseVal,
         teamCode: team.logo, teamName: team.name, teamColor: team.color,
-        series: buildSeries(id),
+        series: realSeries,
     };
 }
 
@@ -182,7 +183,14 @@ function Panel({
 }
 
 function Delta({ value, className = '' }: { value: number; className?: string }) {
-    const up = value >= 0;
+    if (value === 0 || !isFinite(value)) {
+        return (
+            <span className={`text-white/40 font-bold tabular-nums ${className}`}>
+                ● 0,00%
+            </span>
+        );
+    }
+    const up = value > 0;
     return (
         <span className={`${up ? 'text-emerald-400' : 'text-red-400'} font-bold tabular-nums ${className}`}>
             {up ? '▲' : '▼'} {Math.abs(value).toFixed(2)}%
@@ -194,10 +202,14 @@ function Sparkline({ data, width = 90, height = 26, strokeColor }: { data: numbe
     if (!data || data.length < 2) {
         return <div style={{ width, height }} />;
     }
-    const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
-    const pts = data.map((v, i) => `${(i / (data.length - 1)) * width},${height - ((v - min) / r) * height}`).join(' ');
+    const min = Math.min(...data), max = Math.max(...data);
+    const r = max - min;
+    const pts = data.map((v, i) => {
+        const y = r === 0 ? height / 2 : height - ((v - min) / r) * height;
+        return `${(i / (data.length - 1)) * width},${y}`;
+    }).join(' ');
     const up = data[data.length - 1] >= data[0];
-    const color = strokeColor || (up ? '#34d399' : '#f87171');
+    const color = strokeColor || (r === 0 ? '#38bdf8' : (up ? '#34d399' : '#f87171'));
     return (
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
             <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
@@ -238,7 +250,8 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
     const [hover, setHover] = useState<number | null>(null);
     const W = 600, H = 220;
     const min = Math.min(...data), max = Math.max(...data);
-    const pad = (max - min) * 0.12 || 1;
+    const isBaseline = min === max;
+    const pad = isBaseline ? Math.max(10, min * 0.1) : (max - min) * 0.12 || 1;
     const lo = min - pad, hi = max + pad;
     const x = (i: number) => (i / (data.length - 1)) * W;
     const y = (v: number) => (1 - (v - lo) / (hi - lo)) * H;
@@ -274,8 +287,10 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
             {/* Marcador */}
             <div className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full border-2 border-black pointer-events-none" style={{ left: `${(x(idx) / W) * 100}%`, top: `${(y(activeVal) / H) * 100}%`, background: stroke, boxShadow: `0 0 12px ${stroke}` }} />
 
-            <div className="absolute top-2 pointer-events-none text-[10px] font-bold tracking-widest bg-black/80 border px-2 py-1 rounded" style={{ left: `clamp(0px, calc(${(x(idx) / W) * 100}% - 48px), calc(100% - 96px))`, borderColor: `${stroke}40` }}>
-                <span className="text-white/50">R{startRound + idx}</span> <span className="text-white">{fmt(activeVal)}</span>
+            <div className="absolute top-2 pointer-events-none text-[10px] font-bold tracking-widest bg-black/80 border px-2 py-1 rounded flex items-center gap-2" style={{ left: `clamp(0px, calc(${(x(idx) / W) * 100}% - 48px), calc(100% - 170px))`, borderColor: `${stroke}40` }}>
+                <span className="text-white/50">R{startRound + idx}</span>
+                <span className="text-white">{fmt(activeVal)} MLS</span>
+                {isBaseline && <span className="text-emerald-400 text-[9px]">● ESTÁVEL</span>}
             </div>
 
             <div className="absolute right-1 top-0 bottom-0 flex flex-col justify-between py-1 text-[9px] text-white/30 tabular-nums pointer-events-none">
@@ -532,12 +547,12 @@ export default function OfficialStrategistDashboard() {
 
                 if (!currentStrategist) {
                     currentStrategist = makeStrategist(
-                        'demo-visitor', 
+                        'visitor', 
                         targetSlug ? targetSlug.replace('@', '').toUpperCase() : 'VISITANTE', 
                         targetSlug || null, 
                         F1_TEAMS[1].id, 
                         1, 
-                        true,
+                        false,
                         100
                     );
                 }
@@ -809,9 +824,14 @@ export default function OfficialStrategistDashboard() {
     }, [field, me]);
 
     const allianceIdx = useMemo(() => (Object.keys(ALLIANCES) as AllianceId[]).map(k => {
-        const s = buildSeries(`alliance-${k}`, 24, 1200, 0.05);
-        return { k, s, v: s[s.length - 1], c: pct(s[s.length - 1], s[s.length - 2]) };
-    }), []);
+        const teamCodes = ALLIANCES[k].codes as readonly string[];
+        const allianceMembers = field.filter(s => teamCodes.includes(s.teamCode));
+        const totalMls = allianceMembers.length > 0
+            ? allianceMembers.reduce((acc, s) => acc + (s.mlsBalance ?? 100), 0)
+            : 0;
+        const s = Array(12).fill(totalMls);
+        return { k, s, v: totalMls, c: 0 };
+    }), [field]);
 
     const availableMarkets = useMemo(() => [
         { market: 'POLE POSITION (POLETIME)', detail: 'Janela Q3 Oficial', status: 'ABERTO' },
@@ -823,22 +843,23 @@ export default function OfficialStrategistDashboard() {
 
     const feed = useMemo(() => {
         if (!me) return [''];
-        const chg = pct(last, prev);
+        const currentBalance = me.mlsBalance ?? 100;
         const partnerMsg = teamPartner 
             ? `Seu parceiro de equipe na ${me.teamName} é ${teamPartner.name}. Telemetria de Teamwork conectada.`
-            : `O ${getChampionGroupName(me.groupId)} ainda tem assentos abertos. A concorrência no grid vai aumentar.`;
+            : `O ${getChampionGroupName(me.groupId)} conta com vagas abertas para a sua escuderia.`;
         const predMsg = userPrediction 
             ? `Previsão ativa: Poletime homologado em ${userPrediction.poletime}. Ordem no grid registrada.`
-            : `Lembre-se: quem prevê o caos, fatura o campeonato. Abra suas posições antes do fechamento do mercado.`;
+            : `Janela aberta: envie seus prognósticos de Poletime e Master para a 1ª etapa oficial.`;
 
         return [
-            `Bom dia, ${me.name}. Sua cotação ${chg >= 0 ? 'subiu' : 'recuou'} ${Math.abs(chg).toFixed(2)}% desde o último GP.`,
-            `O ${ALLIANCES[allianceId].name} acompanha seus relatórios. Mantenha o rating ${ratingFor(last)} no Master.`,
+            `Bom dia, ${me.name}. Cotação base de abertura fixada em ${formatMls(currentBalance)} MLS. Nenhum evento homologado no momento.`,
+            `Grid BAEFF1 oficial: ${field.length} estrategistas confirmados com contratos ativos.`,
+            `O ${ALLIANCES[allianceId].name} acompanha sua telemetria. Rating inicial: AAA.`,
             partnerMsg,
             predMsg,
             `Competições ativas: Poletime, Master, Milesimus e Teamwork com inscrições sincronizadas.`,
         ];
-    }, [me, allianceId, last, prev, teamPartner, userPrediction]);
+    }, [me, allianceId, teamPartner, userPrediction, field.length]);
 
     const feedTimer = useRef<ReturnType<typeof setInterval> | null>(null);
     useEffect(() => {
@@ -1273,9 +1294,9 @@ export default function OfficialStrategistDashboard() {
                                                     <p className="text-[10px] tracking-widest text-white/40 mt-0.5">SALDO DISPONÍVEL NO MERCADO MILESIMUS</p>
                                                 </div>
                                                 <div className="flex items-center gap-4 text-[10px] tracking-widest">
-                                                    <div><span className="text-white/40">MÁX:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.max(...series) : 0)}</span></div>
-                                                    <div><span className="text-white/40">MÍN:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.min(...series) : 0)}</span></div>
-                                                    <div><span className="text-white/40">VOL:</span> <span className="font-bold">{series.length * 12}K</span></div>
+                                                    <div><span className="text-white/40">MÁX:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.max(...series) : (me.mlsBalance ?? 100))}</span></div>
+                                                    <div><span className="text-white/40">MÍN:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.min(...series) : (me.mlsBalance ?? 100))}</span></div>
+                                                    <div><span className="text-white/40">STATUS:</span> <span className="font-bold text-emerald-400">ABERTURA (0,00%)</span></div>
                                                 </div>
                                             </div>
 

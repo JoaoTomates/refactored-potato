@@ -4,65 +4,26 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
-import { F1_TEAMS } from '@/lib/teams';
 
-/* ---------- Pseudo-random determinístico ---------- */
-function hashString(s: string) {
-    let h = 2166136261;
-    for (let i = 0; i < s.length; i++) {
-        h ^= s.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-    }
-    return h >>> 0;
-}
-
-function seeded(seed: number) {
-    let a = seed;
-    return () => {
-        a |= 0;
-        a = (a + 0x6D2B79F5) | 0;
-        let t = Math.imul(a ^ (a >>> 15), 1 | a);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-}
-
-function buildSeries(key: string, n = 24, base = 100, vol = 0.12) {
-    const rnd = seeded(hashString(key));
-    const out: number[] = [];
-    let v = base * (0.7 + rnd() * 0.6);
-    for (let i = 0; i < n; i++) {
-        v = Math.max(15, v * (1 + (rnd() - 0.46) * vol));
-        out.push(+v.toFixed(2));
-    }
-    return out;
-}
-
-const pct = (a: number, b: number) => (b === 0 ? 0 : ((a - b) / b) * 100);
 const fmt = (v: number) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-interface Strategist {
+interface StrategistTickerItem {
     id: string;
     slug: string | null;
     name: string;
-    series: number[];
-}
-
-const DEMO_NAMES = [
-    'M. KOVAC', 'J. TANAKA', 'R. SILVA', 'A. BERG', 'L. MOREAU',
-    'D. OKAFOR', 'I. PETROVA', 'C. VEGA', 'T. NAKAMURA', 'H. LINDQVIST'
-];
-
-function makeStrategist(id: string, name: string, slug: string | null): Strategist {
-    return {
-        id,
-        slug,
-        name,
-        series: buildSeries(id),
-    };
+    sym: string;
+    price: number;
+    chg: number;
 }
 
 function Delta({ value, className = '' }: { value: number; className?: string }) {
+    if (value === 0 || !isFinite(value)) {
+        return (
+            <span className={`text-white/40 font-bold tabular-nums ${className}`}>
+                ● 0,00%
+            </span>
+        );
+    }
     const up = value >= 0;
     return (
         <span className={`${up ? 'text-emerald-400' : 'text-red-400'} font-bold tabular-nums ${className}`}>
@@ -73,57 +34,60 @@ function Delta({ value, className = '' }: { value: number; className?: string })
 
 export default function NasdaqTicker() {
     const pathname = usePathname();
-
-    const [field, setField] = useState<Strategist[]>([]);
+    const [tickerList, setTickerList] = useState<StrategistTickerItem[]>([]);
 
     useEffect(() => {
         let isMounted = true;
-        const loadStrategists = async () => {
+        const loadRealStrategists = async () => {
             try {
+                // Carrega todos os estrategistas com contrato assinado e perfil real do banco
                 const { data: contracts } = await supabase
                     .from('contracts')
-                    .select('user_id, profiles(slug, first_name, last_name)');
+                    .select('user_id, profiles(slug, first_name, last_name, driver_number, mls_balance)');
 
                 if (!isMounted) return;
 
-                const real: Strategist[] = (contracts || []).map((c: any) => {
-                    const p = c.profiles || {};
-                    const name = p.first_name 
-                        ? `${p.first_name.trim().charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase().replace(/\s+/g, '')}` 
-                        : 'ESTRATEGISTA';
-                    return makeStrategist(c.user_id, name, p.slug || null);
+                const realItems: StrategistTickerItem[] = (contracts || []).map((c: any) => {
+                    const p = Array.isArray(c.profiles) ? c.profiles[0] || {} : c.profiles || {};
+                    const firstInitial = p.first_name ? p.first_name.trim().charAt(0).toUpperCase() : '';
+                    const lastName = (p.last_name || '').trim().toUpperCase().replace(/\s+/g, '');
+                    const num = p.driver_number ? String(p.driver_number) : '';
+                    const codeName = firstInitial && lastName ? `${firstInitial}.${lastName}${num}` : 'ESTRATEGISTA';
+                    const balance = typeof p.mls_balance === 'number' ? p.mls_balance : 100;
+                    const cleanSlug = p.slug ? p.slug.replace('@', '') : `${firstInitial.toLowerCase()}${lastName.toLowerCase()}${num}`;
+                    const targetSlug = p.slug || (cleanSlug ? `@${cleanSlug}` : null);
+
+                    return {
+                        id: c.user_id,
+                        slug: targetSlug,
+                        name: codeName,
+                        sym: `$${cleanSlug.toUpperCase()}`,
+                        price: balance,
+                        chg: 0, // 0,00% estável (fase de abertura de temporada, 0 GPs homologados)
+                    };
                 });
 
-                const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
-                setField(real.length >= 4 ? real : [...real, ...demos]);
+                setTickerList(realItems);
             } catch (err) {
-                console.error("Erro ao carregar cotações do Ticker:", err);
-                const demos = DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
-                if (isMounted) setField(demos);
+                console.error("Erro ao carregar cotações reais do Ticker:", err);
             }
         };
 
-        loadStrategists();
+        loadRealStrategists();
         return () => { isMounted = false; };
     }, []);
 
-    const tickerItems = useMemo(() => {
-        const list = field.length ? field : DEMO_NAMES.map((n, i) => makeStrategist(`demo-${i}`, n, null));
-        return list.map(s => ({
-            sym: `$${(s.slug || s.name).replace(/[@.\s]/g, '').toUpperCase()}`,
-            price: s.series[s.series.length - 1],
-            chg: pct(s.series[s.series.length - 1], s.series[s.series.length - 2]),
-            slug: s.slug,
-        }));
-    }, [field]);
-
-    // Do not show on onboarding / auth screens
+    // Não exibe em telas de onboarding ou autenticação
     if (
         pathname === '/' ||
         pathname === '/superlicense' ||
         pathname === '/invite' ||
         pathname === '/academy'
     ) {
+        return null;
+    }
+
+    if (tickerList.length === 0) {
         return null;
     }
 
@@ -143,15 +107,15 @@ export default function NasdaqTicker() {
             `}</style>
 
             <div className="vg-marquee-global flex w-max whitespace-nowrap py-2 cursor-pointer">
-                {[...tickerItems, ...tickerItems].map((t, i) => (
+                {[...tickerList, ...tickerList].map((t, i) => (
                     <Link
                         key={i}
-                        href={t.slug ? `/${t.slug.startsWith('@') ? t.slug : `@${t.slug}`}` : '/playground'}
+                        href={t.slug ? `/${t.slug.startsWith('@') ? t.slug : `@${t.slug}`}` : '/'}
                         className="flex items-center gap-2 px-5 text-[11px] tracking-widest border-r border-white/5 hover:bg-white/5 transition-colors"
-                        title={`Ver cotação de ${t.sym}`}
+                        title={`Ver pitwall do estrategista ${t.sym}`}
                     >
                         <span className="text-white/80 font-bold">{t.sym}</span>
-                        <span className="text-white/50 tabular-nums">{fmt(t.price)}</span>
+                        <span className="text-white/50 tabular-nums">{fmt(t.price)} MLS</span>
                         <Delta value={t.chg} className="text-[10px]" />
                     </Link>
                 ))}
