@@ -34,19 +34,25 @@ function SuperlicenseAuthContent() {
     }, [searchParams]);
 
     useEffect(() => {
-        // Se usuário já autenticado, redireciona diretamente para seu pitwall
+        const forceLogin = searchParams?.get('force') === 'login' || searchParams?.get('logout') === 'true';
+        if (forceLogin) {
+            supabase.auth.signOut().then(() => {});
+            return;
+        }
+
+        // Se usuário autenticado com setup COMPLETO, redireciona para o pitwall
         const checkExistingSession = async () => {
             if (isLoading) return;
             if (user) {
-                const { data } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
-                if (data?.slug) {
+                const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
+                if (data?.slug && data.setup_completed === true) {
                     const target = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
                     window.location.replace(`/${target}`);
                 }
             }
         };
         checkExistingSession();
-    }, [user, isLoading]);
+    }, [user, isLoading, searchParams]);
 
     // Resolução resiliente do e-mail oficial a partir de E-mail, @slug, slug ou formato L.GUSTAVO88
     const resolveLoginEmail = async (rawInput: string): Promise<string> => {
@@ -213,6 +219,45 @@ function SuperlicenseAuthContent() {
                         PRIMEIRO DIA »
                     </Link>
                 </div>
+
+                {user && (
+                    <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/40 rounded-sm flex flex-col gap-3 animate-fade-in">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-yellow-400 font-bold uppercase tracking-wider">
+                                ● SESSÃO ATIVA DETECTADA
+                            </span>
+                            <span className="text-[10px] text-gray-300 font-mono truncate max-w-[180px]">
+                                {user.email}
+                            </span>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
+                                    if (data?.slug && data.setup_completed) {
+                                        window.location.href = `/${data.slug.startsWith('@') ? data.slug : `@${data.slug}`}`;
+                                    } else {
+                                        window.location.href = '/headquarters';
+                                    }
+                                }}
+                                className="flex-1 bg-[#fbaa19] text-black font-black text-[10px] uppercase py-2 tracking-widest hover:bg-white transition-colors cursor-pointer text-center"
+                            >
+                                Entrar no Painel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    await supabase.auth.signOut();
+                                    window.location.href = '/superlicense?force=login';
+                                }}
+                                className="flex-1 bg-red-950/70 border border-red-500/50 text-red-300 font-bold text-[10px] uppercase py-2 tracking-widest hover:bg-red-800 transition-colors cursor-pointer text-center"
+                            >
+                                Sair / Trocar Conta
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {errorMsg && (
                     <div className="mb-6 p-3.5 bg-red-900/30 border border-red-500/50 text-red-400 text-[10px] font-bold uppercase tracking-widest text-center">

@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
+import { LogOut, Check, ArrowRight, ShieldCheck } from 'lucide-react';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
@@ -70,16 +71,16 @@ function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 150 }: 
 
                 i++;
 
-                let delay = (30 + Math.random() * 20);
-                if (char === '.' || char === '!' || char === '?') delay = 320;
-                else if (char === ',' || char === '\n' || char === ':') delay = 160;
+                let delay = (25 + Math.random() * 15);
+                if (char === '.' || char === '!' || char === '?') delay = 280;
+                else if (char === ',' || char === '\n' || char === ':') delay = 140;
 
                 timeoutId = setTimeout(typeNext, delay);
             } else {
                 setIsTyping(false);
                 if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
                 if (callbacksRef.current.onComplete) {
-                    setTimeout(callbacksRef.current.onComplete, 800);
+                    setTimeout(callbacksRef.current.onComplete, 600);
                 }
             }
         };
@@ -109,7 +110,7 @@ function HeadquartersFlow() {
     const [typingDone, setTypingDone] = useState(false);
 
     const [activeAllianceKey, setActiveAllianceKey] = useState<'A' | 'B' | 'C'>('B');
-    const [activeGroupName, setActiveGroupName] = useState<string>("Grupo 1 (G. Farina)");
+    const [activeGroupName, setActiveGroupName] = useState<string>("Grupo 1");
     const [offeredTeams, setOfferedTeams] = useState<TeamOffer[]>([]);
 
     useEffect(() => {
@@ -139,7 +140,8 @@ function HeadquartersFlow() {
                         .maybeSingle();
 
                     if (profile?.slug) {
-                        window.location.replace(`/${profile.slug}`);
+                        const target = profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`;
+                        window.location.replace(`/${target}`);
                         return;
                     }
                 }
@@ -152,67 +154,93 @@ function HeadquartersFlow() {
                 setActiveAllianceKey(alliancePref);
                 const currentFaction = ENGINE_FACTIONS[alliancePref] || ENGINE_FACTIONS['B'];
 
-                // 3. Busca o grupo ativo do Fantasy (is_filling = true)
-                const { data: activeGroupData } = await supabase
-                    .from('groups')
-                    .select('*')
-                    .eq('is_filling', true)
-                    .maybeSingle();
-
-                const group = activeGroupData || { id: 1, name: 'G. Farina' };
-                const gName = group.name ? `Grupo ${group.id} (${group.name})` : `Grupo ${group.id}`;
-                setActiveGroupName(gName);
-
-                // 4. Busca contratos ocupados no grupo ativo
-                const { data: contractsData } = await supabase
-                    .from('contracts')
-                    .select('team_id')
-                    .eq('group_id', group.id);
-
-                const occupiedCounts: Record<string, number> = {};
-                (contractsData || []).forEach((c: any) => {
-                    occupiedCounts[c.team_id] = (occupiedCounts[c.team_id] || 0) + 1;
-                });
-
-                // 5. Busca equipes cadastradas no banco
+                // 3. Busca equipes cadastradas no banco
                 const { data: teamsData, error: teamsError } = await supabase.from('teams').select('*');
                 if (teamsError) throw teamsError;
 
                 const factionCodes = currentFaction.teams;
                 const factionTeamObjs = (teamsData || []).filter((t: any) => factionCodes.includes(t.code));
 
-                // 6. Monta especificações das ofertas
-                const offersList: TeamOffer[] = factionTeamObjs.map((t: any) => {
-                    const spec = TEAM_SPECS[t.code] || {
-                        engineSpec: currentFaction.engineSpec,
-                        perk: currentFaction.fantasyPerk,
-                        description: `Garagem oficial da aliança ${currentFaction.badge}.`,
-                        seatTitle: `ESTRATEGISTA CHEFE ${t.name.toUpperCase()}`
-                    };
-                    const occupied = occupiedCounts[t.id] || 0;
-                    return {
+                // 4. Busca grupos e contratos para mapear a ocupação real (< 2 vagas)
+                const { data: availableGroups } = await supabase
+                    .from('groups')
+                    .select('id, name, is_filling')
+                    .order('id', { ascending: true })
+                    .limit(50);
+
+                const { data: allContracts } = await supabase
+                    .from('contracts')
+                    .select('group_id, team_id');
+
+                const countsByGroupTeam: Record<string, number> = {};
+                (allContracts || []).forEach((c: any) => {
+                    const key = `${c.group_id}_${c.team_id}`;
+                    countsByGroupTeam[key] = (countsByGroupTeam[key] || 0) + 1;
+                });
+
+                // Encontra o primeiro grupo que possui vagas reais (< 2) para a aliança selecionada
+                let selectedGroup = (availableGroups || []).find(g => g.is_filling) || availableGroups?.[0] || { id: 1, name: 'G. Farina' };
+                let candidateOpenOffers: TeamOffer[] = [];
+
+                const groupsToScan = availableGroups && availableGroups.length > 0 ? availableGroups : [selectedGroup];
+                for (const grp of groupsToScan) {
+                    const offersForGrp: TeamOffer[] = factionTeamObjs.map((t: any) => {
+                        const spec = TEAM_SPECS[t.code] || {
+                            engineSpec: currentFaction.engineSpec,
+                            perk: currentFaction.fantasyPerk,
+                            description: `Garagem oficial da aliança ${currentFaction.badge}.`,
+                            seatTitle: `ESTRATEGISTA CHEFE ${t.name.toUpperCase()}`
+                        };
+                        const key = `${grp.id}_${t.id}`;
+                        const occupied = countsByGroupTeam[key] || 0;
+                        const gName = grp.name ? `Grupo ${grp.id} (${grp.name})` : `Grupo ${grp.id}`;
+                        return {
+                            id: t.id,
+                            name: t.name,
+                            code: t.code,
+                            color: t.color || '#000000',
+                            occupied: occupied,
+                            engineSpec: spec.engineSpec,
+                            perk: spec.perk,
+                            description: spec.description,
+                            seatTitle: spec.seatTitle,
+                            groupName: gName,
+                            groupId: grp.id
+                        };
+                    });
+
+                    const openOnly = offersForGrp.filter(o => o.occupied < 2);
+                    if (openOnly.length > 0) {
+                        selectedGroup = grp;
+                        candidateOpenOffers = openOnly;
+                        break;
+                    }
+                }
+
+                // Fallback dinâmico se todos estiverem ocupados
+                if (candidateOpenOffers.length === 0) {
+                    const nextGroupId = (availableGroups?.[availableGroups.length - 1]?.id || 1) + 1;
+                    selectedGroup = { id: nextGroupId, name: `Grupo ${nextGroupId}` };
+                    candidateOpenOffers = factionTeamObjs.map((t: any) => ({
                         id: t.id,
                         name: t.name,
                         code: t.code,
                         color: t.color || '#000000',
-                        occupied: occupied,
-                        engineSpec: spec.engineSpec,
-                        perk: spec.perk,
-                        description: spec.description,
-                        seatTitle: spec.seatTitle,
-                        groupName: gName,
-                        groupId: group.id
-                    };
-                });
-
-                // 7. Filtra equipes com vagas abertas (< 2)
-                let openOffers = offersList.filter(o => o.occupied < 2);
-                if (openOffers.length === 0) {
-                    openOffers = offersList;
+                        occupied: 0,
+                        engineSpec: currentFaction.engineSpec,
+                        perk: currentFaction.fantasyPerk,
+                        description: `Garagem oficial da aliança ${currentFaction.badge}.`,
+                        seatTitle: `ESTRATEGISTA CHEFE ${t.name.toUpperCase()}`,
+                        groupName: `Grupo ${nextGroupId}`,
+                        groupId: nextGroupId
+                    }));
                 }
 
-                // Seleciona exatamente duas propostas oficiais
-                const shuffled = [...openOffers].sort(() => 0.5 - Math.random());
+                const gName = selectedGroup.name ? `Grupo ${selectedGroup.id} (${selectedGroup.name})` : `Grupo ${selectedGroup.id}`;
+                setActiveGroupName(gName);
+
+                // Seleciona exatamente duas propostas com vagas reais abertas (< 2)
+                const shuffled = [...candidateOpenOffers].sort(() => 0.5 - Math.random());
                 const twoProposals = shuffled.slice(0, 2);
                 setOfferedTeams(twoProposals);
 
@@ -244,7 +272,7 @@ function HeadquartersFlow() {
                 org_color: team.color 
             }).eq('id', user.id);
 
-            // 3. Obtém o slug e redireciona para a central pessoal
+            // 3. Obtém o slug e redireciona para o pitwall do piloto
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('slug')
@@ -252,13 +280,21 @@ function HeadquartersFlow() {
                 .single();
 
             const targetSlug = profile?.slug || 'dashboard';
-            window.location.replace(`/${targetSlug}`);
+            const cleanTarget = targetSlug.startsWith('@') ? targetSlug : `@${targetSlug}`;
+            window.location.replace(`/${cleanTarget}`);
 
         } catch (err: any) {
             console.error(err);
             setErrorMsg(err.message || "FALHA NA HOMOLOGAÇÃO DO CONTRATO.");
             setSigningId(null);
         }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch (_) {}
+        window.location.href = '/superlicense?force=login';
     };
 
     if (authLoading || loadingData) {
@@ -273,14 +309,13 @@ function HeadquartersFlow() {
                 <div className="relative z-10 flex flex-col items-center gap-4 bg-black/80 p-8 border border-[#fbaa19]/30 rounded-lg">
                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
-                        &gt;_ SINCRONIZANDO TELEMETRIA COM A BASE DE DADOS DA FIA...
+                        &gt;_ SINCRONIZANDO TELEMETRIA COM A BASE DE DADOS DA BAEFF1...
                     </p>
                 </div>
             </main>
         );
     }
 
-    // Se o usuário não estiver autenticado (abriu direto sem confirmar e-mail)
     if (!user) {
         return (
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono relative p-4">
@@ -301,7 +336,7 @@ function HeadquartersFlow() {
                     </div>
 
                     <p className="text-gray-300 text-sm leading-relaxed">
-                        Não detectamos uma sessão ativa de Superlicença. Para acessar as vagas exclusivas da sua aliança, clique no link de homologação enviado para seu e-mail de telemetria ou realize o login com suas credenciais.
+                        Não detectamos uma sessão ativa de Superlicença. Para acessar as vagas exclusivas da sua aliança, realize o login com suas credenciais ou crie seu registro de primeiro dia.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 pt-2">
@@ -325,8 +360,7 @@ function HeadquartersFlow() {
 
     const faction = ENGINE_FACTIONS[activeAllianceKey] || ENGINE_FACTIONS['B'];
 
-    // Discurso do Agente / Diretor narrando as metas das três competições
-    const agentSpeech = `Identificação confirmada. Seus canais estão criptografados e homologados na base da FIA. Temos exatamente DUAS garagens com assento vago na nossa aliança dentro do ${activeGroupName}.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILÉSIMUS: Cravar a volta mais rápida da Pole Position nos treinos classificatórios até a casa dos milésimos de segundo;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato mundial de construtores.\n\nAnalise as duas propostas oficiais abaixo e assine seu contrato de pitwall.`;
+    const agentSpeech = `Identificação confirmada. Seus canais estão criptografados e homologados na base da BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do ${activeGroupName}.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILÉSIMUS: Cravar a volta mais rápida da Pole Position nos treinos classificatórios até a casa dos milésimos de segundo;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato mundial de construtores.\n\nAnalise as propostas oficiais abaixo com vagas disponíveis e assine seu contrato de pitwall.`;
 
     return (
         <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center pb-24">
@@ -338,7 +372,32 @@ function HeadquartersFlow() {
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
-            <div className="relative z-10 w-full max-w-4xl flex flex-col gap-6 mt-12 md:mt-16 px-4">
+            {/* BARRA SUPERIOR DE ESCAPE E CONTROLE DE SESSÃO */}
+            <div className="relative z-20 w-full bg-black/90 border-b border-white/10 backdrop-blur-md px-4 py-2.5">
+                <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-white/60 font-bold uppercase tracking-wider text-[11px]">
+                            BAEFF1 PITWALL HQ
+                        </span>
+                        <span className="text-white/30 hidden sm:inline">•</span>
+                        <span className="text-[#fbaa19] font-mono text-[11px] truncate max-w-[220px]">
+                            {user.email}
+                        </span>
+                    </div>
+
+                    <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-1.5 bg-red-950/60 hover:bg-red-800/80 text-red-300 hover:text-white border border-red-500/40 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded transition-all cursor-pointer"
+                        title="Desconectar da sessão atual e retornar ao login"
+                    >
+                        <LogOut className="w-3 h-3" />
+                        <span>Sair / Trocar de Conta</span>
+                    </button>
+                </div>
+            </div>
+
+            <div className="relative z-10 w-full max-w-4xl flex flex-col gap-6 mt-8 md:mt-10 px-4">
                 
                 {/* Header do Terminal: Discurso do Agente com as Instruções */}
                 <div className="bg-black/85 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-5 animate-fade-in">
@@ -348,7 +407,7 @@ function HeadquartersFlow() {
                             &gt;_ DESPACHO EXECUTIVO // ALOCAÇÃO DE ASSENTOS NO PITWALL
                         </span>
                         <span className="text-emerald-400 text-[10px] font-bold tracking-widest uppercase border border-emerald-500/30 px-2.5 py-0.5 rounded bg-emerald-950/30">
-                            ● SESSÃO HOMOLOGADA • FIA ACTIVE
+                            ● SESSÃO HOMOLOGADA • BAEFF1 ACTIVE
                         </span>
                     </div>
 
@@ -365,7 +424,7 @@ function HeadquartersFlow() {
                     <div className="border-l-2 border-[#fbaa19] pl-4 py-1 text-sm md:text-base text-gray-200 leading-relaxed font-mono">
                         <TypewriterLine 
                             text={agentSpeech} 
-                            startDelay={200} 
+                            startDelay={150} 
                             onReadyForNext={() => setTypingDone(true)} 
                         />
                     </div>
@@ -377,7 +436,7 @@ function HeadquartersFlow() {
                     </div>
                 )}
 
-                {/* Duas Propostas Oficiais de Equipes (Estilo Bloomberg / Paddock Noir) */}
+                {/* Propostas Oficiais de Equipes com Vagas Reais */}
                 <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-700 ${typingDone ? 'opacity-100' : 'opacity-85'}`}>
                     {offeredTeams.map((teamOffer) => {
                         const availableSpots = Math.max(0, 2 - teamOffer.occupied);
@@ -417,51 +476,60 @@ function HeadquartersFlow() {
                                 {/* Tabela Bloomberg de Ativos & Requisitos */}
                                 <div className="border border-white/10 rounded overflow-hidden text-xs font-mono bg-black/40">
                                     <div className="flex justify-between items-center p-2.5 bg-white/[0.03] border-b border-white/5">
-                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">STATUS DO ATIVO</span>
+                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">VAGAS NO BLOCO</span>
                                         <span className="text-emerald-400 font-bold tracking-widest text-[11px]">
-                                            [OPEN] • {availableSpots} {availableSpots === 1 ? 'VAGA RESTANTE' : 'VAGAS ABERTAS'}
+                                            [DISPONÍVEL] • {availableSpots} {availableSpots === 1 ? 'VAGA RESTANTE' : 'VAGAS ABERTAS'}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center p-2.5 border-b border-white/5">
-                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">GRUPO FANTASY</span>
+                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">GRUPO BAEFF1</span>
                                         <span className="text-white font-bold text-[11px]">{teamOffer.groupName}</span>
                                     </div>
                                     <div className="flex flex-col p-2.5 border-b border-white/5 gap-1">
                                         <span className="text-gray-400 uppercase tracking-widest text-[10px]">UNIDADE DE POTÊNCIA</span>
-                                        <span className="text-[#fbaa19] text-[11px] font-bold">{teamOffer.engineSpec}</span>
+                                        <span className="text-amber-400 font-bold text-[11px]">{teamOffer.engineSpec}</span>
                                     </div>
-                                    <div className="flex flex-col p-2.5 border-b border-white/5 gap-1">
-                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">PERK DE OPERAÇÃO</span>
-                                        <span className="text-white text-[11px] leading-relaxed">{teamOffer.perk}</span>
-                                    </div>
-                                    <div className="flex flex-col p-2.5 gap-1 bg-white/[0.02]">
-                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">METAS DA TEMPORADA</span>
-                                        <div className="text-[10px] text-gray-300 flex flex-col gap-0.5">
-                                            <span>• TOP 10 Finish: Máxima precisão de chegada</span>
-                                            <span>• Milésimus: Duelos de Poletime até os milésimos</span>
-                                            <span>• Mundial de Motores: Supremacia técnica</span>
-                                        </div>
+                                    <div className="flex flex-col p-2.5 gap-1 bg-white/[0.01]">
+                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">BENEFÍCIO TÁTICO FANTASY</span>
+                                        <span className="text-gray-200 text-[11px] leading-snug">{teamOffer.perk}</span>
                                     </div>
                                 </div>
 
-                                {/* Botão Oficial de Homologação de Contrato */}
+                                {/* Botão de Assinatura Definitiva de Contrato */}
                                 <button
                                     onClick={() => handleSignContract(teamOffer)}
-                                    disabled={!!signingId}
-                                    className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.15em] text-xs p-3.5 rounded hover:bg-white hover:shadow-[0_0_15px_rgba(251,170,25,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                                    disabled={isSigning || availableSpots <= 0}
+                                    className={`w-full p-4 rounded font-black tracking-widest uppercase text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
+                                        availableSpots <= 0 
+                                            ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/10'
+                                            : isSigning 
+                                            ? 'bg-[#fbaa19] text-black animate-pulse' 
+                                            : 'bg-white text-black hover:bg-[#fbaa19] hover:text-black border border-transparent'
+                                    }`}
                                 >
                                     {isSigning ? (
-                                        <span className="flex items-center gap-2">
-                                            <span className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                                            HOMOLOGANDO CONTRATO NA FIA...
-                                        </span>
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                            <span>HOMOLOGANDO CONTRATO NA BAEFF1...</span>
+                                        </>
+                                    ) : availableSpots <= 0 ? (
+                                        <span>[ GARAGEM COMPLETA ]</span>
                                     ) : (
-                                        `[ ASSINAR CONTRATO & ASSUMIR O PITWALL DA ${teamOffer.name.toUpperCase()} ] »`
+                                        <>
+                                            <span>ASSINAR COM A {teamOffer.name.toUpperCase()}</span>
+                                            <span>&gt;&gt;</span>
+                                        </>
                                     )}
                                 </button>
                             </div>
                         );
                     })}
+                </div>
+
+                {/* Rodapé institucional */}
+                <div className="text-center text-[11px] text-gray-400 tracking-widest uppercase border-t border-white/10 pt-4 flex flex-col gap-1 font-mono">
+                    <p>&gt;_ CONTRATO VINCULANTE TEMPORADA 2026 • HOMOLOGAÇÃO SOB DIRETRIZES DA BAEFF1</p>
+                    <p className="text-[10px] text-gray-400">Após a confirmação, o assento é reservado e intransferível até a janela de Silly Season.</p>
                 </div>
 
             </div>
@@ -471,7 +539,11 @@ function HeadquartersFlow() {
 
 export default function HeadquartersPage() {
     return (
-        <Suspense fallback={<div className="w-full h-screen bg-black" />}>
+        <Suspense fallback={
+            <div className="w-full min-h-screen bg-[#050401] flex items-center justify-center font-mono text-[#fbaa19]">
+                &gt;_ CARREGANDO QUARTEL-GENERAL...
+            </div>
+        }>
             <HeadquartersFlow />
         </Suspense>
     );
