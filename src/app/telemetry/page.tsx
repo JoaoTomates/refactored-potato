@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { fetchNextEvent, F1Event, F1_MATCHUPS, getDriverDetails } from '@/api/f1-data';
 import { PilotAvatar } from '@/components/pilot-avatar';
+import MasterRankingsTable from '@/components/master-rankings-table';
 
 interface UserTeam {
     name: string;
@@ -295,6 +296,9 @@ export default function TelemetryPage() {
                     </div>
                 </div>
             </section>
+
+            {/* TABELA MASTER & ROUNDS INSPIRADA NA GLOBO.COM (USUÁRIOS FANTASY) */}
+            <MasterRankingsTable />
 
             {/* DATA CENTER TABLE */}
             <section className="w-full px-4 md:px-8 max-w-7xl mx-auto mt-6">
