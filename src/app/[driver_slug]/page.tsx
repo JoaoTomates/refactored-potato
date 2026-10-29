@@ -301,7 +301,7 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
     );
 }
 
-/* ---------- Credencial / Capacete (Alto Contraste) ---------- */
+/* ---------- Credencial / Capacete ---------- */
 function CredentialCard({ 
     me, 
     number, 
@@ -315,38 +315,20 @@ function CredentialCard({
 }) {
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
-    const safeColor = (me.teamColor === '#000000' || me.teamColor === '#050401' || me.teamColor === '#111111')
-        ? '#fbaa19'
-        : (me.teamColor || '#fbaa19');
 
     return (
-        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={safeColor}>
+        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={me.teamColor}>
             <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-black flex items-center justify-center p-2">
-                {/* Capacete Oficial F1 Expandido com Alto Contraste */}
+                {/* Capacete Oficial F1 Expandido sobre Fundo 100% Preto */}
                 <div className="w-full h-full max-h-[260px] md:max-h-[280px] flex items-center justify-center relative scale-110 md:scale-120 transition-transform">
                     <div className="relative w-full h-full flex items-center justify-center">
-                        
-                        {/* Pedestal Luminoso / Backlight Halo */}
-                        <div 
-                            className="absolute inset-0 pointer-events-none opacity-85"
-                            style={{
-                                background: `radial-gradient(circle at 50% 48%, ${safeColor}45 0%, ${safeColor}18 42%, transparent 72%)`
-                            }}
-                        />
-
-                        {/* Base Vector com Realce de Linhas e Contraste */}
                         <img 
                             alt="Capacete Oficial F1" 
-                            className="w-full h-full object-contain select-none transition-all drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)]" 
+                            className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)]" 
                             src="/avatar-overlay.svg" 
-                            style={{
-                                filter: 'brightness(1.9) contrast(1.4) drop-shadow(0 0 1px rgba(255,255,255,0.45))'
-                            }}
                         />
-
-                        {/* Camada 1: Coloração Vibrante sem Perda de Luminância */}
                         <div 
-                            className="absolute inset-0 mix-blend-color opacity-95 pointer-events-none" 
+                            className="absolute inset-0 mix-blend-multiply pointer-events-none" 
                             style={{ 
                                 WebkitMaskImage: 'url("/avatar-overlay.svg")',
                                 maskImage: 'url("/avatar-overlay.svg")', 
@@ -356,13 +338,11 @@ function CredentialCard({
                                 maskRepeat: 'no-repeat', 
                                 WebkitMaskPosition: 'center center',
                                 maskPosition: 'center center', 
-                                backgroundColor: safeColor 
+                                backgroundColor: me.teamColor 
                             }} 
                         />
-
-                        {/* Camada 2: Sombras Aerodinâmicas Suaves */}
                         <div 
-                            className="absolute inset-0 mix-blend-multiply opacity-55 pointer-events-none" 
+                            className="absolute inset-0 mix-blend-color opacity-85 pointer-events-none" 
                             style={{ 
                                 WebkitMaskImage: 'url("/avatar-overlay.svg")',
                                 maskImage: 'url("/avatar-overlay.svg")', 
@@ -372,40 +352,9 @@ function CredentialCard({
                                 maskRepeat: 'no-repeat', 
                                 WebkitMaskPosition: 'center center',
                                 maskPosition: 'center center', 
-                                backgroundColor: safeColor 
+                                backgroundColor: me.teamColor 
                             }} 
                         />
-
-                        {/* Camada 3: Realce Especular de Viseira e Contornos */}
-                        <div 
-                            className="absolute inset-0 mix-blend-screen opacity-45 pointer-events-none" 
-                            style={{ 
-                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                maskImage: 'url("/avatar-overlay.svg")', 
-                                WebkitMaskSize: 'contain',
-                                maskSize: 'contain', 
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskRepeat: 'no-repeat', 
-                                WebkitMaskPosition: 'center center',
-                                maskPosition: 'center center', 
-                                backgroundColor: '#ffffff'
-                            }} 
-                        />
-
-                        {/* Camada 4: Borda de Realce Neon */}
-                        <div 
-                            className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen"
-                            style={{
-                                filter: `drop-shadow(0 0 14px ${safeColor}80) drop-shadow(0 0 2px #ffffff)`
-                            }}
-                        >
-                            <img 
-                                src="/avatar-overlay.svg" 
-                                alt="" 
-                                className="w-full h-full object-contain select-none" 
-                            />
-                        </div>
-
                     </div>
                 </div>
 
