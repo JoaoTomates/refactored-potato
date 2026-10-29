@@ -43,7 +43,12 @@ export const PilotAvatar: React.FC<PilotAvatarProps> = ({
     const rawId = useId();
     const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-    const primaryColor = teamColor || '#fbaa19';
+    const rawColor = teamColor || '#fbaa19';
+    // Garante que cores excessivamente escuras recebam o dourado clássico VoltGrid para não desaparecer
+    const primaryColor = (rawColor === '#000000' || rawColor === '#050401' || rawColor === '#111111') 
+        ? '#fbaa19' 
+        : rawColor;
+
     const numDisplay = driverNumber !== undefined && driverNumber !== null && String(driverNumber).trim() !== ''
         ? String(driverNumber)
         : null;
@@ -169,34 +174,69 @@ export const PilotAvatar: React.FC<PilotAvatarProps> = ({
             </svg>
 
             {/* ============================================================ */}
-            {/* 2. OFFICIAL HELMET OVERLAY LAYER (avatar-overlay.svg) */}
+            {/* 2. OFFICIAL HELMET OVERLAY LAYER (avatar-overlay.svg) - ALTO CONTRASTE */}
             {/* ============================================================ */}
             <div className="absolute inset-0 flex items-center justify-center p-[6%] pointer-events-none">
                 <div className="relative w-full h-full flex items-center justify-center">
-                    {/* Official Vector Helmet SVG */}
+                    
+                    {/* Pedestal Luminoso / Halo de Fundo */}
+                    <div 
+                        className="absolute inset-0 rounded-full pointer-events-none opacity-80" 
+                        style={{
+                            background: `radial-gradient(circle at 50% 48%, ${primaryColor}55 0%, ${primaryColor}18 45%, transparent 72%)`
+                        }}
+                    />
+
+                    {/* Vector Oficial F1 com Realce de Brilho & Contraste nas Linhas */}
                     <img
                         src="/avatar-overlay.svg"
                         alt="Capacete Oficial F1"
-                        className="w-full h-full object-contain select-none drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)]"
+                        className="w-full h-full object-contain select-none transition-all drop-shadow-[0_4px_14px_rgba(0,0,0,0.95)]"
+                        style={{
+                            filter: 'brightness(1.85) contrast(1.35) drop-shadow(0 0 1px rgba(255,255,255,0.45))'
+                        }}
                     />
 
-                    {/* Team Color Layer 1 (Multiply - Dyes the helmet shell) */}
+                    {/* Camada 1: Coloração Vibrante Mantendo Luminância */}
                     <div
-                        className="absolute inset-0 mix-blend-multiply"
+                        className="absolute inset-0 mix-blend-color opacity-95"
                         style={{
                             ...maskStyle,
                             backgroundColor: primaryColor,
                         }}
                     />
 
-                    {/* Team Color Layer 2 (Color - Enriches vibrancy & highlights) */}
+                    {/* Camada 2: Sombras e Linhas Estruturais Suaves */}
                     <div
-                        className="absolute inset-0 mix-blend-color opacity-75"
+                        className="absolute inset-0 mix-blend-multiply opacity-55"
                         style={{
                             ...maskStyle,
                             backgroundColor: primaryColor,
                         }}
                     />
+
+                    {/* Camada 3: Realce Especular nas Linhas da Viseira e Contornos */}
+                    <div
+                        className="absolute inset-0 mix-blend-screen opacity-45"
+                        style={{
+                            ...maskStyle,
+                            backgroundColor: '#ffffff',
+                        }}
+                    />
+
+                    {/* Camada 4: Borda Externa Neon Realçada */}
+                    <div 
+                        className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen"
+                        style={{
+                            filter: `drop-shadow(0 0 6px ${primaryColor}) drop-shadow(0 0 1px #ffffff)`
+                        }}
+                    >
+                        <img 
+                            src="/avatar-overlay.svg" 
+                            alt="" 
+                            className="w-full h-full object-contain select-none" 
+                        />
+                    </div>
                 </div>
             </div>
 

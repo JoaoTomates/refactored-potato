@@ -7,6 +7,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { F1_TEAMS } from '@/lib/teams';
 import { getChampionGroupName } from '@/lib/champions';
+import { PilotAvatar } from '@/components/pilot-avatar';
 import Settings from "@/components/settings";
 import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
@@ -282,7 +283,9 @@ export default function DynamicMinimalistDashboard() {
         loadPilotDashboard();
     }, [authLoading, user, targetSlug]);
 
-    const teamColor = me?.teamColor || '#fbaa19';
+    const rawTeamColor = me?.teamColor || '#fbaa19';
+    const teamColor = (rawTeamColor === '#000000' || rawTeamColor === '#050401' || rawTeamColor === '#111111') ? '#fbaa19' : rawTeamColor;
+    const safeColor = teamColor;
     const allianceId = allianceForCode(me?.teamCode);
 
     const mentorVoice = useMemo(() => {
@@ -382,9 +385,15 @@ export default function DynamicMinimalistDashboard() {
                 {/* 1. TOP BAR UNIFICADA */}
                 <header className="bg-black/85 border border-white/10 p-4 rounded-sm flex flex-wrap items-center justify-between gap-4 backdrop-blur-md">
                     
-                    {/* Identidade do Piloto */}
+                    {/* Identidade do Piloto com Avatar */}
                     <div className="flex items-center gap-3">
-                        <span className="w-1.5 h-8 rounded-full" style={{ backgroundColor: teamColor }} />
+                        <PilotAvatar 
+                            teamColor={safeColor}
+                            driverNumber={me.driverNumber}
+                            size="sm"
+                            variant="team"
+                            className="ring-1 ring-white/20 shadow-[0_0_15px_rgba(255,255,255,0.15)]"
+                        />
                         <div>
                             <div className="flex items-center gap-2">
                                 <span className="text-base sm:text-lg font-black tracking-wider text-white">
@@ -754,6 +763,131 @@ export default function DynamicMinimalistDashboard() {
 
                     {/* COLUNA DIREITA (4 COLS): MONITOR DO GRID & ALIANÇAS */}
                     <div className="lg:col-span-4 flex flex-col gap-4">
+
+                        {/* 0. CARD DE SUPERLICENÇA & CAPACETE (ALTO CONTRASTE) */}
+                        <div className="bg-black/85 border border-white/10 rounded-sm overflow-hidden flex flex-col relative group shadow-2xl">
+                            {/* Faixa Superior com Cor Oficial */}
+                            <div className="h-1.5 w-full" style={{ backgroundColor: safeColor }} />
+                            
+                            <div className="p-3.5 pb-2 border-b border-white/10 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#fbaa19]">
+                                        SUPERLICENÇA // COCKPIT
+                                    </span>
+                                </div>
+                                <span className="text-[9px] text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">
+                                    ● HOMOLOGADO
+                                </span>
+                            </div>
+
+                            {/* Render de Alto Contraste do Capacete */}
+                            <div className="relative aspect-[16/10] overflow-hidden bg-black/95 flex items-center justify-center p-2">
+                                <div className="w-full h-full max-h-[195px] flex items-center justify-center relative scale-110">
+                                    <div className="relative w-full h-full flex items-center justify-center">
+                                        
+                                        {/* Pedestal Luminoso / Backlight Halo */}
+                                        <div 
+                                            className="absolute inset-0 pointer-events-none opacity-85"
+                                            style={{
+                                                background: `radial-gradient(circle at 50% 48%, ${safeColor}50 0%, ${safeColor}18 42%, transparent 72%)`
+                                            }}
+                                        />
+
+                                        {/* Base Vector Oficial com Realce de Linhas e Contraste */}
+                                        <img 
+                                            alt="Capacete Oficial F1" 
+                                            className="w-full h-full object-contain select-none transition-all drop-shadow-[0_12px_28px_rgba(0,0,0,0.95)]" 
+                                            src="/avatar-overlay.svg" 
+                                            style={{
+                                                filter: 'brightness(1.9) contrast(1.4) drop-shadow(0 0 1px rgba(255,255,255,0.45))'
+                                            }}
+                                        />
+
+                                        {/* Camada 1: Coloração Vibrante */}
+                                        <div 
+                                            className="absolute inset-0 mix-blend-color opacity-95 pointer-events-none" 
+                                            style={{ 
+                                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                                maskImage: 'url("/avatar-overlay.svg")', 
+                                                WebkitMaskSize: 'contain',
+                                                maskSize: 'contain', 
+                                                WebkitMaskRepeat: 'no-repeat',
+                                                maskRepeat: 'no-repeat', 
+                                                WebkitMaskPosition: 'center center',
+                                                maskPosition: 'center center', 
+                                                backgroundColor: safeColor 
+                                            }} 
+                                        />
+
+                                        {/* Camada 2: Sombras Aerodinâmicas Suaves */}
+                                        <div 
+                                            className="absolute inset-0 mix-blend-multiply opacity-55 pointer-events-none" 
+                                            style={{ 
+                                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                                maskImage: 'url("/avatar-overlay.svg")', 
+                                                WebkitMaskSize: 'contain',
+                                                maskSize: 'contain', 
+                                                WebkitMaskRepeat: 'no-repeat',
+                                                maskRepeat: 'no-repeat', 
+                                                WebkitMaskPosition: 'center center',
+                                                maskPosition: 'center center', 
+                                                backgroundColor: safeColor 
+                                            }} 
+                                        />
+
+                                        {/* Camada 3: Realce Especular nas Linhas da Viseira e Contornos */}
+                                        <div 
+                                            className="absolute inset-0 mix-blend-screen opacity-45 pointer-events-none" 
+                                            style={{ 
+                                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                                maskImage: 'url("/avatar-overlay.svg")', 
+                                                WebkitMaskSize: 'contain',
+                                                maskSize: 'contain', 
+                                                WebkitMaskRepeat: 'no-repeat',
+                                                maskRepeat: 'no-repeat', 
+                                                WebkitMaskPosition: 'center center',
+                                                maskPosition: 'center center', 
+                                                backgroundColor: '#ffffff'
+                                            }} 
+                                        />
+
+                                        {/* Camada 4: Borda de Realce Neon */}
+                                        <div 
+                                            className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen"
+                                            style={{
+                                                filter: `drop-shadow(0 0 14px ${safeColor}80) drop-shadow(0 0 2px #ffffff)`
+                                            }}
+                                        >
+                                            <img 
+                                                src="/avatar-overlay.svg" 
+                                                alt="" 
+                                                className="w-full h-full object-contain select-none" 
+                                            />
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {/* Badges Superiores Flutuantes */}
+                                <div className="absolute top-2.5 left-3 flex items-center gap-1.5 z-10">
+                                    <span 
+                                        className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow-sm border border-white/20 text-white" 
+                                        style={{ backgroundColor: safeColor }}
+                                    >
+                                        {me.teamCode}
+                                    </span>
+                                    <span className="text-[9px] font-bold tracking-widest px-1.5 py-0.5 rounded bg-black/80 border border-white/10 text-white/70">
+                                        #{me.driverNumber}
+                                    </span>
+                                </div>
+
+                                {/* Identificação Inferior */}
+                                <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[10px] font-mono z-10 bg-black/60 backdrop-blur-xs px-2 py-1 rounded-xs border border-white/5">
+                                    <span className="text-white font-bold uppercase truncate">{me.teamName}</span>
+                                    <span className="text-[#fbaa19] font-black shrink-0">{ALLIANCES[allianceId].short}</span>
+                                </div>
+                            </div>
+                        </div>
                         
                         {/* 1. Ranking do Grupo */}
                         <div className="bg-black/75 border border-white/10 p-4 rounded-sm flex flex-col gap-3">
