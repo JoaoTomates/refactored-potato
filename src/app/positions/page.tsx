@@ -457,21 +457,6 @@ export default function PositionsPage() {
             {/* CONTAINER PRINCIPAL */}
             <div className="relative z-10 w-full max-w-5xl px-4 md:px-8 mt-4 flex flex-col gap-6">
 
-                {/* Banner de Acesso ao Novo Conceito Intuitivo */}
-                <Link
-                    href="/nc/positions"
-                    className="w-full p-2.5 rounded bg-[#fbaa19]/10 hover:bg-[#fbaa19]/20 border border-[#fbaa19]/40 flex items-center justify-between text-xs transition-all text-[#fbaa19] hover:text-white"
-                >
-                    <span className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-ping" />
-                        <span className="font-bold uppercase tracking-wider">NOVO CONCEITO INTUITIVO:</span>
-                        <span className="text-white/80 hidden sm:inline">Versão limpa e objetiva sem textos longos, com explicações em (?)</span>
-                    </span>
-                    <span className="font-black uppercase tracking-widest text-[11px] underline">
-                        [ ABRIR NC/POSITIONS » ]
-                    </span>
-                </Link>
-
                 {/* 1. HUD DA SUPERLICENÇA / STATUS DO PILOTO */}
                 {/* <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-4 md:p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">

@@ -301,17 +301,6 @@ export default function NewConceptPositionsPage() {
         <div className="min-h-screen bg-[#050401] text-white font-mono pb-28">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
 
-                {/* Switcher & Badges de Modo */}
-                <div className="flex items-center justify-between text-[10px] text-white/40 uppercase tracking-widest mb-3 px-1">
-                    <span className="flex items-center gap-1.5 text-[#fbaa19] font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#fbaa19] animate-ping" />
-                        <span>NOVO CONCEITO INTUITIVO // TEXTOS EM (?)</span>
-                    </span>
-                    <Link href="/positions" className="hover:text-white transition-colors underline">
-                        [ Alternar para Versão Clássica » ]
-                    </Link>
-                </div>
-
                 {/* ========================================================
                     BARRA SUPERIOR COMPACTA // HUD DO ESTRATEGISTA
                    ======================================================== */}
