@@ -56,6 +56,15 @@ export interface F1Event {
     rawTime?: string;
     qualiDate?: string;
     qualiTime?: string;
+    isSprint?: boolean;
+    sprintDate?: string;
+    sprintTime?: string;
+    fp1Date?: string;
+    fp1Time?: string;
+    fp2Date?: string;
+    fp2Time?: string;
+    fp3Date?: string;
+    fp3Time?: string;
     status: 'OPEN' | 'CLOSED' | 'LIVE';
 }
 
@@ -79,6 +88,15 @@ export const fetchNextEvent = async (): Promise<F1Event> => {
                 rawTime: nextRace.time,
                 qualiDate: nextRace.Qualifying ? nextRace.Qualifying.date : undefined,
                 qualiTime: nextRace.Qualifying ? nextRace.Qualifying.time : undefined,
+                isSprint: !!nextRace.Sprint,
+                sprintDate: nextRace.Sprint ? nextRace.Sprint.date : undefined,
+                sprintTime: nextRace.Sprint ? nextRace.Sprint.time : undefined,
+                fp1Date: nextRace.FirstPractice ? nextRace.FirstPractice.date : undefined,
+                fp1Time: nextRace.FirstPractice ? nextRace.FirstPractice.time : undefined,
+                fp2Date: nextRace.SecondPractice ? nextRace.SecondPractice.date : undefined,
+                fp2Time: nextRace.SecondPractice ? nextRace.SecondPractice.time : undefined,
+                fp3Date: nextRace.ThirdPractice ? nextRace.ThirdPractice.date : undefined,
+                fp3Time: nextRace.ThirdPractice ? nextRace.ThirdPractice.time : undefined,
                 status: 'OPEN'
             };
         }

@@ -12,7 +12,8 @@ import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
-import { nextRaceStart } from '@/lib/race';
+import { nextRaceStart, isRaceWeek } from '@/lib/race';
+import RaceWeekSchedule from '@/components/race-week-schedule';
 import { formatMls } from '@/lib/mls';
 import { 
     TeamworkSquad, 
@@ -501,6 +502,11 @@ export default function DynamicMinimalistDashboard() {
                     {/* COLUNA ESQUERDA (8 COLS): COCKPIT MULTIFUNCIONAL */}
                     <div className="lg:col-span-8 flex flex-col gap-4">
                         
+                        {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
+                        {isRaceWeek() && (
+                            <RaceWeekSchedule compact={true} accentColor={teamColor} />
+                        )}
+
                         {/* SELETOR DE ABAS */}
                         <div className="flex border-b border-white/10 gap-2 bg-black/60 p-1.5 rounded-sm overflow-x-auto">
                             <button

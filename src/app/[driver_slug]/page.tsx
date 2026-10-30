@@ -13,6 +13,7 @@ import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
+import RaceWeekSchedule from "@/components/race-week-schedule";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { formatMls, formatTimeAgo } from '@/lib/mls';
@@ -1112,6 +1113,11 @@ export default function OfficialStrategistDashboard() {
                                     <span>»</span>
                                 </span>
                             </Link>
+
+                            {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
+                            {raceWeek && (
+                                <RaceWeekSchedule compact={true} accentColor={teamColor} />
+                            )}
 
                             {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
