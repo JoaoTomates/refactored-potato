@@ -6,6 +6,7 @@ import NasdaqTicker from './nasdaq-ticker';
 import Footer from './footer';
 import MobileBottomDock from './mobile-bottom-dock';
 import PaddockRadioPlayer from './paddock-radio-player';
+import VersionSwitchBar from './version-switch-bar';
 
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -13,6 +14,9 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
 
     return (
         <div className="flex flex-col min-h-screen w-full relative">
+            {/* Componente Provisório de Navegação entre Versões (V1 / V2 NC) */}
+            <VersionSwitchBar />
+
             {/* Único Ticker Oficial do Sistema */}
             {!isHiddenRoute && <NasdaqTicker />}
             
