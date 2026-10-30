@@ -59,11 +59,11 @@
   *(Ação do usuário: Clicar para avançar ou aguardar digitação do teletipo retro.)*
 
 #### Fase 2: Mérito Técnico, Telemetria & A Provocação do Bankroll (Página 1)
-- **Box 1 (Perfil de Estrategista vs. Apostador Casual):**  
-  > *“O mercado não procura apostadores de sorte. Ele quer estrategistas capazes de cravar o Poletime dentro da margem de 5 segundos, prever a linha de chegada, identificar os maiores escaladores do grid e antecipar quem domina os duelos internos.”*  
+- **Box 1 (Perfil de Estrategista & Habilidades-Chave):**  
+  > *“O mercado procura estrategistas capazes de • cravar o Poletime - ou pelo menos ficar dentro da margem de 5 segundos, • prever a linha de chegada, • os principais escaladores do grid e antecipar • quem é o piloto dominante nos duelos internos.”*  
   *(Tom: Profissional, desafiador, definindo as quatro mecânicas do fantasy.)*
 - **Box 2 (O Teste de Nervos de Aço):**  
-  > *“Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento sobre se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
+  > *“Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
   *(Tom: Provocativo e visceral. Coloca o jogador sob teste psicológico de risco financeiro.)*  
   *(Transição: Contagem regressiva de 10s com botão `[ AVANÇAR ] »` disponível.)*
 
