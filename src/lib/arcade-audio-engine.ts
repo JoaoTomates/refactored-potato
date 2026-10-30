@@ -16,6 +16,7 @@ class ArcadeSuspenseSynth {
     private masterGain: GainNode | null = null;
     private filterNode: BiquadFilterNode | null = null;
     private isRunning: boolean = false;
+    private noiseNode: AudioBufferSourceNode | null = null;
     private tempo: number = 108; // BPM de suspense estilo OutRun / Kavinsky
     private currentStep: number = 0;
     private timerId: number | null = null;
@@ -99,9 +100,16 @@ class ArcadeSuspenseSynth {
             clearInterval(this.timerId);
             this.timerId = null;
         }
+        if (this.noiseNode) {
+            try {
+                this.noiseNode.stop();
+                this.noiseNode.disconnect();
+            } catch (_) {}
+            this.noiseNode = null;
+        }
         if (this.masterGain && this.ctx) {
             try {
-                this.masterGain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.5);
+                this.masterGain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.3);
             } catch (_) {}
         }
         this.isRunning = false;
@@ -269,6 +277,7 @@ class ArcadeSuspenseSynth {
             }
 
             const noise = this.ctx.createBufferSource();
+            this.noiseNode = noise;
             noise.buffer = buffer;
             noise.loop = true;
 
