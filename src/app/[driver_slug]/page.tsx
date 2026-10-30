@@ -1116,7 +1116,7 @@ export default function OfficialStrategistDashboard() {
 
                             {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
                             {raceWeek && (
-                                <RaceWeekSchedule compact={true} accentColor={teamColor} />
+                                <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={teamColor} />
                             )}
 
                             {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) */}

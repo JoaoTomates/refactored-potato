@@ -504,7 +504,7 @@ export default function DynamicMinimalistDashboard() {
                         
                         {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
                         {isRaceWeek() && (
-                            <RaceWeekSchedule compact={true} accentColor={teamColor} />
+                            <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={teamColor} />
                         )}
 
                         {/* SELETOR DE ABAS */}
