@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/sync-dialogues.js && next build",
     "start": "next start",
     "lint": "eslint",
-    "reset-db": "node scripts/wipe_auth.js"
+    "reset-db": "node scripts/wipe_auth.js",
+    "sync-dialogues": "node scripts/sync-dialogues.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",

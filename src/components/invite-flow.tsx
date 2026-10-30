@@ -5,6 +5,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, ALLIANCE_KEYS, FactionData } from '@/utils/alliance-data';
 import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
+import { INVITE_V2_DIALOGS } from '@/data/dialogues';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
@@ -136,13 +137,7 @@ export function TypewriterLine({
 
 type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'ENLIST' | 'EMAIL_SENT' | 'SUBMITTING_ENLIST';
 
-const customDialogs = [
-    "Entre e feche a porta.",
-    "O mercado procura estrategistas capazes de • cravar o Poletime - ou pelo menos ficar dentro da margem de 5 segundos, • prever a linha de chegada, • os principais escaladores do grid e antecipar • quem é o piloto dominante nos duelos internos.",
-    "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
-    "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
-    "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
-];
+const customDialogs = INVITE_V2_DIALOGS;
 
 export function InviteFlow() {
     const { user, isLoading: authLoading } = useSupabaseAuth();
