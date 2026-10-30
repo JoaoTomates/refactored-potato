@@ -19,11 +19,15 @@
 ---
 
 ## 1. Onboarding & O Chamado Confidencial
+
+---
+
+### 1.1 Versão 1.0 (Clássica / Roteiro Original do Onboarding)
 *Cenário:* Uma sala fechada com vista chuvosa para o pitlane noturno. O silêncio é quebrado apenas pelos cliques de relés mecânicos e monitores âmbar.  
 *Personagem:* **Diretor de Operações BAEFF1**  
 *Arquivo Fonte:* `src/locales/invite.ts`, `src/app/lore/page.tsx`
 
-### Sequência do Diálogo:
+#### Sequência do Diálogo:
 - **Linha 1:**  
   > *“Puxe uma cadeira e feche a porta.”*  
   *(Tom: Seco, sério, confidencial. Estabelece a gravidade do momento.)*
@@ -41,6 +45,72 @@
   *(Gatilho: Ofertas de garagens vagas.)*
 - **Linha 6 (Formalização da Superlicença):**  
   > *“Preciso de uma linha criptografada e da sua assinatura digital. Quem estou representando hoje no Pit Wall?”*
+
+---
+
+### 1.2 Versão 2.0 (Atual Dinâmica — Implementada em `/invite` e `InviteFlow`)
+*Cenário:* O jogador caminha em pixel art rumo ao motorhome da BAEFF1 (`/pixel_invite_walk.jpg`) e entra na central de dados iluminada por telas de telemetria CRT (`/pixel_invite_bg_v2.jpg`). O ritmo é pontuado por som de máquina mecânica (`PitWallSoundEngine`), paginação de tela limpa e contagem de transição automática de 10 segundos.  
+*Personagem:* **Diretor Executivo de Operações BAEFF1**  
+*Arquivo Fonte:* `src/components/invite-flow.tsx`
+
+#### Fase 1: Recepção Inicial (Caminhada ao Motorhome)
+- **Fase INTRO:**
+  > *“Entre e feche a porta.”*  
+  *(Ação do usuário: Clicar para avançar ou aguardar digitação do teletipo retro.)*
+
+#### Fase 2: Mérito Técnico, Telemetria & A Provocação do Bankroll (Página 1)
+- **Box 1 (Perfil de Estrategista vs. Apostador Casual):**  
+  > *“O mercado não procura apostadores de sorte. Ele quer estrategistas capazes de cravar o Poletime dentro da margem de 5 segundos, prever a linha de chegada, identificar os maiores escaladores do grid e antecipar quem domina os duelos internos.”*  
+  *(Tom: Profissional, desafiador, definindo as quatro mecânicas do fantasy.)*
+- **Box 2 (O Teste de Nervos de Aço):**  
+  > *“Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento sobre se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
+  *(Tom: Provocativo e visceral. Coloca o jogador sob teste psicológico de risco financeiro.)*  
+  *(Transição: Contagem regressiva de 10s com botão `[ AVANÇAR ] »` disponível.)*
+
+#### Fase 3: A Nova Ordem e a Tomada de Posição (Página 2)
+- **Box 3 (Guerra Fria dos Motores):**  
+  > *“Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.”*  
+  *(Tom: Geopolítica de paddock, tensão entre as montadoras.)*
+- **Box 4 (O Chamado às Armas):**  
+  > *“Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações.”*  
+  *(Ação: Abre a seleção das 3 frentes de motores com botão `[ VER ALIANÇAS ] »`.)*
+
+#### Fase 4: O Dossiê das Alianças (Página 3)
+- **Opção 1 — [BLOCO A] CONSÓRCIO DA ESTRELA:**  
+  > *“CONFIABILIDADE DE AÇO & DOMÍNIO DE FROTA”*  
+  > *EQUIPES: Mercedes, McLaren, Alpine, Williams*  
+  > *SPEC: Mercedes-AMG M16 E Performance V6 Turbo Hybrid*  
+  > *PERK: +15% de rendimento em previsões de consistência cirúrgica de corrida.*
+- **Opção 2 — [BLOCO B] A DINASTIA DE MARANELLO:**  
+  > *“POTÊNCIA DE PICO & A FRENTE AMERICANA”*  
+  > *EQUIPES: Ferrari, Haas, Cadillac*  
+  > *SPEC: Ferrari 067/3 Hybrid E-Turbo Speciale*  
+  > *PERK: Bônus dobrado (2x) em apostas arriscadas de Pole Position (Poletime).*
+- **Opção 3 — [BLOCO C] A VANGUARDA:**  
+  > *“AMBIÇÃO EXTREMA E RISCO TECNOLÓGICO”*  
+  > *EQUIPES: Red Bull Racing, Racing Bulls, Aston Martin, Audi*  
+  > *SPEC: Red Bull Powertrains-Ford / Honda HRC / Audi PU*  
+  > *PERK: Rendimento progressivo ao cravar zebras no Top 10 e azarões nos duelos.*
+
+#### Fase 5: Resposta Imediata da Diretoria & Emissão da Superlicença (Fase ENLIST)
+- O Diretor responde imediatamente de acordo com o bloco selecionado:
+  - *Bloco A:* `“Escolha metódica. Você optou pela maior frota de motores da Alemanha...”`
+  - *Bloco B:* `“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana...”`
+  - *Bloco C:* `“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi...”`
+- **Protocolo de Registro:**
+  > *“&gt; - PROTOCOLO DE REGISTRO // EMISSÃO DA SUPERLICENÇA”*  
+  > *“Insira suas credenciais oficiais. Seus dados serão transmitidos para a central da FIA e o canal de telemetria será criptografado.”*  
+  *(Gera automaticamente o código do piloto no padrão `L.GUSTAVO88` e o slug `@lgustavo88` a partir de Nome e Sobrenome).*
+
+#### Fase 6: Confirmação & Designação do Mentor (Fase EMAIL_SENT)
+- **Despacho Operacional:**  
+  > *“VERIFIQUE SEU CANAL DE TELEMETRIA: Um link de homologação seguro foi transmitido para o seu e-mail. Abra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.”*
+- **Sorteio do Conselheiro Sênior do Pitwall:**  
+  > *Um dos 24 Estrategistas Sêniores (ex: `M.AMON`, `T.WARWICK`) é sorteado para ser o mentor exclusivo do piloto, já exibindo sua frase de impacto e índice de assertividade histórica.*  
+- **Painel Financeiro BAEFF1:**  
+  > *BÔNUS INICIAL (MILESIMUS): +000.100 mls creditados na conta do estrategista.*  
+  > *ESTADO: AGUARDANDO CLIQUE NO LINK DO E-MAIL.*  
+  > *PRÓXIMA ETAPA: CENTRAL DE OPERAÇÕES // ESCOLHA DE EQUIPE (`/headquarters`).*
 
 ---
 
