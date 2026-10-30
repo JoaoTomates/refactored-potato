@@ -8,7 +8,7 @@ import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
-import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails } from '@/api/f1-data';
+import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails, fetchNextEvent, F1Event } from '@/api/f1-data';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 
 
@@ -113,6 +113,13 @@ export default function PositionsPage() {
     const [pilot, setPilot] = useState<PilotProfile | null>(null);
     const [hasSyncedFromDb, setHasSyncedFromDb] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<{ type: 'top10' | 'evo', index: number } | null>(null);
+    const [eventData, setEventData] = useState<F1Event | null>(null);
+
+    useEffect(() => {
+        fetchNextEvent().then((ev) => {
+            if (ev) setEventData(ev);
+        });
+    }, []);
 
     // Estado da calibragem do Bloco do usuário
 
@@ -417,120 +424,53 @@ export default function PositionsPage() {
             />
             <div className="fixed inset-0 bg-[#050401]/85 backdrop-blur-[2px] z-0 pointer-events-none" />
 
-            {/* TICKER TAPE SUPERIOR ESTILO BOLSA DE VALORES */}
-            <header className="relative z-10 w-full border-b border-[#fbaa19]/25 bg-black/90 backdrop-blur-md px-4 py-2.5 overflow-hidden shadow-lg">
-                <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 text-[10px] md:text-xs uppercase tracking-widest">
-                    <div className="flex items-center gap-3 shrink-0">
-                        {/* Link to GP Positions */}
-                        <Link href="/positions" className={isRaceWeek() ? 'text-[#fbaa19] hover:text-[#fbaa19]' : 'text-white hover:text-white'}>
-                          PITLANE OPEN
-                        </Link>
-                        {/* Countdown during race week */}
-                        {isRaceWeek() && (
-                          <span className="ml-2 text-sm text-[#fbaa19]">
-                            ⏱ {(() => {
-                              const diff = nextRaceStart() - new Date();
-                              const hrs = Math.floor(diff / 3600000);
-                              const mins = Math.floor((diff % 3600000) / 60000);
-                              return `${hrs}h ${mins}m`;
-                            })()}
-                          </span>
+            {/* CONTAINER PRINCIPAL */}
+            <div className="relative z-10 w-full max-w-5xl px-4 md:px-8 mt-6 flex flex-col gap-6">
+
+                {/* NOVO HEADER // PRÓXIMO EVENTO (LARGURA FIXA DE NO MÁXIMO 50% DO BOX DOS FORMULÁRIOS) */}
+                <header className="w-full sm:w-1/2 sm:max-w-[50%] flex flex-col shadow-2xl font-mono overflow-hidden">
+                    {/* Título: Black, Background Yellow, Nome do Evento */}
+                    <div className="bg-[#fbaa19] text-black px-4 py-2 flex items-center justify-between gap-2">
+                        <span className="text-xs sm:text-sm md:text-base font-black uppercase tracking-tight sm:tracking-wider truncate block">
+                            {eventData?.name || 'MEXICO CITY GRAND PRIX'}
+                        </span>
+                        {eventData?.round && (
+                            <span className="text-[10px] font-black px-1.5 py-0.5 bg-black text-[#fbaa19] rounded-xs shrink-0">
+                                R{eventData.round}
+                            </span>
                         )}
                     </div>
 
-                    {/* Ticker contínuo */}
-                    <div className="hidden lg:flex items-center gap-6 text-white/60 font-medium overflow-hidden">
-                        <span>[MCLAREN $38.4M <span className="text-emerald-400 font-bold">▲ +2.1%</span>]</span>
-                        <span>[FERRARI $36.8M <span className="text-red-400 font-bold">▼ -0.8%</span>]</span>
-                        <span>[MERCEDES $34.2M <span className="text-emerald-400 font-bold">▲ +1.4%</span>]</span>
-                        <span>[RED BULL $35.0M <span className="text-white/40 font-bold">▬ 0.0%</span>]</span>
-                        <span>[SPREAD: 0.014s]</span>
+                    {/* Subtítulo: Margin Top 0, Nome do Circuito, Color White, Background Black */}
+                    <div className="mt-0 bg-black border-x border-b border-white/20 text-white px-4 py-1.5">
+                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate block text-white/90">
+                            {eventData?.circuit || 'AUTÓDROMO HERMANOS RODRÍGUEZ'}
+                        </span>
                     </div>
 
-                    {/* <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-white/40">AUDITORIA:</span>
-                        <span className="text-[#fbaa19] font-bold">FIA // PITWALL V2</span>
-                    </div> */}
-                </div>
-            </header>
-
-            {/* CONTAINER PRINCIPAL */}
-            <div className="relative z-10 w-full max-w-5xl px-4 md:px-8 mt-4 flex flex-col gap-6">
-
-                {/* 1. HUD DA SUPERLICENÇA / STATUS DO PILOTO */}
-                {/* <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-4 md:p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative border-2" style={{ borderColor: pilot?.teamColor || '#fbaa19' }}>
-                            {pilot?.avatarUrl ? (
-                                <img src={pilot.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                <PilotAvatar
-                                    teamColor={pilot?.teamColor || '#fbaa19'}
-                                    driverNumber={pilot?.driverNumber}
-                                    variant="team"
-                                    size="custom"
-                                    showHUD={true}
-                                    showBadge={false}
-                                    className="w-full h-full"
-                                />
-                            )}
-                        </div>
-
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-white font-black text-sm md:text-base tracking-wider uppercase font-mono">
-                                    {pilot?.name || 'PILOTO'}
-                                </span>
-                                {pilot?.driverNumber && (
-                                    <span className="bg-[#fbaa19] text-black text-[10px] font-black px-1.5 py-0.2 rounded">
-                                        #{pilot.driverNumber}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-white/50 mt-0.5">
-                                <span className="font-bold uppercase tracking-wider" style={{ color: pilot?.teamColor || '#fbaa19' }}>
-                                    {pilot?.teamName || 'EQUIPE INDEPENDENTE'}
-                                </span>
-                                <span>•</span>
-                                <span className={hasSyncedFromDb ? "text-emerald-400 font-bold" : "text-[#fbaa19] font-bold"}>
-                                    {hasSyncedFromDb ? '● SINCRONIZADO NO GRID' : '● SESSÃO LOCAL PRONTA'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 w-full md:w-auto justify-end pt-2 md:pt-0 border-t md:border-t-0 border-white/10">
-                        <Link
-                            href="/telemetry"
-                            className="text-xs uppercase tracking-widest font-bold px-3.5 py-2 bg-white/5 hover:bg-[#fbaa19]/20 text-white/80 hover:text-[#fbaa19] rounded border border-white/15 hover:border-[#fbaa19]/40 transition-all flex items-center gap-1.5"
-                        >
-                            <span>[ TELEMETRIA GERAL ]</span>
-                            <span>&rarr;</span>
-                        </Link>
-                    </div>
-                </section>
-
-                {/* 2. HEADER OPERACIONAL / DESPACHO DE POSIÇÕES */}
-                <header className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-3">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <div className="flex items-center gap-2">
-                            <span className="text-[#fbaa19] text-xs font-black tracking-[0.2em] uppercase">
-                                &gt;_ TERMINAL DE POSIÇÕES // SALA DE CONTROLE DE PITWALL
+                    {/* Abaixo: Race Date Time e ao lado Deadline Date Time "Q1" */}
+                    <div className="mt-0 bg-[#0d0e12] border-x border-b border-white/20 px-4 py-2 flex items-center justify-between gap-3 text-[10px] sm:text-[11px]">
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[#fbaa19] text-[8px] sm:text-[9px] font-black uppercase tracking-widest">
+                                RACE DATE TIME
                             </span>
-                            <span className="text-[#fbaa19] animate-pulse">■</span>
+                            <span className="text-gray-200 font-bold truncate">
+                                {eventData ? `${eventData.date} · ${eventData.time}` : 'TBA'}
+                            </span>
                         </div>
-                        {/* <span className="text-[10px] uppercase tracking-widest text-white/40">
-                            ORDENS DE MERCADO // GP ATIVO
-                        </span> */}
+
+                        <div className="flex flex-col text-right min-w-0">
+                            <span className="text-red-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">
+                                DEADLINE DATE TIME "Q1"
+                            </span>
+                            <span className="text-white font-bold truncate">
+                                {eventData && eventData.qualiDate && eventData.qualiTime ? (() => {
+                                    const d = new Date(`${eventData.qualiDate}T${eventData.qualiTime}`);
+                                    return `${d.toLocaleDateString("en-US", { month: "short", day: "2-digit" }).toUpperCase()} · ${d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
+                                })() : (eventData?.qualiDate || 'TBD')}
+                            </span>
+                        </div>
                     </div>
-
-                    <h1 className="text-2xl md:text-4xl font-black uppercase tracking-wider text-white">
-                        {activeTabMeta.label}
-                    </h1>
-
-                    <p className="text-white/60 text-xs md:text-sm leading-relaxed max-w-3xl">
-                        {activeTabMeta.desc} Abra e consolide suas posições de telemetria antes do fechamento do pregão. Todas as ordens registradas na Superlicença serão auditadas contra os tempos oficiais da FIA e liquidarão pontos para sua aliança técnica.
-                    </p>
                 </header>
 
 
