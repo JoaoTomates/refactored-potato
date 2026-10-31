@@ -11,6 +11,17 @@
  * Funciona nativamente sem dependências externas e não quebra por links quebrados.
  */
 
+export const PLAY_DURATION_MS = 30000;   // 30 segundos tocando
+export const PAUSE_DURATION_MS = 90000;  // 90 segundos em pausa
+
+export type LoopPhase = 'PLAYING' | 'INTERVAL_PAUSED' | 'IDLE';
+
+interface AudioEngineState {
+    isPlaying: boolean;
+    phase: LoopPhase;
+    remainingMs: number;
+}
+
 class ArcadeSuspenseSynth {
     private ctx: AudioContext | null = null;
     private masterGain: GainNode | null = null;
@@ -22,6 +33,12 @@ class ArcadeSuspenseSynth {
     private timerId: number | null = null;
     private volume: number = 0.35; // Volume padrão confortável
     private isMuted: boolean = false;
+
+    // Gerenciamento do ciclo simplificado: 30s tocando / 90s pausado
+    private loopPhase: LoopPhase = 'IDLE';
+    private phaseStartTime: number = 0;
+    private loopMonitorId: any = null;
+    private listeners: Set<(state: AudioEngineState) => void> = new Set();
 
     // Escala de Suspense em Ré Menor (D2, F2, A2, D3, C3, Bb2, A2, G2)
     private basslineNotes: number[] = [
@@ -139,6 +156,113 @@ class ArcadeSuspenseSynth {
 
     public getIsPlaying(): boolean {
         return this.isRunning;
+    }
+
+    public getPhase(): LoopPhase {
+        return this.loopPhase;
+    }
+
+    public getRemainingMs(): number {
+        if (this.loopPhase === 'IDLE') return PLAY_DURATION_MS;
+        const target = this.loopPhase === 'PLAYING' ? PLAY_DURATION_MS : PAUSE_DURATION_MS;
+        const elapsed = Date.now() - this.phaseStartTime;
+        return Math.max(0, target - elapsed);
+    }
+
+    public subscribe(fn: (state: AudioEngineState) => void): () => void {
+        this.listeners.add(fn);
+        fn(this.getState());
+        return () => {
+            this.listeners.delete(fn);
+        };
+    }
+
+    public getState(): AudioEngineState {
+        return {
+            isPlaying: this.isRunning,
+            phase: this.loopPhase,
+            remainingMs: this.getRemainingMs(),
+        };
+    }
+
+    private notify() {
+        const state = this.getState();
+        this.listeners.forEach((fn) => {
+            try {
+                fn(state);
+            } catch (_) {}
+        });
+    }
+
+    /**
+     * Alterna entre play e pause.
+     * Quando tocando (30s) -> pausa manual (IDLE).
+     * Quando pausado (em intervalo de 90s ou IDLE) -> inicia reprodução de 30s.
+     */
+    public toggle() {
+        if (this.isRunning || this.loopPhase === 'PLAYING') {
+            this.pauseManual();
+        } else {
+            this.playManual();
+        }
+    }
+
+    public playManual() {
+        this.start();
+        this.loopPhase = 'PLAYING';
+        this.phaseStartTime = Date.now();
+        this.startLoopMonitor();
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('baeff1_radio_off');
+        }
+        this.notify();
+    }
+
+    public pauseManual() {
+        this.stop();
+        this.loopPhase = 'IDLE';
+        this.stopLoopMonitor();
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('baeff1_radio_off', 'true');
+        }
+        this.notify();
+    }
+
+    private startLoopMonitor() {
+        this.stopLoopMonitor();
+        if (typeof window === 'undefined') return;
+
+        this.loopMonitorId = window.setInterval(() => {
+            if (this.loopPhase === 'IDLE') return;
+
+            const now = Date.now();
+            const elapsed = now - this.phaseStartTime;
+
+            if (this.loopPhase === 'PLAYING') {
+                // Toca por 30 segundos
+                if (elapsed >= PLAY_DURATION_MS) {
+                    this.stop();
+                    this.loopPhase = 'INTERVAL_PAUSED';
+                    this.phaseStartTime = Date.now();
+                    this.notify();
+                }
+            } else if (this.loopPhase === 'INTERVAL_PAUSED') {
+                // Pausa por 90 segundos
+                if (elapsed >= PAUSE_DURATION_MS) {
+                    this.start();
+                    this.loopPhase = 'PLAYING';
+                    this.phaseStartTime = Date.now();
+                    this.notify();
+                }
+            }
+        }, 200);
+    }
+
+    private stopLoopMonitor() {
+        if (this.loopMonitorId) {
+            clearInterval(this.loopMonitorId);
+            this.loopMonitorId = null;
+        }
     }
 
     private tick() {

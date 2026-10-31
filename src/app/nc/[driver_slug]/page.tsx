@@ -14,6 +14,7 @@ import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import RaceWeekSchedule from '@/components/race-week-schedule';
+import PaddockRadioPlayer from '@/components/paddock-radio-player';
 import { formatMls } from '@/lib/mls';
 import { 
     TeamworkSquad, 
@@ -455,12 +456,13 @@ export default function DynamicMinimalistDashboard() {
                         >
                             <SettingsIcon className="w-4 h-4" />
                         </button>
+                        <PaddockRadioPlayer teamColor={teamColor} />
                         <button 
                             onClick={handleLogout}
-                            className="p-2 border border-white/10 hover:border-red-500 hover:text-red-400 text-white/40 transition-colors ml-1"
+                            className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer font-mono text-[10px] md:text-xs ml-1"
                             title="Desconectar do Pitwall"
                         >
-                            <LogOut className="w-4 h-4" />
+                            [ SAIR ]
                         </button>
                     </div>
                 </header>

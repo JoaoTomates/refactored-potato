@@ -5,7 +5,6 @@ import Navigation from './navigation';
 import NasdaqTicker from './nasdaq-ticker';
 import Footer from './footer';
 import MobileBottomDock from './mobile-bottom-dock';
-import PaddockRadioPlayer from './paddock-radio-player';
 import VersionSwitchBar from './version-switch-bar';
 
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -24,9 +23,6 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
             <main className="flex-grow flex flex-col w-full">
                 {children}
             </main>
-
-            {/* Rádio do Pitwall // Trilha Arcade Suspense & Player Global */}
-            <PaddockRadioPlayer />
         </div>
     );
 }

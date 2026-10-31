@@ -14,6 +14,7 @@ import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
 import RaceWeekSchedule from "@/components/race-week-schedule";
+import PaddockRadioPlayer from "@/components/paddock-radio-player";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { formatMls, formatTimeAgo } from '@/lib/mls';
@@ -939,6 +940,7 @@ export default function OfficialStrategistDashboard() {
                         <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: raceWeek ? '#fbaa19' : teamColor }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
                         
+                        <PaddockRadioPlayer teamColor={teamColor} />
                         {isOwner ? (
                             <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
                         ) : user ? (
