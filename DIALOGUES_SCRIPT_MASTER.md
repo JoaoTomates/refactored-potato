@@ -60,7 +60,7 @@
 
 #### Fase 2: Mérito Técnico, Telemetria & A Provocação do Bankroll (Página 1)
 - **Box 1 (Perfil de Estrategista & Habilidades-Chave):**  
-  > *“O mercado procura estrategistas capazes de • cravar o Poletime - ou pelo menos ficar dentro da margem de 5 segundos, • prever a linha de chegada, • os principais escaladores do grid e antecipar • quem é o piloto dominante nos duelos internos.”*  
+  > *“O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.”*  
   *(Tom: Profissional, desafiador, definindo as quatro mecânicas do fantasy.)*
 - **Box 2 (O Teste de Nervos de Aço):**  
   > *“Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
@@ -77,21 +77,20 @@
 
 #### Fase 4: O Dossiê das Alianças (Página 3)
 - **Opção 1 — [BLOCO A] CONSÓRCIO DA ESTRELA:**  
-  > *“CONFIABILIDADE DE AÇO & DOMÍNIO DE FROTA”*  
   > *EQUIPES: Mercedes, McLaren, Alpine, Williams*  
   > *SPEC: Mercedes-AMG M16 E Performance V6 Turbo Hybrid*  
-  > *PERK: +15% de rendimento em previsões de consistência cirúrgica de corrida.*
+  > *“CONFIABILIDADE DE AÇO & DOMÍNIO DE FROTA”*  
+  
 - **Opção 2 — [BLOCO B] A DINASTIA DE MARANELLO:**  
-  > *“POTÊNCIA DE PICO & A FRENTE AMERICANA”*  
   > *EQUIPES: Ferrari, Haas, Cadillac*  
   > *SPEC: Ferrari 067/3 Hybrid E-Turbo Speciale*  
-  > *PERK: Bônus dobrado (2x) em apostas arriscadas de Pole Position (Poletime).*
+  > *“POTÊNCIA, TRADIÇÃO & A FRENTE AMERICANA”*  
+  
 - **Opção 3 — [BLOCO C] A VANGUARDA:**  
-  > *“AMBIÇÃO EXTREMA E RISCO TECNOLÓGICO”*  
   > *EQUIPES: Red Bull Racing, Racing Bulls, Aston Martin, Audi*  
+  > *“AMBIÇÃO EXTREMA E RISCO TECNOLÓGICO”*  
   > *SPEC: Red Bull Powertrains-Ford / Honda HRC / Audi PU*  
-  > *PERK: Rendimento progressivo ao cravar zebras no Top 10 e azarões nos duelos.*
-
+  
 #### Fase 5: Resposta Imediata da Diretoria & Emissão da Superlicença (Fase ENLIST)
 - O Diretor responde imediatamente de acordo com o bloco selecionado:
   - *Bloco A:* `“Escolha metódica. Você optou pela maior frota de motores da Alemanha...”`
