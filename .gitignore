@@ -43,3 +43,6 @@ next-env.d.ts
 # playground
 /playground
 .playground
+
+# repomix
+repomix-output*
