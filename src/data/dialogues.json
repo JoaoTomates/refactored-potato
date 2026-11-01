@@ -13,37 +13,190 @@
         {
           "id": "sequ_ncia_do_di_logo_",
           "title": "Sequência do Diálogo:",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "linha_1",
+              "title": "Linha 1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Puxe uma cadeira e feche a porta.",
+              "actions": [],
+              "tone": "Seco, sério, confidencial. Estabelece a gravidade do momento."
+            },
+            {
+              "id": "linha_2",
+              "title": "Linha 2",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Os relatórios da sua telemetria caíram na minha mesa e os números são impressionantes. Você lê o traçado antes das luzes apagarem.",
+              "actions": [],
+              "tone": "Reconhecimento contido de talento acima da média."
+            },
+            {
+              "id": "linha_3",
+              "title": "Linha 3",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Mas ninguém vence sozinho neste esporte. O novo regulamento de motores virou o jogo de ponta-cabeça e deflagrou uma verdadeira guerra fria nos bastidores. As fronteiras foram traçadas e três grandes alianças se formaram no grid.",
+              "actions": [],
+              "tone": "Geopolítico, tenso, introduzindo a Era 2026."
+            },
+            {
+              "id": "linha_4",
+              "title": "Linha 4",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Então... onde você vai colocar suas fichas?",
+              "actions": []
+            },
+            {
+              "id": "linha_5_ap_s_sele_o_do_bloco_",
+              "title": "Linha 5 (Após seleção do bloco)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Entendo perfeitamente sua escolha. Como os contratos na BAEFF1 são dinâmicos e disputados a tapa, consegui duas ofertas oficiais dentro do seu bloco... mais uma opção inusitada da diretoria.",
+              "actions": []
+            },
+            {
+              "id": "linha_6_formaliza_o_da_superlicen_a_",
+              "title": "Linha 6 (Formalização da Superlicença)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Preciso de uma linha criptografada e da sua assinatura digital. Quem estou representando hoje no Pit Wall?",
+              "actions": []
+            }
+          ]
         },
         {
           "id": "fase_1_recep_o_inicial_caminhada_ao_motorhome_",
           "title": "Fase 1: Recepção Inicial (Caminhada ao Motorhome)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "fase_intro",
+              "title": "Fase INTRO",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Entre e feche a porta.",
+              "actions": []
+            }
+          ]
         },
         {
           "id": "fase_2_m_rito_t_cnico_telemetria_a_provoca_o_do_bankroll_p_gina_1_",
           "title": "Fase 2: Mérito Técnico, Telemetria & A Provocação do Bankroll (Página 1)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "box_1_perfil_de_estrategista_habilidades_chave_",
+              "boxNumber": 1,
+              "title": "Box 1 (Perfil de Estrategista & Habilidades-Chave)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.",
+              "actions": [],
+              "tone": "Profissional, desafiador, definindo as quatro mecânicas do fantasy."
+            },
+            {
+              "id": "box_2_o_teste_de_nervos_de_a_o_",
+              "boxNumber": 2,
+              "title": "Box 2 (O Teste de Nervos de Aço)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
+              "actions": [
+                {
+                  "label": "AVANÇAR",
+                  "type": "advance"
+                }
+              ],
+              "tone": "Provocativo e visceral. Coloca o jogador sob teste psicológico de risco financeiro."
+            }
+          ]
         },
         {
           "id": "fase_3_a_nova_ordem_e_a_tomada_de_posi_o_p_gina_2_",
           "title": "Fase 3: A Nova Ordem e a Tomada de Posição (Página 2)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "box_3_guerra_fria_dos_motores_",
+              "boxNumber": 3,
+              "title": "Box 3 (Guerra Fria dos Motores)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.",
+              "actions": [],
+              "tone": "Geopolítica de paddock, tensão entre as montadoras."
+            },
+            {
+              "id": "box_4_o_chamado_s_armas_",
+              "boxNumber": 4,
+              "title": "Box 4 (O Chamado às Armas)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações.",
+              "actions": [
+                {
+                  "label": "VER ALIANÇAS",
+                  "type": "advance"
+                }
+              ]
+            }
+          ]
         },
         {
           "id": "fase_4_o_dossi_das_alian_as_p_gina_3_",
           "title": "Fase 4: O Dossiê das Alianças (Página 3)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "op_o_1_bloco_a_cons_rcio_da_estrela",
+              "title": "Opção 1 — [BLOCO A] CONSÓRCIO DA ESTRELA",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "EQUIPES: Mercedes, McLaren, Alpine, Williams\nSPEC: Mercedes-AMG M16 E Performance V6 Turbo Hybrid\nCONFIABILIDADE DE AÇO & DOMÍNIO DE FROTA",
+              "actions": []
+            },
+            {
+              "id": "op_o_2_bloco_b_a_dinastia_de_maranello",
+              "title": "Opção 2 — [BLOCO B] A DINASTIA DE MARANELLO",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "EQUIPES: Ferrari, Haas, Cadillac\nSPEC: Ferrari 067/3 Hybrid E-Turbo Speciale\nPOTÊNCIA, TRADIÇÃO & A FRENTE AMERICANA",
+              "actions": []
+            },
+            {
+              "id": "op_o_3_bloco_c_a_vanguarda",
+              "title": "Opção 3 — [BLOCO C] A VANGUARDA",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "EQUIPES: Red Bull Racing, Racing Bulls, Aston Martin, Audi\nAMBIÇÃO EXTREMA E RISCO TECNOLÓGICO\nSPEC: Red Bull Powertrains-Ford / Honda HRC / Audi PU",
+              "actions": []
+            }
+          ]
         },
         {
           "id": "fase_5_resposta_imediata_da_diretoria_emiss_o_da_superlicen_a_fase_enlist_",
           "title": "Fase 5: Resposta Imediata da Diretoria & Emissão da Superlicença (Fase ENLIST)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "protocolo_de_registro",
+              "title": "Protocolo de Registro",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "&gt; - PROTOCOLO DE REGISTRO // EMISSÃO DA SUPERLICENÇA\nInsira suas credenciais oficiais. Seus dados serão transmitidos para a central da FIA e o canal de telemetria será criptografado.",
+              "actions": []
+            }
+          ]
         },
         {
           "id": "fase_6_confirma_o_designa_o_do_mentor_fase_email_sent_",
           "title": "Fase 6: Confirmação & Designação do Mentor (Fase EMAIL_SENT)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "despacho_operacional",
+              "title": "Despacho Operacional",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "VERIFIQUE SEU CANAL DE TELEMETRIA: Um link de homologação seguro foi transmitido para o seu e-mail. Abra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.",
+              "actions": []
+            },
+            {
+              "id": "sorteio_do_conselheiro_s_nior_do_pitwall",
+              "title": "Sorteio do Conselheiro Sênior do Pitwall",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Um dos 24 Estrategistas Sêniores (ex: `M.AMON`, `T.WARWICK`) é sorteado para ser o mentor exclusivo do piloto, já exibindo sua frase de impacto e índice de assertividade histórica.",
+              "actions": []
+            },
+            {
+              "id": "painel_financeiro_baeff1",
+              "title": "Painel Financeiro BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "BÔNUS INICIAL (MILESIMUS): +000.100 mls creditados na conta do estrategista.\nESTADO: AGUARDANDO CLIQUE NO LINK DO E-MAIL.\nPRÓXIMA ETAPA: CENTRAL DE OPERAÇÕES // ESCOLHA DE EQUIPE (`/headquarters`).",
+              "actions": []
+            }
+          ]
         }
       ],
       "rawBoxes": []
@@ -85,17 +238,104 @@
         {
           "id": "a_vit_ria_p_dio_acerto_cravado_no_poletime_moral_alta_",
           "title": "A. Vitória / Pódio / Acerto Cravado no Poletime (Moral Alta ▲)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "toto_wolff_mercedes_",
+              "title": "Toto Wolff (Mercedes)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Brilhante leitura de corrida! Seus números nos deram a vantagem exata que precisávamos. O consórcio da estrela reconhece seu valor.",
+              "actions": []
+            },
+            {
+              "id": "fred_vasseur_ferrari_",
+              "title": "Fred Vasseur (Ferrari)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Mamma mia! Essa é a Ferrari que o mundo quer ver! A mureta dos boxes esteve impecável hoje. Desfrute do pódio, você mereceu.",
+              "actions": []
+            },
+            {
+              "id": "andrea_stella_mclaren_",
+              "title": "Andrea Stella (McLaren)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Ritmo espetacular! A correlação entre os seus cálculos e a pista foi perfeita. Essa vitória é sua tanto quanto dos nossos pilotos.",
+              "actions": []
+            },
+            {
+              "id": "christian_horner_red_bull_",
+              "title": "Christian Horner (Red Bull)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Simplesmente implacável! Você leu a janela de Safety Car com maestria. A Vanguarda está no topo onde pertence!",
+              "actions": []
+            }
+          ]
         },
         {
           "id": "b_desempenho_mediano_dentro_da_meta_esperada_moral_est_vel_",
           "title": "B. Desempenho Mediano / Dentro da Meta Esperada (Moral Estável ▬)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "toto_wolff_mercedes_",
+              "title": "Toto Wolff (Mercedes)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Pontos importantes para o campeonato, mas deixamos tempo valioso no segundo stint. Quero ver os dados de degradação térmica antes do debriefing.",
+              "actions": []
+            },
+            {
+              "id": "fred_vasseur_ferrari_",
+              "title": "Fred Vasseur (Ferrari)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Um resultado razoável, mas a diretoria em Maranello quer troféus, não apenas estatísticas seguras. Vamos analisar as janelas de undercut perdidas.",
+              "actions": []
+            },
+            {
+              "id": "andrea_stella_mclaren_",
+              "title": "Andrea Stella (McLaren)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Coletamos bons dados, mas nossa telemetria indicava que o segundo lugar era possível. Vamos revisar a tomada de decisão no rádio.",
+              "actions": []
+            },
+            {
+              "id": "christian_horner_red_bull_",
+              "title": "Christian Horner (Red Bull)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Não entramos na F1 para ser figurantes no pelotão intermediário. Ajuste os cálculos de desgaste para a próxima etapa.",
+              "actions": []
+            }
+          ]
         },
         {
           "id": "c_abaixo_da_meta_erro_cr_tico_na_estrat_gia_moral_em_queda_press_o_",
           "title": "C. Abaixo da Meta / Erro Crítico na Estratégia (Moral em Queda / Pressão ▼)",
-          "boxes": []
+          "boxes": [
+            {
+              "id": "toto_wolff_mercedes_",
+              "title": "Toto Wolff (Mercedes)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Inaceitável. Nossa aliança técnica não constrói um motor deste calibre para perdermos posições por hesitação tática. Espero uma reação imediata no próximo GP.",
+              "actions": []
+            },
+            {
+              "id": "fred_vasseur_ferrari_",
+              "title": "Fred Vasseur (Ferrari)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "A pressão dos tifosi vai ser impiedosa esta semana, e com razão. Nós erramos na leitura da pista. Não há espaço para outra corrida assim.",
+              "actions": []
+            },
+            {
+              "id": "andrea_stella_mclaren_",
+              "title": "Andrea Stella (McLaren)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Ficamos presos no tráfego e queimamos borracha sem necessidade. Precisamos de respostas claras para a próxima rodada.",
+              "actions": []
+            },
+            {
+              "id": "christian_horner_red_bull_",
+              "title": "Christian Horner (Red Bull)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Um desastre estratégico. A diretoria austríaca já está pedindo explicações. Recupere esses pontos no próximo final de semana.",
+              "actions": []
+            }
+          ]
         }
       ],
       "rawBoxes": []
@@ -115,9 +355,9 @@
   },
   "inviteV2Dialogs": [
     "Entre e feche a porta.",
-    "O mercado procura estrategistas capazes de • cravar o Poletime - ou pelo menos ficar dentro da margem de 5 segundos, • prever a linha de chegada, • os principais escaladores do grid e antecipar • quem é o piloto dominante nos duelos internos.",
+    "O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.",
     "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
-    "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
+    "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.",
     "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
   ]
 }

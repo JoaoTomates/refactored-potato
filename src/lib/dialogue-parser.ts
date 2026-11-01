@@ -47,8 +47,8 @@ export interface MasterScriptData {
 function cleanSpeechText(text: string): string {
     return text
         .replace(/^>\s*/gm, '')
-        .replace(/^\s*[\*“"']\s*/, '')
-        .replace(/\s*[\*“"']\s*$/, '')
+        .replace(/^[\s*“"'`]+/, '')
+        .replace(/[\s*”"'`]+$/, '')
         .trim();
 }
 
@@ -123,11 +123,11 @@ export function parseDialogueScript(markdown: string): MasterScriptData {
         }
 
         // Detecta início de Box: "- **Box 1..." ou "- **Fase INTRO:**"
-        const boxMatch = line.match(/^-\s*\*\*([^*]+)\*\*:/);
+        const boxMatch = line.match(/^-\s*\*\*([^*]+)\*\*:?/);
         if (boxMatch) {
             if (currentBox && currentPhase) currentPhase.boxes.push(currentBox);
 
-            const boxName = boxMatch[1].trim();
+            const boxName = boxMatch[1].replace(/:$/, '').trim();
             const numMatch = boxName.match(/Box\s*(\d+)/i);
             const boxNum = numMatch ? parseInt(numMatch[1], 10) : undefined;
 
