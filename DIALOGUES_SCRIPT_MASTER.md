@@ -69,7 +69,7 @@
 
 #### Fase 3: A Nova Ordem e a Tomada de Posição (Página 2)
 - **Box 3 (Guerra Fria dos Motores):**  
-  > *“Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.”*  
+  > *“Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.”*  
   *(Tom: Geopolítica de paddock, tensão entre as montadoras.)*
 - **Box 4 (O Chamado às Armas):**  
   > *“Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações.”*  
