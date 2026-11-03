@@ -8,6 +8,7 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { F1_TEAMS } from '@/lib/teams';
 import { getChampionGroupName } from '@/lib/champions';
 import { PilotAvatar, AvatarVariant } from '@/components/pilot-avatar';
+import { getCountryFlag } from '@/lib/country-flags';
 
 /* ============================================================
  * PLAYGROUND — Terminal do Estrategista Multi-Painel
@@ -124,7 +125,9 @@ function Panel({
     children, 
     className = '', 
     bodyClass = 'p-4',
-    accentColor = '#fbaa19'
+    accentColor = '#fbaa19',
+    collapsible = false,
+    defaultOpen = true,
 }: { 
     title: string; 
     tag?: React.ReactNode; 
@@ -132,16 +135,21 @@ function Panel({
     className?: string; 
     bodyClass?: string;
     accentColor?: string;
+    collapsible?: boolean;
+    defaultOpen?: boolean;
 }) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+
     return (
         <div 
             className={`relative bg-black/75 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300 ${className}`}
             style={{ borderColor: `${accentColor}30` }}
         >
             <div 
-                className="flex items-center justify-between gap-2 px-4 py-2.5 border-b"
+                onClick={collapsible ? () => setIsOpen(prev => !prev) : undefined}
+                className={`flex items-center justify-between gap-2 px-4 py-2.5 border-b transition-colors ${collapsible ? 'cursor-pointer select-none hover:bg-white/[0.04]' : ''}`}
                 style={{ 
-                    borderBottomColor: `${accentColor}20`,
+                    borderBottomColor: (!collapsible || isOpen) ? `${accentColor}20` : 'transparent',
                     background: `linear-gradient(90deg, ${accentColor}0a, transparent)`
                 }}
             >
@@ -151,9 +159,24 @@ function Panel({
                 >
                     <span className="opacity-60">&gt;_</span> {title}
                 </span>
-                {tag && <span className="text-[9px] tracking-widest text-white/40 uppercase shrink-0">{tag}</span>}
+                <div className="flex items-center gap-2 shrink-0">
+                    {tag && <span className="text-[9px] tracking-widest text-white/40 uppercase shrink-0">{tag}</span>}
+                    {collapsible && (
+                        <span 
+                            className="text-[10px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded border transition-all"
+                            style={{ 
+                                borderColor: `${accentColor}40`, 
+                                color: accentColor, 
+                                backgroundColor: `${accentColor}10` 
+                            }}
+                            aria-label={isOpen ? "Recolher painel" : "Expandir painel"}
+                        >
+                            {isOpen ? '[-]' : '[+]'}
+                        </span>
+                    )}
+                </div>
             </div>
-            <div className={bodyClass}>{children}</div>
+            {(!collapsible || isOpen) && <div className={bodyClass}>{children}</div>}
         </div>
     );
 }
@@ -263,8 +286,19 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 }
 
 /* ---------- Credencial / Capacete ---------- */
-function CredentialCard({ me, number, allianceId }: { me: Strategist; number: string; allianceId: AllianceId }) {
+function CredentialCard({ 
+    me, 
+    number, 
+    allianceId,
+    nationality
+}: { 
+    me: Strategist; 
+    number: string; 
+    allianceId: AllianceId;
+    nationality?: string | null;
+}) {
     const last = me.series[me.series.length - 1];
+    const flag = getCountryFlag(nationality);
 
     return (
         <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={me.teamColor}>
@@ -308,43 +342,54 @@ function CredentialCard({ me, number, allianceId }: { me: Strategist; number: st
                     </div>
                 </div>
 
-                {/* Nome e Estrategista Centralizados Elevados */}
-                <div className="absolute inset-x-0 bottom-10 pt-10 pb-3 px-4 flex items-end justify-center bg-gradient-to-t from-black/50 via-black/50 to-transparent z-0">
-                    <div className="text-center">
-                        <h2 className="text-xl md:text-2xl font-black tracking-widest leading-none text-white drop-shadow-md">
-                            {me.name}
-                        </h2>
-                        <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mt-1">
-                            ESTRATEGISTA
-                        </p>
+                {/* Bloco Compacto Sobreposto: [Bandeira Circular] USERNAME NÚMERO // EQUIPE // GRUPO */}
+                <div className="absolute inset-x-0 bottom-2 pt-12 pb-2 px-3 flex flex-col items-center justify-end bg-gradient-to-t from-black via-black/80 to-transparent z-10 pointer-events-none">
+                    <div className="flex flex-col items-center text-center gap-1 max-w-full">
+                        {/* Linha 1: [Bandeira Circular Opcional] NOME NÚMERO */}
+                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            {flag && (
+                                <span 
+                                    className="w-4 h-4 rounded-full overflow-hidden border border-white/30 inline-flex items-center justify-center shrink-0 shadow bg-black/60"
+                                    title={nationality || flag.code.toUpperCase()}
+                                >
+                                    <img 
+                                        src={flag.flagUrl} 
+                                        alt={flag.code} 
+                                        className="w-full h-full object-cover rounded-full" 
+                                    />
+                                </span>
+                            )}
+                            <h2 className="text-base md:text-lg font-black tracking-wider leading-none text-white drop-shadow-md truncate">
+                                {me.name}
+                            </h2>
+                            <span className="text-base md:text-lg font-black font-mono tracking-wider leading-none text-[#fbaa19] drop-shadow-md">
+                                {number}
+                            </span>
+                        </div>
+
+                        {/* Linha 2: • EQUIPE */}
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-white/90">
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: me.teamColor }} />
+                            <span className="truncate">{me.teamName}</span>
+                        </div>
+
+                        {/* Linha 3: GRUPO */}
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 truncate">
+                            {getChampionGroupName(me.groupId)}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Grid 2x2: Equipe, Grupo, Aliança e Rating no 4º quadrante */}
-            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-black/10 bg-black">
-                <div className="px-4 py-3 border-r border-b border-black/5">
-                    <p className="text-white/40 mb-1">EQUIPE</p>
-                    <div className="text-white font-bold uppercase truncate">
-                        <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full" style={{ background: me.teamColor }} />
-                            {me.teamName}
-                        </span>
-                    </div>
-                </div>
-                <div className="px-4 py-3 border-b border-black/5">
-                    <p className="text-white/40 mb-1">GRUPO</p>
-                    <div className="text-white font-bold uppercase truncate">
-                        {getChampionGroupName(me.groupId)}
-                    </div>
-                </div>
-                <div className="px-4 py-3 border-r border-black/5">
+            {/* Grid 2 colunas: Aliança e Rating */}
+            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10 bg-black">
+                <div className="px-4 py-3 border-r border-white/10">
                     <p className="text-white/40 mb-1">ALIANÇA</p>
                     <div className="text-white font-bold uppercase truncate">
                         {ALLIANCES[allianceId].short}
                     </div>
                 </div>
-                <div className="px-4 py-3 border-black/5">
+                <div className="px-4 py-3">
                     <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mb-1">RATING</p>
                     <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>
                         {ratingFor(last)}
@@ -628,10 +673,21 @@ export default function PlaygroundPage() {
 
                     {/* COLUNA ESQUERDA: Credencial + Briefing Oficial */}
                     <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
-                        <CredentialCard me={me} number={String(meProfile?.driver_number || '00')} allianceId={allianceId} />
+                        <CredentialCard 
+                            me={me} 
+                            number={String(meProfile?.driver_number || '00')} 
+                            allianceId={allianceId} 
+                            nationality={meProfile?.nationality}
+                        />
 
                         {/* Card Briefing de Garagem */}
-                        <Panel title="Briefing do Paddock" tag="TRANSMISSÃO" accentColor={teamColor}>
+                        <Panel 
+                            title="Briefing do Paddock" 
+                            tag="TRANSMISSÃO" 
+                            accentColor={teamColor}
+                            collapsible={true}
+                            defaultOpen={false}
+                        >
                             <div className="flex flex-col gap-3">
                                 <div className="text-xs leading-relaxed text-white/90 border-l-2 pl-3" style={{ borderLeftColor: teamColor }}>
                                     <TypewriterText key={feedIdx} text={feed[feedIdx]} />
@@ -644,7 +700,12 @@ export default function PlaygroundPage() {
                         </Panel>
 
                         {/* Atalhos Rápidos da Superlicença */}
-                        <Panel title="Acesso Direto" accentColor={teamColor}>
+                        <Panel 
+                            title="Acesso Direto" 
+                            accentColor={teamColor}
+                            collapsible={true}
+                            defaultOpen={false}
+                        >
                             <div className="flex flex-col gap-2">
                                 <Link 
                                     href={`/${meProfile?.slug || ''}`}
