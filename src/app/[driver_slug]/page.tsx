@@ -552,15 +552,36 @@ export default function OfficialStrategistDashboard() {
                     return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
                 });
 
+                // 3.1. Busca direta e resiliente do contrato do usuário autenticado
+                let directContract = null;
+                if (user) {
+                    const { data: myContract } = await supabase
+                        .from('contracts')
+                        .select('id, user_id, team_id, group_id')
+                        .eq('user_id', user.id)
+                        .maybeSingle();
+                    directContract = myContract;
+                }
+
                 // Verifica se o usuário atual já possui contrato assinado
-                const userContract = (contracts || []).find((c: any) => c.user_id === (profileData?.id || user?.id));
+                const userContract = directContract || (contracts || []).find((c: any) => c.user_id === (profileData?.id || user?.id));
                 setActiveContract(userContract || null);
 
                 // 4. Se o usuário atual está sem contrato assinado E não completou setup, vai para headquarters
                 if (user && profileData && user.id === profileData.id) {
                     if (!userContract && profileData.setup_completed === false) {
-                        window.location.replace('/headquarters');
-                        return;
+                        const redirectKey = 'redirect_slug_guard';
+                        const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
+                        if (count > 2) {
+                            console.warn('[BAEFF1 Guard] Loop detectado em driver_slug. Redirecionamento interrompido.');
+                            sessionStorage.removeItem(redirectKey);
+                        } else {
+                            sessionStorage.setItem(redirectKey, String(count + 1));
+                            window.location.replace('/headquarters');
+                            return;
+                        }
+                    } else {
+                        sessionStorage.removeItem('redirect_slug_guard');
                     }
                 }
 

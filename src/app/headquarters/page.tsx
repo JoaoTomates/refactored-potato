@@ -139,10 +139,21 @@ function HeadquartersFlow() {
                         .eq('id', user.id)
                         .maybeSingle();
 
-                    if (profile?.slug) {
-                        const target = profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`;
-                        window.location.replace(`/${target}`);
-                        return;
+                    // Só redireciona se o contrato existe E o setup foi devidamente concluído
+                    if (profile?.slug && profile?.setup_completed === true) {
+                        const redirectKey = 'redirect_hq_guard';
+                        const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
+                        if (count > 2) {
+                            console.warn('[BAEFF1 Guard] Loop detectado em headquarters. Redirecionamento interrompido.');
+                            sessionStorage.removeItem(redirectKey);
+                        } else {
+                            sessionStorage.setItem(redirectKey, String(count + 1));
+                            const target = profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`;
+                            window.location.replace(`/${target}`);
+                            return;
+                        }
+                    } else {
+                        sessionStorage.removeItem('redirect_hq_guard');
                     }
                 }
 
