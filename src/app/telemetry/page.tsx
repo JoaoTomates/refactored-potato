@@ -300,279 +300,414 @@ export default function TelemetryPage() {
             {/* TABELA MASTER & ROUNDS INSPIRADA NA GLOBO.COM (USUÁRIOS FANTASY) */}
             <MasterRankingsTable />
 
-            {/* DATA CENTER TABLE */}
-            <section className="w-full px-4 md:px-8 max-w-7xl mx-auto mt-6">
+            {/* GRID DE PROGNÓSTICOS NO MESMO PADRÃO ESTÉTICO GLOBO.COM */}
+            <section className="w-full px-4 md:px-8 max-w-7xl mx-auto my-8 font-sans selection:bg-[#fbaa19] selection:text-black animate-fade-in">
+                <div className="bg-[#0a0c0f] border border-white/10 rounded-md p-5 sm:p-6 shadow-2xl flex flex-col">
 
-                {/* HEADER ACTIONS */}
-                <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span className="text-xs font-mono uppercase tracking-widest text-gray-300 font-bold">
-                            Grid de Previsões Oficiais dos Usuários
+                    {/* HEADER: TÍTULO, STATUS E AÇÕES */}
+                    <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4 flex-wrap gap-3">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white font-display">
+                                GRID DE PROGNÓSTICOS
+                            </h2>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 uppercase font-mono">
+                                TELEMETRIA DA ETAPA
+                            </span>
+                            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-gray-400 font-mono">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                <span>{totalUsers} {totalUsers === 1 ? 'estrategista ativo' : 'estrategistas ativos'}</span>
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <Link
+                                href="/positions"
+                                className="bg-[#fbaa19] text-black px-4 py-2 font-black uppercase tracking-wider text-xs hover:bg-white transition-colors rounded-xs shadow-md font-sans"
+                            >
+                                + Lançar / Editar Posições
+                            </Link>
+                            <Link
+                                href="/pitwall"
+                                className="border border-white/15 text-gray-300 hover:text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition-colors rounded-xs font-sans"
+                            >
+                                Pit Wall &rarr;
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* CONTAINER DA TABELA (SCROLL HORIZONTAL RESPONSIVO) */}
+                    <div className="w-full overflow-x-auto relative custom-scrollbar rounded border border-white/5 bg-black/40">
+                        {loading ? (
+                            <div className="p-20 text-center flex flex-col items-center justify-center">
+                                <div className="w-10 h-10 rounded-full border-3 border-t-transparent border-[#fbaa19] animate-spin mb-3"></div>
+                                <p className="font-bold tracking-widest uppercase text-xs text-gray-400 font-mono">SINCRONIZANDO TELEMETRIA DOS ESTRATEGISTAS...</p>
+                            </div>
+                        ) : (
+                            <table className="w-full text-left border-collapse min-w-[1720px]">
+                                {/* THEAD NO PADRÃO GLOBO.COM */}
+                                <thead className="bg-[#0e1217] border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-20">
+                                    <tr>
+                                        {/* Colunas Fixas (Sticky) */}
+                                        <th className="py-3 px-3 text-center w-12 sticky left-0 bg-[#0e1217] z-30 border-r border-white/10">POS</th>
+                                        <th className="py-3 px-4 min-w-[260px] sticky left-12 bg-[#0e1217] z-30 border-r border-white/10">ESTRATEGISTA / PILOTO</th>
+
+                                        {/* Poletime */}
+                                        <th className="py-3 px-3 text-center w-32 border-r border-white/10 bg-white/[0.02]">POLETIME</th>
+
+                                        {/* Top 10 (Master) */}
+                                        <th colSpan={10} className="py-3 px-3 text-center border-r border-white/10 bg-white/[0.01]">
+                                            TOP 10 FINISH (MASTER)
+                                        </th>
+
+                                        {/* Evolution (+Pos) */}
+                                        <th colSpan={5} className="py-3 px-3 text-center border-r border-white/10 bg-white/[0.02]">
+                                            EVOLUTION (+POS)
+                                        </th>
+
+                                        {/* Head-to-Head (11 Duelos) */}
+                                        <th colSpan={11} className="py-3 px-3 text-center border-r border-white/10 bg-white/[0.01]">
+                                            HEAD-TO-HEAD (DUELOS)
+                                        </th>
+
+                                        {/* Misc */}
+                                        <th className="py-3 px-4 text-center border-r border-white/10 bg-white/[0.02] max-w-[200px] truncate" title={activeQuestionText}>
+                                            MISC ({activeQuestionText})
+                                        </th>
+
+                                        {/* Timestamp */}
+                                        <th className="py-3 px-4 text-center w-28">ENVIO</th>
+                                    </tr>
+
+                                    {/* LINHA DE SUB-HEADER / REFERÊNCIA OFICIAL (PADRÃO GLOBO) */}
+                                    <tr className="border-t border-white/10 text-[9px] bg-[#0c1015] text-gray-400 font-mono">
+                                        <th className="py-2 px-3 sticky left-0 bg-[#0c1015] z-30 border-r border-white/10 text-center">
+                                            <span className="text-[#fbaa19] font-black">★</span>
+                                        </th>
+                                        <th className="py-2 px-4 sticky left-12 bg-[#0c1015] z-30 border-r border-white/10 text-right pr-4 font-bold text-[#fbaa19] tracking-wider">
+                                            RESULTADO OFICIAL &rarr;
+                                        </th>
+
+                                        {/* Poletime Real */}
+                                        <th className="py-2 px-3 border-r border-white/10 text-center text-emerald-400 font-bold bg-white/[0.02] tabular-nums">
+                                            {realPoletime}
+                                        </th>
+
+                                        {/* 10 Posições Oficiais */}
+                                        {Array.from({ length: 10 }).map((_, i) => (
+                                            <th key={`real-p${i + 1}`} className="py-2 px-1 border-r border-white/5 text-center text-white/90 font-bold">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[8px] text-gray-500 font-mono">P{i + 1}</span>
+                                                    <span>{realResults[i]}</span>
+                                                </div>
+                                            </th>
+                                        ))}
+
+                                        {/* Evo 1..5 Sub-header */}
+                                        {Array.from({ length: 5 }).map((_, i) => (
+                                            <th key={`real-evo-${i + 1}`} className="py-2 px-1 border-r border-white/5 text-center text-gray-500 bg-white/[0.02]">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[8px] text-gray-500 font-mono">E{i + 1}</span>
+                                                    <span>TBD</span>
+                                                </div>
+                                            </th>
+                                        ))}
+
+                                        {/* H2H 1..11 Sub-header */}
+                                        {Array.from({ length: 11 }).map((_, i) => {
+                                            const matchInfo = F1_MATCHUPS[i];
+                                            const teamShort = matchInfo ? matchInfo.team.substring(0, 3).toUpperCase() : `M${i + 1}`;
+                                            return (
+                                                <th key={`real-h2h-${i + 1}`} className="py-2 px-1 border-r border-white/5 text-center text-gray-500">
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="text-[8px] text-gray-400 font-mono">{teamShort}</span>
+                                                        <span>TBD</span>
+                                                    </div>
+                                                </th>
+                                            );
+                                        })}
+
+                                        {/* Misc */}
+                                        <th className="py-2 px-3 border-r border-white/10 text-center text-gray-500 bg-white/[0.02]">
+                                            TBD
+                                        </th>
+
+                                        {/* Data */}
+                                        <th className="py-2 px-3 text-center text-gray-500">
+                                            -
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                {/* TBODY NO PADRÃO GLOBO.COM (DIVIDE-Y, LINHAS LIMPAS, HOVER SUAVE) */}
+                                <tbody className="divide-y divide-white/5 text-xs font-mono">
+                                    {predictions.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={31} className="py-16 text-center text-gray-400">
+                                                <div className="flex flex-col items-center justify-center gap-3">
+                                                    <span className="text-base font-bold uppercase text-[#fbaa19] tracking-wider font-display">
+                                                        Nenhum prognóstico registrado para esta etapa
+                                                    </span>
+                                                    <span className="text-xs text-gray-400 font-sans max-w-md">
+                                                        Seja o primeiro estrategista a lançar previsões de Poletime, Top 10 e duelos internos no grid!
+                                                    </span>
+                                                    <Link 
+                                                        href="/positions" 
+                                                        className="mt-3 px-5 py-2 bg-[#fbaa19] text-black font-black uppercase tracking-wider text-xs rounded-xs hover:bg-white transition-colors font-sans"
+                                                    >
+                                                        Abrir Formulário de Posições &rarr;
+                                                    </Link>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        predictions.map((pred, idx) => {
+                                            const prof = pred.profile;
+                                            const driverName = getDisplayName(prof, pred.user_id);
+                                            const driverNum = prof?.driver_number ? String(prof.driver_number) : null;
+                                            const team = prof?.team;
+                                            const teamColor = team?.color || '#555555';
+                                            const teamName = team?.name || 'Equipe Independente';
+                                            const teamGroup = team?.groupId ? `G${team.groupId}` : null;
+
+                                            // Dashboard Link
+                                            const dashboardSlug = prof?.slug 
+                                                ? (prof.slug.startsWith('@') ? prof.slug : `@${prof.slug}`)
+                                                : null;
+
+                                            const miscAns = pred.misc?.[activeMisc] || '-';
+                                            const miscStake = pred.misc?.stake || '10';
+                                            const displayMisc = miscAns !== '-' ? `${miscAns} [${miscStake}%]` : '-';
+
+                                            const isPodiumZone = idx < 3;
+                                            const isTop10 = idx < 10;
+
+                                            return (
+                                                <tr key={pred.id} className="hover:bg-white/[0.03] transition-colors group">
+                                                    {/* Sticky Col 1: POS (Padrão Globo.com com destaque azul para pódio e ciano para top 10) */}
+                                                    <td className="py-2.5 px-3 sticky left-0 bg-[#0a0c0f] group-hover:bg-[#12161c] z-10 border-r border-white/10 text-center">
+                                                        <span className={`w-5 inline-block text-center font-black ${
+                                                            isPodiumZone ? 'text-[#3874ff] text-sm' : isTop10 ? 'text-cyan-400 font-bold' : 'text-gray-400'
+                                                        }`}>
+                                                            {idx + 1}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* Sticky Col 2: ESTRATEGISTA / PILOTO (Tarja de cor + Avatar + Nome no padrão GloboEsporte) */}
+                                                    <td className="py-2.5 px-4 sticky left-12 bg-[#0a0c0f] group-hover:bg-[#12161c] z-10 border-r border-white/10">
+                                                        <div className="flex items-center gap-3">
+                                                            {/* Tarja vertical da Escuderia */}
+                                                            <span 
+                                                                className="w-1.5 h-6 rounded-full shrink-0" 
+                                                                style={{ backgroundColor: teamColor }} 
+                                                            />
+
+                                                            {/* Avatar do Piloto */}
+                                                            <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black/60 border border-white/15">
+                                                                {prof?.avatar_url ? (
+                                                                    <img src={prof.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <PilotAvatar
+                                                                        teamColor={teamColor}
+                                                                        driverNumber={driverNum}
+                                                                        variant="team"
+                                                                        size="custom"
+                                                                        showHUD={false}
+                                                                        showBadge={false}
+                                                                        className="w-full h-full"
+                                                                    />
+                                                                )}
+                                                            </div>
+
+                                                            {/* Nome e Escuderia */}
+                                                            <div className="flex flex-col min-w-0">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    {dashboardSlug ? (
+                                                                        <Link 
+                                                                            href={`/nc/${dashboardSlug}`}
+                                                                            className="font-bold text-white group-hover:text-[#fbaa19] tracking-wide whitespace-nowrap transition-colors flex items-center gap-1 font-sans text-xs"
+                                                                            title={`Visitar cockpit de ${driverName}`}
+                                                                        >
+                                                                            <span>{driverName}</span>
+                                                                        </Link>
+                                                                    ) : (
+                                                                        <span className="font-bold text-white tracking-wide whitespace-nowrap font-sans text-xs">
+                                                                            {driverName}
+                                                                        </span>
+                                                                    )}
+
+                                                                    {driverNum && (
+                                                                        <span className="text-[9px] font-bold text-gray-400 uppercase font-mono">
+                                                                            #{driverNum}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="flex items-center gap-1.5 text-[9px] tracking-wider uppercase">
+                                                                    <span className="font-bold truncate max-w-[130px]" style={{ color: teamColor }}>
+                                                                        {teamName}
+                                                                    </span>
+                                                                    {teamGroup && (
+                                                                        <span className="text-gray-500 font-mono">
+                                                                            ({teamGroup})
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    {/* POLETIME (Badge elegante) */}
+                                                    <td className="py-2.5 px-3 border-r border-white/10 text-center bg-white/[0.02]">
+                                                        <span className="font-mono font-bold text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded tabular-nums">
+                                                            {pred.poletime || '--:--.---'}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* MASTER TOP 10 (Chips coloridos sutis) */}
+                                                    {Array.from({ length: 10 }).map((_, i) => {
+                                                        const rawPick = pred.top10?.[i] || '';
+                                                        const { short, color, fullName } = resolveDriverInfo(rawPick);
+                                                        const isLast = i === 9;
+                                                        return (
+                                                            <td 
+                                                                key={`m-${i}`} 
+                                                                title={fullName ? `P${i+1}: ${fullName}` : undefined}
+                                                                className={`py-2 px-1 text-center font-mono text-[11px] font-bold ${isLast ? 'border-r border-white/10' : 'border-r border-white/5'}`}
+                                                            >
+                                                                {short !== '-' ? (
+                                                                    <span 
+                                                                        className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider"
+                                                                        style={{ 
+                                                                            backgroundColor: `${color}18`, 
+                                                                            color: color,
+                                                                            border: `1px solid ${color}35`
+                                                                        }}
+                                                                    >
+                                                                        {short}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-gray-600">-</span>
+                                                                )}
+                                                            </td>
+                                                        );
+                                                    })}
+
+                                                    {/* EVO (5) */}
+                                                    {Array.from({ length: 5 }).map((_, i) => {
+                                                        const rawPick = pred.evo?.[i] || '';
+                                                        const { short, color, fullName } = resolveDriverInfo(rawPick);
+                                                        const isLast = i === 4;
+                                                        return (
+                                                            <td 
+                                                                key={`e-${i}`} 
+                                                                title={fullName ? `Evo #${i+1}: ${fullName}` : undefined}
+                                                                className={`py-2 px-1 text-center font-mono text-[11px] font-bold bg-white/[0.01] ${isLast ? 'border-r border-white/10' : 'border-r border-white/5'}`}
+                                                            >
+                                                                {short !== '-' ? (
+                                                                    <span 
+                                                                        className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider"
+                                                                        style={{ 
+                                                                            backgroundColor: `${color}18`, 
+                                                                            color: color,
+                                                                            border: `1px solid ${color}35`
+                                                                        }}
+                                                                    >
+                                                                        {short}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-gray-600">-</span>
+                                                                )}
+                                                            </td>
+                                                        );
+                                                    })}
+
+                                                    {/* H2H (11) */}
+                                                    {Array.from({ length: 11 }).map((_, i) => {
+                                                        const matchInfo = F1_MATCHUPS[i];
+                                                        const matchTitle = matchInfo ? `${matchInfo.team}: ${matchInfo.d1.name} vs ${matchInfo.d2.name}` : `Matchup ${i + 1}`;
+                                                        const matchId = `m${i + 1}`;
+                                                        const rawPick = pred.h2h?.[matchId] || '';
+                                                        const { short, color, fullName } = resolveDriverInfo(rawPick);
+                                                        const isLast = i === 10;
+                                                        return (
+                                                            <td 
+                                                                key={`h-${i}`} 
+                                                                title={`${matchTitle}${fullName ? ` → Escolha: ${fullName}` : ''}`} 
+                                                                className={`py-2 px-1 text-center font-mono text-[11px] font-bold cursor-help ${isLast ? 'border-r border-white/10' : 'border-r border-white/5'}`}
+                                                            >
+                                                                {short !== '-' ? (
+                                                                    <span 
+                                                                        className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider"
+                                                                        style={{ 
+                                                                            backgroundColor: `${color}18`, 
+                                                                            color: color,
+                                                                            border: `1px solid ${color}35`
+                                                                        }}
+                                                                    >
+                                                                        {short}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-gray-600">-</span>
+                                                                )}
+                                                            </td>
+                                                        );
+                                                    })}
+
+                                                    {/* MISC */}
+                                                    <td className="py-2.5 px-3 border-r border-white/10 text-center bg-white/[0.02]">
+                                                        <span className="text-[#fbaa19] font-bold text-[11px] font-mono">
+                                                            {displayMisc}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* TIMESTAMP */}
+                                                    <td className="py-2.5 px-3 text-center text-gray-500 text-[10px] whitespace-nowrap group-hover:text-white transition-colors">
+                                                        {new Date(pred.created_at).toLocaleString('pt-BR', {
+                                                            day: '2-digit', month: '2-digit',
+                                                            hour: '2-digit', minute: '2-digit'
+                                                        })}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+
+                    {/* LEGENDA INFERIOR NO PADRÃO GLOBO.COM */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10 text-[11px] text-gray-400 font-mono mt-4">
+                        <div className="flex items-center gap-4 flex-wrap">
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#3874ff]" />
+                                <span className="text-white/80">Zona de Pódio (P1-P3)</span>
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+                                <span className="text-white/80">Top 10 Pontuável</span>
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#fbaa19]" />
+                                <span className="text-white/80">Prognóstico Oficial</span>
+                            </span>
+                        </div>
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+                            BAEFF1 TELEMETRY PROTOCOL // GLOBO MATRIX
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <Link
-                            href="/positions"
-                            className="bg-[#fbaa19] text-black px-4 py-2 font-black uppercase tracking-widest text-xs hover:bg-white transition-colors rounded-sm shadow-md"
-                        >
-                            + Lançar / Editar Posições
-                        </Link>
-                        <Link
-                            href="/pitwall"
-                            className="bg-white/5 border border-white/20 text-gray-300 hover:text-white px-4 py-2 font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-colors rounded-sm"
-                        >
-                            Pit Wall
-                        </Link>
-                    </div>
                 </div>
 
-                <div className="w-full overflow-x-auto bg-[#0a0a0a] rounded-sm border border-[#222] shadow-2xl relative custom-scrollbar">
-                    {loading ? (
-                        <div className="p-24 text-center flex flex-col items-center justify-center">
-                            <div className="w-12 h-12 rounded-full border-4 border-t-transparent border-[#fbaa19] animate-spin mb-4"></div>
-                            <p className="font-bold tracking-widest uppercase text-sm text-[#fbaa19] font-mono">SINCRONIZANDO TELEMETRIA DOS PILOTOS...</p>
-                        </div>
-                    ) : (
-                        <table className="w-full text-left border-collapse min-w-[1700px]">
-                            {/* THEAD */}
-                            <thead className="bg-[#111] border-b-2 border-[#fbaa19] text-[10px] uppercase tracking-widest text-gray-400 font-mono sticky top-0 z-20 shadow-md">
-                                <tr>
-                                    {/* Sticky Headers */}
-                                    <th className="p-4 sticky left-0 bg-[#111] z-30 w-16 border-r border-[#333] text-center">POS</th>
-                                    <th className="p-4 sticky left-16 bg-[#111] z-30 min-w-[260px] border-r-4 border-r-[#fbaa19]">ESTRATEGISTA / PILOTO</th>
-
-                                    <th className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#1a1a1a]">POLETIME</th>
-
-                                    {/* Master P1-P10 */}
-                                    <th colSpan={10} className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#151515]">TOP 10 (MASTER)</th>
-
-                                    {/* Evo */}
-                                    <th colSpan={5} className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#1a1a1a]">EVOLUTION (+POS)</th>
-
-                                    {/* H2H (11) */}
-                                    <th colSpan={11} className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#151515]">HEAD-TO-HEAD (DUELOS)</th>
-
-                                    {/* Misc */}
-                                    <th className="p-4 border-r-4 border-r-[#fbaa19] text-center bg-[#1a1a1a] max-w-[180px] truncate" title={activeQuestionText}>MISC ({activeQuestionText})</th>
-
-                                    <th className="p-4 text-center bg-[#111]">TIMESTAMP</th>
-                                </tr>
-                                <tr className="border-t border-[#333] text-[9px] bg-[#0a0a0a]">
-                                    <th className="p-2 sticky left-0 bg-[#0a0a0a] z-30 border-r border-[#333]"></th>
-                                    <th className="p-2 sticky left-16 bg-[#0a0a0a] z-30 border-r-4 border-r-[#fbaa19] text-right pr-4 text-[#fbaa19] opacity-70 tracking-widest font-bold">RESULTADO REAL &rarr;</th>
-
-                                    <th className="p-2 border-r-4 border-r-[#fbaa19] text-center text-[#00ff00] font-bold">{realPoletime}</th>
-
-                                    {/* Render 10 slots for Master actuals */}
-                                    {Array.from({ length: 10 }).map((_, i) => (
-                                        <th key={`real-p${i + 1}`} className="p-2 border-r border-[#333] text-center text-white font-bold bg-[#1a1a1a]">
-                                            {realResults[i]}
-                                        </th>
-                                    ))}
-
-                                    <th colSpan={5} className="p-2 border-l-2 border-l-[#fbaa19] border-r-4 border-r-[#fbaa19] text-center text-gray-500 opacity-50">TBD</th>
-                                    <th colSpan={11} className="p-2 border-r-4 border-r-[#fbaa19] text-center text-gray-500 opacity-50">TBD</th>
-                                    <th className="p-2 border-r-4 border-r-[#fbaa19] text-center text-gray-500 opacity-50">TBD</th>
-
-                                    <th className="p-2"></th>
-                                </tr>
-                            </thead>
-
-                            {/* TBODY */}
-                            <tbody className="text-xs font-medium font-mono">
-                                {predictions.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={31} className="p-12 text-center text-gray-400">
-                                            <div className="flex flex-col items-center justify-center gap-3">
-                                                <span className="text-lg font-bold uppercase text-[#fbaa19]">NENHUMA APOSTA ENCONTRADA NESTA ETAPA</span>
-                                                <span className="text-sm text-gray-500">Seja o primeiro estrategista a lançar previsões no grid!</span>
-                                                <Link href="/positions" className="mt-2 px-6 py-2 bg-[#fbaa19] text-black font-black uppercase tracking-wider text-xs rounded hover:bg-white transition-colors">
-                                                    Ir para o protocolo de posições &rarr;
-                                                </Link>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    predictions.map((pred, idx) => {
-                                        const prof = pred.profile;
-                                        const driverName = getDisplayName(prof, pred.user_id);
-                                        const driverNum = prof?.driver_number ? String(prof.driver_number) : null;
-                                        const team = prof?.team;
-                                        const teamColor = team?.color || '#555555';
-                                        const teamName = team?.name || 'Equipe Independente';
-                                        const teamGroup = team?.groupId ? `G${team.groupId}` : null;
-
-                                        // Dashboard Link
-                                        const dashboardSlug = prof?.slug 
-                                            ? (prof.slug.startsWith('@') ? prof.slug : `@${prof.slug}`)
-                                            : null;
-
-                                        const miscAns = pred.misc?.[activeMisc] || '-';
-                                        const miscStake = pred.misc?.stake || '10';
-                                        const displayMisc = miscAns !== '-' ? `${miscAns} [${miscStake}%]` : '-';
-
-                                        return (
-                                            <tr key={pred.id} className="border-b border-[#222] hover:bg-white/5 transition-colors group">
-                                                {/* Sticky Col 1: POS */}
-                                                <td className="p-3 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#111] z-10 border-r border-[#333] text-center text-gray-400 font-black">
-                                                    {idx + 1}
-                                                </td>
-
-                                                {/* Sticky Col 2: DRIVER */}
-                                                <td 
-                                                    className="p-3 sticky left-16 bg-[#0a0a0a] group-hover:bg-[#111] z-10 border-r-4 border-r-[#fbaa19]" 
-                                                    style={{ borderLeft: `4px solid ${teamColor}` }}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        {/* Avatar */}
-                                                        <div 
-                                                            className="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center shadow-md relative"
-                                                        >
-                                                            {prof?.avatar_url ? (
-                                                                <img src={prof.avatar_url} alt="Avatar" className="w-full h-full object-cover border-2 rounded-full" style={{ borderColor: teamColor }} />
-                                                            ) : (
-                                                                <PilotAvatar
-                                                                    teamColor={teamColor}
-                                                                    driverNumber={driverNum}
-                                                                    variant="team"
-                                                                    size="custom"
-                                                                    showHUD={true}
-                                                                    showBadge={false}
-                                                                    className="w-full h-full"
-                                                                />
-                                                            )}
-                                                        </div>
-
-                                                        {/* Pilot Name and Details */}
-                                                        <div className="flex flex-col min-w-0">
-                                                            <div className="flex items-center gap-2">
-                                                                {dashboardSlug ? (
-                                                                    <Link 
-                                                                        href={`/${dashboardSlug}`}
-                                                                        className="font-black text-white hover:text-[#fbaa19] tracking-wider whitespace-nowrap transition-colors flex items-center gap-1 group/link"
-                                                                        title={`Visitar dashboard de ${driverName}`}
-                                                                    >
-                                                                        <span>{driverName}</span>
-                                                                        <span className="text-[10px] opacity-0 group-hover/link:opacity-100 transition-opacity text-[#fbaa19]">&rarr;</span>
-                                                                    </Link>
-                                                                ) : (
-                                                                    <span className="font-black text-white tracking-wider whitespace-nowrap">
-                                                                        {driverName}
-                                                                    </span>
-                                                                )}
-
-                                                                {driverNum && (
-                                                                    <span className="bg-[#fbaa19] text-black font-black text-[9px] px-1 py-0.2 rounded">
-                                                                        #{driverNum}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-
-                                                            <div className="flex items-center gap-1.5 text-[9px] tracking-wider uppercase mt-0.5">
-                                                                <span 
-                                                                    className="font-bold truncate max-w-[140px]" 
-                                                                    style={{ color: teamColor }}
-                                                                >
-                                                                    {teamName}
-                                                                </span>
-                                                                {teamGroup && (
-                                                                    <span className="bg-white/10 px-1 py-0.2 text-[8px] rounded text-gray-300 font-mono">
-                                                                        {teamGroup}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                {/* POLETIME */}
-                                                <td className="p-3 border-r-4 border-r-[#fbaa19] text-center text-[#00ff00] font-black tracking-widest bg-[#1a1a1a]/50 text-sm">
-                                                    {pred.poletime || '--:--.---'}
-                                                </td>
-
-                                                {/* MASTER TOP 10 */}
-                                                {Array.from({ length: 10 }).map((_, i) => {
-                                                    const rawPick = pred.top10?.[i] || '';
-                                                    const { short, color, fullName } = resolveDriverInfo(rawPick);
-                                                    return (
-                                                        <td 
-                                                            key={`m-${i}`} 
-                                                            title={fullName ? `P${i+1}: ${fullName}` : undefined}
-                                                            className={`p-2 border-r border-[#333] text-center font-bold tracking-wider ${i === 9 ? '!border-r-4 !border-r-[#fbaa19]' : ''}`} 
-                                                            style={{ color }}
-                                                        >
-                                                            {short}
-                                                        </td>
-                                                    );
-                                                })}
-
-                                                {/* EVO (5) */}
-                                                {Array.from({ length: 5 }).map((_, i) => {
-                                                    const rawPick = pred.evo?.[i] || '';
-                                                    const { short, color, fullName } = resolveDriverInfo(rawPick);
-                                                    return (
-                                                        <td 
-                                                            key={`e-${i}`} 
-                                                            title={fullName ? `Evo #${i+1}: ${fullName}` : undefined}
-                                                            className={`p-2 border-r border-[#333] text-center font-bold tracking-wider bg-[#1a1a1a]/30 ${i === 4 ? '!border-r-4 !border-r-[#fbaa19]' : ''}`} 
-                                                            style={{ color }}
-                                                        >
-                                                            {short}
-                                                        </td>
-                                                    );
-                                                })}
-
-                                                {/* H2H (11) */}
-                                                {Array.from({ length: 11 }).map((_, i) => {
-                                                    const matchInfo = F1_MATCHUPS[i];
-                                                    const matchTitle = matchInfo ? `${matchInfo.team}: ${matchInfo.d1.name} vs ${matchInfo.d2.name}` : `Matchup ${i + 1}`;
-                                                    const matchId = `m${i + 1}`;
-                                                    const rawPick = pred.h2h?.[matchId] || '';
-                                                    const { short, color, fullName } = resolveDriverInfo(rawPick);
-                                                    return (
-                                                        <td 
-                                                            key={`h-${i}`} 
-                                                            title={`${matchTitle}${fullName ? ` → Pick: ${fullName}` : ''}`} 
-                                                            className={`p-2 border-r border-[#333] text-center font-bold cursor-help tracking-wider ${i === 10 ? '!border-r-4 !border-r-[#fbaa19]' : ''}`} 
-                                                            style={{ color }}
-                                                        >
-                                                            {short}
-                                                        </td>
-                                                    );
-                                                })}
-
-                                                {/* MISC */}
-                                                <td className="p-3 border-r-4 border-r-[#fbaa19] text-center text-[#fbaa19] font-bold bg-[#1a1a1a]/50">
-                                                    {displayMisc}
-                                                </td>
-
-                                                {/* TIMESTAMP */}
-                                                <td className="p-3 text-right text-gray-500 text-[10px] whitespace-nowrap group-hover:text-white transition-colors">
-                                                    {new Date(pred.created_at).toLocaleString('pt-BR', {
-                                                        day: '2-digit', month: '2-digit', year: '2-digit',
-                                                        hour: '2-digit', minute: '2-digit'
-                                                    })}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-
-                {/* BOTTOM NAVIGATION */}
-                <div className="mt-8 flex justify-end gap-4 mb-16 flex-wrap">
-                    <Link href="/f1" className="bg-transparent text-gray-400 border border-gray-700 px-6 py-3 font-bold uppercase tracking-widest text-xs hover:text-white hover:border-gray-500 transition-colors">
+                {/* NAVEGAÇÃO RÁPIDA INFERIOR */}
+                <div className="mt-6 flex justify-end gap-3 flex-wrap">
+                    <Link href="/f1" className="border border-white/15 text-gray-300 hover:text-white px-4 py-2 font-bold uppercase tracking-wider text-xs hover:bg-white/5 transition-colors rounded-xs font-sans">
                         F1 Hub
                     </Link>
-                    <Link href="/pitwall" className="bg-transparent text-gray-400 border border-gray-700 px-6 py-3 font-bold uppercase tracking-widest text-xs hover:text-white hover:border-gray-500 transition-colors">
+                    <Link href="/pitwall" className="border border-white/15 text-gray-300 hover:text-white px-4 py-2 font-bold uppercase tracking-wider text-xs hover:bg-white/5 transition-colors rounded-xs font-sans">
                         Pit Wall
                     </Link>
-                    <Link href="/positions" className="bg-[#fbaa19] text-black px-6 py-3 font-black uppercase tracking-widest text-xs hover:bg-white transition-colors">
+                    <Link href="/positions" className="bg-[#fbaa19] text-black px-5 py-2 font-black uppercase tracking-wider text-xs hover:bg-white transition-colors rounded-xs font-sans shadow-md">
                         Lançar / Editar Posições &rarr;
                     </Link>
                 </div>
