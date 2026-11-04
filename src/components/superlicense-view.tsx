@@ -202,7 +202,18 @@ function SuperlicenseAuthContent() {
 
     return (
         <div className="w-full max-w-[420px] mx-auto p-4 sm:p-6 relative z-10 font-mono">
-            <div className="bg-black/95 border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.95)] px-6 py-8 sm:px-8 sm:py-9 rounded-sm">
+            {/* Alças superiores de fixação do Pit Board */}
+            <div className="flex justify-between items-end px-10 -mb-1 relative z-0">
+                <div className="w-5 h-5 bg-[#1a1c20] border-2 border-[#555] rounded-t-sm shadow-inner flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#fbaa19]/80" />
+                </div>
+                <div className="w-5 h-5 bg-[#1a1c20] border-2 border-[#555] rounded-t-sm shadow-inner flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#fbaa19]/80" />
+                </div>
+            </div>
+
+            {/* Chassi do Pit Board */}
+            <div className="bg-[#0b0c0e]/95 border-2 border-[#fbaa19]/50 shadow-[0_25px_60px_rgba(0,0,0,0.98)] px-6 py-8 sm:px-8 sm:py-9 rounded-sm relative">
                 {/* Header das Abas: LOGIN ativo e PRIMEIRO DIA » redirecionando para a jornada do invite */}
                 <div className="flex relative border-b border-white/10 mb-8">
                     <div className="flex-1 pb-3 text-center relative">
@@ -271,24 +282,19 @@ function SuperlicenseAuthContent() {
                     </div>
                 )}
 
-                {/* CONTEÚDO PRINCIPAL: ACESSO AO PITWALL */}
+                {/* CONTEÚDO PRINCIPAL: PITBOARD */}
                 <div className="flex flex-col gap-6 animate-fade-in">
                     <div className="text-center">
-                        <h2 className="text-white text-xl sm:text-2xl font-black uppercase tracking-[0.18em]">
-                            ACESSO AO PITWALL
+                        <h2 className="text-white text-2xl sm:text-3xl font-black uppercase tracking-[0.22em]">
+                            PITBOARD
                         </h2>
-                        <p className="text-white/60 text-xs mt-2 leading-relaxed max-w-xs mx-auto">
-                            {mode === 'MAGIC_LINK' 
-                                ? "Se você se cadastrou no recrutamento confidencial, use o Link Mágico. Nenhuma senha será exigida." 
-                                : "Insira suas credenciais clássicas de acesso à central."}
-                        </p>
                     </div>
 
                     <form onSubmit={mode === 'MAGIC_LINK' ? handleMagicLink : handlePasswordLogin} className="flex flex-col gap-4">
                         <input 
                             type="text" 
                             required
-                            placeholder="E-mail, @slug ou piloto (ex: L.GUSTAVO88)"
+                            placeholder="email | @slug | username"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
                             autoCapitalize="none"
@@ -302,7 +308,7 @@ function SuperlicenseAuthContent() {
                                 <input 
                                     type={showPassword ? "text" : "password"} 
                                     required
-                                    placeholder="Sua senha (ex: Password123!)"
+                                    placeholder="senha"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     autoCapitalize="none"
@@ -328,7 +334,7 @@ function SuperlicenseAuthContent() {
                         >
                             {loadingAction 
                                 ? 'PROCESSANDO...' 
-                                : (mode === 'MAGIC_LINK' ? 'ENVIAR LINK MÁGICO »' : 'ACESSAR PITWALL »')}
+                                : (mode === 'MAGIC_LINK' ? 'ENVIAR LINK MÁGICO' : 'Acessar')}
                         </button>
                     </form>
 
@@ -352,11 +358,11 @@ function SuperlicenseAuthContent() {
 export default function SuperlicenseView() {
     return (
         <main className="w-full min-h-screen bg-[#050401] relative flex flex-col font-mono items-center justify-center py-12 px-4 overflow-x-hidden">
-            {/* Background Pitwall Image */}
+            {/* Background Pitwall / Race Track Image */}
             <img 
-                src="/pixel_setup_bg.png"
+                src="/pixel_pitboard_bg.png"
                 alt=""
-                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none opacity-80"
+                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none opacity-85"
                 style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
             />
 
