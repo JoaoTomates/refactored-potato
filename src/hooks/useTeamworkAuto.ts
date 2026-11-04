@@ -3,6 +3,9 @@ import { supabase } from '@/utils/supabase';
 import { F1_DRIVERS, F1_MATCHUPS } from '@/api/f1-data';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { getSeniorStrategistForRound } from '@/lib/race-directors';
+import { getCircuitIntel } from '@/lib/circuits-intel';
+import { resolveTop10, resolveEvo, resolveH2HPicks, parseTimeToDigits } from '@/components/passo-zero-briefing';
 
 export type CalibrationSourceType = 'SQUAD' | 'MARKET' | 'BASELINE';
 
@@ -106,15 +109,15 @@ export const useTeamworkAuto = () => {
                 return { predictions: validGeneral, source };
             }
 
-            // 3. PRIORIDADE 3: Benchmark da F1
+            // 3. PRIORIDADE 3: Benchmark da F1 // Estrategista Sênior & Dossiê de Pista
             const source: CalibrationSource = {
                 type: 'BASELINE',
                 count: 0,
-                label: 'TELEMETRIA OFICIAL F1',
-                description: 'Sem histórico de ordens no momento. Calibrado pelo benchmark da FIA.',
+                label: 'ESTRATEGISTA SÊNIOR // DOSSIÊ DE PISTA',
+                description: 'Sem ordens suficientes do esquadrão no momento. Calibrado pelo Dossiê Canônico e Conselheiro do Paddock.',
                 tier: 'RED',
-                helpBorder: '#ef4444',
-                dot: 'bg-red-500 animate-pulse',
+                helpBorder: '#fbaa19',
+                dot: 'bg-[#fbaa19] animate-pulse',
             };
             setCalibrationSource(source);
             return { predictions: [], source };
@@ -123,11 +126,11 @@ export const useTeamworkAuto = () => {
             const source: CalibrationSource = {
                 type: 'BASELINE',
                 count: 0,
-                label: 'TELEMETRIA OFICIAL F1',
-                description: 'Telemetria padrão de segurança.',
+                label: 'ESTRATEGISTA SÊNIOR // DOSSIÊ DE PISTA',
+                description: 'Telemetria padrão de segurança do Conselheiro.',
                 tier: 'RED',
-                helpBorder: '#ef4444',
-                dot: 'bg-red-500 animate-pulse',
+                helpBorder: '#fbaa19',
+                dot: 'bg-[#fbaa19] animate-pulse',
             };
             return { predictions: [], source };
         }
@@ -180,11 +183,15 @@ export const useTeamworkAuto = () => {
                 }
                 console.log(`[ESTRATEGISTA SÊNIOR] Top 10 calibrado via ${source.label}`);
             } else {
-                finalPicks = shuffle(F1_DRIVERS).slice(0, 10);
+                const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+                const strat = getSeniorStrategistForRound(roundNum);
+                finalPicks = resolveTop10(strat.briefingTips.predictedTop3);
             }
             return finalPicks;
         } catch (e) {
-            return shuffle(F1_DRIVERS).slice(0, 10);
+            const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+            const strat = getSeniorStrategistForRound(roundNum);
+            return resolveTop10(strat.briefingTips.predictedTop3);
         } finally {
             setIsAutoLoading(false);
         }
@@ -214,9 +221,13 @@ export const useTeamworkAuto = () => {
                 }
                 return popular;
             }
-            return shuffle(F1_DRIVERS).slice(0, 5);
+            const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+            const strat = getSeniorStrategistForRound(roundNum);
+            return resolveEvo(strat.briefingTips.evoTargetDriver);
         } catch (e) {
-            return shuffle(F1_DRIVERS).slice(0, 5);
+            const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+            const strat = getSeniorStrategistForRound(roundNum);
+            return resolveEvo(strat.briefingTips.evoTargetDriver);
         } finally {
             setIsAutoLoading(false);
         }
@@ -254,15 +265,15 @@ export const useTeamworkAuto = () => {
                 });
                 console.log(`[ESTRATEGISTA SÊNIOR] H2H calibrado via ${source.label}`);
             } else {
-                F1_MATCHUPS.forEach(match => {
-                    finalPicks[match.id] = Math.random() > 0.5 ? match.d1.num : match.d2.num;
-                });
+                const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+                const strat = getSeniorStrategistForRound(roundNum);
+                return resolveH2HPicks(strat.briefingTips.dominantH2HDrivers);
             }
             return finalPicks;
         } catch (e) {
-            const fallback: Record<string, string> = {};
-            F1_MATCHUPS.forEach(match => fallback[match.id] = Math.random() > 0.5 ? match.d1.num : match.d2.num);
-            return fallback;
+            const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+            const strat = getSeniorStrategistForRound(roundNum);
+            return resolveH2HPicks(strat.briefingTips.dominantH2HDrivers);
         } finally {
             setIsAutoLoading(false);
         }
@@ -272,13 +283,6 @@ export const useTeamworkAuto = () => {
         setIsAutoLoading(true);
         try {
             const { predictions, source } = await fetchHierarchicalPredictions();
-            
-            const m = 1;
-            let s1 = 2; 
-            let s2 = Math.floor(Math.random() * 2) + 1;
-            let ms1 = Math.floor(Math.random() * 10);
-            let ms2 = Math.floor(Math.random() * 10);
-            let ms3 = Math.floor(Math.random() * 10);
 
             if (predictions && predictions.length > 0) {
                 let totalMs = 0;
@@ -318,9 +322,16 @@ export const useTeamworkAuto = () => {
                 }
             }
             
-            return [m, s1, s2, ms1, ms2, ms3];
+            // Fallback canônico: Circuito + Estrategista Sênior
+            const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+            const strat = getSeniorStrategistForRound(roundNum);
+            const circuit = getCircuitIntel(String(roundNum));
+            const targetTimeStr = circuit.lastPoleTime?.time || strat.briefingTips.poletimeTarget.split('–')[0];
+            return parseTimeToDigits(targetTimeStr);
         } catch (e) {
-            return [1, 2, 1, 4, 8, 2];
+            const roundNum = typeof activeRound === 'number' ? activeRound : parseInt(String(activeRound || '19'), 10) || 19;
+            const circuit = getCircuitIntel(String(roundNum));
+            return parseTimeToDigits(circuit.lastPoleTime?.time || '1:32.331');
         } finally {
             setIsAutoLoading(false);
         }

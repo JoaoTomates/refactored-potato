@@ -10,6 +10,9 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
 import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails, fetchNextEvent, F1Event } from '@/api/f1-data';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
+import PassoZeroBriefing from '@/components/passo-zero-briefing';
+import { getSeniorStrategistForRound } from '@/lib/race-directors';
+import { getCircuitIntel } from '@/lib/circuits-intel';
 
 
 // --- Paleta Oficial de Equipes (Conforme NARRATIVE_STYLE_GUIDE.md) ---
@@ -114,6 +117,18 @@ export default function PositionsPage() {
     const [hasSyncedFromDb, setHasSyncedFromDb] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<{ type: 'top10' | 'evo', index: number } | null>(null);
     const [eventData, setEventData] = useState<F1Event | null>(null);
+
+    const roundNumber = useMemo(() => {
+        return parseInt(eventData?.round || '19', 10) || 19;
+    }, [eventData]);
+
+    const activeStrategist = useMemo(() => {
+        return getSeniorStrategistForRound(roundNumber);
+    }, [roundNumber]);
+
+    const circuitIntel = useMemo(() => {
+        return getCircuitIntel(eventData?.circuit || eventData?.round || 'americas');
+    }, [eventData]);
 
     useEffect(() => {
         fetchNextEvent().then((ev) => {
@@ -473,7 +488,24 @@ export default function PositionsPage() {
                     </div>
                 </header>
 
-
+                {/* 2. PASSO ZERO: BRIEFING DO CONSELHEIRO & TELEMETRIA CANÔNICA */}
+                <PassoZeroBriefing
+                    roundNumber={roundNumber}
+                    circuitIdentifier={eventData?.circuit || eventData?.round || 'americas'}
+                    pilot={pilot}
+                    allianceBlock={getBlockInfo(pilot?.teamName).id as 'A' | 'B' | 'C'}
+                    activeTab={activeTab}
+                    onApplyPoletime={(digits) => setPoletime(digits)}
+                    onApplyTop10={(picks) => setTop10(picks)}
+                    onApplyEvo={(drivers) => setEvo(drivers)}
+                    onApplyH2H={(picks) => setH2H(picks)}
+                    onApplyAll={({ poletime, top10, evo, h2h }) => {
+                        setPoletime(poletime);
+                        setTop10(top10);
+                        setEvo(evo);
+                        setH2H(h2h);
+                    }}
+                />
 
                 {/* 3. CONTROLE DE ABAS (PITWALL CONSOLE) */}
                 <nav aria-label="Abas de Posições" className="w-full bg-black/80 backdrop-blur-md border border-white/15 rounded-lg p-1.5 flex flex-wrap md:flex-nowrap gap-1.5 shadow-xl">
@@ -559,6 +591,20 @@ export default function PositionsPage() {
                                         </button>
                                         {renderCalibrationTooltip('poletime')}
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Dica de Rádio do Estrategista Sênior */}
+                            <div className="bg-[#0e1015] border-l-2 border-[#fbaa19] px-3.5 py-2.5 rounded-r flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-white/80 gap-1.5 shadow-inner">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#fbaa19] font-black tracking-wider flex items-center gap-1">
+                                        📻 {activeStrategist.code}:
+                                    </span>
+                                    <span className="italic text-gray-300">"{activeStrategist.briefingTips.poletimeReasoning}"</span>
+                                </div>
+                                <div className="text-[#fbaa19] font-black shrink-0 sm:ml-3 flex items-center gap-1">
+                                    <span className="text-white/40 font-normal">ALVO SUGERIDO:</span>
+                                    <span>{activeStrategist.briefingTips.poletimeTarget}</span>
                                 </div>
                             </div>
 
@@ -685,6 +731,20 @@ export default function PositionsPage() {
                                         </button>
                                         {renderCalibrationTooltip('master')}
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Dica de Rádio do Estrategista Sênior */}
+                            <div className="bg-[#0e1015] border-l-2 border-[#fbaa19] px-3.5 py-2.5 rounded-r flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-white/80 gap-1.5 shadow-inner">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#fbaa19] font-black tracking-wider flex items-center gap-1">
+                                        📻 {activeStrategist.code}:
+                                    </span>
+                                    <span className="italic text-gray-300">"{activeStrategist.briefingTips.top3Reasoning}"</span>
+                                </div>
+                                <div className="text-[#fbaa19] font-black shrink-0 sm:ml-3 flex items-center gap-1">
+                                    <span className="text-white/40 font-normal">PÓDIO SUGERIDO:</span>
+                                    <span>{activeStrategist.briefingTips.predictedTop3.join(' · ')}</span>
                                 </div>
                             </div>
 
@@ -835,6 +895,20 @@ export default function PositionsPage() {
                                 </div>
                             </div>
 
+                            {/* Dica de Rádio do Estrategista Sênior */}
+                            <div className="bg-[#0e1015] border-l-2 border-[#fbaa19] px-3.5 py-2.5 rounded-r flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-white/80 gap-1.5 shadow-inner">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#fbaa19] font-black tracking-wider flex items-center gap-1">
+                                        📻 {activeStrategist.code}:
+                                    </span>
+                                    <span className="italic text-gray-300">"{activeStrategist.briefingTips.evoReasoning}"</span>
+                                </div>
+                                <div className="text-emerald-400 font-black shrink-0 sm:ml-3 flex items-center gap-1">
+                                    <span className="text-white/40 font-normal">ALVO EVO:</span>
+                                    <span>{activeStrategist.briefingTips.evoTargetDriver}</span>
+                                </div>
+                            </div>
+
                             {/* Lista dos 5 Pilotos ALINHADA VERTICALMENTE */}
                             <div className="flex flex-col gap-3 max-w-3xl w-full mx-auto relative">
                                 {evo.map((driverName, idx) => {
@@ -982,6 +1056,20 @@ export default function PositionsPage() {
                                 </div>
                             </div>
 
+                            {/* Dica de Rádio do Estrategista Sênior */}
+                            <div className="bg-[#0e1015] border-l-2 border-[#fbaa19] px-3.5 py-2.5 rounded-r flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-white/80 gap-1.5 shadow-inner">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#fbaa19] font-black tracking-wider flex items-center gap-1">
+                                        📻 {activeStrategist.code}:
+                                    </span>
+                                    <span className="italic text-gray-300">"{activeStrategist.briefingTips.h2hReasoning}"</span>
+                                </div>
+                                <div className="text-blue-400 font-black shrink-0 sm:ml-3 flex items-center gap-1">
+                                    <span className="text-white/40 font-normal">VANTAGEM:</span>
+                                    <span>{activeStrategist.briefingTips.dominantH2HDrivers.slice(0, 2).join(' · ')}</span>
+                                </div>
+                            </div>
+
                             {/* Lista dos 11 Confrontos ALINHADA VERTICALMENTE */}
                             <div className="flex flex-col gap-4 max-w-3xl w-full mx-auto">
                                 {F1_MATCHUPS.map((match) => {
@@ -1041,6 +1129,20 @@ export default function PositionsPage() {
                                     <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
                                         EVENT PROPS
                                     </h2>
+                                </div>
+                            </div>
+
+                            {/* Dica de Rádio do Estrategista Sênior */}
+                            <div className="bg-[#0e1015] border-l-2 border-[#fbaa19] px-3.5 py-2.5 rounded-r flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-white/80 gap-1.5 shadow-inner">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#fbaa19] font-black tracking-wider flex items-center gap-1">
+                                        📻 {activeStrategist.code}:
+                                    </span>
+                                    <span className="italic text-gray-300">"{activeStrategist.briefingTips.miscRiskAlert}"</span>
+                                </div>
+                                <div className="text-amber-400 font-black shrink-0 sm:ml-3 flex items-center gap-1">
+                                    <span className="text-white/40 font-normal">RISCO SC:</span>
+                                    <span>{circuitIntel.scProbability}%</span>
                                 </div>
                             </div>
 
