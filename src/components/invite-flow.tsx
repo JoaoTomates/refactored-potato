@@ -645,39 +645,24 @@ export function InviteFlow() {
                 }`}>
                     <div className="w-full bg-black/85 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
                         
-                        {/* Topo do Briefing: Identificação da Aliança */}
-                        <div className="border-b border-white/10 pb-4 flex flex-col gap-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] uppercase">
-                                    DESPACHO CONFIDENCIAL DO DIRETOR // RECRUTAMENTO DE OFICIAIS
-                                </span>
-                                <span className="px-2.5 py-0.5 rounded text-[10px] font-black tracking-widest uppercase border border-[#fbaa19]/40 bg-[#fbaa19]/10 text-[#fbaa19]">
-                                    [{ENGINE_FACTIONS[selectedGroup].badge}] {ENGINE_FACTIONS[selectedGroup].title}
-                                </span>
-                            </div>
-
-                            {/* Resposta Narrativa do Diretor (ex: "Sangue quente...") */}
-                            <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
-                                <TypewriterLine 
-                                    text={ENGINE_FACTIONS[selectedGroup].directorResponse} 
-                                    startDelay={200} 
-                                    onReadyForNext={() => setTypingComplete(true)} 
-                                />
-                            </div>
+                        {/* Resposta Narrativa do Diretor (ex: "Sangue quente...") */}
+                        <div className="text-white text-base md:text-lg font-bold tracking-widest leading-relaxed border-l-2 border-[#fbaa19] pl-4 py-1 italic">
+                            <TypewriterLine 
+                                text={ENGINE_FACTIONS[selectedGroup].directorResponse} 
+                                startDelay={200} 
+                                onReadyForNext={() => setTypingComplete(true)} 
+                            />
                         </div>
 
                         {/* Formulário de Emissão da Superlicença */}
-                        <form onSubmit={handleEnlistSubmit} className={`flex flex-col gap-6 w-full transition-opacity duration-700 ${typingComplete ? 'opacity-100' : 'opacity-85'}`}>
-                            
-                            <div className="border-b border-white/5 pb-2">
-                                <span className="text-[#fbaa19] text-xs font-black tracking-widest uppercase">
-                                    &gt; - PROTOCOLO DE REGISTRO // EMISSÃO DA SUPERLICENÇA
-                                </span>
-                                <p className="text-gray-400 text-xs mt-1">
-                                    Insira suas credenciais oficiais. Seus dados serão transmitidos para a central da FIA e o canal de telemetria será criptografado.
-                                </p>
-                            </div>
-
+                        <form 
+                            onSubmit={handleEnlistSubmit} 
+                            className={`flex flex-col gap-6 w-full transition-all duration-1000 ${
+                                typingComplete 
+                                    ? 'opacity-100 translate-y-0' 
+                                    : 'opacity-0 translate-y-2 pointer-events-none'
+                            }`}
+                        >
                             {errorMsg && (
                                 <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
                                     [FALHA DE HOMOLOGAÇÃO] {errorMsg}
@@ -698,7 +683,7 @@ export function InviteFlow() {
                                             <input
                                                 type="text"
                                                 required
-                                                placeholder="NOME E SOBRENOME DO PILOTO"
+                                                placeholder="NOME E SOBRENOME"
                                                 value={fullName}
                                                 onChange={e => setFullName(e.target.value)}
                                                 className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${
@@ -719,7 +704,7 @@ export function InviteFlow() {
                                             <input
                                                 type="email"
                                                 required
-                                                placeholder="CANAL DE TELEMETRIA (E-MAIL)"
+                                                placeholder="EMAIL"
                                                 value={email}
                                                 onChange={e => setEmail(e.target.value)}
                                                 className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
