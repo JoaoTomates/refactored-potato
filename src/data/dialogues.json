@@ -163,10 +163,10 @@
           "title": "Fase 5: Resposta Imediata da Diretoria & Emissão da Superlicença (Fase ENLIST)",
           "boxes": [
             {
-              "id": "protocolo_de_registro",
-              "title": "Protocolo de Registro",
+              "id": "formul_rio_de_cadastro",
+              "title": "Formulário de Cadastro",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "&gt; - PROTOCOLO DE REGISTRO // EMISSÃO DA SUPERLICENÇA\nInsira suas credenciais oficiais. Seus dados serão transmitidos para a central da FIA e o canal de telemetria será criptografado.",
+              "text": "(Os campos de Nome e Sobrenome e E-mail surgem com efeito fade-in após a conclusão da fala).",
               "actions": []
             }
           ]

@@ -96,9 +96,8 @@
   - *Bloco A:* `“Escolha metódica. Você optou pela maior frota de motores da Alemanha...”`
   - *Bloco B:* `“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana...”`
   - *Bloco C:* `“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi...”`
-- **Protocolo de Registro:**
-  > *“&gt; - PROTOCOLO DE REGISTRO // EMISSÃO DA SUPERLICENÇA”*  
-  > *“Insira suas credenciais oficiais. Seus dados serão transmitidos para a central da FIA e o canal de telemetria será criptografado.”*  
+- **Formulário de Cadastro:**
+  > *(Os campos de Nome e Sobrenome e E-mail surgem com efeito fade-in após a conclusão da fala).*  
   *(Gera automaticamente o código do piloto no padrão `L.GUSTAVO88` e o slug `@lgustavo88` a partir de Nome e Sobrenome).*
 
 #### Fase 6: Confirmação & Designação do Mentor (Fase EMAIL_SENT)
