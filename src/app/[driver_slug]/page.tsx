@@ -1188,12 +1188,7 @@ export default function OfficialStrategistDashboard() {
                                 </span>
                             </Link>
 
-                            {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
-                            {raceWeek && (
-                                <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={teamColor} />
-                            )}
-
-                            {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) */}
+                            {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Logo abaixo do botão Tomar Posições */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {/* POLETIME */}
                                 <button 
@@ -1290,6 +1285,11 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </button>
                             </div>
+
+                            {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
+                            {raceWeek && (
+                                <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={teamColor} />
+                            )}
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
                             <div 
