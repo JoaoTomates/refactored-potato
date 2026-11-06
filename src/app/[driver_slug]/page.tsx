@@ -1193,12 +1193,16 @@ export default function OfficialStrategistDashboard() {
                                 {/* POLETIME */}
                                 <button 
                                     onClick={() => setActiveTab('book')}
-                                    className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'book' ? 'ring-2 ring-emerald-500/50 scale-[1.02]' : 'hover:scale-[1.02]'}`}
-                                    style={{ borderColor: 'rgba(34, 197, 94, 0.45)' }}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? 'ring-2 ring-emerald-500/50 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    style={{ 
+                                        borderColor: activeTab === 'book' ? 'rgba(16, 185, 129, 0.75)' : 'rgba(34, 197, 94, 0.40)',
+                                        backgroundColor: activeTab === 'book' ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.12)',
+                                        boxShadow: activeTab === 'book' ? '0 0 16px rgba(16, 185, 129, 0.25)' : undefined
+                                    }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Poletime</span>
-                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.poletime.hasSubmitted ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-white/50'}`}>
+                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.poletime.hasSubmitted ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/30' : 'bg-black/50 text-white/50 border border-white/10'}`}>
                                             {compStats?.poletime.hasSubmitted ? 'HOMOLOGADO' : 'QUALIFY'}
                                         </span>
                                     </div>
@@ -1220,12 +1224,16 @@ export default function OfficialStrategistDashboard() {
                                 {/* MASTER */}
                                 <button 
                                     onClick={() => setActiveTab('quotes')}
-                                    className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'quotes' ? 'ring-2 ring-blue-500/50 scale-[1.02]' : 'hover:scale-[1.02]'}`}
-                                    style={{ borderColor: 'rgba(59, 130, 246, 0.45)' }}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'quotes' ? 'ring-2 ring-blue-500/50 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    style={{ 
+                                        borderColor: activeTab === 'quotes' ? 'rgba(59, 130, 246, 0.75)' : 'rgba(59, 130, 246, 0.40)',
+                                        backgroundColor: activeTab === 'quotes' ? 'rgba(59, 130, 246, 0.22)' : 'rgba(59, 130, 246, 0.12)',
+                                        boxShadow: activeTab === 'quotes' ? '0 0 16px rgba(59, 130, 246, 0.25)' : undefined
+                                    }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">Master</span>
-                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.master.hasSubmitted ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-500/10 text-blue-300'}`}>
+                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.master.hasSubmitted ? 'bg-blue-500/25 text-blue-300 border border-blue-500/30' : 'bg-black/50 text-blue-300 border border-blue-500/20'}`}>
                                             {compStats?.master.hasSubmitted ? '10 PILOTOS' : 'RACE'}
                                         </span>
                                     </div>
@@ -1244,12 +1252,16 @@ export default function OfficialStrategistDashboard() {
                                 {/* MILESIMUS */}
                                 <button 
                                     onClick={() => setActiveTab('history')}
-                                    className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'history' ? 'ring-2 scale-[1.02]' : 'hover:scale-[1.02]'}`}
-                                    style={{ borderColor: `${teamColor}60` }}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'history' ? 'ring-2 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    style={{ 
+                                        borderColor: activeTab === 'history' ? `${teamColor}` : `${teamColor}50`,
+                                        backgroundColor: activeTab === 'history' ? `${teamColor}26` : `${teamColor}14`,
+                                        boxShadow: activeTab === 'history' ? `0 0 16px ${teamColor}35` : undefined
+                                    }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: teamColor }}>Milesimus</span>
-                                        <span className="text-[8px] px-1 py-0.2 rounded font-bold" style={{ backgroundColor: `${teamColor}15`, color: teamColor }}>CURRENCY</span>
+                                        <span className="text-[8px] px-1 py-0.2 rounded font-bold border" style={{ backgroundColor: `${teamColor}20`, borderColor: `${teamColor}40`, color: teamColor }}>CURRENCY</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xl md:text-2xl font-black tracking-tight font-mono" style={{ color: teamColor }}>
@@ -1265,12 +1277,16 @@ export default function OfficialStrategistDashboard() {
                                 {/* TEAMWORK */}
                                 <button 
                                     onClick={() => setActiveTab('teamwork')}
-                                    className={`text-left bg-black/75 border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer ${activeTab === 'teamwork' ? 'ring-2 ring-[#fbaa19]/50 scale-[1.02]' : 'hover:scale-[1.02]'}`}
-                                    style={{ borderColor: 'rgba(251, 170, 25, 0.45)' }}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'teamwork' ? 'ring-2 ring-[#fbaa19]/50 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    style={{ 
+                                        borderColor: activeTab === 'teamwork' ? 'rgba(251, 170, 25, 0.80)' : 'rgba(251, 170, 25, 0.40)',
+                                        backgroundColor: activeTab === 'teamwork' ? 'rgba(251, 170, 25, 0.22)' : 'rgba(251, 170, 25, 0.12)',
+                                        boxShadow: activeTab === 'teamwork' ? '0 0 16px rgba(251, 170, 25, 0.25)' : undefined
+                                    }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">Teamwork</span>
-                                        <span className={`text-[8px] px-1.5 py-0.2 rounded font-bold ${compStats?.teamwork.hasSquad ? 'bg-[#fbaa19]/20 text-[#fbaa19]' : 'bg-white/10 text-white/50'}`}>
+                                        <span className={`text-[8px] px-1.5 py-0.2 rounded font-bold border ${compStats?.teamwork.hasSquad ? 'bg-[#fbaa19]/25 text-[#fbaa19] border-[#fbaa19]/40' : 'bg-black/50 text-white/50 border-white/10'}`}>
                                             {compStats?.teamwork.hasSquad ? `${compStats.teamwork.memberCount}/20 MEMBROS` : 'SOLO [ 1/1 ]'}
                                         </span>
                                     </div>
