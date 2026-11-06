@@ -131,6 +131,56 @@ function makeStrategist(id: string, name: string, slug: string | null, teamId: s
 }
 
 /* ---------- Hooks ---------- */
+type PerformanceColor = 'green' | 'yellow' | 'red';
+
+const PERFORMANCE_THEMES = {
+    green: {
+        key: 'green',
+        name: 'Top 1/3 (Verde)',
+        text: 'text-emerald-400',
+        textColor: '#34d399',
+        border: 'rgba(16, 185, 129, 0.45)',
+        borderActive: 'rgba(52, 211, 153, 0.85)',
+        ring: 'ring-emerald-500/50',
+        bg: 'rgba(16, 185, 129, 0.14)',
+        bgActive: 'rgba(16, 185, 129, 0.26)',
+        shadow: '0 0 16px rgba(16, 185, 129, 0.25)',
+        badge: 'bg-emerald-500/25 text-emerald-300 border-emerald-500/40',
+        dot: 'bg-emerald-400',
+        tag: 'TOP 1/3',
+    },
+    yellow: {
+        key: 'yellow',
+        name: 'Meio do Grid (Amarela)',
+        text: 'text-amber-400',
+        textColor: '#fbbf24',
+        border: 'rgba(234, 179, 8, 0.45)',
+        borderActive: 'rgba(251, 191, 36, 0.85)',
+        ring: 'ring-amber-500/50',
+        bg: 'rgba(234, 179, 8, 0.14)',
+        bgActive: 'rgba(234, 179, 8, 0.26)',
+        shadow: '0 0 16px rgba(234, 179, 8, 0.25)',
+        badge: 'bg-amber-500/25 text-amber-300 border-amber-500/40',
+        dot: 'bg-amber-400',
+        tag: 'MEIO DO GRID',
+    },
+    red: {
+        key: 'red',
+        name: '1/3 Inferior (Vermelha)',
+        text: 'text-red-400',
+        textColor: '#f87171',
+        border: 'rgba(239, 68, 68, 0.45)',
+        borderActive: 'rgba(248, 113, 113, 0.85)',
+        ring: 'ring-red-500/50',
+        bg: 'rgba(239, 68, 68, 0.14)',
+        bgActive: 'rgba(239, 68, 68, 0.26)',
+        shadow: '0 0 16px rgba(239, 68, 68, 0.25)',
+        badge: 'bg-red-500/25 text-red-300 border-red-500/40',
+        dot: 'bg-red-400',
+        tag: '1/3 INFERIOR',
+    }
+} as const;
+
 function useNow() {
     const [now, setNow] = useState<Date | null>(null);
     useEffect(() => {
@@ -800,6 +850,104 @@ export default function OfficialStrategistDashboard() {
         };
     }, [me, userPrediction, teamPartner, targetProfile, squad]);
 
+    // Classificação de desempenho das 4 competições:
+    // Verde = 1/3 superior (ou Top 10 na Master)
+    // Amarela = Meio do grid (1/3 intermediário)
+    // Vermelha = 1/3 inferior (ou fora do Top 10 na Master)
+    const competitionTiers = useMemo(() => {
+        if (!me) {
+            return {
+                poletime: 'red' as PerformanceColor,
+                master: 'red' as PerformanceColor,
+                milesimus: 'yellow' as PerformanceColor,
+                teamwork: 'yellow' as PerformanceColor,
+                meta: {
+                    globalRank: 1,
+                    totalGlobal: 1,
+                    userGroupRank: 1,
+                    totalInGroup: 1,
+                }
+            };
+        }
+
+        const totalGlobal = Math.max(field.length, 1);
+        
+        // 1. MILESIMUS: Ranking global por saldo/pontos MLS
+        const sortedGlobal = [...field].sort((a, b) => (b.mlsBalance ?? 100) - (a.mlsBalance ?? 100));
+        const myGlobalIdx = sortedGlobal.findIndex(s => s.id === me.id);
+        const globalRank = myGlobalIdx >= 0 ? myGlobalIdx + 1 : 1;
+        const globalPercentile = globalRank / totalGlobal;
+
+        let milesimusTier: PerformanceColor = 'yellow';
+        if (globalRank === 1 || globalPercentile <= 0.334) {
+            milesimusTier = 'green';
+        } else if (globalPercentile <= 0.667) {
+            milesimusTier = 'yellow';
+        } else {
+            milesimusTier = 'red';
+        }
+
+        // 2. MASTER (Exceção): TOP 10 no grupo fechado do usuário = VERDE, senão = VERMELHO
+        const groupUsers = field.filter(s => s.groupId === me.groupId);
+        const sortedGroup = groupUsers.length > 0 
+            ? [...groupUsers].sort((a, b) => (b.mlsBalance ?? 100) - (a.mlsBalance ?? 100))
+            : [me];
+        const myGroupIdx = sortedGroup.findIndex(s => s.id === me.id);
+        const userGroupRank = myGroupIdx >= 0 ? myGroupIdx + 1 : 1;
+        const totalInGroup = sortedGroup.length;
+
+        const hasMasterSubmission = Boolean(userPrediction && Array.isArray(userPrediction.top10) && userPrediction.top10.length > 0);
+        // Exceção Master: VERDE se TOP 10 do grupo, Vermelho se não
+        const masterTier: PerformanceColor = (userGroupRank <= 10 && hasMasterSubmission) ? 'green' : 'red';
+
+        // 3. POLETIME: Comparação global (1/3 superior = Verde, meio = Amarela, 1/3 inferior = Vermelha)
+        const hasPoletimeSubmission = Boolean(userPrediction && userPrediction.poletime);
+        let poletimeTier: PerformanceColor = 'red';
+        if (!hasPoletimeSubmission) {
+            poletimeTier = 'red';
+        } else {
+            if (globalRank === 1 || globalPercentile <= 0.334) {
+                poletimeTier = 'green';
+            } else if (globalPercentile <= 0.667) {
+                poletimeTier = 'yellow';
+            } else {
+                poletimeTier = 'red';
+            }
+        }
+
+        // 4. TEAMWORK: Comparação global (Média do esquadrão / pontuação coletiva)
+        let teamworkTier: PerformanceColor = 'yellow';
+        const squadAvgNum = squad ? parseFloat(String(squad.averageMls).replace(',', '.')) : (me.mlsBalance ?? 100);
+        const gridAvgMls = 100;
+        if (squad && squad.memberCount >= 2 && squadAvgNum > gridAvgMls * 1.05) {
+            teamworkTier = 'green';
+        } else if (globalRank === 1 || globalPercentile <= 0.334) {
+            teamworkTier = 'green';
+        } else if (globalPercentile <= 0.667) {
+            teamworkTier = 'yellow';
+        } else {
+            teamworkTier = 'red';
+        }
+
+        return {
+            poletime: poletimeTier,
+            master: masterTier,
+            milesimus: milesimusTier,
+            teamwork: teamworkTier,
+            meta: {
+                globalRank,
+                totalGlobal,
+                userGroupRank,
+                totalInGroup,
+            }
+        };
+    }, [me, field, userPrediction, squad]);
+
+    const poleTheme = PERFORMANCE_THEMES[competitionTiers?.poletime || 'red'];
+    const masterTheme = PERFORMANCE_THEMES[competitionTiers?.master || 'red'];
+    const milesimusTheme = PERFORMANCE_THEMES[competitionTiers?.milesimus || 'yellow'];
+    const teamworkTheme = PERFORMANCE_THEMES[competitionTiers?.teamwork || 'yellow'];
+
     // Histórico de atividades / telemetria de ordens baseado 100% em dados reais
     const activityHistory = useMemo(() => {
         if (!me) return [];
@@ -1188,22 +1336,25 @@ export default function OfficialStrategistDashboard() {
                                 </span>
                             </Link>
 
-                            {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Logo abaixo do botão Tomar Posições */}
+                            {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Cores dinâmicas por desempenho global (Verde / Amarela / Vermelha) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {/* POLETIME */}
                                 <button 
                                     onClick={() => setActiveTab('book')}
-                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? 'ring-2 ring-emerald-500/50 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? `${poleTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
-                                        borderColor: activeTab === 'book' ? 'rgba(16, 185, 129, 0.75)' : 'rgba(34, 197, 94, 0.40)',
-                                        backgroundColor: activeTab === 'book' ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.12)',
-                                        boxShadow: activeTab === 'book' ? '0 0 16px rgba(16, 185, 129, 0.25)' : undefined
+                                        borderColor: activeTab === 'book' ? poleTheme.borderActive : poleTheme.border,
+                                        backgroundColor: activeTab === 'book' ? poleTheme.bgActive : poleTheme.bg,
+                                        boxShadow: activeTab === 'book' ? poleTheme.shadow : undefined
                                     }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Poletime</span>
-                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.poletime.hasSubmitted ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/30' : 'bg-black/50 text-white/50 border border-white/10'}`}>
-                                            {compStats?.poletime.hasSubmitted ? 'HOMOLOGADO' : 'QUALIFY'}
+                                        <span className={`text-[9px] font-bold uppercase tracking-widest ${poleTheme.text}`}>Poletime</span>
+                                        <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold border flex items-center gap-1 ${poleTheme.badge}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${poleTheme.dot}`} />
+                                            <span>
+                                                {compStats?.poletime.hasSubmitted ? poleTheme.tag : 'PENDENTE'}
+                                            </span>
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
@@ -1214,27 +1365,32 @@ export default function OfficialStrategistDashboard() {
                                         ) : (
                                             <span className="text-xl md:text-2xl font-black tracking-tight text-white">-- <span className="text-[10px] text-white/40">PTS</span></span>
                                         )}
-                                        <div className="flex items-center justify-between text-[8px] text-emerald-400/80 mt-1 uppercase font-bold">
-                                            <span>{compStats?.poletime.rank} GRID</span>
-                                            <span>{compStats?.poletime.accuracy}</span>
+                                        <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold" style={{ color: poleTheme.textColor }}>
+                                            <span>{compStats?.poletime.hasSubmitted ? `P${competitionTiers.meta.globalRank} GLOBAL` : 'SEM PREVISÃO'}</span>
+                                            <span>{compStats?.poletime.hasSubmitted ? compStats.poletime.accuracy : 'QUALIFY'}</span>
                                         </div>
                                     </div>
                                 </button>
 
-                                {/* MASTER */}
+                                {/* MASTER (Exceção: Verde se TOP 10 do grupo, Vermelho se não) */}
                                 <button 
                                     onClick={() => setActiveTab('quotes')}
-                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'quotes' ? 'ring-2 ring-blue-500/50 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'quotes' ? `${masterTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
-                                        borderColor: activeTab === 'quotes' ? 'rgba(59, 130, 246, 0.75)' : 'rgba(59, 130, 246, 0.40)',
-                                        backgroundColor: activeTab === 'quotes' ? 'rgba(59, 130, 246, 0.22)' : 'rgba(59, 130, 246, 0.12)',
-                                        boxShadow: activeTab === 'quotes' ? '0 0 16px rgba(59, 130, 246, 0.25)' : undefined
+                                        borderColor: activeTab === 'quotes' ? masterTheme.borderActive : masterTheme.border,
+                                        backgroundColor: activeTab === 'quotes' ? masterTheme.bgActive : masterTheme.bg,
+                                        boxShadow: activeTab === 'quotes' ? masterTheme.shadow : undefined
                                     }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">Master</span>
-                                        <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${compStats?.master.hasSubmitted ? 'bg-blue-500/25 text-blue-300 border border-blue-500/30' : 'bg-black/50 text-blue-300 border border-blue-500/20'}`}>
-                                            {compStats?.master.hasSubmitted ? '10 PILOTOS' : 'RACE'}
+                                        <span className={`text-[9px] font-bold uppercase tracking-widest ${masterTheme.text}`}>Master</span>
+                                        <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold border flex items-center gap-1 ${masterTheme.badge}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${masterTheme.dot}`} />
+                                            <span>
+                                                {compStats?.master.hasSubmitted 
+                                                    ? (competitionTiers.master === 'green' ? 'TOP 10' : 'FORA TOP 10')
+                                                    : 'PENDENTE'}
+                                            </span>
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
@@ -1242,9 +1398,9 @@ export default function OfficialStrategistDashboard() {
                                             {compStats?.master.hasSubmitted ? `${compStats.master.picksCount}/10` : '--'}{' '}
                                             <span className="text-[10px] text-white/40">{compStats?.master.hasSubmitted ? 'PILOTOS' : 'PTS'}</span>
                                         </span>
-                                        <div className="flex items-center justify-between text-[8px] text-blue-400/80 mt-1 uppercase font-bold">
-                                            <span>{compStats?.master.hasSubmitted ? 'HOMOLOGADO' : 'GRID ABERTO'}</span>
-                                            <span>{compStats?.master.status}</span>
+                                        <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold" style={{ color: masterTheme.textColor }}>
+                                            <span>P{competitionTiers.meta.userGroupRank} NO GRUPO</span>
+                                            <span>{competitionTiers.master === 'green' ? 'ZONA FIA (P1-P10)' : 'FORA DOS PONTOS'}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -1252,23 +1408,26 @@ export default function OfficialStrategistDashboard() {
                                 {/* MILESIMUS */}
                                 <button 
                                     onClick={() => setActiveTab('history')}
-                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'history' ? 'ring-2 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'history' ? `${milesimusTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
-                                        borderColor: activeTab === 'history' ? `${teamColor}` : `${teamColor}50`,
-                                        backgroundColor: activeTab === 'history' ? `${teamColor}26` : `${teamColor}14`,
-                                        boxShadow: activeTab === 'history' ? `0 0 16px ${teamColor}35` : undefined
+                                        borderColor: activeTab === 'history' ? milesimusTheme.borderActive : milesimusTheme.border,
+                                        backgroundColor: activeTab === 'history' ? milesimusTheme.bgActive : milesimusTheme.bg,
+                                        boxShadow: activeTab === 'history' ? milesimusTheme.shadow : undefined
                                     }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: teamColor }}>Milesimus</span>
-                                        <span className="text-[8px] px-1 py-0.2 rounded font-bold border" style={{ backgroundColor: `${teamColor}20`, borderColor: `${teamColor}40`, color: teamColor }}>CURRENCY</span>
+                                        <span className={`text-[9px] font-bold uppercase tracking-widest ${milesimusTheme.text}`}>Milesimus</span>
+                                        <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold border flex items-center gap-1 ${milesimusTheme.badge}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${milesimusTheme.dot}`} />
+                                            <span>{milesimusTheme.tag}</span>
+                                        </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xl md:text-2xl font-black tracking-tight font-mono" style={{ color: teamColor }}>
+                                        <span className="text-xl md:text-2xl font-black tracking-tight font-mono text-white">
                                             {compStats?.milesimus.formatted || '000.100'} <span className="text-[9px] opacity-75">mls</span>
                                         </span>
-                                        <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold text-white/50">
-                                            <span>BÔNUS INICIAL ATIVO</span>
+                                        <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold" style={{ color: milesimusTheme.textColor }}>
+                                            <span>P{competitionTiers.meta.globalRank} DE {competitionTiers.meta.totalGlobal} PILOTOS</span>
                                             <span>{compStats?.milesimus.tier}</span>
                                         </div>
                                     </div>
@@ -1277,24 +1436,25 @@ export default function OfficialStrategistDashboard() {
                                 {/* TEAMWORK */}
                                 <button 
                                     onClick={() => setActiveTab('teamwork')}
-                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'teamwork' ? 'ring-2 ring-[#fbaa19]/50 scale-[1.02]' : 'hover:scale-[1.02] hover:brightness-110'}`}
+                                    className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'teamwork' ? `${teamworkTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
-                                        borderColor: activeTab === 'teamwork' ? 'rgba(251, 170, 25, 0.80)' : 'rgba(251, 170, 25, 0.40)',
-                                        backgroundColor: activeTab === 'teamwork' ? 'rgba(251, 170, 25, 0.22)' : 'rgba(251, 170, 25, 0.12)',
-                                        boxShadow: activeTab === 'teamwork' ? '0 0 16px rgba(251, 170, 25, 0.25)' : undefined
+                                        borderColor: activeTab === 'teamwork' ? teamworkTheme.borderActive : teamworkTheme.border,
+                                        backgroundColor: activeTab === 'teamwork' ? teamworkTheme.bgActive : teamworkTheme.bg,
+                                        boxShadow: activeTab === 'teamwork' ? teamworkTheme.shadow : undefined
                                     }}
                                 >
                                     <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]">Teamwork</span>
-                                        <span className={`text-[8px] px-1.5 py-0.2 rounded font-bold border ${compStats?.teamwork.hasSquad ? 'bg-[#fbaa19]/25 text-[#fbaa19] border-[#fbaa19]/40' : 'bg-black/50 text-white/50 border-white/10'}`}>
-                                            {compStats?.teamwork.hasSquad ? `${compStats.teamwork.memberCount}/20 MEMBROS` : 'SOLO [ 1/1 ]'}
+                                        <span className={`text-[9px] font-bold uppercase tracking-widest ${teamworkTheme.text}`}>Teamwork</span>
+                                        <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold border flex items-center gap-1 ${teamworkTheme.badge}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${teamworkTheme.dot}`} />
+                                            <span>{teamworkTheme.tag}</span>
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xl md:text-2xl font-black tracking-tight font-mono text-white">
                                             {compStats?.teamwork.averageMls} <span className="text-[10px] text-white/40">mls</span>
                                         </span>
-                                        <div className="flex items-center justify-between text-[8px] text-[#fbaa19]/80 mt-1 uppercase font-bold truncate">
+                                        <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold truncate" style={{ color: teamworkTheme.textColor }}>
                                             <span>MÉDIA COLETIVA</span>
                                             <span className="truncate max-w-[90px]">{compStats?.teamwork.squadName}</span>
                                         </div>
