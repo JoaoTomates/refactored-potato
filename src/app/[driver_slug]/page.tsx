@@ -15,6 +15,7 @@ import ReportForm from "@/components/report-form";
 import SillySeason from "@/components/silly-season";
 import RaceWeekSchedule from "@/components/race-week-schedule";
 import PaddockRadioPlayer from "@/components/paddock-radio-player";
+import CompetitionRankingsScreen, { CompetitionKey } from "@/components/competition-rankings-screen";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { formatMls, formatTimeAgo } from '@/lib/mls';
@@ -541,6 +542,9 @@ export default function OfficialStrategistDashboard() {
 
     // Estado da Tab ativa no Painel Central Multifuncional
     const [activeTab, setActiveTab] = useState<MainTab>('quotes');
+
+    // Tela / Modal do Ranking de Competições (Estilo Telemetria)
+    const [rankingModalComp, setRankingModalComp] = useState<CompetitionKey | null>(null);
 
     // Subtelas operacionais (Setup, Settings, Calendar, Report, Silly Season)
     const [activeView, setActiveView] = useState<"menu" | "settings" | "setup" | "calendar" | "report" | "silly_season">("menu");
@@ -1340,7 +1344,7 @@ export default function OfficialStrategistDashboard() {
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {/* POLETIME */}
                                 <button 
-                                    onClick={() => setActiveTab('book')}
+                                    onClick={() => setRankingModalComp('poletime')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? `${poleTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
                                         borderColor: activeTab === 'book' ? poleTheme.borderActive : poleTheme.border,
@@ -1374,7 +1378,7 @@ export default function OfficialStrategistDashboard() {
 
                                 {/* MASTER (Exceção: Verde se TOP 10 do grupo, Vermelho se não) */}
                                 <button 
-                                    onClick={() => setActiveTab('quotes')}
+                                    onClick={() => setRankingModalComp('master')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'quotes' ? `${masterTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
                                         borderColor: activeTab === 'quotes' ? masterTheme.borderActive : masterTheme.border,
@@ -1407,7 +1411,7 @@ export default function OfficialStrategistDashboard() {
 
                                 {/* MILESIMUS */}
                                 <button 
-                                    onClick={() => setActiveTab('history')}
+                                    onClick={() => setRankingModalComp('milesimus')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'history' ? `${milesimusTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
                                         borderColor: activeTab === 'history' ? milesimusTheme.borderActive : milesimusTheme.border,
@@ -1435,7 +1439,7 @@ export default function OfficialStrategistDashboard() {
 
                                 {/* TEAMWORK */}
                                 <button 
-                                    onClick={() => setActiveTab('teamwork')}
+                                    onClick={() => setRankingModalComp('teamwork')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'teamwork' ? `${teamworkTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
                                         borderColor: activeTab === 'teamwork' ? teamworkTheme.borderActive : teamworkTheme.border,
@@ -1461,6 +1465,17 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </button>
                             </div>
+
+                            {/* MODAL / TELA DE RANKING DAS COMPETIÇÕES (ESTILO TELEMETRIA) */}
+                            {rankingModalComp && (
+                                <CompetitionRankingsScreen
+                                    isModal={true}
+                                    initialComp={rankingModalComp}
+                                    onClose={() => setRankingModalComp(null)}
+                                    userSlug={me?.slug}
+                                    userTeamColor={teamColor}
+                                />
+                            )}
 
                             {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
                             {raceWeek && (
