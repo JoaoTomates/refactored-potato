@@ -415,26 +415,26 @@ export function InviteFlow() {
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center">
+        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center">
 
             {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
             <img
                 src="/pixel_invite_walk.jpg"
                 alt=""
-                className={`fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
+                className={`fixed inset-0 w-full h-full object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
                     phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
                 }`}
-                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+                style={{ imageRendering: 'pixelated' }}
             />
 
             {/* Background 2: Interior do Motorhome com telas de telemetria (demais mensagens da imersão) */}
             <img
                 src="/pixel_invite_bg_v2.jpg"
                 alt=""
-                className={`fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
+                className={`fixed inset-0 w-full h-full object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
                     phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
                 }`}
-                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+                style={{ imageRendering: 'pixelated' }}
             />
 
             {/* FASE INTRO: Puxe uma cadeira e feche a porta */}
@@ -744,15 +744,6 @@ export function InviteFlow() {
                 }`}>
                     <div className="w-full bg-black/85 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
                         
-                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                            <span className="text-[#fbaa19] text-xs font-bold tracking-[0.2em] uppercase">
-                                &gt;_ DESPACHO OPERACIONAL // CONFIRMAÇÃO DE TELEMETRIA
-                            </span>
-                            <span className="text-emerald-400 text-[10px] font-bold tracking-widest uppercase border border-emerald-500/30 px-2.5 py-0.5 rounded bg-emerald-950/30">
-                                ● DESPACHADO COM SUCESSO
-                            </span>
-                        </div>
-
                         <div className="border-l-2 border-[#fbaa19] pl-4 py-1 flex flex-col gap-2">
                             <h2 className="text-white text-xl md:text-2xl font-black uppercase tracking-wider">
                                 VERIFIQUE SEU CANAL DE TELEMETRIA

@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
-import { LogOut, Check, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Check, ArrowRight, ShieldCheck } from 'lucide-react';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
@@ -314,7 +314,7 @@ function HeadquartersFlow() {
                 <img
                     src="/pixel_invite_bg_v2.jpg"
                     alt=""
-                    className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
+                    className="fixed inset-0 w-full h-full object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
                     style={{ imageRendering: 'pixelated' }}
                 />
                 <div className="relative z-10 flex flex-col items-center gap-4 bg-black/80 p-8 border border-[#fbaa19]/30 rounded-lg">
@@ -333,7 +333,7 @@ function HeadquartersFlow() {
                 <img
                     src="/pixel_invite_bg_v2.jpg"
                     alt=""
-                    className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
+                    className="fixed inset-0 w-full h-full object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
                     style={{ imageRendering: 'pixelated' }}
                 />
                 <div className="relative z-10 w-full max-w-xl bg-black/85 backdrop-blur-sm border border-red-500/40 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
@@ -374,37 +374,29 @@ function HeadquartersFlow() {
     const agentSpeech = `Identificação confirmada. Seus canais estão criptografados e homologados na base da BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do ${activeGroupName}.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILÉSIMUS: Cravar a volta mais rápida da Pole Position nos treinos classificatórios até a casa dos milésimos de segundo;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato mundial de construtores.\n\nAnalise as propostas oficiais abaixo com vagas disponíveis e assine seu contrato de pitwall.`;
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-y-auto overflow-x-hidden select-none flex flex-col font-mono items-center pb-24">
+        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center pb-24">
             
+            {/* Background com arte em pixel art do Quartel-General - Cobertura contínua */}
             <img
                 src="/pixel_invite_bg_v2.jpg"
                 alt=""
-                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
-                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+                className="fixed inset-0 w-full h-full object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
+                style={{ imageRendering: 'pixelated' }}
             />
 
             {/* BARRA SUPERIOR DE ESCAPE E CONTROLE DE SESSÃO */}
             <div className="relative z-20 w-full bg-black/90 border-b border-white/10 backdrop-blur-md px-4 py-2.5">
-                <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="max-w-4xl mx-auto flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                         <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="text-white/60 font-bold uppercase tracking-wider text-[11px]">
                             BAEFF1 PITWALL HQ
                         </span>
-                        <span className="text-white/30 hidden sm:inline">•</span>
-                        <span className="text-[#fbaa19] font-mono text-[11px] truncate max-w-[220px]">
+                        <span className="text-white/30">•</span>
+                        <span className="text-[#fbaa19] font-mono text-[11px] truncate max-w-[280px]">
                             {user.email}
                         </span>
                     </div>
-
-                    <button
-                        onClick={handleSignOut}
-                        className="flex items-center gap-1.5 bg-red-950/60 hover:bg-red-800/80 text-red-300 hover:text-white border border-red-500/40 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded transition-all cursor-pointer"
-                        title="Desconectar da sessão atual e retornar ao login"
-                    >
-                        <LogOut className="w-3 h-3" />
-                        <span>Sair / Trocar de Conta</span>
-                    </button>
                 </div>
             </div>
 
@@ -456,61 +448,53 @@ function HeadquartersFlow() {
                         return (
                             <div 
                                 key={teamOffer.id}
-                                className="bg-black/85 backdrop-blur-sm border border-white/15 hover:border-[#fbaa19] rounded-lg p-6 shadow-2xl flex flex-col justify-between gap-5 transition-all group relative overflow-hidden animate-fade-in"
+                                className="bg-black/85 backdrop-blur-sm border border-white/15 hover:border-[#fbaa19] rounded-lg p-4 sm:p-5 shadow-2xl flex flex-col justify-between gap-3.5 transition-all group relative overflow-hidden animate-fade-in"
                             >
                                 {/* Faixa superior de acento com a cor oficial da escuderia */}
-                                <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: teamOffer.color }} />
+                                <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: teamOffer.color }} />
 
                                 {/* Topo: Emblema e Nome da Escuderia */}
-                                <div className="flex items-center gap-4 mt-1">
+                                <div className="flex items-center gap-3.5 mt-0.5">
                                     <div 
-                                        className="w-14 h-14 rounded flex items-center justify-center font-black text-lg shadow-lg border border-white/20 text-white shrink-0"
+                                        className="w-12 h-12 rounded flex items-center justify-center font-black text-base shadow border border-white/20 text-white shrink-0"
                                         style={{ backgroundColor: teamOffer.color }}
                                     >
                                         {teamOffer.code}
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-white text-lg font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors">
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="text-white text-base font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors truncate">
                                             {teamOffer.name}
                                         </span>
-                                        <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
+                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest truncate">
                                             {teamOffer.seatTitle}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Dossiê tático da garagem */}
-                                <p className="text-xs text-gray-300 italic border-l-2 border-white/20 pl-3 leading-relaxed">
+                                <p className="text-xs text-gray-300 italic border-l-2 border-white/20 pl-2.5 py-0.5 leading-relaxed line-clamp-2">
                                     "{teamOffer.description}"
                                 </p>
 
-                                {/* Tabela Bloomberg de Ativos & Requisitos */}
+                                {/* Tabela Bloomberg Compacta de Ativos & Requisitos */}
                                 <div className="border border-white/10 rounded overflow-hidden text-xs font-mono bg-black/40">
-                                    <div className="flex justify-between items-center p-2.5 bg-white/[0.03] border-b border-white/5">
+                                    <div className="flex justify-between items-center p-2 bg-white/[0.03] border-b border-white/5">
                                         <span className="text-gray-400 uppercase tracking-widest text-[10px]">VAGAS NO BLOCO</span>
-                                        <span className="text-emerald-400 font-bold tracking-widest text-[11px]">
-                                            [DISPONÍVEL] • {availableSpots} {availableSpots === 1 ? 'VAGA RESTANTE' : 'VAGAS ABERTAS'}
+                                        <span className="text-emerald-400 font-bold tracking-widest text-[10px]">
+                                            [DISPONÍVEL] • {availableSpots} {availableSpots === 1 ? 'VAGA' : 'VAGAS'}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between items-center p-2.5 border-b border-white/5">
-                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">GRUPO BAEFF1</span>
-                                        <span className="text-white font-bold text-[11px]">{teamOffer.groupName}</span>
-                                    </div>
-                                    <div className="flex flex-col p-2.5 border-b border-white/5 gap-1">
+                                    <div className="flex flex-col p-2 gap-0.5">
                                         <span className="text-gray-400 uppercase tracking-widest text-[10px]">UNIDADE DE POTÊNCIA</span>
-                                        <span className="text-amber-400 font-bold text-[11px]">{teamOffer.engineSpec}</span>
-                                    </div>
-                                    <div className="flex flex-col p-2.5 gap-1 bg-white/[0.01]">
-                                        <span className="text-gray-400 uppercase tracking-widest text-[10px]">BENEFÍCIO TÁTICO FANTASY</span>
-                                        <span className="text-gray-200 text-[11px] leading-snug">{teamOffer.perk}</span>
+                                        <span className="text-amber-400 font-bold text-[10px] truncate">{teamOffer.engineSpec}</span>
                                     </div>
                                 </div>
 
-                                {/* Botão de Assinatura Definitiva de Contrato */}
+                                {/* Botão de Assinatura Definitiva Compacto */}
                                 <button
                                     onClick={() => handleSignContract(teamOffer)}
                                     disabled={isSigning || availableSpots <= 0}
-                                    className={`w-full p-4 rounded font-black tracking-widest uppercase text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
+                                    className={`w-full py-2.5 px-3 rounded font-black tracking-widest uppercase text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                                         availableSpots <= 0 
                                             ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/10'
                                             : isSigning 
@@ -520,7 +504,7 @@ function HeadquartersFlow() {
                                 >
                                     {isSigning ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                            <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                                             <span>HOMOLOGANDO CONTRATO NA BAEFF1...</span>
                                         </>
                                     ) : availableSpots <= 0 ? (
