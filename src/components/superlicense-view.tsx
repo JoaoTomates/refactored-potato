@@ -358,19 +358,22 @@ function SuperlicenseAuthContent() {
 export default function SuperlicenseView() {
     return (
         <main className="w-full min-h-screen bg-[#050401] relative flex flex-col font-mono items-center justify-center py-12 px-4 overflow-x-hidden">
-            {/* Background Pitwall / Race Track Image (Noir Yellow & Black Aesthetic) */}
-            <img 
-                src="/pixel_pitboard_bg.png"
-                alt=""
-                className="fixed inset-0 w-full h-full object-cover object-center z-0 pointer-events-none opacity-90 md:opacity-95"
-                style={{ imageRendering: 'pixelated' }}
-            />
+            {/* Background Viewport Estável e Fixo (Noir Yellow & Black) */}
+            <div 
+                className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden"
+                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+            >
+                <img 
+                    src="/pixel_pitboard_bg.png"
+                    alt=""
+                    className="w-full h-full object-cover object-center opacity-90 md:opacity-95"
+                    style={{ imageRendering: 'pixelated' }}
+                />
 
-            {/* Noir Vignette & Telemetry Atmosphere */}
-            <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_35%,_#050401_92%)] opacity-85"></div>
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#fbaa19_0%,_transparent_65%)]"></div>
-                <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)', backgroundSize: '100% 4px' }}></div>
+                {/* Noir Vignette & Telemetry Atmosphere */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_35%,_#050401_92%)] opacity-85" />
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#fbaa19_0%,_transparent_65%)]" />
+                <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)', backgroundSize: '100% 4px' }} />
             </div>
 
             <Suspense fallback={

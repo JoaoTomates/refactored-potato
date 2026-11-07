@@ -311,12 +311,17 @@ function HeadquartersFlow() {
     if (authLoading || loadingData) {
         return (
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono relative">
-                <img
-                    src="/pixel_invite_bg_v2.jpg"
-                    alt=""
-                    className="fixed inset-0 w-full h-full object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
-                    style={{ imageRendering: 'pixelated' }}
-                />
+                <div 
+                    className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden"
+                    style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+                >
+                    <img
+                        src="/pixel_invite_bg_v2.jpg"
+                        alt=""
+                        className="w-full h-full object-cover object-center opacity-60 md:opacity-80"
+                        style={{ imageRendering: 'pixelated' }}
+                    />
+                </div>
                 <div className="relative z-10 flex flex-col items-center gap-4 bg-black/80 p-8 border border-[#fbaa19]/30 rounded-lg">
                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
@@ -330,12 +335,17 @@ function HeadquartersFlow() {
     if (!user) {
         return (
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono relative p-4">
-                <img
-                    src="/pixel_invite_bg_v2.jpg"
-                    alt=""
-                    className="fixed inset-0 w-full h-full object-cover object-center z-0 opacity-60 md:opacity-80 pointer-events-none"
-                    style={{ imageRendering: 'pixelated' }}
-                />
+                <div 
+                    className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden"
+                    style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+                >
+                    <img
+                        src="/pixel_invite_bg_v2.jpg"
+                        alt=""
+                        className="w-full h-full object-cover object-center opacity-60 md:opacity-80"
+                        style={{ imageRendering: 'pixelated' }}
+                    />
+                </div>
                 <div className="relative z-10 w-full max-w-xl bg-black/85 backdrop-blur-sm border border-red-500/40 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
                         <span className="text-red-400 text-xs font-bold tracking-[0.2em] uppercase">

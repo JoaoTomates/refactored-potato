@@ -430,14 +430,19 @@ export default function PositionsPage() {
     return (
         <main className="w-full min-h-screen relative bg-[#050401] text-white font-mono flex flex-col items-center pb-32 select-none overflow-x-hidden">
 
-            {/* Background Pixel Art Imersivo Noir */}
-            <img
-                src="/pixel_invite_bg_v2.jpg"
-                alt="Terminal Background"
-                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 opacity-60 md:opacity-75 pointer-events-none"
-                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
-            />
-            <div className="fixed inset-0 bg-[#050401]/85 backdrop-blur-[2px] z-0 pointer-events-none" />
+            {/* Background Pixel Art Imersivo Noir - Viewport Estável sem expansão */}
+            <div 
+                className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden"
+                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+            >
+                <img
+                    src="/pixel_invite_bg_v2.jpg"
+                    alt="Terminal Background"
+                    className="w-full h-full object-cover object-center opacity-60 md:opacity-75"
+                    style={{ imageRendering: 'pixelated' }}
+                />
+                <div className="absolute inset-0 bg-[#050401]/85 backdrop-blur-[2px]" />
+            </div>
 
             {/* CONTAINER PRINCIPAL */}
             <div className="relative z-10 w-full max-w-5xl px-4 md:px-8 mt-6 flex flex-col gap-6">

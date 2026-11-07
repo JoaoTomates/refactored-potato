@@ -417,25 +417,31 @@ export function InviteFlow() {
     return (
         <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center">
 
-            {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
-            <img
-                src="/pixel_invite_walk.jpg"
-                alt=""
-                className={`fixed inset-0 w-full h-full object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
-                    phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
-                }`}
-                style={{ imageRendering: 'pixelated' }}
-            />
+            {/* Background Viewport Estável e Fixo - 100vw e 100vh bloqueados - Imune a expansões de scroll ou digitação */}
+            <div 
+                className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden" 
+                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+            >
+                {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
+                <img
+                    src="/pixel_invite_walk.jpg"
+                    alt=""
+                    className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+                        phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
+                    }`}
+                    style={{ imageRendering: 'pixelated' }}
+                />
 
-            {/* Background 2: Interior do Motorhome com telas de telemetria (demais mensagens da imersão) */}
-            <img
-                src="/pixel_invite_bg_v2.jpg"
-                alt=""
-                className={`fixed inset-0 w-full h-full object-cover object-center z-0 pointer-events-none transition-opacity duration-700 ${
-                    phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
-                }`}
-                style={{ imageRendering: 'pixelated' }}
-            />
+                {/* Background 2: Interior do Motorhome com telas de telemetria (demais mensagens da imersão) */}
+                <img
+                    src="/pixel_invite_bg_v2.jpg"
+                    alt=""
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+                        phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
+                    }`}
+                    style={{ imageRendering: 'pixelated' }}
+                />
+            </div>
 
             {/* FASE INTRO: Puxe uma cadeira e feche a porta */}
             {phase === 'INTRO' && (
@@ -596,7 +602,7 @@ export function InviteFlow() {
                                 return (
                                     <div
                                         key={g.id}
-                                        className="w-full bg-black/80 p-5 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in text-white text-sm md:text-base font-bold tracking-widest group"
+                                        className="w-full bg-[#0a0c10] p-5 md:p-6 border border-[#fbaa19]/35 rounded-lg shadow-2xl hover:border-[#fbaa19] transition-all cursor-pointer animate-fade-in text-white text-sm md:text-base font-bold tracking-widest group"
                                         onClick={() => handleSelectAlliance(groupId)}
                                     >
                                         <div className="flex items-center gap-2 mb-2">
@@ -605,7 +611,7 @@ export function InviteFlow() {
                                             <span className="text-white font-black">{g.title}</span>
                                         </div>
 
-                                        <div className="mt-2 text-white/80 text-xs md:text-sm font-normal leading-relaxed">
+                                        <div className="mt-2 text-white/80 text-xs md:text-sm font-normal leading-relaxed min-h-[90px] md:min-h-[80px]">
                                             <TypewriterLine
                                                 text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`}
                                                 startDelay={150}
