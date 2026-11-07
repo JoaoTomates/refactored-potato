@@ -95,14 +95,14 @@
 - O Diretor responde imediatamente de acordo com o bloco selecionado:
   - *Bloco A:* `“Escolha metódica. Você optou pela maior frota de motores da Alemanha...”`
   - *Bloco B:* `“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana...”`
-  - *Bloco C:* `“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi...”`
+  - *Bloco C:* `Gostei da sua ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi...”`
 - **Formulário de Cadastro:**
   > *(Os campos de Nome e Sobrenome e E-mail surgem com efeito fade-in após a conclusão da fala).*  
   *(Gera automaticamente o código do piloto no padrão `L.GUSTAVO88` e o slug `@lgustavo88` a partir de Nome e Sobrenome).*
 
 #### Fase 6: Confirmação & Designação do Mentor (Fase EMAIL_SENT)
 - **Despacho Operacional:**  
-  > *“VERIFIQUE SEU CANAL DE TELEMETRIA: Um link de homologação seguro foi transmitido para o seu e-mail. Abra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.”*
+  > *“VERIFIQUE SEU CANAL: Um link de homologação foi transmitido. Abra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.”*
 - **Sorteio do Conselheiro Sênior do Pitwall:**  
   > *Um dos 24 Estrategistas Sêniores (ex: `M.AMON`, `T.WARWICK`) é sorteado para ser o mentor exclusivo do piloto, já exibindo sua frase de impacto e índice de assertividade histórica.*  
 - **Painel Financeiro BAEFF1:**  

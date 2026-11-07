@@ -1342,9 +1342,9 @@ export default function OfficialStrategistDashboard() {
 
                             {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Cores dinâmicas por desempenho global (Verde / Amarela / Vermelha) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                {/* POLETIME */}
+                                {/* POLETIME - Direciona para a página oficial de resultados do Poletime */}
                                 <button 
-                                    onClick={() => setRankingModalComp('poletime')}
+                                    onClick={() => router.push('/poletime')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? `${poleTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{ 
                                         borderColor: activeTab === 'book' ? poleTheme.borderActive : poleTheme.border,

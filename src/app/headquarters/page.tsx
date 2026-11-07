@@ -389,7 +389,7 @@ function HeadquartersFlow() {
             <div className="relative z-10 w-full max-w-4xl flex flex-col gap-6 mt-8 md:mt-12 px-4">
                 
                 {/* Header do Terminal: Discurso do Agente com as Instruções */}
-                <div className="bg-black/85 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg p-5 md:p-6 shadow-2xl flex flex-col gap-4 animate-fade-in">
+                <div className="bg-[#0a0c10] border border-[#fbaa19]/40 rounded-lg p-5 md:p-6 shadow-2xl flex flex-col gap-4 animate-fade-in">
                     
                     <div className="flex items-center gap-3">
                         <span className="text-xs font-black tracking-widest px-2.5 py-1 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/40 uppercase">
@@ -411,13 +411,13 @@ function HeadquartersFlow() {
                 </div>
 
                 {errorMsg && (
-                    <div className="bg-red-900/20 border border-red-500/50 p-4 rounded text-red-500 font-bold uppercase tracking-widest text-xs animate-fade-in">
+                    <div className="bg-red-900/40 border border-red-500/50 p-4 rounded text-red-500 font-bold uppercase tracking-widest text-xs animate-fade-in">
                         [FALHA DE HOMOLOGAÇÃO] {errorMsg}
                     </div>
                 )}
 
-                {/* Propostas Oficiais de Equipes em Badges Compactos Interativos */}
-                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity duration-700 ${typingDone ? 'opacity-100' : 'opacity-85'}`}>
+                {/* Propostas Oficiais de Equipes em Badges Compactos Interativos (Mesmo padrão sólido do box text) */}
+                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity duration-700 ${typingDone ? 'opacity-100' : 'opacity-90'}`}>
                     {offeredTeams.map((teamOffer) => {
                         const availableSpots = Math.max(0, 2 - teamOffer.occupied);
                         const isSigning = signingId === teamOffer.id;
@@ -427,12 +427,12 @@ function HeadquartersFlow() {
                                 key={teamOffer.id}
                                 onClick={() => availableSpots > 0 && !isSigning && handleSignContract(teamOffer)}
                                 disabled={isSigning || availableSpots <= 0}
-                                className={`relative w-full text-left bg-black/85 hover:bg-black/95 backdrop-blur-sm border rounded-lg p-3.5 sm:p-4 shadow-xl transition-all cursor-pointer group flex flex-col justify-between gap-2.5 overflow-hidden ${
+                                className={`relative w-full text-left bg-[#0a0c10] hover:bg-[#101318] border border-white/20 rounded-lg p-3.5 sm:p-4 shadow-2xl transition-all cursor-pointer group flex flex-col justify-between gap-2.5 overflow-hidden ${
                                     isSigning 
                                         ? 'ring-2 ring-[#fbaa19] scale-[1.01]' 
                                         : 'hover:scale-[1.01] hover:shadow-[0_0_20px_rgba(251,170,25,0.2)]'
                                 }`}
-                                style={{ borderColor: `${teamOffer.color}60` }}
+                                style={{ borderColor: `${teamOffer.color}80` }}
                             >
                                 {/* Faixa superior de acento com a cor oficial da escuderia */}
                                 <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: teamOffer.color }} />
