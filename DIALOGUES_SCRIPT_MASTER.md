@@ -157,14 +157,14 @@
 *Arquivo Fonte:* `src/app/headquarters/page.tsx`
 
 - **Mensagem de Abertura:**  
-  > *“Identificação confirmada. Seus canais estão criptografados e homologados na base da BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.”*
+  > *“Identificação confirmada. Seus canal de e-mail foi homologado na BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.”*
 - **Exigências da Diretoria para a Temporada:**  
   > *“Antes de assinar, preste atenção no que a diretoria exige de você nesta temporada:*  
-  > *1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;*  
-  > *2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO POLETIME: Cravar o tempo de Pole Position nos treinos classificatórios no limite dos milésimos de segundo;*  
-  > *3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato.”*
+  > *1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP fará diferença na sua trajetória;*  
+  > *2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILESIMUS: Faça o máximo de pontos possíveis nos finais de semana de Grand Prix e traga MLS para a equipe;*  
+  > *3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Colocar nossa aliança técnica no topo do campeonato.”*
 - **Despacho das Ofertas:**  
-  > *“Duas propostas caíram na sua mesa cifrada. Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.”*
+  > *“Duas propostas caíram na sua mesa. Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.”*
 
 ---
 

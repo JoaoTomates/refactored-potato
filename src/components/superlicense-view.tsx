@@ -362,8 +362,8 @@ export default function SuperlicenseView() {
             <img 
                 src="/pixel_pitboard_bg.png"
                 alt=""
-                className="fixed top-0 left-0 w-screen h-screen object-cover object-center z-0 pointer-events-none opacity-90 md:opacity-95"
-                style={{ imageRendering: 'pixelated', transform: 'translateZ(0)', willChange: 'transform' }}
+                className="fixed inset-0 w-full h-full object-cover object-center z-0 pointer-events-none opacity-90 md:opacity-95"
+                style={{ imageRendering: 'pixelated' }}
             />
 
             {/* Noir Vignette & Telemetry Atmosphere */}
