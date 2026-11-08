@@ -221,7 +221,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "id": "despacho_operacional",
               "title": "Despacho Operacional",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "VERIFIQUE SEU CANAL: Um link de homologação foi transmitido. Abra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.",
+              "text": "VERIFIQUE SEU E-MAIL: Um link de homologação foi transmitido. Clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.",
               "actions": []
             },
             {

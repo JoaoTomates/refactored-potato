@@ -102,7 +102,7 @@
 
 #### Fase 6: Confirmação & Designação do Mentor (Fase EMAIL_SENT)
 - **Despacho Operacional:**  
-  > *“VERIFIQUE SEU CANAL: Um link de homologação foi transmitido. Abra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.”*
+  > *“VERIFIQUE SEU E-MAIL: Um link de homologação foi transmitido. Clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.”*
 - **Sorteio do Conselheiro Sênior do Pitwall:**  
   > *Um dos 24 Estrategistas Sêniores (ex: `M.AMON`, `T.WARWICK`) é sorteado para ser o mentor exclusivo do piloto, já exibindo sua frase de impacto e índice de assertividade histórica.*  
 - **Painel Financeiro BAEFF1:**  
