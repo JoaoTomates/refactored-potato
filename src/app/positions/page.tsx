@@ -273,6 +273,13 @@ export default function PositionsPage() {
 
                 // Carrega predições pré-configuradas da War Room se houver
                 if (typeof window !== 'undefined') {
+                    // Suporte a aba pré-selecionada via query param (ex: /positions?tab=misc)
+                    const params = new URLSearchParams(window.location.search);
+                    const tabParam = params.get('tab');
+                    if (tabParam && ['all', 'poletime', 'master', 'evo', 'h2h', 'misc'].includes(tabParam)) {
+                        setActiveTab(tabParam);
+                    }
+
                     const warRoomDraftRaw = localStorage.getItem('war_room_draft');
                     if (warRoomDraftRaw) {
                         try {
@@ -285,6 +292,12 @@ export default function PositionsPage() {
                             }
                             if (Array.isArray(wrDraft?.top10) && wrDraft.top10.length === 10) {
                                 setTop10(wrDraft.top10);
+                            }
+                            if (Array.isArray(wrDraft?.evo) && wrDraft.evo.length === 5) {
+                                setEvo(wrDraft.evo);
+                            }
+                            if (wrDraft?.h2h && typeof wrDraft.h2h === 'object' && Object.keys(wrDraft.h2h).length > 0) {
+                                setH2H(wrDraft.h2h);
                             }
                         } catch (_) {}
                     }

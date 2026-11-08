@@ -55,8 +55,8 @@ const soundEngine = new PitWallSoundEngine();
 function TypewriterLine({ 
     text, 
     onComplete, 
-    startDelay = 100, 
-    speed = 18 
+    startDelay = 60, 
+    speed = 14 
 }: { 
     text: string; 
     onComplete?: () => void; 
@@ -107,8 +107,8 @@ function TypewriterLine({
                 i++;
 
                 let delay = speed;
-                if (char === '.' || char === '!' || char === '?') delay = speed * 8;
-                else if (char === ',' || char === '\n' || char === ':') delay = speed * 4;
+                if (char === '.' || char === '!' || char === '?') delay = speed * 6;
+                else if (char === ',' || char === '\n' || char === ':') delay = speed * 3;
 
                 timeoutId = setTimeout(typeNext, delay);
             } else {
@@ -130,8 +130,8 @@ function TypewriterLine({
             onClick={() => {
                 if (isTyping) finishImmediately.current();
             }}
-            className="leading-relaxed relative whitespace-pre-wrap cursor-pointer"
-            title={isTyping ? "Clique para exibir o texto completo" : undefined}
+            className="leading-relaxed relative whitespace-pre-wrap cursor-pointer select-none"
+            title={isTyping ? "Clique para exibir tudo" : undefined}
         >
             {displayed}
             {isTyping && <span className="text-[#fbaa19] animate-pulse ml-1 inline-block">■</span>}
@@ -186,7 +186,7 @@ interface BoxCardProps {
     text: string;
     accentColor: string;
     accentGlow?: string;
-    isActive: boolean;
+    animationDirection: 'left' | 'right';
     isSettled?: boolean;
     settledLabel?: string;
     isFilled?: boolean;
@@ -196,12 +196,7 @@ interface BoxCardProps {
     okLabel?: string;
 }
 
-// Componente individual de Box Text:
-// - Fiel ao estilo da imagem anexada:
-// - Cantos arredondados (rounded-2xl)
-// - Fundo obsidiana translúcido com backdrop-blur
-// - Barra vertical neon na borda esquerda
-// - Borda suave com brilho colorido
+// Componente individual de Box Text com fade-in left ou right:
 function BoxCard({
     speakerBadge,
     speakerRole,
@@ -209,7 +204,7 @@ function BoxCard({
     text,
     accentColor,
     accentGlow,
-    isActive,
+    animationDirection,
     isSettled = false,
     settledLabel,
     isFilled = false,
@@ -223,8 +218,8 @@ function BoxCard({
 
     return (
         <div 
-            className={`relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-500 backdrop-blur-md flex items-stretch gap-4 md:gap-5 shadow-2xl border ${
-                isActive ? 'opacity-100 scale-100' : 'opacity-85 scale-[0.99]'
+            className={`relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 backdrop-blur-md flex items-stretch gap-4 md:gap-5 shadow-2xl border ${
+                animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
             }`}
             style={{
                 backgroundColor: isFilled ? 'rgba(8, 20, 15, 0.94)' : 'rgba(11, 13, 18, 0.92)',
@@ -232,7 +227,7 @@ function BoxCard({
                 boxShadow: `0 12px 35px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}30`
             }}
         >
-            {/* BARRA VERTICAL NEON NA LATERAL ESQUERDA (ESTILO EXATO DO BANNER) */}
+            {/* BARRA VERTICAL NEON NA LATERAL ESQUERDA */}
             <div 
                 className="w-1.5 self-stretch rounded-full flex-shrink-0 transition-all duration-300"
                 style={{
@@ -242,7 +237,7 @@ function BoxCard({
             />
 
             {/* CONTEÚDO PRINCIPAL DO DIÁLOGO */}
-            <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
+            <div className="flex-1 flex flex-col justify-between gap-2.5 min-w-0">
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
                     <div className="flex items-center gap-2">
@@ -262,18 +257,13 @@ function BoxCard({
                     </span>
                 </div>
 
-                {/* Texto da fala */}
-                <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-1 min-h-[50px]">
-                    {isActive ? (
-                        <TypewriterLine text={text} startDelay={100} />
-                    ) : (
-                        <span>{text}</span>
-                    )}
+                {/* Texto da fala conciso */}
+                <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-1 min-h-[44px]">
+                    <TypewriterLine text={text} startDelay={60} />
                 </div>
 
-                {/* Ações interativas da rodada atual */}
-                <div className="mt-1 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-end gap-3 text-xs font-bold uppercase tracking-widest">
-                    {/* Se já foi resolvido em etapa anterior, mostra apenas o badge fixado */}
+                {/* Ações interativas da rodada */}
+                <div className="mt-1 pt-2 border-t border-white/10 flex flex-wrap items-center justify-end gap-3 text-xs font-bold uppercase tracking-widest">
                     {isSettled ? (
                         <div 
                             className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold"
@@ -284,7 +274,7 @@ function BoxCard({
                             }}
                         >
                             {isFilled && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                            <span>{settledLabel || (isFilled ? 'HOMOLOGADO NO PROTOCOLO' : 'OK REGISTRADO')}</span>
+                            <span>{settledLabel || (isFilled ? 'HOMOLOGADO' : 'OK REGISTRADO')}</span>
                         </div>
                     ) : (
                         <>
@@ -292,7 +282,7 @@ function BoxCard({
                                 <button
                                     type="button"
                                     onClick={onOk}
-                                    className="px-3 py-1.5 rounded-lg text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
+                                    className="px-3.5 py-1.5 rounded-lg text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
                                 >
                                     [ {okLabel} ]
                                 </button>
@@ -319,17 +309,15 @@ function BoxCard({
     );
 }
 
-// Estados possíveis do fluxo dinâmico:
-// 1: Sênior abre Poletime
-// 2A: Técnico inicia TOP 10 (porque o usuário preencheu o formulário com o Sênior sem contradição)
-// 3A: Sênior contra-argumenta TOP 10 (se usuário clicou OK no 2A)
-// 2B: Técnico sugere novo tempo de Poletime (porque o usuário deu apenas OK no Sênior)
-// 3B: Sênior inicia TOP 10 (após poletime resolvido no 2B)
-// 4B: Técnico sugere novo TOP 10 (se usuário clicou OK no 3B)
-// 5: Conclusão & Transmissão Final para /positions
-type StageKey = '1_SENIOR_POLE' | '2A_TECH_TOP10' | '3A_SENIOR_TOP10' | '2B_TECH_POLE' | '3B_SENIOR_TOP10' | '4B_TECH_TOP10' | '5_FINAL';
+// 5 Tópicos Paginados (A tela limpa entre cada tópico):
+// 1: POLETIME
+// 2: TOP10
+// 3: EVO (Escalada)
+// 4: H2H (Duelos)
+// 5: FINAL_MISC (Transição para o usuário preencher o MISC sozinho)
+type Topic = 'POLETIME' | 'TOP10' | 'EVO' | 'H2H' | 'FINAL_MISC';
 
-function WarRoomContent() {
+export function WarRoomContent() {
     const router = useRouter();
     const { user } = useSupabaseAuth();
 
@@ -341,23 +329,24 @@ function WarRoomContent() {
     const [seniorStrategist, setSeniorStrategist] = useState<SeniorStrategist>(SENIOR_STRATEGISTS[0]);
     const [technicalStrategist, setTechnicalStrategist] = useState<TechnicalStrategist | null>(null);
 
-    // Estado da máquina de diálogo
-    const [stage, setStage] = useState<StageKey>('1_SENIOR_POLE');
+    // Estado de Tópico Paginado & Efeito de Limpeza de Tela
+    const [currentTopic, setCurrentTopic] = useState<Topic>('POLETIME');
+    const [isClearing, setIsClearing] = useState(false);
 
-    // Dados salvos
-    const [chosenPoletime, setChosenPoletime] = useState<string | null>(null);
-    const [chosenPoletimeSource, setChosenPoletimeSource] = useState<'senior' | 'tech' | null>(null);
-    const [chosenTop10, setChosenTop10] = useState<string[] | null>(null);
-    const [chosenTop10Source, setChosenTop10Source] = useState<'senior' | 'tech' | null>(null);
+    // Sub-etapa interna em cada tópico:
+    // 'SENIOR': apenas fala do Sênior visível (Row 1)
+    // 'TECH': Técnico entrou abaixo em Row 2 (porque deu OK ou preencheu)
+    const [subStep, setSubStep] = useState<'SENIOR' | 'TECH'>('SENIOR');
+    const [topicSettledStatus, setTopicSettledStatus] = useState<string | null>(null);
 
-    // Histórico de decisões para manter os cards anteriores fixados sem sobreposição
-    const [seniorPoleSettled, setSeniorPoleSettled] = useState<{ filled: boolean; text: string } | null>(null);
-    const [techPoleSettled, setTechPoleSettled] = useState<{ filled: boolean; text: string } | null>(null);
-    const [seniorTop10Settled, setSeniorTop10Settled] = useState<{ filled: boolean; text: string } | null>(null);
-    const [techTop10Settled, setTechTop10Settled] = useState<{ filled: boolean; text: string } | null>(null);
-
-    // Ref para auto-scroll suave sempre que um novo card surgir
-    const bottomMarkerRef = useRef<HTMLDivElement>(null);
+    // Dados salvos para o protocolo
+    const [chosenPoletime, setChosenPoletime] = useState<string>('1:12.209');
+    const [chosenTop10, setChosenTop10] = useState<string[]>(['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB']);
+    const [chosenEvo, setChosenEvo] = useState<string[]>(['HAM', 'SAI', 'ALO', 'TSU', 'ALB']);
+    const [chosenH2H, setChosenH2H] = useState<Record<string, string>>({
+        m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
+        m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27'
+    });
 
     useEffect(() => {
         soundEngine.init();
@@ -396,19 +385,22 @@ function WarRoomContent() {
         loadProfile();
     }, [user]);
 
-    // Scroll suave para o final da prancheta ao avançar de etapa
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            bottomMarkerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 150);
-        return () => clearTimeout(timer);
-    }, [stage]);
-
     const theme = ALLIANCE_THEMES[userAlliance] || ALLIANCE_THEMES['B'];
+
+    // Valores do Sênior e do Técnico
     const seniorTimeTarget = seniorStrategist.briefingTips.poletimeTarget.split(' ')[0] || '1:12.209';
     const techTimeTarget = technicalStrategist?.telemetryBriefing.poletimeTarget || '1:12.164';
 
-    const saveDraft = (pole: string | null, top10: string[] | null) => {
+    const seniorTop3 = seniorStrategist.briefingTips.predictedTop3.slice(0, 3).join(', ');
+    const techTop3 = technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 3).join(', ') || 'NOR, VER, LEC';
+
+    const seniorEvoDriver = seniorStrategist.briefingTips.predictedEvoDriver || 'HAM';
+    const techEvoDriver = technicalStrategist?.telemetryBriefing.top10Picks[4] || 'SAI';
+
+    const seniorH2HDrivers = seniorStrategist.briefingTips.dominantH2HDrivers.slice(0, 2).join(' & ') || 'NOR & VER';
+
+    // Gravação em localStorage para integração perfeita com /positions
+    const saveToLocalStorage = (updates: Partial<{ poletime: string; top10: string[]; evo: string[]; h2h: Record<string, string> }>) => {
         if (typeof window === 'undefined') return;
         const currentDraftRaw = localStorage.getItem('war_room_draft');
         let currentDraft: any = {};
@@ -418,125 +410,166 @@ function WarRoomContent() {
 
         const updated = {
             ...currentDraft,
-            poletime: pole || currentDraft.poletime || '1:12.209',
-            top10: top10 || currentDraft.top10 || ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'],
+            poletime: updates.poletime || currentDraft.poletime || chosenPoletime,
+            top10: updates.top10 || currentDraft.top10 || chosenTop10,
+            evo: updates.evo || currentDraft.evo || chosenEvo,
+            h2h: updates.h2h || currentDraft.h2h || chosenH2H,
             timestamp: new Date().toISOString()
         };
 
         localStorage.setItem('war_room_draft', JSON.stringify(updated));
     };
 
-    // ==========================================
-    // TRANSIÇÕES DINÂMICAS DE DIÁLOGO
-    // ==========================================
+    // Função de limpeza de tela e transição entre tópicos
+    const transitionToTopic = (next: Topic) => {
+        setIsClearing(true);
+        setTimeout(() => {
+            setCurrentTopic(next);
+            setSubStep('SENIOR');
+            setTopicSettledStatus(null);
+            setIsClearing(false);
+        }, 320);
+    };
 
-    // ETAPA 1: Sênior fala Poletime
-    // Se "preencher formulário" -> Engenheiro técnico inicia TOP 10 sem contrariar o chefe (Branch A)
-    const handleSeniorPoleFill = () => {
+    // ==========================================
+    // TÓPICO 1: POLETIME
+    // ==========================================
+    const handlePoletimeSeniorFill = () => {
         setChosenPoletime(seniorTimeTarget);
-        setChosenPoletimeSource('senior');
-        setSeniorPoleSettled({ filled: true, text: `POLETIME HOMOLOGADO [${seniorTimeTarget}]` });
-        saveDraft(seniorTimeTarget, chosenTop10);
-        setStage('2A_TECH_TOP10');
+        saveToLocalStorage({ poletime: seniorTimeTarget });
+        setTopicSettledStatus(`POLETIME [${seniorTimeTarget}] HOMOLOGADO`);
+        // Técnico confirma sem contrariar e avança para Top 10
+        setSubStep('TECH');
     };
 
-    // Se "ok" -> Técnico surge com nova sugestão de Poletime (Branch B)
-    const handleSeniorPoleOk = () => {
-        setSeniorPoleSettled({ filled: false, text: 'OK REGISTRADO' });
-        setStage('2B_TECH_POLE');
+    const handlePoletimeSeniorOk = () => {
+        // Técnico surge com contra-proposta
+        setSubStep('TECH');
     };
 
-    // BRANCH A (Técnico inicia TOP 10)
-    const handleTechTop10FillA = () => {
-        const grid = technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 10) || ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'];
-        setChosenTop10(grid);
-        setChosenTop10Source('tech');
-        setTechTop10Settled({ filled: true, text: 'TOP 10 HOMOLOGADO NO PROTOCOLO' });
-        saveDraft(chosenPoletime, grid);
-        setStage('5_FINAL');
-    };
-
-    const handleTechTop10OkA = () => {
-        setTechTop10Settled({ filled: false, text: 'OK REGISTRADO' });
-        setStage('3A_SENIOR_TOP10'); // Sênior dá sua contra-visão experiente
-    };
-
-    // BRANCH A (Sênior contra-argumenta TOP 10)
-    const handleSeniorTop10FillA = () => {
-        const grid = seniorStrategist.briefingTips.predictedTop3.concat(['RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB', 'TSU']).slice(0, 10);
-        setChosenTop10(grid);
-        setChosenTop10Source('senior');
-        setSeniorTop10Settled({ filled: true, text: 'TOP 10 HOMOLOGADO NO PROTOCOLO' });
-        saveDraft(chosenPoletime, grid);
-        setStage('5_FINAL');
-    };
-
-    const handleSeniorTop10OkA = () => {
-        const grid = seniorStrategist.briefingTips.predictedTop3.concat(['RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB', 'TSU']).slice(0, 10);
-        setChosenTop10(grid);
-        setChosenTop10Source('senior');
-        setSeniorTop10Settled({ filled: false, text: 'OK REGISTRADO // TOP 10 SÊNIOR' });
-        saveDraft(chosenPoletime, grid);
-        setStage('5_FINAL');
-    };
-
-    // BRANCH B (Técnico sugeriu novo Poletime)
-    const handleTechPoleFillB = () => {
+    const handlePoletimeTechFill = () => {
         setChosenPoletime(techTimeTarget);
-        setChosenPoletimeSource('tech');
-        setTechPoleSettled({ filled: true, text: `POLETIME HOMOLOGADO [${techTimeTarget}]` });
-        saveDraft(techTimeTarget, chosenTop10);
-        setStage('3B_SENIOR_TOP10'); // Passa para o assunto seguinte (TOP 10)
+        saveToLocalStorage({ poletime: techTimeTarget });
+        transitionToTopic('TOP10');
     };
 
-    const handleTechPoleOkB = () => {
-        setChosenPoletime(techTimeTarget);
-        setChosenPoletimeSource('tech');
-        setTechPoleSettled({ filled: false, text: `OK REGISTRADO [${techTimeTarget}]` });
-        saveDraft(techTimeTarget, chosenTop10);
-        setStage('3B_SENIOR_TOP10'); // Passa para o assunto seguinte (TOP 10)
+    const handlePoletimeTechOk = () => {
+        saveToLocalStorage({ poletime: chosenPoletime });
+        transitionToTopic('TOP10');
     };
 
-    // BRANCH B (Sênior inicia TOP 10)
-    const handleSeniorTop10FillB = () => {
+    // ==========================================
+    // TÓPICO 2: TOP 10 FINISH
+    // ==========================================
+    const handleTop10SeniorFill = () => {
         const grid = seniorStrategist.briefingTips.predictedTop3.concat(['RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB', 'TSU']).slice(0, 10);
         setChosenTop10(grid);
-        setChosenTop10Source('senior');
-        setSeniorTop10Settled({ filled: true, text: 'TOP 10 HOMOLOGADO NO PROTOCOLO' });
-        saveDraft(chosenPoletime, grid);
-        setStage('5_FINAL');
+        saveToLocalStorage({ top10: grid });
+        setTopicSettledStatus('TOP 10 SÊNIOR HOMOLOGADO');
+        setSubStep('TECH');
     };
 
-    const handleSeniorTop10OkB = () => {
-        setSeniorTop10Settled({ filled: false, text: 'OK REGISTRADO' });
-        setStage('4B_TECH_TOP10'); // Técnico sugere novo TOP 10
+    const handleTop10SeniorOk = () => {
+        setSubStep('TECH');
     };
 
-    // BRANCH B (Técnico sugere novo TOP 10)
-    const handleTechTop10FillB = () => {
+    const handleTop10TechFill = () => {
         const grid = technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 10) || ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'];
         setChosenTop10(grid);
-        setChosenTop10Source('tech');
-        setTechTop10Settled({ filled: true, text: 'TOP 10 HOMOLOGADO NO PROTOCOLO' });
-        saveDraft(chosenPoletime, grid);
-        setStage('5_FINAL');
+        saveToLocalStorage({ top10: grid });
+        transitionToTopic('EVO');
     };
 
-    const handleTechTop10OkB = () => {
-        const grid = technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 10) || ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'];
-        setChosenTop10(grid);
-        setChosenTop10Source('tech');
-        setTechTop10Settled({ filled: false, text: 'OK REGISTRADO // TOP 10 TÉCNICO' });
-        saveDraft(chosenPoletime, grid);
-        setStage('5_FINAL');
+    const handleTop10TechOk = () => {
+        saveToLocalStorage({ top10: chosenTop10 });
+        transitionToTopic('EVO');
     };
 
-    const handleGoToPositions = () => {
-        router.push('/positions?from=war_room');
+    // ==========================================
+    // TÓPICO 3: EVO / ESCALADA
+    // ==========================================
+    const handleEvoSeniorFill = () => {
+        const evoGrid = [seniorEvoDriver, 'SAI', 'ALO', 'TSU', 'ALB'];
+        setChosenEvo(evoGrid);
+        saveToLocalStorage({ evo: evoGrid });
+        setTopicSettledStatus(`ESCALADA [${seniorEvoDriver}] HOMOLOGADA`);
+        setSubStep('TECH');
+    };
+
+    const handleEvoSeniorOk = () => {
+        setSubStep('TECH');
+    };
+
+    const handleEvoTechFill = () => {
+        const evoGrid = [techEvoDriver, 'HAM', 'ALO', 'TSU', 'COL'];
+        setChosenEvo(evoGrid);
+        saveToLocalStorage({ evo: evoGrid });
+        transitionToTopic('H2H');
+    };
+
+    const handleEvoTechOk = () => {
+        saveToLocalStorage({ evo: chosenEvo });
+        transitionToTopic('H2H');
+    };
+
+    // ==========================================
+    // TÓPICO 4: H2H / DUELOS TÁTICOS
+    // ==========================================
+    const handleH2HSeniorFill = () => {
+        const seniorPicks = {
+            m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
+            m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27'
+        };
+        setChosenH2H(seniorPicks);
+        saveToLocalStorage({ h2h: seniorPicks });
+        setTopicSettledStatus('DUELOS HOMOLOGADOS NO PROTOCOLO');
+        setSubStep('TECH');
+    };
+
+    const handleH2HSeniorOk = () => {
+        setSubStep('TECH');
+    };
+
+    const handleH2HTechFill = () => {
+        const techPicks = {
+            m1: '81', m2: '44', m3: '12', m4: '01', m5: '14',
+            m6: '43', m7: '87', m8: '41', m9: '77', m10: '23', m11: '05'
+        };
+        setChosenH2H(techPicks);
+        saveToLocalStorage({ h2h: techPicks });
+        transitionToTopic('FINAL_MISC');
+    };
+
+    const handleH2HTechOk = () => {
+        saveToLocalStorage({ h2h: chosenH2H });
+        transitionToTopic('FINAL_MISC');
+    };
+
+    // Redireciona o usuário diretamente para preencher o MISC sozinho no formulário de posições
+    const handleGoToPositionsMisc = () => {
+        router.push('/positions?tab=misc&from=war_room');
     };
 
     return (
         <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center justify-center">
+
+            {/* KEYFRAME ANIMATIONS PARA FADE-IN LEFT & FADE-IN RIGHT */}
+            <style jsx global>{`
+                @keyframes fadeInLeftAnim {
+                    0% { opacity: 0; transform: translateX(-32px); }
+                    100% { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes fadeInRightAnim {
+                    0% { opacity: 0; transform: translateX(32px); }
+                    100% { opacity: 1; transform: translateX(0); }
+                }
+                .animate-fade-in-left {
+                    animation: fadeInLeftAnim 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                .animate-fade-in-right {
+                    animation: fadeInRightAnim 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+            `}</style>
 
             {/* BACKGROUND IMERSIVO FRANK MILLER NOIR TRAVADO NA VIEWPORT (ESTILO INVITE) */}
             <div 
@@ -546,12 +579,12 @@ function WarRoomContent() {
                 <img
                     src="/war_room_bg.jpg"
                     alt="Formula 1 War Room Frank Miller Noir"
-                    className="w-full h-full object-cover object-center brightness-[0.72] contrast-[1.25]"
+                    className="w-full h-full object-cover object-center brightness-[0.70] contrast-[1.28]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/70" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/75" />
             </div>
 
-            {/* BOTÃO DISCRETO DE SAÍDA NO CANTO SUPERIOR (SEM POLUIÇÃO VISUAL) */}
+            {/* BOTÃO DISCRETO DE SAÍDA NO CANTO SUPERIOR */}
             <div className="absolute top-4 left-4 z-20">
                 <Link
                     href={`/${user?.user_metadata?.slug || 'pitwall'}`}
@@ -562,154 +595,216 @@ function WarRoomContent() {
                 </Link>
             </div>
 
-            {/* CONTAINER VERTICAL DE DIÁLOGOS EM ROWS DIFERENTES (NUNCA LADO A LADO E SEM SOBREPOSIÇÃO) */}
-            <div className="relative z-10 w-full max-w-2xl px-4 py-12 md:py-16 flex flex-col gap-5 justify-center">
+            {/* CONTAINER VERTICAL DE DIÁLOGOS COM TRANSIÇÃO DE LIMPEZA DE TELA */}
+            <div 
+                className={`relative z-10 w-full max-w-2xl px-4 py-8 flex flex-col gap-5 justify-center transition-all duration-300 ${
+                    isClearing ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+                }`}
+            >
 
                 {/* ========================================================================= */}
-                {/* ROW 1: ENGENHEIRO SÊNIOR // POLETIME (SEMPRE A PRIMEIRA FALA)             */}
+                {/* TÓPICO 1: POLETIME                                                        */}
                 {/* ========================================================================= */}
-                <div className="w-full animate-fade-in">
-                    <BoxCard
-                        speakerBadge={`[${seniorStrategist.code}]`}
-                        speakerRole="ESTRATEGISTA SÊNIOR"
-                        categoryTag="POLETIME // VOLTA LANÇADA"
-                        text={`"No volante da F1 a gente sente no estômago. Minha meta de Pole Position para o Q3 é ${seniorTimeTarget}. Qualquer tempo abaixo disso vai depender de vácuo cirúrgico e zebra agressiva."`}
-                        accentColor={theme.seniorColor}
-                        accentGlow="rgba(251, 170, 25, 0.4)"
-                        isActive={stage === '1_SENIOR_POLE'}
-                        isSettled={seniorPoleSettled !== null}
-                        settledLabel={seniorPoleSettled?.text}
-                        isFilled={seniorPoleSettled?.filled}
-                        onOk={stage === '1_SENIOR_POLE' ? handleSeniorPoleOk : undefined}
-                        onFill={stage === '1_SENIOR_POLE' ? handleSeniorPoleFill : undefined}
-                        fillLabel={`PREENCHER FORMULÁRIO (${seniorTimeTarget}) »`}
-                        okLabel="OK"
-                    />
-                </div>
+                {currentTopic === 'POLETIME' && (
+                    <>
+                        {/* SÊNIOR (FADE-IN LEFT) */}
+                        <div className="w-full">
+                            <BoxCard
+                                speakerBadge={`[${seniorStrategist.code}]`}
+                                speakerRole="ESTRATEGISTA SÊNIOR"
+                                categoryTag="1/4 • POLETIME Q3"
+                                text={`"Sinto no estômago. Minha meta para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo."`}
+                                accentColor={theme.seniorColor}
+                                animationDirection="left"
+                                isSettled={subStep === 'TECH'}
+                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
+                                isFilled={!!topicSettledStatus}
+                                onOk={subStep === 'SENIOR' ? handlePoletimeSeniorOk : undefined}
+                                onFill={subStep === 'SENIOR' ? handlePoletimeSeniorFill : undefined}
+                                fillLabel={`PREENCHER (${seniorTimeTarget}) »`}
+                                okLabel="OK"
+                            />
+                        </div>
 
-                {/* ========================================================================= */}
-                {/* BRANCH A: SE USUÁRIO PREENCHEU POLETIME DO SÊNIOR                         */}
-                {/* O TÉCNICO INICIA O ASSUNTO SEGUINTE (TOP 10) SEM CONTRARIAR O CHEFE       */}
-                {/* ========================================================================= */}
-                {['2A_TECH_TOP10', '3A_SENIOR_TOP10', '5_FINAL'].includes(stage) && technicalStrategist && seniorPoleSettled?.filled && (
-                    <div className="w-full animate-fade-in">
-                        <BoxCard
-                            speakerBadge={`[${technicalStrategist.code}]`}
-                            speakerRole={`ENGENHARIA // ${theme.badge}`}
-                            categoryTag="TOP 10 FINISH // TELEMETRIA"
-                            text={`"Tempo de Pole Position em ${seniorTimeTarget} homologado no protocolo, chefe. Telemetria 100% alinhada. Para a corrida de domingo (TOP 10 Finish), nossos modelos apontam que o ritmo favorece: ${technicalStrategist.telemetryBriefing.top10Picks.slice(0, 5).join(', ')} na ponta. ${technicalStrategist.telemetryBriefing.top10Reasoning}"`}
-                            accentColor={theme.techColor}
-                            accentGlow={theme.techGlow}
-                            isActive={stage === '2A_TECH_TOP10'}
-                            isSettled={techTop10Settled !== null}
-                            settledLabel={techTop10Settled?.text}
-                            isFilled={techTop10Settled?.filled}
-                            onOk={stage === '2A_TECH_TOP10' ? handleTechTop10OkA : undefined}
-                            onFill={stage === '2A_TECH_TOP10' ? handleTechTop10FillA : undefined}
-                            fillLabel="PREENCHER FORMULÁRIO TOP 10 »"
-                            okLabel="OK"
-                        />
-                    </div>
-                )}
-
-                {/* BRANCH A: SE DEU APENAS OK NO TÉCNICO TOP 10, O SÊNIOR DÁ SUA CONTRA-VISÃO */}
-                {stage === '3A_SENIOR_TOP10' && (
-                    <div className="w-full animate-fade-in">
-                        <BoxCard
-                            speakerBadge={`[${seniorStrategist.code}]`}
-                            speakerRole="ESTRATEGISTA SÊNIOR"
-                            categoryTag="RITMO DE CORRIDA // EXPERIÊNCIA"
-                            text={`"Entendido os dados da telemetria. Mas na corrida a casca grossa e a gestão de pneus frios falam mais alto: ${seniorStrategist.briefingTips.predictedTop3.join(' • ')} na ponta. ${seniorStrategist.briefingTips.top3Reasoning}"`}
-                            accentColor={theme.seniorColor}
-                            accentGlow="rgba(251, 170, 25, 0.4)"
-                            isActive={true}
-                            isSettled={seniorTop10Settled !== null}
-                            settledLabel={seniorTop10Settled?.text}
-                            isFilled={seniorTop10Settled?.filled}
-                            onOk={handleSeniorTop10OkA}
-                            onFill={handleSeniorTop10FillA}
-                            fillLabel="PREENCHER FORMULÁRIO TOP 10 »"
-                            okLabel="OK"
-                        />
-                    </div>
+                        {/* TÉCNICO (FADE-IN RIGHT) */}
+                        {subStep === 'TECH' && technicalStrategist && (
+                            <div className="w-full">
+                                <BoxCard
+                                    speakerBadge={`[${technicalStrategist.code}]`}
+                                    speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    categoryTag="TELEMETRIA"
+                                    text={
+                                        topicSettledStatus 
+                                            ? `"Pole em ${seniorTimeTarget} homologada, chefe. Telemetria alinhada."`
+                                            : `"Telemetria aponta ${techTimeTarget}. Há ganho aerodinâmico real no setor 2."`
+                                    }
+                                    accentColor={theme.techColor}
+                                    accentGlow={theme.techGlow}
+                                    animationDirection="right"
+                                    onOk={handlePoletimeTechOk}
+                                    onFill={!topicSettledStatus ? handlePoletimeTechFill : undefined}
+                                    fillLabel={`PREENCHER (${techTimeTarget}) »`}
+                                    okLabel="AVANÇAR PARA TOP 10 »"
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* ========================================================================= */}
-                {/* BRANCH B: SE USUÁRIO DEU APENAS "OK" NO SÊNIOR POLETIME                   */}
-                {/* O TÉCNICO SURGE COM UMA NOVA SUGESTÃO DE TEMPO PARA POLETIME              */}
+                {/* TÓPICO 2: TOP 10 FINISH                                                   */}
                 {/* ========================================================================= */}
-                {['2B_TECH_POLE', '3B_SENIOR_TOP10', '4B_TECH_TOP10'].includes(stage) && technicalStrategist && !seniorPoleSettled?.filled && (
-                    <div className="w-full animate-fade-in">
-                        <BoxCard
-                            speakerBadge={`[${technicalStrategist.code}]`}
-                            speakerRole={`ENGENHARIA // ${theme.badge}`}
-                            categoryTag="POLETIME // TELEMETRIA Q3"
-                            text={`"Anotado, chefe. Porém, cruzando os dados da telemetria e o ganho aerodinâmico em curvas de raio longo, projeto a Pole Position em ${techTimeTarget}. ${technicalStrategist.telemetryBriefing.reasoning}"`}
-                            accentColor={theme.techColor}
-                            accentGlow={theme.techGlow}
-                            isActive={stage === '2B_TECH_POLE'}
-                            isSettled={techPoleSettled !== null}
-                            settledLabel={techPoleSettled?.text}
-                            isFilled={techPoleSettled?.filled}
-                            onOk={stage === '2B_TECH_POLE' ? handleTechPoleOkB : undefined}
-                            onFill={stage === '2B_TECH_POLE' ? handleTechPoleFillB : undefined}
-                            fillLabel={`PREENCHER FORMULÁRIO (${techTimeTarget}) »`}
-                            okLabel="OK"
-                        />
-                    </div>
-                )}
+                {currentTopic === 'TOP10' && (
+                    <>
+                        {/* SÊNIOR (FADE-IN LEFT) */}
+                        <div className="w-full">
+                            <BoxCard
+                                speakerBadge={`[${seniorStrategist.code}]`}
+                                speakerRole="ESTRATEGISTA SÊNIOR"
+                                categoryTag="2/4 • TOP 10 FINISH"
+                                text={`"Corrida é desgaste. Casca grossa decide: ${seniorTop3} na ponta."`}
+                                accentColor={theme.seniorColor}
+                                animationDirection="left"
+                                isSettled={subStep === 'TECH'}
+                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
+                                isFilled={!!topicSettledStatus}
+                                onOk={subStep === 'SENIOR' ? handleTop10SeniorOk : undefined}
+                                onFill={subStep === 'SENIOR' ? handleTop10SeniorFill : undefined}
+                                fillLabel="PREENCHER TOP 10 SÊNIOR »"
+                                okLabel="OK"
+                            />
+                        </div>
 
-                {/* BRANCH B: APÓS POLETIME DO TÉCNICO, SÊNIOR ABRE O TOP 10 */}
-                {['3B_SENIOR_TOP10', '4B_TECH_TOP10'].includes(stage) && (
-                    <div className="w-full animate-fade-in">
-                        <BoxCard
-                            speakerBadge={`[${seniorStrategist.code}]`}
-                            speakerRole="ESTRATEGISTA SÊNIOR"
-                            categoryTag="TOP 10 FINISH // RITMO"
-                            text={`"Na corrida o desgaste fala mais alto que uma volta lançada. Para o Top 10, aposte na casca grossa: ${seniorStrategist.briefingTips.predictedTop3.join(' • ')} na ponta. ${seniorStrategist.briefingTips.top3Reasoning}"`}
-                            accentColor={theme.seniorColor}
-                            accentGlow="rgba(251, 170, 25, 0.4)"
-                            isActive={stage === '3B_SENIOR_TOP10'}
-                            isSettled={seniorTop10Settled !== null}
-                            settledLabel={seniorTop10Settled?.text}
-                            isFilled={seniorTop10Settled?.filled}
-                            onOk={stage === '3B_SENIOR_TOP10' ? handleSeniorTop10OkB : undefined}
-                            onFill={stage === '3B_SENIOR_TOP10' ? handleSeniorTop10FillB : undefined}
-                            fillLabel="PREENCHER FORMULÁRIO TOP 10 »"
-                            okLabel="OK"
-                        />
-                    </div>
-                )}
-
-                {/* BRANCH B: SE DEU APENAS OK NO SÊNIOR TOP 10, TÉCNICO SUGERE NOVO TOP 10 */}
-                {stage === '4B_TECH_TOP10' && technicalStrategist && (
-                    <div className="w-full animate-fade-in">
-                        <BoxCard
-                            speakerBadge={`[${technicalStrategist.code}]`}
-                            speakerRole={`ENGENHARIA // ${theme.badge}`}
-                            categoryTag="SIMULAÇÃO MONTE CARLO // TOP 10"
-                            text={`"Compreendido, chefe. No entanto, os modelos Monte Carlo de degradação térmica apontam o Top 10 mais provável com: ${technicalStrategist.telemetryBriefing.top10Picks.slice(0, 5).join(', ')} no pelotão da frente. ${technicalStrategist.telemetryBriefing.top10Reasoning}"`}
-                            accentColor={theme.techColor}
-                            accentGlow={theme.techGlow}
-                            isActive={true}
-                            isSettled={techTop10Settled !== null}
-                            settledLabel={techTop10Settled?.text}
-                            isFilled={techTop10Settled?.filled}
-                            onOk={handleTechTop10OkB}
-                            onFill={handleTechTop10FillB}
-                            fillLabel="PREENCHER FORMULÁRIO TOP 10 »"
-                            okLabel="OK"
-                        />
-                    </div>
+                        {/* TÉCNICO (FADE-IN RIGHT) */}
+                        {subStep === 'TECH' && technicalStrategist && (
+                            <div className="w-full">
+                                <BoxCard
+                                    speakerBadge={`[${technicalStrategist.code}]`}
+                                    speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    categoryTag="MONTE CARLO"
+                                    text={
+                                        topicSettledStatus
+                                            ? `"Top 10 do chefe gravado no pitwall. Consistência blindada para domingo."`
+                                            : `"Pirelli discorda, chefe. A degradação térmica favorece ${techTop3}."`
+                                    }
+                                    accentColor={theme.techColor}
+                                    accentGlow={theme.techGlow}
+                                    animationDirection="right"
+                                    onOk={handleTop10TechOk}
+                                    onFill={!topicSettledStatus ? handleTop10TechFill : undefined}
+                                    fillLabel="PREENCHER TOP 10 TÉCNICO »"
+                                    okLabel="AVANÇAR PARA EVO »"
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* ========================================================================= */}
-                {/* ROW FINAL: HOMOLOGAÇÃO & TRANSMISSÃO PARA /POSITIONS (COR 3: VERDE ESMERALDA) */}
+                {/* TÓPICO 3: EVO / ESCALADA                                                  */}
                 {/* ========================================================================= */}
-                {stage === '5_FINAL' && (
-                    <div className="w-full animate-fade-in pt-2">
+                {currentTopic === 'EVO' && (
+                    <>
+                        {/* SÊNIOR (FADE-IN LEFT) */}
+                        <div className="w-full">
+                            <BoxCard
+                                speakerBadge={`[${seniorStrategist.code}]`}
+                                speakerRole="ESTRATEGISTA SÊNIOR"
+                                categoryTag="3/4 • EVO / ESCALADA"
+                                text={`"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`}
+                                accentColor={theme.seniorColor}
+                                animationDirection="left"
+                                isSettled={subStep === 'TECH'}
+                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
+                                isFilled={!!topicSettledStatus}
+                                onOk={subStep === 'SENIOR' ? handleEvoSeniorOk : undefined}
+                                onFill={subStep === 'SENIOR' ? handleEvoSeniorFill : undefined}
+                                fillLabel={`PREENCHER ESCALADA (${seniorEvoDriver}) »`}
+                                okLabel="OK"
+                            />
+                        </div>
+
+                        {/* TÉCNICO (FADE-IN RIGHT) */}
+                        {subStep === 'TECH' && technicalStrategist && (
+                            <div className="w-full">
+                                <BoxCard
+                                    speakerBadge={`[${technicalStrategist.code}]`}
+                                    speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    categoryTag="DELTA ULTRAPASSAGEM"
+                                    text={
+                                        topicSettledStatus
+                                            ? `"Estratégia de escalada aceita. 5 pilotos setados na ofensiva."`
+                                            : `"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`
+                                    }
+                                    accentColor={theme.techColor}
+                                    accentGlow={theme.techGlow}
+                                    animationDirection="right"
+                                    onOk={handleEvoTechOk}
+                                    onFill={!topicSettledStatus ? handleEvoTechFill : undefined}
+                                    fillLabel={`PREENCHER ESCALADA (${techEvoDriver}) »`}
+                                    okLabel="AVANÇAR PARA H2H »"
+                                />
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {/* ========================================================================= */}
+                {/* TÓPICO 4: H2H / DUELOS TÁTICOS                                            */}
+                {/* ========================================================================= */}
+                {currentTopic === 'H2H' && (
+                    <>
+                        {/* SÊNIOR (FADE-IN LEFT) */}
+                        <div className="w-full">
+                            <BoxCard
+                                speakerBadge={`[${seniorStrategist.code}]`}
+                                speakerRole="ESTRATEGISTA SÊNIOR"
+                                categoryTag="4/4 • DUELOS TÁTICOS"
+                                text={`"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`}
+                                accentColor={theme.seniorColor}
+                                animationDirection="left"
+                                isSettled={subStep === 'TECH'}
+                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
+                                isFilled={!!topicSettledStatus}
+                                onOk={subStep === 'SENIOR' ? handleH2HSeniorOk : undefined}
+                                onFill={subStep === 'SENIOR' ? handleH2HSeniorFill : undefined}
+                                fillLabel="PREENCHER DUELOS SÊNIOR »"
+                                okLabel="OK"
+                            />
+                        </div>
+
+                        {/* TÉCNICO (FADE-IN RIGHT) */}
+                        {subStep === 'TECH' && technicalStrategist && (
+                            <div className="w-full">
+                                <BoxCard
+                                    speakerBadge={`[${technicalStrategist.code}]`}
+                                    speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    categoryTag="DUELOS ASA MÓVEL"
+                                    text={
+                                        topicSettledStatus
+                                            ? `"Duelos confirmados no pitwall. Protocolo fechado para os 11 confrontos."`
+                                            : `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`
+                                    }
+                                    accentColor={theme.techColor}
+                                    accentGlow={theme.techGlow}
+                                    animationDirection="right"
+                                    onOk={handleH2HTechOk}
+                                    onFill={!topicSettledStatus ? handleH2HTechFill : undefined}
+                                    fillLabel="PREENCHER DUELOS TÉCNICO »"
+                                    okLabel="CONCLUIR REUNIÃO »"
+                                />
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {/* ========================================================================= */}
+                {/* TÓPICO 5: CONCLUSÃO & DIRECIONAMENTO PARA O USUÁRIO PREENCHER O MISC      */}
+                {/* ========================================================================= */}
+                {currentTopic === 'FINAL_MISC' && (
+                    <div className="w-full animate-fade-in">
                         <div 
-                            className="relative w-full rounded-2xl p-5 md:p-6 backdrop-blur-md flex flex-col items-center gap-4 text-center border shadow-2xl"
+                            className="relative w-full rounded-2xl p-6 md:p-8 backdrop-blur-md flex flex-col items-center gap-5 text-center border shadow-2xl"
                             style={{
                                 backgroundColor: 'rgba(8, 20, 15, 0.95)',
                                 borderColor: 'rgba(16, 185, 129, 0.5)',
@@ -718,25 +813,24 @@ function WarRoomContent() {
                         >
                             <div className="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase tracking-widest">
                                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                                <span>✓ TODAS AS ORDENS ESTRATÉGICAS COMPILADAS COM SUCESSO</span>
+                                <span>✓ POLETIME, TOP 10, EVO E DUELOS COMPILADOS</span>
                             </div>
 
-                            <p className="text-white/80 text-xs sm:text-sm max-w-lg leading-relaxed">
-                                Poletime ({chosenPoletime || seniorTimeTarget}) e grid do Top 10 consolidados no protocolo da equipe. Prossiga para revisar e transmitir suas apostas.
+                            <p className="text-white/85 text-xs sm:text-sm max-w-lg leading-relaxed">
+                                A estratégia principal da equipe está fechada no protocolo. Agora é a sua vez como Estrategista Principal: defina os eventos de pista (<span className="text-[#fbaa19] font-bold">MISC / Event Props</span>) sozinho no grid.
                             </p>
 
                             <button
-                                onClick={handleGoToPositions}
+                                onClick={handleGoToPositionsMisc}
                                 className="w-full max-w-md bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] py-3.5 px-6 hover:bg-white transition-all rounded-xl shadow-[0_0_25px_rgba(251,170,25,0.45)] cursor-pointer text-xs sm:text-sm flex items-center justify-center gap-2"
                             >
-                                <span>[ TRANSMITIR ORDENS EM /POSITIONS ]</span>
+                                <span>[ TRANSMITIR ORDENS & PREENCHER MISC ]</span>
                                 <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
                     </div>
                 )}
 
-                <div ref={bottomMarkerRef} className="h-4" />
             </div>
         </main>
     );
