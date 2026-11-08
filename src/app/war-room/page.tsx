@@ -247,12 +247,12 @@ function WarRoomContent() {
             >
                 <img
                     src="/war_room_bg.jpg"
-                    alt="War Room Boardroom Frank Miller Noir"
-                    className="w-full h-full object-cover object-center brightness-[0.72] contrast-[1.28]"
+                    alt="Formula 1 War Room Boardroom Noir"
+                    className="w-full h-full object-cover object-center brightness-[0.82] contrast-[1.18]"
                 />
-                {/* Vinheta Noir e Efeitos de Fumaça/Luz */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/85" />
-                <div className="absolute inset-0 bg-radial-vignette opacity-70" />
+                {/* Vinheta de Iluminação Chiaroscuro Noir & F1 Telemetry Atmosphere */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/75" />
+                <div className="absolute inset-0 bg-radial-vignette opacity-50" />
             </div>
 
             {/* BARRA SUPERIOR DE TELEMETRIA & NAVEGAÇÃO DA WAR ROOM */}
