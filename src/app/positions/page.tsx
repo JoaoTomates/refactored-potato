@@ -270,6 +270,25 @@ export default function PositionsPage() {
                     }
                     setHasSyncedFromDb(true);
                 }
+
+                // Carrega predições pré-configuradas da War Room se houver
+                if (typeof window !== 'undefined') {
+                    const warRoomDraftRaw = localStorage.getItem('war_room_draft');
+                    if (warRoomDraftRaw) {
+                        try {
+                            const wrDraft = JSON.parse(warRoomDraftRaw);
+                            if (wrDraft?.poletime && typeof wrDraft.poletime === 'string') {
+                                const digits = wrDraft.poletime.replace(/[^0-9]/g, '');
+                                if (digits.length >= 6) {
+                                    setPoletime(digits.slice(0, 6).split('').map((d: string) => parseInt(d, 10)));
+                                }
+                            }
+                            if (Array.isArray(wrDraft?.top10) && wrDraft.top10.length === 10) {
+                                setTop10(wrDraft.top10);
+                            }
+                        } catch (_) {}
+                    }
+                }
             } catch (e) {
                 console.error("Erro ao sincronizar posições:", e);
             }

@@ -1317,28 +1317,42 @@ export default function OfficialStrategistDashboard() {
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
                         <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
                             
-                            {/* BANNER / BOTÃO OPERACIONAL DE TOMADA DE POSIÇÕES (MOVIDO PARA O TOPO ACIMA DAS COMPETIÇÕES) */}
-                            <Link
-                                href="/positions"
-                                className="w-full py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-lg cursor-pointer"
-                                style={{ 
-                                    borderColor: raceWeek ? '#fbaa19' : `${teamColor}60`, 
-                                    backgroundColor: raceWeek ? 'rgba(251, 170, 25, 0.15)' : `${teamColor}18`, 
-                                    color: raceWeek ? '#fbaa19' : teamColor 
-                                }}
-                            >
-                                <div className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full animate-ping inline-block ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
-                                    <span>&gt;_ TOMADA DE POSIÇÕES // {raceWeek ? 'PISTA DISPONÍVEL (PITLANE OPEN)' : 'PITLANE OPEN'}</span>
-                                    <span className="hidden sm:inline-block text-[10px] opacity-80 font-mono">
-                                        [PRAZO: {countdown}]
+                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) */}
+                            <div className="w-full flex flex-col sm:flex-row gap-2.5">
+                                {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
+                                <Link
+                                    href="/war-room"
+                                    className="flex-1 py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
+                                    style={{ 
+                                        borderColor: '#fbaa19', 
+                                        backgroundColor: 'rgba(251, 170, 25, 0.18)', 
+                                        color: '#fbaa19' 
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-[#fbaa19] animate-ping inline-block" />
+                                        <span className="group-hover:text-white transition-colors">&gt;_ REUNIÃO TÁTICA // WAR ROOM</span>
+                                    </div>
+                                    <span className="text-[10px] font-black px-2 py-0.5 rounded bg-black/80 border border-[#fbaa19]/50 text-white flex items-center gap-1 group-hover:bg-[#fbaa19] group-hover:text-black transition-all">
+                                        <span>ENTRAR NA MESA</span>
+                                        <span>»</span>
                                     </span>
-                                </div>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded bg-black/70 border flex items-center gap-1 ${raceWeek ? 'border-[#fbaa19]/40 text-[#fbaa19]' : 'border-white/10 text-white'}`}>
-                                    <span>TOMAR POSIÇÕES</span>
-                                    <span>»</span>
-                                </span>
-                            </Link>
+                                </Link>
+
+                                {/* BOTÃO SECUNDÁRIO: FORMULÁRIO RÁPIDO // POSITIONS */}
+                                <Link
+                                    href="/positions"
+                                    className="sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer bg-white/5 hover:bg-white/10"
+                                    style={{ 
+                                        borderColor: `${teamColor}50`, 
+                                        color: teamColor 
+                                    }}
+                                    title="Preenchimento direto de palpites sem o briefing da mesa"
+                                >
+                                    <span>FORMULÁRIO RÁPIDO</span>
+                                    <span className="text-[10px] opacity-70">»</span>
+                                </Link>
+                            </div>
 
                             {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Cores dinâmicas por desempenho global (Verde / Amarela / Vermelha) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

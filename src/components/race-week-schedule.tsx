@@ -171,6 +171,10 @@ export default function RaceWeekSchedule({
                 title: 'VALIDAÇÃO DE FREQUÊNCIAS DE RÁDIO E SENSORES',
                 systemAction: 'Checagem de transponders oficiais e enlace de dados do carro.',
                 marketStatus: 'COTAÇÕES MLS: HOMOLOGADAS NA BASE'
+            },
+            actionButton: {
+                label: 'DEBRIEF DO SUPERIOR // AVALIAÇÃO DA ENGENHARIA »',
+                href: '/war-room?mode=debrief'
             }
         },
         {
@@ -206,6 +210,10 @@ export default function RaceWeekSchedule({
                 title: 'DIVULGAÇÃO DOS COMPOSTOS OFICIAIS E LIMITES DE PISTA',
                 systemAction: 'Registro oficial das zonas de DRS e calibração de sensores de linha branca.',
                 marketStatus: 'JANELA DE PREVISÃO POLETIME: ABERTA'
+            },
+            actionButton: {
+                label: 'WAR ROOM // REUNIÃO TÁTICA DA MESA »',
+                href: '/war-room'
             }
         },
         {
