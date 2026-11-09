@@ -8,7 +8,8 @@
  * - 30% Norte-americanos ou Canadenses
  * - 55% Europeus (Reino Unido, Itália, França, Alemanha, etc.)
  * 
- * Regra de Ouro (Golden Rule): Nomes no padrão "A.CHEN84", "K.VANDERBILT92".
+ * Regra de Engenheiros: Nomes SEM numeração (ex: "A.CHEN", "E.DUBOIS", "H.WEBER").
+ * (Numeração é exclusiva de pilotos/usuários no padrão "L.GUSTAVO88").
  * 
  * Rotatividade: Quando demitido pelo usuário (resposta [NÃO] ao Superior na Terça-Feira),
  * o engenheiro é transferido internamente entre escuderias da mesma Aliança de Motores.
@@ -18,7 +19,7 @@ export type AllianceCode = 'A' | 'B' | 'C';
 
 export interface TechnicalStrategist {
     id: string;
-    code: string;                 // Padrão Golden Rule: "E.DUBOIS91"
+    code: string;                 // Padrão sem números: "E.DUBOIS", "A.CHEN"
     fullName: string;             // "Elena Dubois"
     gender: 'M' | 'F';
     origin: 'EUR' | 'NA' | 'LATAM_AFR_ASIA';
@@ -30,6 +31,7 @@ export interface TechnicalStrategist {
     confidenceScore: number;      // 0 a 100% (Pressão da Diretoria)
     careerGPS: number;            // GPs atuados
     accuracyRate: number;         // % de assertividade em projeções
+    avatarUrl?: string;           // URL do avatar técnico no Supabase
     telemetryBriefing: {
         poletimeDeltaMs: number;    // Delta em ms sugerido em relação ao Sênior
         poletimeTarget: string;     // Tempo exato projetado (ex: "1:12.195")
@@ -41,13 +43,15 @@ export interface TechnicalStrategist {
     avatarColor: string;
 }
 
+const SUPABASE_AVATARS_BASE = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng';
+
 export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     // -------------------------------------------------------------
     // ALIANÇA A // CONSÓRCIO DA ESTRELA (Mercedes, McLaren, Alpine, Williams)
     // -------------------------------------------------------------
     {
         id: 'tech-a-01',
-        code: 'A.CHEN84',
+        code: 'A.CHEN',
         fullName: 'Alexander Chen',
         gender: 'M',
         origin: 'LATAM_AFR_ASIA',
@@ -59,6 +63,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 92,
         careerGPS: 48,
         accuracyRate: 86.4,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_1.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -45,
             poletimeTarget: '1:12.164',
@@ -71,7 +76,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-a-02',
-        code: 'E.DUBOIS91',
+        code: 'E.DUBOIS',
         fullName: 'Elena Dubois',
         gender: 'F',
         origin: 'EUR',
@@ -83,6 +88,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 88,
         careerGPS: 34,
         accuracyRate: 82.1,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_2.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: 15,
             poletimeTarget: '1:12.224',
@@ -95,7 +101,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-a-03',
-        code: 'M.MILLER88',
+        code: 'M.MILLER',
         fullName: 'Marcus Miller',
         gender: 'M',
         origin: 'NA',
@@ -107,6 +113,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 85,
         careerGPS: 26,
         accuracyRate: 79.5,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_3.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -12,
             poletimeTarget: '1:12.197',
@@ -119,7 +126,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-a-04',
-        code: 'S.VANCE95',
+        code: 'S.VANCE',
         fullName: 'Sarah Vance',
         gender: 'F',
         origin: 'EUR',
@@ -131,6 +138,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 94,
         careerGPS: 52,
         accuracyRate: 89.2,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_4.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -30,
             poletimeTarget: '1:12.179',
@@ -147,7 +155,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     // -------------------------------------------------------------
     {
         id: 'tech-b-01',
-        code: 'M.MORETTI86',
+        code: 'M.MORETTI',
         fullName: 'Matteo Moretti',
         gender: 'M',
         origin: 'EUR',
@@ -159,6 +167,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 95,
         careerGPS: 64,
         accuracyRate: 87.8,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_5.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -55,
             poletimeTarget: '1:12.154',
@@ -171,7 +180,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-b-02',
-        code: 'C.RODRIGUEZ89',
+        code: 'C.RODRIGUEZ',
         fullName: 'Camila Rodriguez',
         gender: 'F',
         origin: 'LATAM_AFR_ASIA',
@@ -183,6 +192,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 86,
         careerGPS: 31,
         accuracyRate: 81.0,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_6.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: 20,
             poletimeTarget: '1:12.229',
@@ -195,7 +205,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-b-03',
-        code: 'T.JACKSON93',
+        code: 'T.JACKSON',
         fullName: 'Tyler Jackson',
         gender: 'M',
         origin: 'NA',
@@ -207,6 +217,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 89,
         careerGPS: 22,
         accuracyRate: 83.7,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_7.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -18,
             poletimeTarget: '1:12.191',
@@ -219,7 +230,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-b-04',
-        code: 'G.ROSSI90',
+        code: 'G.ROSSI',
         fullName: 'Giulia Rossi',
         gender: 'F',
         origin: 'EUR',
@@ -231,6 +242,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 91,
         careerGPS: 40,
         accuracyRate: 85.5,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_8.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -35,
             poletimeTarget: '1:12.174',
@@ -247,7 +259,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     // -------------------------------------------------------------
     {
         id: 'tech-c-01',
-        code: 'H.WEBER85',
+        code: 'H.WEBER',
         fullName: 'Helmut Weber',
         gender: 'M',
         origin: 'EUR',
@@ -259,6 +271,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 93,
         careerGPS: 58,
         accuracyRate: 88.0,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_9.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -40,
             poletimeTarget: '1:12.169',
@@ -271,7 +284,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-c-02',
-        code: 'K.VANDERBILT92',
+        code: 'K.VANDERBILT',
         fullName: 'Kendra Vanderbilt',
         gender: 'F',
         origin: 'NA',
@@ -283,6 +296,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 87,
         careerGPS: 29,
         accuracyRate: 81.9,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_10.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: 10,
             poletimeTarget: '1:12.219',
@@ -295,7 +309,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-c-03',
-        code: 'D.OKONKWO87',
+        code: 'D.OKONKWO',
         fullName: 'David Okonkwo',
         gender: 'M',
         origin: 'LATAM_AFR_ASIA',
@@ -307,6 +321,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 96,
         careerGPS: 70,
         accuracyRate: 91.3,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_11.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -60,
             poletimeTarget: '1:12.149',
@@ -319,7 +334,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     },
     {
         id: 'tech-c-04',
-        code: 'R.TAKAHASHI94',
+        code: 'R.TAKAHASHI',
         fullName: 'Ren Takahashi',
         gender: 'M',
         origin: 'LATAM_AFR_ASIA',
@@ -331,6 +346,7 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
         confidenceScore: 88,
         careerGPS: 24,
         accuracyRate: 82.5,
+        avatarUrl: `${SUPABASE_AVATARS_BASE}/avatar_12.jpg`,
         telemetryBriefing: {
             poletimeDeltaMs: -8,
             poletimeTarget: '1:12.201',

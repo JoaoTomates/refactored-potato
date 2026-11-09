@@ -11,6 +11,7 @@ import {
     getActiveTechnicalStrategist, 
     AllianceCode 
 } from '@/lib/technical-strategists';
+import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
 import { ChevronLeft, ArrowRight, Check } from 'lucide-react';
 
 // --- PitWall Sound Engine (Cliques táteis da sala de estratégia) ---
@@ -194,6 +195,7 @@ interface BoxCardProps {
     onFill?: () => void;
     fillLabel?: string;
     okLabel?: string;
+    avatarUrl?: string;
 }
 
 // Componente individual de Box Text com fade-in left ou right:
@@ -211,7 +213,8 @@ function BoxCard({
     onOk,
     onFill,
     fillLabel,
-    okLabel = 'OK'
+    okLabel = 'OK',
+    avatarUrl
 }: BoxCardProps) {
     const cardColor = isFilled ? '#10b981' : accentColor;
     const cardGlow = isFilled ? 'rgba(16, 185, 129, 0.4)' : (accentGlow || `${accentColor}40`);
@@ -240,19 +243,28 @@ function BoxCard({
             <div className="flex-1 flex flex-col justify-between gap-2.5 min-w-0">
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-                    <div className="flex items-center gap-2">
-                        <span 
-                            className="text-xs sm:text-sm font-black uppercase tracking-wider"
-                            style={{ color: cardColor }}
-                        >
-                            {speakerBadge}
-                        </span>
-                        <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">
-                            // {speakerRole}
-                        </span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        {avatarUrl && (
+                            <img 
+                                src={avatarUrl} 
+                                alt={speakerBadge} 
+                                className="w-8 h-8 rounded-full object-cover border border-white/20 shadow-md flex-shrink-0"
+                            />
+                        )}
+                        <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 min-w-0 truncate">
+                            <span 
+                                className="text-xs sm:text-sm font-black uppercase tracking-wider"
+                                style={{ color: cardColor }}
+                            >
+                                {speakerBadge}
+                            </span>
+                            <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono truncate">
+                                // {speakerRole}
+                            </span>
+                        </div>
                     </div>
 
-                    <span className="text-[9px] font-bold text-white/60 uppercase tracking-widest font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded">
+                    <span className="text-[9px] font-bold text-white/60 uppercase tracking-widest font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded flex-shrink-0">
                         {categoryTag}
                     </span>
                 </div>
@@ -355,6 +367,7 @@ export function WarRoomContent() {
             let allianceKey: AllianceCode = 'B';
             let teamCode = 'FER';
 
+            let userGroupId = 1;
             if (user) {
                 const { data: contract } = await supabase
                     .from('contracts')
@@ -363,6 +376,7 @@ export function WarRoomContent() {
                     .maybeSingle();
 
                 if (contract) {
+                    if (contract.group_id) userGroupId = Number(contract.group_id);
                     const t = Array.isArray(contract.teams) ? contract.teams[0] : contract.teams;
                     if (t?.code) teamCode = t.code;
 
@@ -379,7 +393,15 @@ export function WarRoomContent() {
             setSeniorStrategist(senior);
 
             const tech = getActiveTechnicalStrategist(user?.id || 'guest', teamCode, allianceKey);
-            setTechnicalStrategist(tech);
+            const groupEng = getGroupTechnicalEngineer(userGroupId, user?.id || 'guest');
+            if (groupEng) {
+                tech.code = groupEng.code;
+                tech.avatarUrl = groupEng.avatarUrl;
+                tech.fullName = groupEng.fullName;
+                tech.role = groupEng.role;
+                tech.specialty = groupEng.specialty;
+            }
+            setTechnicalStrategist({ ...tech });
         };
 
         loadProfile();
@@ -612,6 +634,7 @@ export function WarRoomContent() {
                             <BoxCard
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
+                                avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="1/4 • POLETIME Q3"
                                 text={`"Sinto no estômago. Minha meta para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo."`}
                                 accentColor={theme.seniorColor}
@@ -632,6 +655,7 @@ export function WarRoomContent() {
                                 <BoxCard
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="TELEMETRIA"
                                     text={
                                         topicSettledStatus 
@@ -661,6 +685,7 @@ export function WarRoomContent() {
                             <BoxCard
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
+                                avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="2/4 • TOP 10 FINISH"
                                 text={`"Corrida é desgaste. Casca grossa decide: ${seniorTop3} na ponta."`}
                                 accentColor={theme.seniorColor}
@@ -681,6 +706,7 @@ export function WarRoomContent() {
                                 <BoxCard
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="MONTE CARLO"
                                     text={
                                         topicSettledStatus
@@ -710,6 +736,7 @@ export function WarRoomContent() {
                             <BoxCard
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
+                                avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="3/4 • EVO / ESCALADA"
                                 text={`"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`}
                                 accentColor={theme.seniorColor}
@@ -730,6 +757,7 @@ export function WarRoomContent() {
                                 <BoxCard
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DELTA ULTRAPASSAGEM"
                                     text={
                                         topicSettledStatus
@@ -759,6 +787,7 @@ export function WarRoomContent() {
                             <BoxCard
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
+                                avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="4/4 • DUELOS TÁTICOS"
                                 text={`"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`}
                                 accentColor={theme.seniorColor}
@@ -779,6 +808,7 @@ export function WarRoomContent() {
                                 <BoxCard
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
+                                    avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DUELOS ASA MÓVEL"
                                     text={
                                         topicSettledStatus
