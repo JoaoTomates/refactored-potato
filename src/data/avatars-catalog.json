@@ -1,0 +1,1139 @@
+{
+  "generatedAt": "2026-11-09T12:13:14.929Z",
+  "totalAvatars": 46,
+  "engineers": [
+    {
+      "id": "eng_1",
+      "num": 1,
+      "name": "T. VANCE",
+      "role": "Engenheiro de Telemetria & Software",
+      "age": "27 anos",
+      "nationality": "Britânico",
+      "profile": "Especialista em processamento de dados brutos e algoritmos preditivos de corrida. Perfeccionista, rápido com números e focado em microajustes de traçado.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_1.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_1.jpg",
+      "localUrl": "/avatar/eng/avatar_1.jpg"
+    },
+    {
+      "id": "eng_2",
+      "num": 2,
+      "name": "C. DUPONT",
+      "role": "Estrategista-Chefe de Corrida",
+      "age": "44 anos",
+      "nationality": "Francesa",
+      "profile": "Raciocínio tático cirúrgico sob pressão de pit-wall. Conhecida por antecipar janelas de pit stop e variações climáticas antes da concorrência.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_2.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_2.jpg",
+      "localUrl": "/avatar/eng/avatar_2.jpg"
+    },
+    {
+      "id": "eng_3",
+      "num": 3,
+      "name": "H. WEBER",
+      "role": "Diretor Técnico & Mestre de Powertrain",
+      "age": "59 anos",
+      "nationality": "Alemão",
+      "profile": "Veterano da era analógica que transitou com maestria para a telemetria moderna. Foco implacável em confiabilidade de motor, refrigeração e resistência mecânica.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_3.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_3.jpg",
+      "localUrl": "/avatar/eng/avatar_3.jpg"
+    },
+    {
+      "id": "eng_4",
+      "num": 4,
+      "name": "K. MENSAH",
+      "role": "Engenheiro de Pista & Rádio do Piloto",
+      "age": "36 anos",
+      "nationality": "Ganense",
+      "profile": "Voz serena e dicção impecável no rádio. Domina a gestão psicológica do piloto durante situações de safety car e disputas acirradas por posição.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_4.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_4.jpg",
+      "localUrl": "/avatar/eng/avatar_4.jpg"
+    },
+    {
+      "id": "eng_5",
+      "num": 5,
+      "name": "M. SATO",
+      "role": "Especialista em Aerodinâmica & Túnel de Vento",
+      "age": "31 anos",
+      "nationality": "Japonesa",
+      "profile": "Meticulosa e analítica, estuda o comportamento do fluxo de ar, downforce e desgaste assimétrico de pneus em curvas de alta velocidade.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_5.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_5.jpg",
+      "localUrl": "/avatar/eng/avatar_5.jpg"
+    },
+    {
+      "id": "eng_6",
+      "num": 6,
+      "name": "D. CORDEIRO",
+      "role": "Mecânico-Chefe de Garagem",
+      "age": "42 anos",
+      "nationality": "Brasileiro",
+      "profile": "O coração operacional do box. Resolução imediata de falhas mecânicas e precisão milimétrica em trocas de componentes sob cronômetro.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_6.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_6.jpg",
+      "localUrl": "/avatar/eng/avatar_6.jpg"
+    },
+    {
+      "id": "eng_7",
+      "num": 7,
+      "name": "A. KOVÁCS",
+      "role": "Engenheiro de Estrutura & Suspensão",
+      "age": "53 anos",
+      "nationality": "Húngaro",
+      "profile": "Engenheiro metódico da \"velha guarda\", mestre em geometria de suspensão, rigidez de chassi e absorção de zebras agressivas.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_7.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_7.jpg",
+      "localUrl": "/avatar/eng/avatar_7.jpg"
+    },
+    {
+      "id": "eng_8",
+      "num": 8,
+      "name": "N. ADEBAYO",
+      "role": "Engenheira de Sistemas Elétricos & Recuperação de Energia",
+      "age": "29 anos",
+      "nationality": "Nigeriana",
+      "profile": "Focada na integração de voltagem, mapas de entrega de potência e eficiência de descarga/regeneração de bateria volta a volta.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_8.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_8.jpg",
+      "localUrl": "/avatar/eng/avatar_8.jpg"
+    },
+    {
+      "id": "eng_9",
+      "num": 9,
+      "name": "L. MORETTI",
+      "role": "Analista Júnior de Pneus & Degradação",
+      "age": "24 anos",
+      "nationality": "Italiano",
+      "profile": "Jovem talento da equipe, monitora as temperaturas superficiais e a degradação térmica das borrachas para ajustar janelas de ataque.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_9.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_9.jpg",
+      "localUrl": "/avatar/eng/avatar_9.jpg"
+    },
+    {
+      "id": "eng_10",
+      "num": 10,
+      "name": "R. SILVA",
+      "role": "Engenheiro de Performance & Acerto Dinâmico",
+      "age": "38 anos",
+      "nationality": "Português",
+      "profile": "Elo direto entre o feedback de pilotagem e o mapa eletrônico do carro, refinando balanço de freio, diferencial e aceleração de saída de curva.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_10.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_10.jpg",
+      "localUrl": "/avatar/eng/avatar_10.jpg"
+    },
+    {
+      "id": "eng_11",
+      "num": 11,
+      "name": "A. CASTRO",
+      "role": "Engenheira de Dinâmica de Fluídos (CFD)",
+      "age": "25 anos",
+      "nationality": "Brasileira",
+      "profile": "Jovem prodígio focada em simulações digitais complexas e análise de arrasto aerodinâmico. Sempre atenta aos mínimos detalhes no rádio.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_11.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_11.jpg",
+      "localUrl": "/avatar/eng/avatar_11.jpg"
+    },
+    {
+      "id": "eng_12",
+      "num": 12,
+      "name": "J. HUAMAN",
+      "role": "Técnico Especialista em Transmissão & Câmbio",
+      "age": "46 anos",
+      "nationality": "Peruano",
+      "profile": "Um mecânico de confiança, com décadas de experiência prática. Sabe diagnosticar falhas de torque apenas ouvindo o carro passar na reta dos boxes.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_12.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_12.jpg",
+      "localUrl": "/avatar/eng/avatar_12.jpg"
+    },
+    {
+      "id": "eng_13",
+      "num": 13,
+      "name": "E. LARSEN",
+      "role": "Analista de Estratégias & Tráfego de Pista",
+      "age": "51 anos",
+      "nationality": "Dinamarquesa",
+      "profile": "Veterana no controle de corrida. Monitora o comportamento de todos os rivais na pista para achar o momento exato de mandar o piloto para a pista limpa.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_13.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_13.jpg",
+      "localUrl": "/avatar/eng/avatar_13.jpg"
+    },
+    {
+      "id": "eng_14",
+      "num": 14,
+      "name": "S. AL-FAYED",
+      "role": "Engenheiro de Conectividade & Telemetria em Tempo Real",
+      "age": "33 anos",
+      "nationality": "Egípcio",
+      "profile": "Responsável por garantir que os sensores do carro conversem com os computadores do box sem perda de sinal, mesmo sob as piores condições de clima.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_14.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_14.jpg",
+      "localUrl": "/avatar/eng/avatar_14.jpg"
+    },
+    {
+      "id": "eng_15",
+      "num": 15,
+      "name": "O. HIGGINS",
+      "role": "Engenheiro-Chefe de Confiabilidade de Chassi",
+      "age": "45 anos",
+      "nationality": "Irlandês",
+      "profile": "Conhecido pela postura séria e rigorosa. Inspeciona pessoalmente cada ponto de solda e fixação de segurança para evitar quebras por vibração.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_15.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_15.jpg",
+      "localUrl": "/avatar/eng/avatar_15.jpg"
+    },
+    {
+      "id": "eng_16",
+      "num": 16,
+      "name": "I. NOVAK",
+      "role": "Analista de Desempenho e Coleta de Dados",
+      "age": "26 anos",
+      "nationality": "Polaca",
+      "profile": "Responsável por compilar as planilhas de tempos e parciais. Muito ágil para traduzir números frios em ajustes práticos de asa e suspensão.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_16.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_16.jpg",
+      "localUrl": "/avatar/eng/avatar_16.jpg"
+    },
+    {
+      "id": "eng_17",
+      "num": 17,
+      "name": "M. JOHNSON",
+      "role": "Engenheiro Sênior de Motores (ICE)",
+      "age": "55 anos",
+      "nationality": "Norte-americano",
+      "profile": "Especialista em tirar cada cavalo de potência extra do motor sem comprometer a durabilidade. Uma lenda de postura calma e focada.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_17.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_17.jpg",
+      "localUrl": "/avatar/eng/avatar_17.jpg"
+    },
+    {
+      "id": "eng_18",
+      "num": 18,
+      "name": "A. LINDBERG",
+      "role": "Mecânico de Linha de Pit-Stop & Abastecimento",
+      "age": "30 anos",
+      "nationality": "Sueco",
+      "profile": "O homem de frente nas trocas rápidas de pneus e reparos de emergência na garagem. Rápido, forte e sempre com o boné da equipe.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_18.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_18.jpg",
+      "localUrl": "/avatar/eng/avatar_18.jpg"
+    },
+    {
+      "id": "eng_19",
+      "num": 19,
+      "name": "T. DIALLO",
+      "role": "Especialista em Gestão de Pneus e Temperatura",
+      "age": "28 anos",
+      "nationality": "Senegalesa",
+      "profile": "Monitora o desgaste das borrachas e o aquecimento em tempo real. Essencial para ditar o ritmo que o piloto deve adotar em cada stint.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_19.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_19.jpg",
+      "localUrl": "/avatar/eng/avatar_19.jpg"
+    },
+    {
+      "id": "eng_20",
+      "num": 20,
+      "name": "K. NAIDOO",
+      "role": "Técnico de Eletrônica e Sistemas de Bordo",
+      "age": "37 anos",
+      "nationality": "Sul-africano",
+      "profile": "Focado em toda a fiação, alternadores e sensores térmicos do carro. Trabalha bem sob pressão e é muito comunicativo com o pit-wall.",
+      "style": "",
+      "category": "eng",
+      "fileName": "avatar_20.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_20.jpg",
+      "localUrl": "/avatar/eng/avatar_20.jpg"
+    },
+    {
+      "id": "eng_21",
+      "num": 21,
+      "name": "N. BRANDÃO",
+      "role": "Engenheira de Rádio & Comunicação de Box",
+      "age": "27 anos",
+      "nationality": "Brasileira",
+      "profile": "Rápida, focada e muito firme nas instruções. Consegue manter a voz calma no rádio mesmo sob forte pressão ou em momentos de crise na pista.",
+      "style": "Usa tranças longas e está sempre de headset de duas orelhas, com olhos sempre atentos ao fluxo de conversas.",
+      "category": "eng",
+      "fileName": "avatar_21.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_21.jpg",
+      "localUrl": "/avatar/eng/avatar_21.jpg"
+    },
+    {
+      "id": "eng_22",
+      "num": 22,
+      "name": "R. TORRES",
+      "role": "Especialista em Sistema de Transmissão & Câmbio",
+      "age": "34 anos",
+      "nationality": "Mexicano",
+      "profile": "Engenheiro de campo experiente, mestre em resolver engasgos mecânicos e desgastes prematuros de engrenagens no meio da corrida.",
+      "style": "Aparência jovem, mas focada, de bigode farto e fones de ouvido (headset) apoiados no pescoço para transitar rápido entre o cockpit e as telas.",
+      "category": "eng",
+      "fileName": "avatar_22.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_22.jpg",
+      "localUrl": "/avatar/eng/avatar_22.jpg"
+    },
+    {
+      "id": "eng_23",
+      "num": 23,
+      "name": "G. MOREAU",
+      "role": "Engenheiro Sênior de Powertrain (Motores)",
+      "age": "56 anos",
+      "nationality": "Francês",
+      "profile": "Um veterano que conhece o barulho e o comportamento dos motores de corrida como ninguém. Extremamente analítico e sério, não tolera erros.",
+      "style": "Cabelo grisalho e volumoso, óculos de grau finos de época e headset, sempre de cenho franzido, observando os dados térmicos e de pressão.",
+      "category": "eng",
+      "fileName": "avatar_23.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_23.jpg",
+      "localUrl": "/avatar/eng/avatar_23.jpg"
+    },
+    {
+      "id": "eng_24",
+      "num": 24,
+      "name": "K. AABERG",
+      "role": "Analista de Aerodinâmica & Túnel de Vento",
+      "age": "24 anos",
+      "nationality": "Norueguesa",
+      "profile": "Recém-chegada à F1 com ideias frescas e alta capacidade de ler o fluxo de ar e o downforce ideal de cada circuito.",
+      "style": "Jovem de cabelo loiro lacio e óculos de grau grandes, de fones e expressão de total atenção em suas análises.",
+      "category": "eng",
+      "fileName": "avatar_24.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_24.jpg",
+      "localUrl": "/avatar/eng/avatar_24.jpg"
+    },
+    {
+      "id": "eng_25",
+      "num": 25,
+      "name": "M. AL-SAYED",
+      "role": "Engenheiro de Pista & Acerto de Chassi",
+      "age": "38 anos",
+      "nationality": "Emiradense",
+      "profile": "O homem responsável por fazer o carro \"conversar\" com o asfalto. Ele é o elo direto que transforma o feedback do piloto em ajustes reais de suspensão.",
+      "style": "Cabelo escuro, barba curta desenhada e um fone de ouvido de uma orelha, com expressão reflexiva e segura de suas decisões.",
+      "category": "eng",
+      "fileName": "avatar_25.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_25.jpg",
+      "localUrl": "/avatar/eng/avatar_25.jpg"
+    },
+    {
+      "id": "eng_26",
+      "num": 26,
+      "name": "T. O'CONNOR",
+      "role": "Engenheiro de Software & Análise de Dados",
+      "age": "23 anos",
+      "nationality": "Irlandês",
+      "profile": "O caçula prodígio da equipe. Monitora o comportamento de cada sensor do carro em tempo real, gerando simulações de degradação imediatas.",
+      "style": "Cabelo ruivo bagunçado, cheio de sardas, sempre com uma expressão curiosa e entusiasmada, olhando as atualizações na tela.",
+      "category": "eng",
+      "fileName": "avatar_26.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_26.jpg",
+      "localUrl": "/avatar/eng/avatar_26.jpg"
+    },
+    {
+      "id": "eng_27",
+      "num": 27,
+      "name": "A. KOVÁCH",
+      "role": "Estrategista de Combustível & Pneus",
+      "age": "42 anos",
+      "nationality": "Húngara",
+      "profile": "Meticulosa ao extremo, ela calcula com precisão cirúrgica o desgaste de pneus e os limites de consumo, garantindo paradas perfeitas nos pits.",
+      "style": "Cabelo escuro ondulado, óculos de acetato escuro e um olhar pensativo e analítico para os números complexos da estratégia.",
+      "category": "eng",
+      "fileName": "avatar_27.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_27.jpg",
+      "localUrl": "/avatar/eng/avatar_27.jpg"
+    },
+    {
+      "id": "eng_28",
+      "num": 28,
+      "name": "W. SCHMIDT",
+      "role": "Mecânico-Chefe de Garagem",
+      "age": "61 anos",
+      "nationality": "Alemão",
+      "profile": "A voz da experiência no box. Lidera a equipe de mecânicos nas situações mais críticas, resolvendo qualquer pane mecânica em tempo recorde.",
+      "style": "O veterano da equipe, de bigode farto e grisalho, com óculos de leitura na ponta do nariz e boné da equipe VoltGrid.",
+      "category": "eng",
+      "fileName": "avatar_28.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_28.jpg",
+      "localUrl": "/avatar/eng/avatar_28.jpg"
+    },
+    {
+      "id": "eng_29",
+      "num": 29,
+      "name": "D. ADEBAYO",
+      "role": "Analista de Desempenho & Telemetria",
+      "age": "31 anos",
+      "nationality": "Nigeriano",
+      "profile": "Especialista em compilar dados de telemetria e transformá-los em ajustes dinâmicos, monitorando os ganhos em milissegundos.",
+      "style": "Jovem com cabelo dreadlock curto e bem estilizado, olhar determinado e headset focado para conversação com o pit-lane.",
+      "category": "eng",
+      "fileName": "avatar_29.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_29.jpg",
+      "localUrl": "/avatar/eng/avatar_29.jpg"
+    },
+    {
+      "id": "eng_30",
+      "num": 30,
+      "name": "H. TANAKA",
+      "role": "Técnica de Componentes Elétricos & Baterias",
+      "age": "29 anos",
+      "nationality": "Japonesa",
+      "profile": "Extremamente detalhista, responsável por manter toda a fiação complexa, alternadores e sistemas de recuperação operando perfeitamente.",
+      "style": "Cabelo curto, óculos delicados de armação preta e olhar profundamente focado, sempre silenciosa e atenta ao diagnóstico do carro.",
+      "category": "eng",
+      "fileName": "avatar_30.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_30.jpg",
+      "localUrl": "/avatar/eng/avatar_30.jpg"
+    }
+  ],
+  "exDrivers": [
+    {
+      "id": "driver_1",
+      "num": 1,
+      "name": "J. STEWART",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "75 anos",
+      "nationality": "Britânico",
+      "history": "Tricampeão mundial nos anos 70, famoso pela pilotagem cerebral e pela luta histórica pela segurança nas pistas. É o mentor ideal para pilotos rápidos, porém afobados.",
+      "adviceStyle": "Foco extremo em trajetórias, conservação de equipamento e preparação mental pré-corrida.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_1.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_1.jpg"
+    },
+    {
+      "id": "driver_2",
+      "num": 2,
+      "name": "M. ANDRETTI",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "65 anos",
+      "nationality": "Norte-americano",
+      "history": "Uma lenda viva que venceu em tudo que tinha quatro rodas, desde ovais até circuitos de F1. Conhecido pelo estilo carismático e atitude destemida.",
+      "adviceStyle": "Ensina o jovem a ser agressivo em disputas roda a roda e a entender o carro como uma extensão do próprio corpo.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_2.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_2.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_2.jpg"
+    },
+    {
+      "id": "driver_3",
+      "num": 3,
+      "name": "C. REUTEMANN",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "70 anos",
+      "nationality": "Argentino",
+      "history": "Um dos pilotos mais rápidos e enigmáticos da sua era, vice-campeão em 1981. Trazia um estilo técnico refinado, mas de temperamento reservado.",
+      "adviceStyle": "Focado em acerto dinâmico do carro sob condições climáticas adversas e em como lidar com a pressão psicológica da equipe.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_3.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_3.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_3.jpg"
+    },
+    {
+      "id": "driver_4",
+      "num": 4,
+      "name": "K. ROSBERG",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "58 anos",
+      "nationality": "Finlandês",
+      "history": "Campeão de 1982, famoso pelo estilo de pilotagem \"no limite\", sempre de lado e de forma espetacular. Dono de costeletas marcantes e gênio forte.",
+      "adviceStyle": "Especialista em táticas de largada, defesas de posição extremas e em como \"achar tempo\" onde não parece haver aderência.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_4.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_4.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_4.jpg"
+    },
+    {
+      "id": "driver_5",
+      "num": 5,
+      "name": "J. LAFFITE",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "68 anos",
+      "nationality": "Francês",
+      "history": "Veterano carismático e consistente, vencedor de vários GPs nos anos 70 e 80. É a voz da experiência e da camaradagem no box.",
+      "adviceStyle": "Foca na leitura de corrida de longa duração e em como poupar o carro no início para atacar nas voltas finais.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_5.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_5.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_5.jpg"
+    },
+    {
+      "id": "driver_6",
+      "num": 6,
+      "name": "E. FITTIPALDI",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "62 anos",
+      "nationality": "Brasileiro",
+      "history": "O pioneiro do automobilismo sul-americano, bicampeão de F1 que revolucionou a categoria com sua precisão e liderança técnica.",
+      "adviceStyle": "Mestre em estratégia de campeonato a longo prazo, ensinando quando é hora de aceitar um 3º lugar em vez de arriscar um abandono.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_6.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_6.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_6.jpg"
+    },
+    {
+      "id": "driver_7",
+      "num": 7,
+      "name": "A. JONES",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "67 anos",
+      "nationality": "Australiano",
+      "history": "O campeão de 1980, conhecido pela atitude dura, sem rodeios, e por uma pilotagem extremamente física e combativa.",
+      "adviceStyle": "Conselhos práticos, diretos e sem \"mimimi\". Ensina o piloto a não se deixar intimidar por rivais e a se impor na pista.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_7.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_7.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_7.jpg"
+    },
+    {
+      "id": "driver_8",
+      "num": 8,
+      "name": "N. LAUDA",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "70 anos",
+      "nationality": "Austríaco",
+      "history": "Tricampeão mundial e uma das mentes mais brilhantes e pragmáticas da história do esporte. Famoso por sua incrível capacidade de superação e análise técnica.",
+      "adviceStyle": "Absolutamente focado em dados, eficiência mecânica, e em como tirar a emoção da tomada de decisões no cockpit.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_8.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_8.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_8.jpg"
+    },
+    {
+      "id": "driver_9",
+      "num": 9,
+      "name": "H. STUCK",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "66 anos",
+      "nationality": "Alemão",
+      "history": "Gigante das pistas, famoso por sua habilidade no molhado e por pilotar com o coração na mão nos circuitos mais perigosos do mundo.",
+      "adviceStyle": "Mestre na pilotagem sob chuva e em condições de baixa aderência, além de motivar o piloto a dar 110% em treinos classificatórios.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_9.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_9.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_9.jpg"
+    },
+    {
+      "id": "driver_10",
+      "num": 10,
+      "name": "A. RIBEIRO",
+      "role": "Estrategista Sênior / Mentor Lendário",
+      "age": "63 anos",
+      "nationality": "Angolano",
+      "history": "Um ex-piloto que fez carreira na Europa nos anos 80 com poucos recursos, conhecido por sua perseverança e inteligência para poupar o carro.",
+      "adviceStyle": "Ensina a arte de improvisar com acertos imperfeitos, a economizar pneus e a extrair o máximo de equipes menores.",
+      "category": "ex_drivers",
+      "fileName": "avatar_driver_10.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_10.jpg",
+      "localUrl": "/avatar/ex_drivers/avatar_driver_10.jpg"
+    }
+  ],
+  "allianceChiefs": [
+    {
+      "id": "alliance_chief_1",
+      "num": 1,
+      "name": "D. CHADWICK",
+      "role": "Engenheiro-Chefe de Calibração Térmica e Mapeamento de Potência",
+      "age": "48 anos",
+      "nationality": "Britânico",
+      "profile": "Formado na clássica escola de motorsport de Northamptonshire. Especialista em balancear curvas de entrega de potência e mapas de ignição agressivos sem ultrapassar as janelas de temperatura de câmara.",
+      "keyAttribute": "Otimização de tempo em voltas de qualificação (Quali Mode).",
+      "category": "others",
+      "fileName": "alianca_1_a.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_a.jpg",
+      "localUrl": "/avatar/others/alianca_1_a.jpg"
+    },
+    {
+      "id": "alliance_chief_2",
+      "num": 2,
+      "name": "K. SCHWEIGER",
+      "role": "Especialista em Dinâmica de Turbocompressores & Fluxo de Gases",
+      "age": "54 anos",
+      "nationality": "Alemão",
+      "profile": "Engenharia de precisão com vasta experiência em bancos de teste de Stuttgart. Focado na eficiência termodinâmica da turbina e no aproveitamento máximo do fluxo de escape para eliminar o atraso de turbo.",
+      "keyAttribute": "Confiabilidade do compressor e resposta linear de aceleração.",
+      "category": "others",
+      "fileName": "alianca_1_b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_b.jpg",
+      "localUrl": "/avatar/others/alianca_1_b.jpg"
+    },
+    {
+      "id": "alliance_chief_3",
+      "num": 3,
+      "name": "M. BELLINI",
+      "role": "Mestre de Metalurgia & Resistência de Componentes Internos",
+      "age": "61 anos",
+      "nationality": "Italiano",
+      "profile": "Veterano forjado nos bastidores de Maranello. Especialista em ligas ultraleves para pistões, bielas forjadas e válvulas de titânio preparadas para suportar regimes extremos de rotação contínua.",
+      "keyAttribute": "Redução de desgaste mecânico e fadiga de material em alta quilometragem.",
+      "category": "others",
+      "fileName": "alianca_2_a.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_a.jpg",
+      "localUrl": "/avatar/others/alianca_2_a.jpg"
+    },
+    {
+      "id": "alliance_chief_4",
+      "num": 4,
+      "name": "A. CRAWFORD",
+      "role": "Engenheiro de Sistemas de Combustível & Injeção Direta",
+      "age": "41 anos",
+      "nationality": "Britânico",
+      "profile": "Focado nas altas pressões das bombas de combustível e na atomização do spray nos cilindros. Trabalha no limite dos fluxômetros para extrair máxima queima de cada gota de combustível permitida pelo regulamento.",
+      "keyAttribute": "Economia de combustível em ritmo sustentado de corrida (Lift and Coast).",
+      "category": "others",
+      "fileName": "alianca_2_b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_b.jpg",
+      "localUrl": "/avatar/others/alianca_2_b.jpg"
+    },
+    {
+      "id": "alliance_chief_5",
+      "num": 5,
+      "name": "S. ZIMMERMANN",
+      "role": "Analista de Lubrificação, Pressão Hidráulica e Refrigeração",
+      "age": "36 anos",
+      "nationality": "Alemão",
+      "profile": "Metódico e analítico, monitora o circuito de cárter seco, dissipação de calor nos radiadores e viscosidade de óleos sintéticos sob forças centrífugas elevadas em curvas de alta velocidade.",
+      "keyAttribute": "Prevenção de quebras críticas por superaquecimento ou perda de pressão de óleo.",
+      "category": "others",
+      "fileName": "alianca_3_a.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_a.jpg",
+      "localUrl": "/avatar/others/alianca_3_a.jpg"
+    },
+    {
+      "id": "alliance_chief_6",
+      "num": 6,
+      "name": "G. MARCHETTI",
+      "role": "Engenheiro de Integração Dinâmica & Análise Harmônica",
+      "age": "49 anos",
+      "nationality": "Italiano",
+      "profile": "Especialista na interface entre o bloco do motor e o chassi de fibra de carbono. Analisa as frequências vibratórias do virabrequim para mitigar ressonâncias parasitas que afetam suportes estruturais e chicotes elétricos.",
+      "keyAttribute": "Estabilidade mecânica da unidade de potência acoplada ao monocoque.",
+      "category": "others",
+      "fileName": "alianca_3_b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_b.jpg",
+      "localUrl": "/avatar/others/alianca_3_b.jpg"
+    }
+  ],
+  "manifest": [
+    {
+      "localPath": "/avatar/eng/avatar_1.jpg",
+      "storagePath": "eng/avatar_1.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_1.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 102464
+    },
+    {
+      "localPath": "/avatar/eng/avatar_10.jpg",
+      "storagePath": "eng/avatar_10.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_10.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 89163
+    },
+    {
+      "localPath": "/avatar/eng/avatar_11.jpg",
+      "storagePath": "eng/avatar_11.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_11.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 162354
+    },
+    {
+      "localPath": "/avatar/eng/avatar_12.jpg",
+      "storagePath": "eng/avatar_12.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_12.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 141325
+    },
+    {
+      "localPath": "/avatar/eng/avatar_13.jpg",
+      "storagePath": "eng/avatar_13.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_13.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 164908
+    },
+    {
+      "localPath": "/avatar/eng/avatar_14.jpg",
+      "storagePath": "eng/avatar_14.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_14.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 145146
+    },
+    {
+      "localPath": "/avatar/eng/avatar_15.jpg",
+      "storagePath": "eng/avatar_15.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_15.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 161526
+    },
+    {
+      "localPath": "/avatar/eng/avatar_16.jpg",
+      "storagePath": "eng/avatar_16.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_16.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 158296
+    },
+    {
+      "localPath": "/avatar/eng/avatar_17.jpg",
+      "storagePath": "eng/avatar_17.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_17.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 139470
+    },
+    {
+      "localPath": "/avatar/eng/avatar_18.jpg",
+      "storagePath": "eng/avatar_18.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_18.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 156460
+    },
+    {
+      "localPath": "/avatar/eng/avatar_19.jpg",
+      "storagePath": "eng/avatar_19.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_19.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 147721
+    },
+    {
+      "localPath": "/avatar/eng/avatar_2.jpg",
+      "storagePath": "eng/avatar_2.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_2.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 104380
+    },
+    {
+      "localPath": "/avatar/eng/avatar_20.jpg",
+      "storagePath": "eng/avatar_20.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_20.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 129053
+    },
+    {
+      "localPath": "/avatar/eng/avatar_21.jpg",
+      "storagePath": "eng/avatar_21.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_21.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 161350
+    },
+    {
+      "localPath": "/avatar/eng/avatar_22.jpg",
+      "storagePath": "eng/avatar_22.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_22.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 172995
+    },
+    {
+      "localPath": "/avatar/eng/avatar_24.jpg",
+      "storagePath": "eng/avatar_24.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_24.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 178395
+    },
+    {
+      "localPath": "/avatar/eng/avatar_25.jpg",
+      "storagePath": "eng/avatar_25.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_25.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 179371
+    },
+    {
+      "localPath": "/avatar/eng/avatar_25b.jpg",
+      "storagePath": "eng/avatar_25b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_25b.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 169758
+    },
+    {
+      "localPath": "/avatar/eng/avatar_26.jpg",
+      "storagePath": "eng/avatar_26.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_26.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 161320
+    },
+    {
+      "localPath": "/avatar/eng/avatar_27.jpg",
+      "storagePath": "eng/avatar_27.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_27.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 178206
+    },
+    {
+      "localPath": "/avatar/eng/avatar_28.jpg",
+      "storagePath": "eng/avatar_28.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_28.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 175697
+    },
+    {
+      "localPath": "/avatar/eng/avatar_29.jpg",
+      "storagePath": "eng/avatar_29.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_29.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 161722
+    },
+    {
+      "localPath": "/avatar/eng/avatar_3.jpg",
+      "storagePath": "eng/avatar_3.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_3.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 112368
+    },
+    {
+      "localPath": "/avatar/eng/avatar_30.jpg",
+      "storagePath": "eng/avatar_30.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_30.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 157021
+    },
+    {
+      "localPath": "/avatar/eng/avatar_4.jpg",
+      "storagePath": "eng/avatar_4.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_4.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 88176
+    },
+    {
+      "localPath": "/avatar/eng/avatar_5.jpg",
+      "storagePath": "eng/avatar_5.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_5.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 94106
+    },
+    {
+      "localPath": "/avatar/eng/avatar_6.jpg",
+      "storagePath": "eng/avatar_6.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_6.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 98006
+    },
+    {
+      "localPath": "/avatar/eng/avatar_7.jpg",
+      "storagePath": "eng/avatar_7.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_7.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 96004
+    },
+    {
+      "localPath": "/avatar/eng/avatar_8.jpg",
+      "storagePath": "eng/avatar_8.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_8.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 85348
+    },
+    {
+      "localPath": "/avatar/eng/avatar_9.jpg",
+      "storagePath": "eng/avatar_9.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_9.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 101879
+    },
+    {
+      "localPath": "/avatar/eng/Avatar_Data.txt",
+      "storagePath": "eng/Avatar_Data.txt",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/Avatar_Data.txt",
+      "contentType": "text/plain; charset=utf-8",
+      "sizeBytes": 9272
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_drivers_data.txt",
+      "storagePath": "ex_drivers/avatar_drivers_data.txt",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_drivers_data.txt",
+      "contentType": "text/plain; charset=utf-8",
+      "sizeBytes": 3564
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_1.jpg",
+      "storagePath": "ex_drivers/avatar_driver_1.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 103987
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_10.jpg",
+      "storagePath": "ex_drivers/avatar_driver_10.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_10.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 87228
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_11.jpg",
+      "storagePath": "ex_drivers/avatar_driver_11.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_11.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 107852
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_12.jpg",
+      "storagePath": "ex_drivers/avatar_driver_12.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_12.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 102705
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_13.jpg",
+      "storagePath": "ex_drivers/avatar_driver_13.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_13.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 91557
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_14.jpg",
+      "storagePath": "ex_drivers/avatar_driver_14.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_14.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 94082
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_15.jpg",
+      "storagePath": "ex_drivers/avatar_driver_15.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_15.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 97061
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_16.jpg",
+      "storagePath": "ex_drivers/avatar_driver_16.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_16.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 89563
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_17.jpg",
+      "storagePath": "ex_drivers/avatar_driver_17.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_17.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 103799
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_18.jpg",
+      "storagePath": "ex_drivers/avatar_driver_18.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_18.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 89584
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_19.jpg",
+      "storagePath": "ex_drivers/avatar_driver_19.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_19.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 97352
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_2.jpg",
+      "storagePath": "ex_drivers/avatar_driver_2.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_2.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 113752
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_20.jpg",
+      "storagePath": "ex_drivers/avatar_driver_20.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_20.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 86437
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_21.jpg",
+      "storagePath": "ex_drivers/avatar_driver_21.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_21.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 272784
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_22.jpg",
+      "storagePath": "ex_drivers/avatar_driver_22.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_22.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 204730
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_23.jpg",
+      "storagePath": "ex_drivers/avatar_driver_23.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_23.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 201293
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_24.jpg",
+      "storagePath": "ex_drivers/avatar_driver_24.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_24.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 196742
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_25.jpg",
+      "storagePath": "ex_drivers/avatar_driver_25.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_25.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 196146
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_26.jpg",
+      "storagePath": "ex_drivers/avatar_driver_26.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_26.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 202150
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_27.jpg",
+      "storagePath": "ex_drivers/avatar_driver_27.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_27.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 200970
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_28.jpg",
+      "storagePath": "ex_drivers/avatar_driver_28.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_28.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 208172
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_29.jpg",
+      "storagePath": "ex_drivers/avatar_driver_29.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_29.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 196278
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_3.jpg",
+      "storagePath": "ex_drivers/avatar_driver_3.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_3.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 105331
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_30.jpg",
+      "storagePath": "ex_drivers/avatar_driver_30.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_30.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 194704
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_4.jpg",
+      "storagePath": "ex_drivers/avatar_driver_4.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_4.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 102124
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_5.jpg",
+      "storagePath": "ex_drivers/avatar_driver_5.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_5.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 91562
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_6.jpg",
+      "storagePath": "ex_drivers/avatar_driver_6.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_6.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 92237
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_7.jpg",
+      "storagePath": "ex_drivers/avatar_driver_7.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_7.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 105392
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_8.jpg",
+      "storagePath": "ex_drivers/avatar_driver_8.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_8.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 100842
+    },
+    {
+      "localPath": "/avatar/ex_drivers/avatar_driver_9.jpg",
+      "storagePath": "ex_drivers/avatar_driver_9.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_9.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 112496
+    },
+    {
+      "localPath": "/avatar/others/alianca_1_a.jpg",
+      "storagePath": "others/alianca_1_a.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_a.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 113731
+    },
+    {
+      "localPath": "/avatar/others/alianca_1_b.jpg",
+      "storagePath": "others/alianca_1_b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_b.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 125308
+    },
+    {
+      "localPath": "/avatar/others/alianca_2_a.jpg",
+      "storagePath": "others/alianca_2_a.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_a.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 134915
+    },
+    {
+      "localPath": "/avatar/others/alianca_2_b.jpg",
+      "storagePath": "others/alianca_2_b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_b.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 110557
+    },
+    {
+      "localPath": "/avatar/others/alianca_3_a.jpg",
+      "storagePath": "others/alianca_3_a.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_a.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 124940
+    },
+    {
+      "localPath": "/avatar/others/alianca_3_b.jpg",
+      "storagePath": "others/alianca_3_b.jpg",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_b.jpg",
+      "contentType": "image/jpeg",
+      "sizeBytes": 122132
+    },
+    {
+      "localPath": "/avatar/others/data.txt",
+      "storagePath": "others/data.txt",
+      "publicUrl": "https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/data.txt",
+      "contentType": "text/plain; charset=utf-8",
+      "sizeBytes": 2693
+    }
+  ]
+}
