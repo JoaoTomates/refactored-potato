@@ -129,18 +129,14 @@ export function getGroupTechnicalEngineer(
     const avatarNum = shuffledAvatarIndices[index % shuffledAvatarIndices.length];
     const avatarUrl = `${SUPABASE_AVATARS_BASE}/avatar_${avatarNum}.jpg`;
 
-    // Seleciona o pool de nomes do grupo
-    const poolIndex = (validGroupId - 1) % GROUP_SURNAME_POOLS.length;
-    const namePool = GROUP_SURNAME_POOLS[poolIndex];
-    const assignedCode = namePool[index % namePool.length];
-
-    // Metadados baseados no avatar correspondente
+    // Metadados oficiais correspondentes ao avatar sorteado (1 a 30)
+    // Garante coerência total entre Código (Golden Rule), Nome Completo, Nacionalidade, Idade e Especialidade
     const baseMeta = CANONICAL_ENGINEERS_METADATA[(avatarNum - 1) % CANONICAL_ENGINEERS_METADATA.length];
 
     return {
         avatarIndex: avatarNum,
         avatarUrl,
-        code: assignedCode, // SEM NÚMEROS (ex: "T.VANCE", "P.DUBOIS")
+        code: baseMeta.code, // Consistente com fullName (ex: "H.TANAKA" para "Haruka Tanaka", "A.LINDBERG" para "Anton Lindberg")
         fullName: baseMeta.fullName,
         role: baseMeta.role,
         specialty: baseMeta.specialty,
