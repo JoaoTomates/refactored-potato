@@ -29,7 +29,8 @@ import {
     AllianceBlock 
 } from '@/lib/race-directors';
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
-import { getRealF1Driver, RealF1Driver, getContrastingColor } from '@/lib/real-f1-drivers';
+import { getRealF1Driver, RealF1Driver, getTeamCarColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
+import { getTeamPrincipal, TeamPrincipal } from '@/lib/paddock-crew';
 
 
 /* ============================================================
@@ -398,7 +399,12 @@ function CredentialCard({
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
     const flag = getCountryFlag(nationality);
-    const contrastColor = getContrastingColor(me.teamCode || me.teamName);
+    
+    // Cor 1 se piloto 1, Cor 2 se piloto 2
+    const carSeat = realDriver?.seat || 1;
+    const carBgColor = getTeamCarColor(me.teamCode || me.teamName, carSeat);
+    // Regra matemática de contraste WCAG (Preto ou Branco de máxima legibilidade)
+    const carTextColor = getContrastingTextColor(carBgColor);
 
     return (
         <Panel 
@@ -408,84 +414,102 @@ function CredentialCard({
             className="!bg-black bg-black" 
             accentColor={me.teamColor}
         >
-            {/* Visualização de Capacete Oficial F1 */}
-            <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-[#060606] flex items-center justify-center p-3 border-b border-white/10">
-                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
-                
-                {/* LETRAS GRANDES DO PILOTO REAL ATRÁS DO CAPACETE (Elevadas alguns pixels, cor contrastante, fonte ultra-bold gordinha e leve inclinação L sobe / C desce) */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 -translate-y-5 sm:-translate-y-7">
-                    <span 
-                        className="font-black uppercase tracking-tight"
-                        style={{
-                            fontFamily: 'var(--font-montserrat), sans-serif',
-                            fontWeight: 900,
-                            transform: 'rotate(3.5deg) scale(1.1)',
-                            color: contrastColor,
-                            opacity: 0.70,
-                            fontSize: 'clamp(5rem, 16vw, 8.5rem)',
-                            lineHeight: 1,
-                            textShadow: `0 0 50px ${contrastColor}70, 0 0 18px ${contrastColor}90`
-                        }}
-                    >
-                        {realDriver?.code || 'LEC'}
-                    </span>
-                </div>
-
-                <div className="w-full h-full max-h-[250px] md:max-h-[270px] flex items-center justify-center relative scale-110 transition-transform z-10">
-                    <div className="relative w-full h-full flex items-center justify-center">
-                        <img 
-                            alt="Capacete Oficial F1" 
-                            className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen" 
-                            src="/avatar-overlay.svg" 
-                        />
+            {/* AVATAR BOX TRANSFORMADO EM FORMATO DE CARD INDEPENDENTE */}
+            <div className="p-3 bg-black">
+                <div 
+                    className="relative aspect-[4/3] md:aspect-[5/4] rounded-xl overflow-hidden flex items-center justify-center p-3 border transition-all duration-300 shadow-2xl"
+                    style={{
+                        backgroundColor: '#070709',
+                        borderColor: `${me.teamColor}40`,
+                        boxShadow: `inset 0 0 35px rgba(0,0,0,0.95), 0 10px 30px -8px ${me.teamColor}25`
+                    }}
+                >
+                    <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
+                    
+                    {/* PATCH / CAIXA DE COR DA EQUIPE EM TORNO DAS 3 LETRAS (COR 1 SE PILOTO 1, COR 2 SE PILOTO 2) */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 -translate-y-4 sm:-translate-y-6">
                         <div 
-                            className="absolute inset-0 mix-blend-multiply pointer-events-none" 
-                            style={{ 
-                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                maskImage: 'url("/avatar-overlay.svg")', 
-                                WebkitMaskSize: 'contain',
-                                maskSize: 'contain', 
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskRepeat: 'no-repeat', 
-                                WebkitMaskPosition: 'center center',
-                                maskPosition: 'center center', 
-                                backgroundColor: me.teamColor 
-                            }} 
-                        />
-                        <div 
-                            className="absolute inset-0 mix-blend-color opacity-85 pointer-events-none" 
-                            style={{ 
-                                WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                maskImage: 'url("/avatar-overlay.svg")', 
-                                WebkitMaskSize: 'contain',
-                                maskSize: 'contain', 
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskRepeat: 'no-repeat', 
-                                WebkitMaskPosition: 'center center',
-                                maskPosition: 'center center', 
-                                backgroundColor: me.teamColor 
-                            }} 
-                        />
+                            className="px-6 py-2 sm:px-8 sm:py-3.5 rounded-2xl flex items-center justify-center shadow-2xl"
+                            style={{
+                                backgroundColor: carBgColor,
+                                transform: 'rotate(3.5deg)',
+                                boxShadow: `0 0 45px ${carBgColor}70, 0 8px 25px rgba(0,0,0,0.9)`
+                            }}
+                        >
+                            <span 
+                                className="font-black uppercase tracking-tight"
+                                style={{
+                                    fontFamily: 'var(--font-montserrat), sans-serif',
+                                    fontWeight: 900,
+                                    color: carTextColor,
+                                    fontSize: 'clamp(3.8rem, 13vw, 6.5rem)',
+                                    lineHeight: 1,
+                                    textShadow: carTextColor === '#000000' 
+                                        ? 'none' 
+                                        : '0 2px 10px rgba(0,0,0,0.45)'
+                                }}
+                            >
+                                {realDriver?.code || 'LEC'}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                {/* Badge do Piloto Real F1 no Avatar (3 Letras Oficiais FIA, ex: LEC, HAM, RUS, PER) */}
-                {realDriver && (
-                    <div className="absolute bottom-2.5 left-2.5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/90 border border-white/20 text-xs font-mono font-black tracking-widest text-white shadow-xl backdrop-blur-md">
-                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: me.teamColor }} />
-                        <span className="text-white font-black tracking-wider text-xs">
-                            {realDriver.code}
-                        </span>
-                        <span className="text-[8px] text-white/50 border-l border-white/20 pl-1.5 uppercase font-mono font-bold tracking-normal">
-                            CAR {realDriver.seat} #{realDriver.number}
-                        </span>
+                    <div className="w-full h-full max-h-[250px] md:max-h-[270px] flex items-center justify-center relative scale-110 transition-transform z-10">
+                        <div className="relative w-full h-full flex items-center justify-center">
+                            <img 
+                                alt="Capacete Oficial F1" 
+                                className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen" 
+                                src="/avatar-overlay.svg" 
+                            />
+                            <div 
+                                className="absolute inset-0 mix-blend-multiply pointer-events-none" 
+                                style={{ 
+                                    WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                    maskImage: 'url("/avatar-overlay.svg")', 
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain', 
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat', 
+                                    WebkitMaskPosition: 'center center',
+                                    maskPosition: 'center center', 
+                                    backgroundColor: me.teamColor 
+                                }} 
+                            />
+                            <div 
+                                className="absolute inset-0 mix-blend-color opacity-85 pointer-events-none" 
+                                style={{ 
+                                    WebkitMaskImage: 'url("/avatar-overlay.svg")',
+                                    maskImage: 'url("/avatar-overlay.svg")', 
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain', 
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat', 
+                                    WebkitMaskPosition: 'center center',
+                                    maskPosition: 'center center', 
+                                    backgroundColor: me.teamColor 
+                                }} 
+                            />
+                        </div>
                     </div>
-                )}
 
-                {/* Badge Flutuante no Topo: Status da Superlicença */}
-                <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400 shadow">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>SUPERLICENÇA ATIVA</span>
+                    {/* Badge do Piloto Real F1 no Avatar (3 Letras Oficiais FIA, ex: LEC, HAM, RUS, PER) */}
+                    {realDriver && (
+                        <div className="absolute bottom-2.5 left-2.5 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/90 border border-white/20 text-xs font-mono font-black tracking-widest text-white shadow-xl backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: carBgColor }} />
+                            <span className="text-white font-black tracking-wider text-xs">
+                                {realDriver.code}
+                            </span>
+                            <span className="text-[8px] text-white/50 border-l border-white/20 pl-1.5 uppercase font-mono font-bold tracking-normal">
+                                CAR {realDriver.seat} #{realDriver.number}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Badge Flutuante no Topo: Status da Superlicença */}
+                    <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400 shadow">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>SUPERLICENÇA ATIVA</span>
+                    </div>
                 </div>
             </div>
 
@@ -914,6 +938,11 @@ export default function OfficialStrategistDashboard() {
         if (!me) return null;
         return getRealF1Driver(me.teamName, userSeat);
     }, [me?.teamName, userSeat]);
+
+    // Chefe de Equipe (Team Principal) oficial da escuderia
+    const teamPrincipal = useMemo(() => {
+        return getTeamPrincipal(me?.teamCode);
+    }, [me?.teamCode]);
 
     // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
@@ -1522,64 +1551,58 @@ export default function OfficialStrategistDashboard() {
                                 </Panel>
                             )}
 
-                            {/* Card Briefing de Garagem */}
-                            <Panel 
-                                title="Briefing do Paddock" 
-                                tag="TRANSMISSÃO" 
-                                accentColor={teamColor}
-                                collapsible={true}
-                                defaultOpen={false}
-                            >
-                                <div className="flex flex-col gap-3">
-                                    <div className="text-xs leading-relaxed text-white/90 border-l-2 pl-3" style={{ borderLeftColor: teamColor }}>
-                                        <TypewriterText key={feedIdx} text={feed[feedIdx]} />
-                                    </div>
-                                    <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[9px] text-white/50">
-                                        <span>CANAL: {me.teamCode}-SECURE</span>
-                                        <span className="text-emerald-400 font-bold">CRIPTOGRAFADO</span>
-                                    </div>
-                                </div>
-                            </Panel>
+                            {/* SANFONA: CHEFE DE EQUIPE (TEAM PRINCIPAL) */}
+                            {teamPrincipal && (
+                                <Panel 
+                                    title="Chefe de Equipe" 
+                                    tag={teamPrincipal.code} 
+                                    accentColor={teamColor}
+                                    collapsible={true}
+                                    defaultOpen={false}
+                                >
+                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                                            <div className="min-w-0">
+                                                <span className="font-black text-white text-sm tracking-wider block">
+                                                    {teamPrincipal.code}
+                                                </span>
+                                                <span className="text-[9px] text-white/50 uppercase block truncate">
+                                                    {teamPrincipal.fullName}
+                                                </span>
+                                            </div>
+                                            <span 
+                                                className="text-[8.5px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border shrink-0"
+                                                style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}12` }}
+                                            >
+                                                TEAM PRINCIPAL
+                                            </span>
+                                        </div>
 
-                            {/* Atalhos Rápidos */}
-                            <Panel 
-                                title="Acesso Direto" 
-                                accentColor={teamColor}
-                                collapsible={true}
-                                defaultOpen={false}
-                            >
-                                <div className="flex flex-col gap-2">
-                                    <Link 
-                                        href="/pitwall"
-                                        className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
-                                    >
-                                        <span>PITWALL GLOBAL</span>
-                                        <span style={{ color: teamColor }}>GRID »</span>
-                                    </Link>
-                                    <Link 
-                                        href="/positions"
-                                        className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
-                                    >
-                                        <span>MERCADO DE POSIÇÕES</span>
-                                        <span style={{ color: teamColor }}>ORDENS »</span>
-                                    </Link>
-                                    <Link 
-                                        href="/headquarters"
-                                        className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
-                                    >
-                                        <span>HEADQUARTERS</span>
-                                        <span style={{ color: teamColor }}>ALIANÇA »</span>
-                                    </Link>
-                                    <button 
-                                        type="button"
-                                        onClick={() => setRankingModalComp('master')}
-                                        className="flex items-center justify-between p-2.5 rounded bg-[#3874ff]/10 hover:bg-[#3874ff]/20 border border-[#3874ff]/30 text-white transition-all text-[11px] font-bold text-left cursor-pointer"
-                                    >
-                                        <span>MASTER LEAGUE & DUELOS</span>
-                                        <span className="text-[#3874ff]">TABELAS »</span>
-                                    </button>
-                                </div>
-                            </Panel>
+                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                            <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-bold">
+                                                PERFIL DE COMANDO
+                                            </span>
+                                            <p className="text-white/80 italic leading-relaxed text-[10.5px]">
+                                                "{teamPrincipal.personality}"
+                                            </p>
+                                        </div>
+
+                                        <div className="p-2 rounded bg-white/[0.02] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                            <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-bold">
+                                                DIRETRIZ DA MURETA
+                                            </span>
+                                            <p className="text-white/90 leading-relaxed text-[10.5px]">
+                                                {teamPrincipal.briefingFocus}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
+                                            <span>HOSPITALITY DA ESCUDERIA</span>
+                                            <span className="text-emerald-400 font-bold">CANAL ABERTO</span>
+                                        </div>
+                                    </div>
+                                </Panel>
+                            )}
                         </section>
 
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}

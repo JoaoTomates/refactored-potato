@@ -90,6 +90,83 @@ export function getRealF1Driver(teamNameOrCode: string, seat: 1 | 2 = 1): RealF1
     return seat === 2 ? entry.car2 : entry.car1;
 }
 
+export interface TeamCarColors {
+    car1Color: string; // Cor 1 da equipe (Piloto 1)
+    car2Color: string; // Cor 2 da equipe (Piloto 2)
+}
+
+/**
+ * Cores oficiais da escuderia para Carro 1 (Cor 1) e Carro 2 (Cor 2)
+ */
+export const TEAM_CAR_COLORS: Record<string, TeamCarColors> = {
+    ferrari: {
+        car1Color: '#E8002D', // Vermelho Ferrari Scarlatto
+        car2Color: '#FFE600', // Amarelo Modena
+    },
+    mclaren: {
+        car1Color: '#FF8000', // Laranja Papaia
+        car2Color: '#00E5FF', // Azul Ciano / Antracite
+    },
+    mercedes: {
+        car1Color: '#00D2BE', // Verde Petróleo Petronas
+        car2Color: '#D1D5DB', // Prata Flecha de Prata
+    },
+    redbull: {
+        car1Color: '#0600EF', // Azul Escuro Red Bull
+        car2Color: '#EA1D2C', // Vermelho Toro
+    },
+    astonmartin: {
+        car1Color: '#229971', // Verde Britânico Racing
+        car2Color: '#CEDC00', // Verde Lima Neon
+    },
+    alpine: {
+        car1Color: '#0090FF', // Azul Royal Alpine
+        car2Color: '#FD4BC7', // Rosa BWT
+    },
+    williams: {
+        car1Color: '#005AFF', // Azul Escuro Williams
+        car2Color: '#64C4FF', // Azul Claro / Laranja Duracell
+    },
+    haas: {
+        car1Color: '#E0E0E0', // Branco Pérola Haas
+        car2Color: '#DA291C', // Vermelho Haas
+    },
+    cadillac: {
+        car1Color: '#FFB800', // Dourado Ouro Cadillac
+        car2Color: '#1B2021', // Preto Carbono / Prata
+    },
+    audi: {
+        car1Color: '#F50537', // Vermelho Audi Sport
+        car2Color: '#00E5A3', // Verde Neon Elétrico
+    },
+    racingbulls: {
+        car1Color: '#6692FF', // Azul Elétrico
+        car2Color: '#FFFFFF', // Branco Pérola
+    },
+};
+
+/**
+ * Retorna a Cor 1 ou Cor 2 da equipe dependendo se é piloto 1 ou piloto 2
+ */
+export function getTeamCarColor(teamNameOrCode: string, seat: 1 | 2 = 1): string {
+    const key = normalizeTeamKey(teamNameOrCode);
+    const entry = TEAM_CAR_COLORS[key] || TEAM_CAR_COLORS.ferrari;
+    return seat === 2 ? entry.car2Color : entry.car1Color;
+}
+
+/**
+ * Calcula a cor de texto contrastante (Preto ou Branco) baseada na luminância relativa da cor de fundo (WCAG)
+ */
+export function getContrastingTextColor(bgHex: string): string {
+    const hex = (bgHex || '#E8002D').replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) || 0;
+    const g = parseInt(hex.substring(2, 4), 16) || 0;
+    const b = parseInt(hex.substring(4, 6), 16) || 0;
+    // Luminância relativa perceptiva (YIQ)
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 135 ? '#000000' : '#FFFFFF';
+}
+
 /**
  * Retorna uma cor de alto contraste em relação à escuderia
  * (ex: Ferrari Vermelha -> Ciano Elétrico / Azul Neon, McLaren Laranja -> Azul Cobalto / Ciano,
