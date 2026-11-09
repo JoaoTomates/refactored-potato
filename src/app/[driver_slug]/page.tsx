@@ -414,16 +414,22 @@ function CredentialCard({
             className="!bg-black bg-black" 
             accentColor={me.teamColor}
         >
-            {/* AVATAR BOX TRANSFORMADO EM FORMATO DE CARD INDEPENDENTE */}
-            <div className="p-3 bg-black">
+            {/* AVATAR BOX TRANSFORMADO EM FORMATO DE CARD AMERICANO RETANGULAR (PROPORÇÃO 2.5 x 3.5 / 5:7) */}
+            <div className="p-3 bg-black flex justify-center">
                 <div 
-                    className="relative aspect-[4/3] md:aspect-[5/4] rounded-xl overflow-hidden flex items-center justify-center p-3 border transition-all duration-300 shadow-2xl"
+                    className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center p-3 border-2 transition-all duration-300 shadow-2xl"
                     style={{
                         backgroundColor: '#070709',
-                        borderColor: `${me.teamColor}40`,
-                        boxShadow: `inset 0 0 35px rgba(0,0,0,0.95), 0 10px 30px -8px ${me.teamColor}25`
+                        borderColor: `${me.teamColor}50`,
+                        boxShadow: `inset 0 0 45px rgba(0,0,0,0.95), 0 12px 35px -8px ${me.teamColor}35, 0 0 0 1px rgba(255,255,255,0.08)`
                     }}
                 >
+                    {/* Linha de borda interna de acabamento estilo Card Colecionável Americano */}
+                    <div 
+                        className="absolute inset-2 sm:inset-2.5 rounded-xl pointer-events-none border border-white/10" 
+                        style={{ borderColor: `${me.teamColor}30` }}
+                    />
+
                     <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
                     
                     {/* PATCH / CAIXA DE COR DA EQUIPE EM TORNO DAS 3 LETRAS (COR 1 SE PILOTO 1, COR 2 SE PILOTO 2) */}
@@ -454,7 +460,7 @@ function CredentialCard({
                         </div>
                     </div>
 
-                    <div className="w-full h-full max-h-[250px] md:max-h-[270px] flex items-center justify-center relative scale-110 transition-transform z-10">
+                    <div className="w-full h-full flex items-center justify-center relative scale-110 transition-transform z-10">
                         <div className="relative w-full h-full flex items-center justify-center">
                             <img 
                                 alt="Capacete Oficial F1" 
