@@ -660,6 +660,12 @@ export default function OfficialStrategistDashboard() {
 
     const [loading, setLoading] = useState(true);
     const [targetProfile, setTargetProfile] = useState<any>(null);
+    const [mySlug, setMySlug] = useState<string | null>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('vg_user_slug') || null;
+        }
+        return null;
+    });
     const [me, setMe] = useState<Strategist | null>(null);
     const [userPrediction, setUserPrediction] = useState<any>(null);
     const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null; driverNumber?: string; avatarUrl?: string | null } | null>(null);
@@ -783,6 +789,18 @@ export default function OfficialStrategistDashboard() {
                         .eq('user_id', user.id)
                         .maybeSingle();
                     directContract = myContract;
+
+                    // Atualiza cache do slug do próprio usuário logado para navegação rápida
+                    if (profileData && profileData.id === user.id && profileData.slug) {
+                        setMySlug(profileData.slug);
+                        if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', profileData.slug);
+                    } else if (!mySlug) {
+                        const { data: myP } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
+                        if (myP?.slug) {
+                            setMySlug(myP.slug);
+                            if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', myP.slug);
+                        }
+                    }
                 }
 
                 // Contrato do perfil exibido na página (prioriza o perfil alvo)
@@ -1350,7 +1368,7 @@ export default function OfficialStrategistDashboard() {
                         {isOwner ? (
                             <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
                         ) : user ? (
-                            <Link href={`/${user.user_metadata?.slug || 'superlicense'}`} className="hover:text-white transition-colors" style={{ color: teamColor }}>
+                            <Link href={mySlug ? `/${mySlug.startsWith('@') ? mySlug : `@${mySlug}`}` : "/superlicense"} className="hover:text-white transition-colors" style={{ color: teamColor }}>
                                 [ MEU TERMINAL ]
                             </Link>
                         ) : (

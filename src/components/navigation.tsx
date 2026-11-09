@@ -14,7 +14,15 @@ const Navigation = () => {
     const { user } = useSupabaseAuth();
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
+    const [dashboardUrl, setDashboardUrl] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const cached = localStorage.getItem('vg_user_slug');
+            if (cached) {
+                return `/${cached.startsWith('@') ? cached : `@${cached}`}`;
+            }
+        }
+        return '/superlicense';
+    });
 
     // Close mobile menu on route change
     useEffect(() => {
@@ -39,6 +47,9 @@ const Navigation = () => {
 
                 if (!isMounted) return;
                 if (data?.slug) {
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('vg_user_slug', data.slug);
+                    }
                     const cleanSlug = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
                     setDashboardUrl(`/${cleanSlug}`);
                 } else {

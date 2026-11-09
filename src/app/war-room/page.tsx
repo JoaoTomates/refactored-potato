@@ -369,6 +369,13 @@ export function WarRoomContent() {
 
     // Seletor de posicionamento dos diálogos (V1: Topo-Esquerdo [Padrão], V2: Centro)
     const [dialogVersion, setDialogVersion] = useState<1 | 2>(1);
+    const [userSlug, setUserSlug] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const cached = localStorage.getItem('vg_user_slug');
+            if (cached) return cached.startsWith('@') ? cached : `@${cached}`;
+        }
+        return 'pitwall';
+    });
 
     // Dados salvos para o protocolo
     const [chosenPoletime, setChosenPoletime] = useState<string>('1:12.209');
@@ -388,6 +395,13 @@ export function WarRoomContent() {
 
             let userGroupId = 1;
             if (user) {
+                const { data: p } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
+                if (p?.slug) {
+                    const s = p.slug.startsWith('@') ? p.slug : `@${p.slug}`;
+                    setUserSlug(s);
+                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', p.slug);
+                }
+
                 const { data: contract } = await supabase
                     .from('contracts')
                     .select('team_id, teams(code, color), group_id')
@@ -630,7 +644,7 @@ export function WarRoomContent() {
             {/* BARRA SUPERIOR: SAÍDA + SELETOR DE VERSÃO (V1 PADRÃO vs V2 CENTRO) */}
             <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between">
                 <Link
-                    href={`/${user?.user_metadata?.slug || 'pitwall'}`}
+                    href={`/${userSlug}`}
                     className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
                 >
                     <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />

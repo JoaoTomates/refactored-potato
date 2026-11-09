@@ -46,6 +46,7 @@ function SuperlicenseAuthContent() {
             if (user) {
                 const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
                 if (data?.slug && data.setup_completed === true) {
+                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', data.slug);
                     const target = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
                     window.location.replace(`/${target}`);
                 }
