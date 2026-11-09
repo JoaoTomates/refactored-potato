@@ -22,11 +22,11 @@ import { formatMls, formatTimeAgo } from '@/lib/mls';
 import { getCountryFlag } from '@/lib/country-flags';
 import { TeamworkSquad, getStrategistSquad, createTeamworkSquad, joinTeamworkSquad, leaveTeamworkSquad } from '@/lib/teamwork';
 import {
-    SeniorStrategist, 
-    getSeniorStrategistById, 
-    getSeniorStrategistForRound, 
-    getStrategistVoice, 
-    AllianceBlock 
+    SeniorStrategist,
+    getSeniorStrategistById,
+    getSeniorStrategistForRound,
+    getStrategistVoice,
+    AllianceBlock
 } from '@/lib/race-directors';
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getRealF1Driver, RealF1Driver, getTeamCarColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
@@ -199,20 +199,20 @@ function useNow() {
  * Componentes de UI
  * ============================================================ */
 
-function Panel({ 
-    title, 
-    tag, 
-    children, 
-    className = '', 
+function Panel({
+    title,
+    tag,
+    children,
+    className = '',
     bodyClass = 'p-4',
     accentColor = '#fbaa19',
     collapsible = false,
     defaultOpen = true,
-}: { 
-    title: string; 
-    tag?: React.ReactNode; 
-    children: React.ReactNode; 
-    className?: string; 
+}: {
+    title: string;
+    tag?: React.ReactNode;
+    children: React.ReactNode;
+    className?: string;
     bodyClass?: string;
     accentColor?: string;
     collapsible?: boolean;
@@ -221,19 +221,19 @@ function Panel({
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
-        <div 
+        <div
             className={`relative bg-black/75 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300 ${className}`}
             style={{ borderColor: `${accentColor}30` }}
         >
-            <div 
+            <div
                 onClick={collapsible ? () => setIsOpen(prev => !prev) : undefined}
                 className={`flex items-center justify-between gap-2 px-4 py-2.5 border-b transition-colors ${collapsible ? 'cursor-pointer select-none hover:bg-white/[0.04]' : ''}`}
-                style={{ 
+                style={{
                     borderBottomColor: (!collapsible || isOpen) ? `${accentColor}20` : 'transparent',
                     background: `linear-gradient(90deg, ${accentColor}0a, transparent)`
                 }}
             >
-                <span 
+                <span
                     className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase truncate flex items-center gap-1.5"
                     style={{ color: accentColor }}
                 >
@@ -242,12 +242,12 @@ function Panel({
                 <div className="flex items-center gap-2 shrink-0">
                     {tag && <span className="text-[9px] tracking-widest text-white/40 uppercase shrink-0">{tag}</span>}
                     {collapsible && (
-                        <span 
+                        <span
                             className="text-[10px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded border transition-all"
-                            style={{ 
-                                borderColor: `${accentColor}40`, 
-                                color: accentColor, 
-                                backgroundColor: `${accentColor}10` 
+                            style={{
+                                borderColor: `${accentColor}40`,
+                                color: accentColor,
+                                backgroundColor: `${accentColor}10`
                             }}
                             aria-label={isOpen ? "Recolher painel" : "Expandir painel"}
                         >
@@ -381,17 +381,17 @@ function PriceChart({ data, startRound, teamColor }: { data: number[]; startRoun
 }
 
 /* ---------- Credencial / Capacete ---------- */
-function CredentialCard({ 
-    me, 
-    number, 
-    allianceId, 
+function CredentialCard({
+    me,
+    number,
+    allianceId,
     mentor,
     nationality,
     realDriver
-}: { 
-    me: Strategist; 
-    number: string; 
-    allianceId: AllianceId; 
+}: {
+    me: Strategist;
+    number: string;
+    allianceId: AllianceId;
     mentor?: SeniorStrategist | null;
     nationality?: string | null;
     realDriver?: RealF1Driver | null;
@@ -399,7 +399,7 @@ function CredentialCard({
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
     const flag = getCountryFlag(nationality);
-    
+
     // Cor 1 se piloto 1, Cor 2 se piloto 2
     const carSeat = realDriver?.seat || 1;
     const carBgColor = getTeamCarColor(me.teamCode || me.teamName, carSeat);
@@ -407,63 +407,66 @@ function CredentialCard({
     const carTextColor = getContrastingTextColor(carBgColor);
 
     return (
-        <Panel 
-            title="Credencial Oficial" 
-            tag={me.teamCode} 
-            bodyClass="p-0 overflow-hidden" 
-            className="!bg-black bg-black" 
+        <Panel
+            title="Credencial Oficial"
+            tag={me.teamCode}
+            bodyClass="p-0 overflow-hidden"
+            className="!bg-black bg-black"
             accentColor={me.teamColor}
         >
             {/* AVATAR BOX TRANSFORMADO EM FORMATO DE CARD AMERICANO RETANGULAR (PROPORÇÃO 2.5 x 3.5 / 5:7) */}
             <div className="p-3 bg-black flex justify-center">
-                <div 
+                <div
                     className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center border-2 transition-all duration-300 shadow-2xl"
                     style={{
                         backgroundColor: '#000000',
-                        borderColor: `${me.teamColor}50`,
+                        borderColor: `${carBgColor}70`,
                         boxShadow: `inset 0 0 50px rgba(0,0,0,0.85), 0 12px 35px -8px ${carBgColor}50, 0 0 0 1px rgba(255,255,255,0.12)`
                     }}
                 >
-                    {/* Linha de borda interna de acabamento estilo Card Colecionável Americano */}
-                    <div 
-                        className="absolute inset-[8px] rounded-xl pointer-events-none border border-white/20 z-20" 
-                        style={{ borderColor: 'rgba(255,255,255,0.2)' }}
+                    {/* BORDA VERMELHA COMPLETA QUE DÁ A VOLTA EM TODO O BOX (SEM CORTE) */}
+                    <div
+                        className="absolute inset-[8px] rounded-xl pointer-events-none border-2 z-30 transition-all duration-300"
+                        style={{
+                            borderColor: carBgColor,
+                            boxShadow: `0 0 16px ${carBgColor}50, inset 0 0 10px ${carBgColor}20`
+                        }}
                     />
 
                     {/* BACKGROUND BI-COLOR COM MARGEM INTERNA PRETA DE 8PX */}
-                    <div 
+                    <div
                         className="absolute inset-[8px] rounded-xl overflow-hidden pointer-events-none select-none z-0"
                         style={{
                             background: `linear-gradient(to bottom, ${carBgColor} 0%, ${carBgColor} 66%, #050507 66%, #050507 100%)`,
                         }}
                     >
                         {/* Gradiente para profundidade de card esportivo */}
-                        <div 
-                            className="absolute inset-0" 
-                            style={{ 
-                                background: 'radial-gradient(circle at 50% 32%, rgba(255,255,255,0.14) 0%, transparent 60%, rgba(0,0,0,0.45) 100%), linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 66%, rgba(0,0,0,0.8) 100%)' 
-                            }} 
+                        <div
+                            className="absolute inset-0"
+                            style={{
+                                background: 'radial-gradient(circle at 50% 32%, rgba(255,255,255,0.14) 0%, transparent 60%, rgba(0,0,0,0.45) 100%), linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 66%, rgba(0,0,0,0.8) 100%)'
+                            }}
                         />
 
                         {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
                         <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
-                        
-                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (INTEIRAMENTE NA DIAGONAL E RAIO MAIOR) */}
-                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2">
-                            <svg 
-                                viewBox="0 0 320 160" 
+
+                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (L ELEVADO E E MAIS VISÍVEL) */}
+                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2 -translate-y-4 -translate-x-1">
+                            <svg
+                                viewBox="0 0 320 160"
                                 className="w-full max-w-[310px] overflow-visible select-none pointer-events-none"
                                 style={{
-                                    transform: 'rotate(38deg)',
+                                    transform: 'rotate(28deg)',
                                     transformOrigin: 'center center'
                                 }}
                             >
                                 <defs>
-                                    {/* Trajetória em curva em formato de 'U' com raio expandido */}
-                                    <path 
-                                        id="driver-code-arc" 
-                                        d="M 20 94 Q 160 112 300 94" 
-                                        fill="none" 
+                                    {/* Trajetória em curva arqueada: faz o L subir e o E emergir na área aberta da cúpula do capacete */}
+                                    <path
+                                        id="driver-code-arc"
+                                        d="M 25 118 Q 160 52 295 108"
+                                        fill="none"
                                     />
                                     <filter id="driver-code-shadow" x="-30%" y="-30%" width="160%" height="160%">
                                         <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.65)" />
@@ -475,14 +478,14 @@ function CredentialCard({
                                     style={{
                                         fontFamily: 'var(--font-montserrat), sans-serif',
                                         fontWeight: 900,
-                                        fontSize: '76px',
+                                        fontSize: '74px',
                                         letterSpacing: '3px',
                                     }}
                                 >
-                                    <textPath 
-                                        href="#driver-code-arc" 
-                                        xlinkHref="#driver-code-arc" 
-                                        startOffset="50%" 
+                                    <textPath
+                                        href="#driver-code-arc"
+                                        xlinkHref="#driver-code-arc"
+                                        startOffset="50%"
                                         textAnchor="middle"
                                     >
                                         {realDriver?.code || 'LEC'}
@@ -495,64 +498,80 @@ function CredentialCard({
                     {/* CAPACETE OFICIAL F1 COM PADDING SUPERIOR EM RELAÇÃO AO TOPO */}
                     <div className="w-full h-full flex items-start justify-center relative scale-105 pt-5 sm:pt-7 transition-transform z-10">
                         <div className="relative w-full h-[65%] flex items-center justify-center">
-                            <img 
-                                alt="Capacete Oficial F1" 
-                                className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen" 
-                                src="/avatar-overlay.svg" 
+                            <img
+                                alt="Capacete Oficial F1"
+                                className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen"
+                                src="/avatar-overlay.svg"
                             />
-                            <div 
-                                className="absolute inset-0 mix-blend-multiply pointer-events-none" 
-                                style={{ 
+                            <div
+                                className="absolute inset-0 mix-blend-multiply pointer-events-none"
+                                style={{
                                     WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                    maskImage: 'url("/avatar-overlay.svg")', 
+                                    maskImage: 'url("/avatar-overlay.svg")',
                                     WebkitMaskSize: 'contain',
-                                    maskSize: 'contain', 
+                                    maskSize: 'contain',
                                     WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat', 
+                                    maskRepeat: 'no-repeat',
                                     WebkitMaskPosition: 'center center',
-                                    maskPosition: 'center center', 
-                                    backgroundColor: me.teamColor 
-                                }} 
+                                    maskPosition: 'center center',
+                                    backgroundColor: me.teamColor
+                                }}
                             />
-                            <div 
-                                className="absolute inset-0 mix-blend-color opacity-85 pointer-events-none" 
-                                style={{ 
+                            <div
+                                className="absolute inset-0 mix-blend-color opacity-85 pointer-events-none"
+                                style={{
                                     WebkitMaskImage: 'url("/avatar-overlay.svg")',
-                                    maskImage: 'url("/avatar-overlay.svg")', 
+                                    maskImage: 'url("/avatar-overlay.svg")',
                                     WebkitMaskSize: 'contain',
-                                    maskSize: 'contain', 
+                                    maskSize: 'contain',
                                     WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat', 
+                                    maskRepeat: 'no-repeat',
                                     WebkitMaskPosition: 'center center',
-                                    maskPosition: 'center center', 
-                                    backgroundColor: me.teamColor 
-                                }} 
+                                    maskPosition: 'center center',
+                                    backgroundColor: me.teamColor
+                                }}
                             />
                         </div>
                     </div>
 
-                    {/* TERÇO FINAL (PRETO): NOME DO ESTRATEGISTA PRINCIPAL EM DESTAQUE */}
+                    {/* TERÇO FINAL (PRETO): EQUIPE, GRUPO, NOME E TÍTULO REORGANIZADOS */}
                     <div className="absolute bottom-0 left-0 right-0 h-[34%] z-20 flex flex-col items-center justify-center px-3 select-none">
-                        <span className="text-[8px] sm:text-[9px] font-mono font-bold tracking-[0.25em] text-white/50 uppercase mb-0.5">
-                            ESTRATEGISTA PRINCIPAL
+                        {/* No lugar de Estrategista Principal: Nome da Equipe e Grupo */}
+                        <span
+                            className="text-[8.5px] sm:text-[9.5px] font-mono font-black tracking-[0.22em] uppercase mb-1"
+                            style={{ color: carBgColor }}
+                        >
+                            {me.teamName} · {getChampionGroupName(me.groupId)}
                         </span>
-                        <h3 
+
+                        {/* Nome do Estrategista */}
+                        <h3
                             className="font-black uppercase tracking-wider text-center leading-tight truncate max-w-full font-mono"
                             style={{
                                 fontFamily: 'var(--font-montserrat), sans-serif',
                                 fontWeight: 900,
                                 color: '#FFFFFF',
-                                fontSize: 'clamp(1.5rem, 5.5vw, 2.2rem)',
+                                fontSize: 'clamp(1.4rem, 5vw, 2.1rem)',
                                 textShadow: `0 0 20px ${carBgColor}80, 0 2px 10px rgba(0,0,0,0.9)`
                             }}
                         >
                             {me.name}
                         </h3>
-                        {realDriver && (
-                            <span className="text-[7.5px] font-mono tracking-widest text-white/40 uppercase mt-0.5">
-                                {realDriver.code} // CAR {realDriver.seat} #{realDriver.number}
+
+                        {/* Título movido para baixo */}
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-[8px] sm:text-[8.5px] font-mono font-bold tracking-[0.22em] text-white/70 uppercase">
+                                ESTRATEGISTA PRINCIPAL
                             </span>
-                        )}
+                            {realDriver && (
+                                <>
+                                    <span className="text-white/30 text-[8px]">·</span>
+                                    <span className="text-[7.5px] font-mono tracking-widest text-white/40 uppercase">
+                                        {realDriver.code} #{realDriver.number}
+                                    </span>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* Badge Flutuante no Topo: Status da Superlicença */}
@@ -569,14 +588,14 @@ function CredentialCard({
                 <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
                     <div className="flex items-center gap-2 min-w-0">
                         {flag && (
-                            <span 
+                            <span
                                 className="w-4 h-4 rounded-full overflow-hidden border border-white/30 inline-flex items-center justify-center shrink-0 shadow bg-black/60"
                                 title={nationality || flag.code.toUpperCase()}
                             >
-                                <img 
-                                    src={flag.flagUrl} 
-                                    alt={flag.code} 
-                                    className="w-full h-full object-cover rounded-full" 
+                                <img
+                                    src={flag.flagUrl}
+                                    alt={flag.code}
+                                    className="w-full h-full object-cover rounded-full"
                                     onError={(e) => {
                                         (e.target as HTMLElement).style.display = 'none';
                                     }}
@@ -795,8 +814,8 @@ export default function OfficialStrategistDashboard() {
 
                 const realStrategists: Strategist[] = (contracts || []).map((c: any) => {
                     const p = Array.isArray(c.profiles) ? c.profiles[0] || {} : c.profiles || {};
-                    const name = p.first_name 
-                        ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}` 
+                    const name = p.first_name
+                        ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}`
                         : 'ESTRATEGISTA';
                     return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
                 });
@@ -850,8 +869,8 @@ export default function OfficialStrategistDashboard() {
                 // 5. Determina o estrategista da página atual
                 let currentStrategist: Strategist | null = null;
                 if (profileData) {
-                    const name = profileData.first_name 
-                        ? `${profileData.first_name.charAt(0).toUpperCase()}.${(profileData.last_name || '').trim().toUpperCase()}` 
+                    const name = profileData.first_name
+                        ? `${profileData.first_name.charAt(0).toUpperCase()}.${(profileData.last_name || '').trim().toUpperCase()}`
                         : (profileData.slug ? profileData.slug.replace('@', '').toUpperCase() : 'ESTRATEGISTA');
 
                     currentStrategist = makeStrategist(
@@ -869,11 +888,11 @@ export default function OfficialStrategistDashboard() {
 
                 if (!currentStrategist) {
                     currentStrategist = makeStrategist(
-                        'visitor', 
-                        targetSlug ? targetSlug.replace('@', '').toUpperCase() : 'VISITANTE', 
-                        targetSlug || null, 
-                        F1_TEAMS[1].id, 
-                        1, 
+                        'visitor',
+                        targetSlug ? targetSlug.replace('@', '').toUpperCase() : 'VISITANTE',
+                        targetSlug || null,
+                        F1_TEAMS[1].id,
+                        1,
                         false,
                         100
                     );
@@ -881,8 +900,8 @@ export default function OfficialStrategistDashboard() {
 
                 setMe(currentStrategist);
                 // Exibe estrategistas reais sem dados mockados / bots falsos
-                const visibleField = realStrategists.length > 0 
-                    ? realStrategists 
+                const visibleField = realStrategists.length > 0
+                    ? realStrategists
                     : (currentStrategist ? [currentStrategist] : []);
                 setField(visibleField);
 
@@ -918,16 +937,16 @@ export default function OfficialStrategistDashboard() {
                     const seatIdx = teamContracts.findIndex((c: any) => c.user_id === activeStrategistId);
                     setUserSeat(seatIdx === 1 ? 2 : 1);
 
-                    const partnerContract = (contracts || []).find((c: any) => 
-                        c.team_id === myTeamId && 
-                        c.group_id === myGroupId && 
+                    const partnerContract = (contracts || []).find((c: any) =>
+                        c.team_id === myTeamId &&
+                        c.group_id === myGroupId &&
                         c.user_id !== activeStrategistId
                     );
 
                     if (partnerContract) {
                         const p = Array.isArray(partnerContract.profiles) ? partnerContract.profiles[0] || {} : partnerContract.profiles || {};
-                        const pName = p.first_name 
-                            ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}` 
+                        const pName = p.first_name
+                            ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}`
                             : (p.slug ? p.slug.replace('@', '').toUpperCase() : 'COMPANHEIRO');
                         setTeamPartner({
                             id: partnerContract.user_id,
@@ -1048,12 +1067,12 @@ export default function OfficialStrategistDashboard() {
     // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
         if (!me) return null;
-        
+
         const hasPred = Boolean(userPrediction);
         const poleTimeVal = userPrediction?.poletime || null;
         const top10Count = Array.isArray(userPrediction?.top10) ? userPrediction.top10.length : 0;
         const balance = targetProfile?.mls_balance ?? 100;
-        
+
         return {
             poletime: {
                 hasSubmitted: hasPred,
@@ -1110,7 +1129,7 @@ export default function OfficialStrategistDashboard() {
         }
 
         const totalGlobal = Math.max(field.length, 1);
-        
+
         // 1. MILESIMUS: Ranking global por saldo/pontos MLS
         const sortedGlobal = [...field].sort((a, b) => (b.mlsBalance ?? 100) - (a.mlsBalance ?? 100));
         const myGlobalIdx = sortedGlobal.findIndex(s => s.id === me.id);
@@ -1128,7 +1147,7 @@ export default function OfficialStrategistDashboard() {
 
         // 2. MASTER (Exceção): TOP 10 no grupo fechado do usuário = VERDE, senão = VERMELHO
         const groupUsers = field.filter(s => s.groupId === me.groupId);
-        const sortedGroup = groupUsers.length > 0 
+        const sortedGroup = groupUsers.length > 0
             ? [...groupUsers].sort((a, b) => (b.mlsBalance ?? 100) - (a.mlsBalance ?? 100))
             : [me];
         const myGroupIdx = sortedGroup.findIndex(s => s.id === me.id);
@@ -1198,7 +1217,7 @@ export default function OfficialStrategistDashboard() {
             const top10Len = Array.isArray(userPrediction.top10) ? userPrediction.top10.length : 0;
             const evoLen = Array.isArray(userPrediction.evo) ? userPrediction.evo.length : 0;
             const h2hLen = userPrediction.h2h ? Object.keys(userPrediction.h2h).length : 0;
-            
+
             items.push({
                 time: predTime,
                 title: 'Telemetria de Prognósticos Homologada',
@@ -1291,10 +1310,10 @@ export default function OfficialStrategistDashboard() {
     const feed = useMemo(() => {
         if (!me) return [''];
         const currentBalance = me.mlsBalance ?? 100;
-        const partnerMsg = teamPartner 
+        const partnerMsg = teamPartner
             ? `Seu parceiro de equipe na ${me.teamName} é ${teamPartner.name}. Telemetria de Teamwork conectada.`
             : `O ${getChampionGroupName(me.groupId)} conta com vagas abertas para a sua escuderia.`;
-        const predMsg = userPrediction 
+        const predMsg = userPrediction
             ? `Previsão ativa: Poletime homologado em ${userPrediction.poletime}. Ordem no grid registrada.`
             : `Janela aberta: envie seus prognósticos de Poletime e Master para a 1ª etapa oficial.`;
 
@@ -1375,7 +1394,7 @@ export default function OfficialStrategistDashboard() {
                         )}
                     </div>
                     <div className="flex items-center gap-4 md:gap-6 text-[10px] tracking-widest">
-                        <Link 
+                        <Link
                             href="/positions"
                             className={`flex items-center gap-1.5 font-bold transition-all hover:opacity-80 ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}
                         >
@@ -1384,7 +1403,7 @@ export default function OfficialStrategistDashboard() {
                         </Link>
                         <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: raceWeek ? '#fbaa19' : teamColor }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
-                        
+
                         <PaddockRadioPlayer teamColor={teamColor} />
                         {isOwner ? (
                             <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
@@ -1420,7 +1439,7 @@ export default function OfficialStrategistDashboard() {
                             >
                                 <span style={{ color: teamColor }}>«</span> [ VOLTAR AO TERMINAL DO ESTRATEGISTA ]
                             </button>
-                            <span 
+                            <span
                                 className="text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1 rounded border"
                                 style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}
                             >
@@ -1442,19 +1461,19 @@ export default function OfficialStrategistDashboard() {
 
                         {/* COLUNA ESQUERDA: Credencial + Briefing Oficial */}
                         <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
-                            <CredentialCard 
-                                me={me} 
-                                number={String(targetProfile?.driver_number || '00')} 
-                                allianceId={allianceId} 
+                            <CredentialCard
+                                me={me}
+                                number={String(targetProfile?.driver_number || '00')}
+                                allianceId={allianceId}
                                 mentor={assignedMentor}
                                 nationality={targetProfile?.nationality}
                                 realDriver={realDriver}
                             />
 
                             {/* SANFONA 1: COMPANHEIRO DE EQUIPE (BOX) */}
-                            <Panel 
-                                title="Companheiro de Box" 
-                                tag={teamPartner ? (teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : "CONFIRMADO") : "VAGA ABERTA"} 
+                            <Panel
+                                title="Companheiro de Box"
+                                tag={teamPartner ? (teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : "CONFIRMADO") : "VAGA ABERTA"}
                                 accentColor={teamColor}
                                 collapsible={true}
                                 defaultOpen={false}
@@ -1462,13 +1481,13 @@ export default function OfficialStrategistDashboard() {
                                 {teamPartner ? (
                                     <div className="flex flex-col gap-2.5 font-mono text-xs">
                                         <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
-                                            <div 
+                                            <div
                                                 className="w-10 h-10 rounded-full border flex items-center justify-center font-black text-xs shrink-0 overflow-hidden bg-black/60"
                                                 style={{ borderColor: `${teamColor}40` }}
                                             >
                                                 {teamPartner.avatarUrl ? (
-                                                    <img 
-                                                        src={teamPartner.avatarUrl} 
+                                                    <img
+                                                        src={teamPartner.avatarUrl}
                                                         alt={teamPartner.name}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {
@@ -1542,9 +1561,9 @@ export default function OfficialStrategistDashboard() {
 
                             {/* SANFONA 2: ENGENHEIRO TÉCNICO ALOCADO */}
                             {assignedEngineer && (
-                                <Panel 
-                                    title="Engenheiro Técnico" 
-                                    tag={assignedEngineer.code} 
+                                <Panel
+                                    title="Engenheiro Técnico"
+                                    tag={assignedEngineer.code}
                                     accentColor={teamColor}
                                     collapsible={true}
                                     defaultOpen={false}
@@ -1552,12 +1571,12 @@ export default function OfficialStrategistDashboard() {
                                     <div className="flex flex-col gap-2.5 font-mono text-xs">
                                         {/* Header com Avatar do Engenheiro */}
                                         <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
-                                            <div 
+                                            <div
                                                 className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
                                                 style={{ borderColor: `${teamColor}50` }}
                                             >
-                                                <img 
-                                                    src={assignedEngineer.avatarUrl} 
+                                                <img
+                                                    src={assignedEngineer.avatarUrl}
                                                     alt={assignedEngineer.fullName}
                                                     className="w-full h-full object-cover"
                                                     onError={(e) => {
@@ -1565,7 +1584,7 @@ export default function OfficialStrategistDashboard() {
                                                         target.src = `/avatar/eng/avatar_${assignedEngineer.avatarIndex}.jpg`;
                                                     }}
                                                 />
-                                                <div 
+                                                <div
                                                     className="absolute bottom-0 inset-x-0 h-1"
                                                     style={{ backgroundColor: teamColor }}
                                                 />
@@ -1607,9 +1626,9 @@ export default function OfficialStrategistDashboard() {
 
                             {/* Card do Conselheiro Sênior de Paddock */}
                             {assignedMentor && mentorVoice && (
-                                <Panel 
-                                    title="Conselheiro de Paddock" 
-                                    tag={mentorVoice.accentBadge} 
+                                <Panel
+                                    title="Conselheiro de Paddock"
+                                    tag={mentorVoice.accentBadge}
                                     accentColor={teamColor}
                                     collapsible={true}
                                     defaultOpen={false}
@@ -1624,7 +1643,7 @@ export default function OfficialStrategistDashboard() {
                                                     {assignedMentor.displayName} ({assignedMentor.decade})
                                                 </span>
                                             </div>
-                                            <span 
+                                            <span
                                                 className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest border"
                                                 style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}15` }}
                                             >
@@ -1654,9 +1673,9 @@ export default function OfficialStrategistDashboard() {
 
                             {/* SANFONA: CHEFE DE EQUIPE (TEAM PRINCIPAL) */}
                             {teamPrincipal && (
-                                <Panel 
-                                    title="Chefe de Equipe" 
-                                    tag={teamPrincipal.code} 
+                                <Panel
+                                    title="Chefe de Equipe"
+                                    tag={teamPrincipal.code}
                                     accentColor={teamColor}
                                     collapsible={true}
                                     defaultOpen={false}
@@ -1671,7 +1690,7 @@ export default function OfficialStrategistDashboard() {
                                                     {teamPrincipal.fullName}
                                                 </span>
                                             </div>
-                                            <span 
+                                            <span
                                                 className="text-[8.5px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border shrink-0"
                                                 style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}12` }}
                                             >
@@ -1708,17 +1727,17 @@ export default function OfficialStrategistDashboard() {
 
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
                         <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
-                            
+
                             {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) */}
                             <div className="w-full flex flex-col sm:flex-row gap-2.5">
                                 {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
                                 <Link
                                     href="/war-room"
                                     className="flex-1 py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
-                                    style={{ 
-                                        borderColor: '#fbaa19', 
-                                        backgroundColor: 'rgba(251, 170, 25, 0.18)', 
-                                        color: '#fbaa19' 
+                                    style={{
+                                        borderColor: '#fbaa19',
+                                        backgroundColor: 'rgba(251, 170, 25, 0.18)',
+                                        color: '#fbaa19'
                                     }}
                                 >
                                     <div className="flex items-center gap-2">
@@ -1735,9 +1754,9 @@ export default function OfficialStrategistDashboard() {
                                 <Link
                                     href="/positions"
                                     className="sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer bg-white/5 hover:bg-white/10"
-                                    style={{ 
-                                        borderColor: `${teamColor}50`, 
-                                        color: teamColor 
+                                    style={{
+                                        borderColor: `${teamColor}50`,
+                                        color: teamColor
                                     }}
                                     title="Preenchimento direto de palpites sem o briefing da mesa"
                                 >
@@ -1749,10 +1768,10 @@ export default function OfficialStrategistDashboard() {
                             {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Cores dinâmicas por desempenho global (Verde / Amarela / Vermelha) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {/* POLETIME - Direciona para a página oficial de resultados do Poletime */}
-                                <button 
+                                <button
                                     onClick={() => router.push('/poletime')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? `${poleTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
-                                    style={{ 
+                                    style={{
                                         borderColor: activeTab === 'book' ? poleTheme.borderActive : poleTheme.border,
                                         backgroundColor: activeTab === 'book' ? poleTheme.bgActive : poleTheme.bg,
                                         boxShadow: activeTab === 'book' ? poleTheme.shadow : undefined
@@ -1783,10 +1802,10 @@ export default function OfficialStrategistDashboard() {
                                 </button>
 
                                 {/* MASTER (Exceção: Verde se TOP 10 do grupo, Vermelho se não) */}
-                                <button 
+                                <button
                                     onClick={() => setRankingModalComp('master')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'quotes' ? `${masterTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
-                                    style={{ 
+                                    style={{
                                         borderColor: activeTab === 'quotes' ? masterTheme.borderActive : masterTheme.border,
                                         backgroundColor: activeTab === 'quotes' ? masterTheme.bgActive : masterTheme.bg,
                                         boxShadow: activeTab === 'quotes' ? masterTheme.shadow : undefined
@@ -1797,7 +1816,7 @@ export default function OfficialStrategistDashboard() {
                                         <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold border flex items-center gap-1 ${masterTheme.badge}`}>
                                             <span className={`w-1.5 h-1.5 rounded-full ${masterTheme.dot}`} />
                                             <span>
-                                                {compStats?.master.hasSubmitted 
+                                                {compStats?.master.hasSubmitted
                                                     ? (competitionTiers.master === 'green' ? 'TOP 10' : 'FORA TOP 10')
                                                     : 'PENDENTE'}
                                             </span>
@@ -1816,10 +1835,10 @@ export default function OfficialStrategistDashboard() {
                                 </button>
 
                                 {/* MILESIMUS */}
-                                <button 
+                                <button
                                     onClick={() => setRankingModalComp('milesimus')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'history' ? `${milesimusTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
-                                    style={{ 
+                                    style={{
                                         borderColor: activeTab === 'history' ? milesimusTheme.borderActive : milesimusTheme.border,
                                         backgroundColor: activeTab === 'history' ? milesimusTheme.bgActive : milesimusTheme.bg,
                                         boxShadow: activeTab === 'history' ? milesimusTheme.shadow : undefined
@@ -1844,10 +1863,10 @@ export default function OfficialStrategistDashboard() {
                                 </button>
 
                                 {/* TEAMWORK */}
-                                <button 
+                                <button
                                     onClick={() => setRankingModalComp('teamwork')}
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'teamwork' ? `${teamworkTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
-                                    style={{ 
+                                    style={{
                                         borderColor: activeTab === 'teamwork' ? teamworkTheme.borderActive : teamworkTheme.border,
                                         backgroundColor: activeTab === 'teamwork' ? teamworkTheme.bgActive : teamworkTheme.bg,
                                         boxShadow: activeTab === 'teamwork' ? teamworkTheme.shadow : undefined
@@ -1889,48 +1908,48 @@ export default function OfficialStrategistDashboard() {
                             )}
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
-                            <div 
+                            <div
                                 className="relative bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300"
                                 style={{ borderColor: `${teamColor}35` }}
                             >
                                 {/* Navegador de Abas */}
-                                <div 
+                                <div
                                     className="flex items-center justify-between gap-1 px-2 py-2 border-b overflow-x-auto scrollbar-none"
-                                    style={{ 
+                                    style={{
                                         borderBottomColor: `${teamColor}20`,
                                         background: `linear-gradient(90deg, ${teamColor}0c, transparent)`
                                     }}
                                 >
                                     <div className="flex items-center gap-1">
-                                        <button 
+                                        <button
                                             onClick={() => setActiveTab('quotes')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'quotes' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
                                             style={{ color: activeTab === 'quotes' ? teamColor : undefined }}
                                         >
                                             <span>📈</span> COTAÇÃO
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setActiveTab('book')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'book' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
                                             style={{ color: activeTab === 'book' ? teamColor : undefined }}
                                         >
                                             <span>📊</span> BOOK DE PREVISÕES
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setActiveTab('radio')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'radio' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
                                             style={{ color: activeTab === 'radio' ? teamColor : undefined }}
                                         >
                                             <span>📻</span> RÁDIO
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setActiveTab('history')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'history' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
                                             style={{ color: activeTab === 'history' ? teamColor : undefined }}
                                         >
                                             <span>⏱️</span> TELEMETRIA
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setActiveTab('teamwork')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'teamwork' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
                                             style={{ color: activeTab === 'teamwork' ? teamColor : undefined }}
@@ -2105,7 +2124,7 @@ export default function OfficialStrategistDashboard() {
                                         <div className="flex flex-col gap-3.5 text-xs leading-relaxed font-mono">
                                             {/* Transmissão do Conselheiro Sênior com Tom de Bloco e Nacionalidade */}
                                             {assignedMentor && mentorVoice && (
-                                                <div 
+                                                <div
                                                     className="p-4 rounded-sm bg-black/90 border-2 flex flex-col gap-3 shadow-lg"
                                                     style={{ borderColor: teamColor }}
                                                 >
@@ -2271,7 +2290,7 @@ export default function OfficialStrategistDashboard() {
 
                                                         <div className="flex flex-col gap-1.5">
                                                             {squad.members.map((mem, idx) => (
-                                                                <div 
+                                                                <div
                                                                     key={mem.id}
                                                                     className="p-2.5 rounded bg-white/[0.03] border border-white/5 flex items-center justify-between gap-3 text-xs"
                                                                 >
@@ -2346,7 +2365,7 @@ export default function OfficialStrategistDashboard() {
                                                     {isOwner ? (
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             {/* OPÇÃO 1: CRIAR NOVO ESQUADRÃO */}
-                                                            <form 
+                                                            <form
                                                                 onSubmit={handleCreateSquad}
                                                                 className="p-4 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col justify-between gap-3"
                                                             >
@@ -2357,7 +2376,7 @@ export default function OfficialStrategistDashboard() {
                                                                     <p className="text-[11px] text-white/60">
                                                                         Você se torna Capitão e gera um código exclusivo para recrutar até 19 colegas.
                                                                     </p>
-                                                                    <input 
+                                                                    <input
                                                                         type="text"
                                                                         placeholder="NOME DO ESQUADRÃO (EX: APEX RACING)"
                                                                         value={squadNameInput}
@@ -2377,7 +2396,7 @@ export default function OfficialStrategistDashboard() {
                                                             </form>
 
                                                             {/* OPÇÃO 2: INGRESSAR COM CÓDIGO */}
-                                                            <form 
+                                                            <form
                                                                 onSubmit={handleJoinSquad}
                                                                 className="p-4 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col justify-between gap-3"
                                                             >
@@ -2388,7 +2407,7 @@ export default function OfficialStrategistDashboard() {
                                                                     <p className="text-[11px] text-white/60">
                                                                         Recebeu o código de convite de outro capitão? Cole aqui para entrar no time.
                                                                     </p>
-                                                                    <input 
+                                                                    <input
                                                                         type="text"
                                                                         placeholder="CÓDIGO (EX: BF-8K21)"
                                                                         value={inviteCodeInput}
@@ -2419,7 +2438,7 @@ export default function OfficialStrategistDashboard() {
                             </div>
 
                             {/* 3. BARRA DE COMANDOS / OPERAÇÕES DO DASHBOARD */}
-                            <div 
+                            <div
                                 className="bg-black/75 border rounded-lg p-3 md:p-4 shadow-xl"
                                 style={{ borderColor: `${teamColor}25` }}
                             >
@@ -2431,55 +2450,55 @@ export default function OfficialStrategistDashboard() {
                                 </div>
 
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
-                                    <button 
+                                    <button
                                         onClick={() => setActiveView('setup')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Setup
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => setActiveView('report')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Report
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => setActiveView('silly_season')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Silly Season
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => setActiveView('calendar')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         F1 Calendar
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => setActiveView('settings')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Settings
                                     </button>
-                                    <Link 
+                                    <Link
                                         href="/telemetry"
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
                                     >
                                         Telemetry
                                     </Link>
-                                    <Link 
+                                    <Link
                                         href="/pitwall"
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
                                     >
                                         Pitwall
                                     </Link>
-                                    <Link 
+                                    <Link
                                         href="/race-control"
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
                                     >
                                         Race Control
                                     </Link>
-                                    <Link 
+                                    <Link
                                         href="/superlicense"
                                         className="p-2.5 rounded text-center transition-all border font-black text-black"
                                         style={{ backgroundColor: teamColor, borderColor: teamColor }}
@@ -2487,7 +2506,7 @@ export default function OfficialStrategistDashboard() {
                                         Licença
                                     </Link>
                                     {isOwner && (
-                                        <button 
+                                        <button
                                             onClick={handleLogout}
                                             className="p-2.5 rounded text-center transition-all border border-red-500/30 bg-red-950/20 text-red-400 hover:bg-red-900/40 cursor-pointer"
                                         >
