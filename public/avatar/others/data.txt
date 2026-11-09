@@ -1,0 +1,41 @@
+1. D. CHADWICK
+Função: Engenheiro-Chefe de Calibração Térmica e Mapeamento de Potência
+Idade: 48 anos
+Nacionalidade: Britânico
+Perfil Técnico: Formado na clássica escola de motorsport de Northamptonshire. Especialista em balancear curvas de entrega de potência e mapas de ignição agressivos sem ultrapassar as janelas de temperatura de câmara.
+Atributo Chave: Otimização de tempo em voltas de qualificação (Quali Mode).
+
+2. K. SCHWEIGER
+Função: Especialista em Dinâmica de Turbocompressores & Fluxo de Gases
+Idade: 54 anos
+Nacionalidade: Alemão
+Perfil Técnico: Engenharia de precisão com vasta experiência em bancos de teste de Stuttgart. Focado na eficiência termodinâmica da turbina e no aproveitamento máximo do fluxo de escape para eliminar o atraso de turbo.
+Atributo Chave: Confiabilidade do compressor e resposta linear de aceleração.
+
+3. M. BELLINI
+Função: Mestre de Metalurgia & Resistência de Componentes Internos
+Idade: 61 anos
+Nacionalidade: Italiano
+Perfil Técnico: Veterano forjado nos bastidores de Maranello. Especialista em ligas ultraleves para pistões, bielas forjadas e válvulas de titânio preparadas para suportar regimes extremos de rotação contínua.
+Atributo Chave: Redução de desgaste mecânico e fadiga de material em alta quilometragem.
+
+4. A. CRAWFORD
+Função: Engenheiro de Sistemas de Combustível & Injeção Direta
+Idade: 41 anos
+Nacionalidade: Britânico
+Perfil Técnico: Focado nas altas pressões das bombas de combustível e na atomização do spray nos cilindros. Trabalha no limite dos fluxômetros para extrair máxima queima de cada gota de combustível permitida pelo regulamento.
+Atributo Chave: Economia de combustível em ritmo sustentado de corrida (Lift and Coast).
+
+5. S. ZIMMERMANN
+Função: Analista de Lubrificação, Pressão Hidráulica e Refrigeração
+Idade: 36 anos
+Nacionalidade: Alemão
+Perfil Técnico: Metódico e analítico, monitora o circuito de cárter seco, dissipação de calor nos radiadores e viscosidade de óleos sintéticos sob forças centrífugas elevadas em curvas de alta velocidade.
+Atributo Chave: Prevenção de quebras críticas por superaquecimento ou perda de pressão de óleo.
+
+6. G. MARCHETTI
+Função: Engenheiro de Integração Dinâmica & Análise Harmônica
+Idade: 49 anos
+Nacionalidade: Italiano
+Perfil Técnico: Especialista na interface entre o bloco do motor e o chassi de fibra de carbono. Analisa as frequências vibratórias do virabrequim para mitigar ressonâncias parasitas que afetam suportes estruturais e chicotes elétricos.
+Atributo Chave: Estabilidade mecânica da unidade de potência acoplada ao monocoque.
