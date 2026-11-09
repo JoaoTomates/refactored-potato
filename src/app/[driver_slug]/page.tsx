@@ -448,24 +448,47 @@ function CredentialCard({
                         {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
                         <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
                         
-                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (ATRAS DO CAPACETE) */}
-                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center">
-                            <span 
-                                className="font-black uppercase tracking-tight select-none -translate-y-2"
+                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (CURVADO EM 'U' E INCLINADO) */}
+                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2">
+                            <svg 
+                                viewBox="0 0 320 160" 
+                                className="w-full max-w-[310px] overflow-visible select-none pointer-events-none -translate-y-2"
                                 style={{
-                                    fontFamily: 'var(--font-montserrat), sans-serif',
-                                    fontWeight: 900,
-                                    color: carTextColor,
-                                    fontSize: 'clamp(4.2rem, 15vw, 6.8rem)',
-                                    lineHeight: 1,
-                                    transform: 'rotate(3.5deg)',
-                                    textShadow: carTextColor === '#000000' 
-                                        ? 'none' 
-                                        : '0 4px 20px rgba(0,0,0,0.6)'
+                                    transform: 'rotate(7.5deg)',
+                                    transformOrigin: 'center center'
                                 }}
                             >
-                                {realDriver?.code || 'LEC'}
-                            </span>
+                                <defs>
+                                    {/* Trajetória em curva em formato de 'U' */}
+                                    <path 
+                                        id="driver-code-arc" 
+                                        d="M 20 62 Q 160 122 300 62" 
+                                        fill="none" 
+                                    />
+                                    <filter id="driver-code-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                                        <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.65)" />
+                                    </filter>
+                                </defs>
+                                <text
+                                    fill={carTextColor}
+                                    filter={carTextColor === '#000000' ? undefined : 'url(#driver-code-shadow)'}
+                                    style={{
+                                        fontFamily: 'var(--font-montserrat), sans-serif',
+                                        fontWeight: 900,
+                                        fontSize: '76px',
+                                        letterSpacing: '3px',
+                                    }}
+                                >
+                                    <textPath 
+                                        href="#driver-code-arc" 
+                                        xlinkHref="#driver-code-arc" 
+                                        startOffset="50%" 
+                                        textAnchor="middle"
+                                    >
+                                        {realDriver?.code || 'LEC'}
+                                    </textPath>
+                                </text>
+                            </svg>
                         </div>
                     </div>
 
