@@ -412,14 +412,19 @@ function CredentialCard({
             <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-[#060606] flex items-center justify-center p-3 border-b border-white/10">
                 <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
                 
-                {/* LETRAS GRANDES DO PILOTO REAL ATRÁS DO CAPACETE (Elevadas alguns pixels, cor contrastante com a escuderia) */}
+                {/* LETRAS GRANDES DO PILOTO REAL ATRÁS DO CAPACETE (Elevadas alguns pixels, cor contrastante, fonte ultra-bold gordinha e leve inclinação L sobe / C desce) */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 -translate-y-5 sm:-translate-y-7">
                     <span 
-                        className="font-black font-display tracking-tight text-7xl sm:text-8xl md:text-9xl uppercase transform scale-110"
+                        className="font-black uppercase tracking-tight"
                         style={{
+                            fontFamily: 'var(--font-montserrat), sans-serif',
+                            fontWeight: 900,
+                            transform: 'rotate(3.5deg) scale(1.1)',
                             color: contrastColor,
-                            opacity: 0.65,
-                            textShadow: `0 0 50px ${contrastColor}70, 0 0 15px ${contrastColor}90`
+                            opacity: 0.70,
+                            fontSize: 'clamp(5rem, 16vw, 8.5rem)',
+                            lineHeight: 1,
+                            textShadow: `0 0 50px ${contrastColor}70, 0 0 18px ${contrastColor}90`
                         }}
                     >
                         {realDriver?.code || 'LEC'}
