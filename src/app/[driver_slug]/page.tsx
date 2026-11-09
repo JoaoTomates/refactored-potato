@@ -448,21 +448,21 @@ function CredentialCard({
                         {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
                         <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
                         
-                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (CURVADO EM 'U' MAIS ABERTO E MAIS ABAIXO) */}
+                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (INTEIRAMENTE NA DIAGONAL E RAIO MAIOR) */}
                         <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2">
                             <svg 
                                 viewBox="0 0 320 160" 
-                                className="w-full max-w-[310px] overflow-visible select-none pointer-events-none translate-y-2"
+                                className="w-full max-w-[310px] overflow-visible select-none pointer-events-none"
                                 style={{
-                                    transform: 'rotate(7.5deg)',
+                                    transform: 'rotate(38deg)',
                                     transformOrigin: 'center center'
                                 }}
                             >
                                 <defs>
-                                    {/* Trajetória em curva em formato de 'U' mais aberta */}
+                                    {/* Trajetória em curva em formato de 'U' com raio expandido */}
                                     <path 
                                         id="driver-code-arc" 
-                                        d="M 20 92 Q 160 126 300 92" 
+                                        d="M 20 94 Q 160 112 300 94" 
                                         fill="none" 
                                     />
                                     <filter id="driver-code-shadow" x="-30%" y="-30%" width="160%" height="160%">
