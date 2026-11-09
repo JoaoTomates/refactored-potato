@@ -1,0 +1,191 @@
+1. T. VANCE
+Função: Engenheiro de Telemetria & Software
+Idade: 27 anos
+Nacionalidade: Britânico
+Perfil: Especialista em processamento de dados brutos e algoritmos preditivos de corrida. Perfeccionista, rápido com números e focado em microajustes de traçado.
+
+2. C. DUPONT
+Função: Estrategista-Chefe de Corrida
+Idade: 44 anos
+Nacionalidade: Francesa
+Perfil: Raciocínio tático cirúrgico sob pressão de pit-wall. Conhecida por antecipar janelas de pit stop e variações climáticas antes da concorrência.
+
+3. H. WEBER
+Função: Diretor Técnico & Mestre de Powertrain
+Idade: 59 anos
+Nacionalidade: Alemão
+Perfil: Veterano da era analógica que transitou com maestria para a telemetria moderna. Foco implacável em confiabilidade de motor, refrigeração e resistência mecânica.
+
+4. K. MENSAH
+Função: Engenheiro de Pista & Rádio do Piloto
+Idade: 36 anos
+Nacionalidade: Ganense
+Perfil: Voz serena e dicção impecável no rádio. Domina a gestão psicológica do piloto durante situações de safety car e disputas acirradas por posição.
+
+5. M. SATO
+Função: Especialista em Aerodinâmica & Túnel de Vento
+Idade: 31 anos
+Nacionalidade: Japonesa
+Perfil: Meticulosa e analítica, estuda o comportamento do fluxo de ar, downforce e desgaste assimétrico de pneus em curvas de alta velocidade.
+Fileira Inferior (6 a 10)
+
+6. D. CORDEIRO
+Função: Mecânico-Chefe de Garagem
+Idade: 42 anos
+Nacionalidade: Brasileiro
+Perfil: O coração operacional do box. Resolução imediata de falhas mecânicas e precisão milimétrica em trocas de componentes sob cronômetro.
+
+7. A. KOVÁCS
+Função: Engenheiro de Estrutura & Suspensão
+Idade: 53 anos
+Nacionalidade: Húngaro
+Perfil: Engenheiro metódico da "velha guarda", mestre em geometria de suspensão, rigidez de chassi e absorção de zebras agressivas.
+
+8. N. ADEBAYO
+Função: Engenheira de Sistemas Elétricos & Recuperação de Energia
+Idade: 29 anos
+Nacionalidade: Nigeriana
+Perfil: Focada na integração de voltagem, mapas de entrega de potência e eficiência de descarga/regeneração de bateria volta a volta.
+
+9. L. MORETTI
+Função: Analista Júnior de Pneus & Degradação
+Idade: 24 anos
+Nacionalidade: Italiano
+Perfil: Jovem talento da equipe, monitora as temperaturas superficiais e a degradação térmica das borrachas para ajustar janelas de ataque.
+
+10. R. SILVA
+Função: Engenheiro de Performance & Acerto Dinâmico
+Idade: 38 anos
+Nacionalidade: Português
+Perfil: Elo direto entre o feedback de pilotagem e o mapa eletrônico do carro, refinando balanço de freio, diferencial e aceleração de saída de curva.
+
+11. A. CASTRO
+Função: Engenheira de Dinâmica de Fluídos (CFD)
+Idade: 25 anos
+Nacionalidade: Brasileira
+Perfil: Jovem prodígio focada em simulações digitais complexas e análise de arrasto aerodinâmico. Sempre atenta aos mínimos detalhes no rádio.
+
+12. J. HUAMAN
+Função: Técnico Especialista em Transmissão & Câmbio
+Idade: 46 anos
+Nacionalidade: Peruano
+Perfil: Um mecânico de confiança, com décadas de experiência prática. Sabe diagnosticar falhas de torque apenas ouvindo o carro passar na reta dos boxes.
+
+13. E. LARSEN
+Função: Analista de Estratégias & Tráfego de Pista
+Idade: 51 anos
+Nacionalidade: Dinamarquesa
+Perfil: Veterana no controle de corrida. Monitora o comportamento de todos os rivais na pista para achar o momento exato de mandar o piloto para a pista limpa.
+
+14. S. AL-FAYED
+Função: Engenheiro de Conectividade & Telemetria em Tempo Real
+Idade: 33 anos
+Nacionalidade: Egípcio
+Perfil: Responsável por garantir que os sensores do carro conversem com os computadores do box sem perda de sinal, mesmo sob as piores condições de clima.
+
+15. O. HIGGINS
+Função: Engenheiro-Chefe de Confiabilidade de Chassi
+Idade: 45 anos
+Nacionalidade: Irlandês
+Perfil: Conhecido pela postura séria e rigorosa. Inspeciona pessoalmente cada ponto de solda e fixação de segurança para evitar quebras por vibração.
+
+
+16. I. NOVAK
+Função: Analista de Desempenho e Coleta de Dados
+Idade: 26 anos
+Nacionalidade: Polaca
+Perfil: Responsável por compilar as planilhas de tempos e parciais. Muito ágil para traduzir números frios em ajustes práticos de asa e suspensão.
+
+17. M. JOHNSON
+Função: Engenheiro Sênior de Motores (ICE)
+Idade: 55 anos
+Nacionalidade: Norte-americano
+Perfil: Especialista em tirar cada cavalo de potência extra do motor sem comprometer a durabilidade. Uma lenda de postura calma e focada.
+
+18. A. LINDBERG
+Função: Mecânico de Linha de Pit-Stop & Abastecimento
+Idade: 30 anos
+Nacionalidade: Sueco
+Perfil: O homem de frente nas trocas rápidas de pneus e reparos de emergência na garagem. Rápido, forte e sempre com o boné da equipe.
+
+19. T. DIALLO
+Função: Especialista em Gestão de Pneus e Temperatura
+Idade: 28 anos
+Nacionalidade: Senegalesa
+Perfil: Monitora o desgaste das borrachas e o aquecimento em tempo real. Essencial para ditar o ritmo que o piloto deve adotar em cada stint.
+
+20. K. NAIDOO
+Função: Técnico de Eletrônica e Sistemas de Bordo
+Idade: 37 anos
+Nacionalidade: Sul-africano
+Perfil: Focado em toda a fiação, alternadores e sensores térmicos do carro. Trabalha bem sob pressão e é muito comunicativo com o pit-wall.
+
+21. N. BRANDÃO
+Função: Engenheira de Rádio & Comunicação de Box
+Idade: 27 anos
+Nacionalidade: Brasileira
+Perfil: Rápida, focada e muito firme nas instruções. Consegue manter a voz calma no rádio mesmo sob forte pressão ou em momentos de crise na pista.
+Estilo: Usa tranças longas e está sempre de headset de duas orelhas, com olhos sempre atentos ao fluxo de conversas.
+
+22. R. TORRES
+Função: Especialista em Sistema de Transmissão & Câmbio
+Idade: 34 anos
+Nacionalidade: Mexicano
+Perfil: Engenheiro de campo experiente, mestre em resolver engasgos mecânicos e desgastes prematuros de engrenagens no meio da corrida.
+Estilo: Aparência jovem, mas focada, de bigode farto e fones de ouvido (headset) apoiados no pescoço para transitar rápido entre o cockpit e as telas.
+
+23. G. MOREAU
+Função: Engenheiro Sênior de Powertrain (Motores)
+Idade: 56 anos
+Nacionalidade: Francês
+Perfil: Um veterano que conhece o barulho e o comportamento dos motores de corrida como ninguém. Extremamente analítico e sério, não tolera erros.
+Estilo: Cabelo grisalho e volumoso, óculos de grau finos de época e headset, sempre de cenho franzido, observando os dados térmicos e de pressão.
+
+24. K. AABERG
+Função: Analista de Aerodinâmica & Túnel de Vento
+Idade: 24 anos
+Nacionalidade: Norueguesa
+Perfil: Recém-chegada à F1 com ideias frescas e alta capacidade de ler o fluxo de ar e o downforce ideal de cada circuito.
+Estilo: Jovem de cabelo loiro lacio e óculos de grau grandes, de fones e expressão de total atenção em suas análises.
+
+25. M. AL-SAYED
+Função: Engenheiro de Pista & Acerto de Chassi
+Idade: 38 anos
+Nacionalidade: Emiradense
+Perfil: O homem responsável por fazer o carro "conversar" com o asfalto. Ele é o elo direto que transforma o feedback do piloto em ajustes reais de suspensão.
+Estilo: Cabelo escuro, barba curta desenhada e um fone de ouvido de uma orelha, com expressão reflexiva e segura de suas decisões.
+
+26. T. O'CONNOR
+Função: Engenheiro de Software & Análise de Dados
+Idade: 23 anos
+Nacionalidade: Irlandês
+Perfil: O caçula prodígio da equipe. Monitora o comportamento de cada sensor do carro em tempo real, gerando simulações de degradação imediatas.
+Estilo: Cabelo ruivo bagunçado, cheio de sardas, sempre com uma expressão curiosa e entusiasmada, olhando as atualizações na tela.
+
+27. A. KOVÁCH
+Função: Estrategista de Combustível & Pneus
+Idade: 42 anos
+Nacionalidade: Húngara
+Perfil: Meticulosa ao extremo, ela calcula com precisão cirúrgica o desgaste de pneus e os limites de consumo, garantindo paradas perfeitas nos pits.
+Estilo: Cabelo escuro ondulado, óculos de acetato escuro e um olhar pensativo e analítico para os números complexos da estratégia.
+
+28. W. SCHMIDT
+Função: Mecânico-Chefe de Garagem
+Idade: 61 anos
+Nacionalidade: Alemão
+Perfil: A voz da experiência no box. Lidera a equipe de mecânicos nas situações mais críticas, resolvendo qualquer pane mecânica em tempo recorde.
+Estilo: O veterano da equipe, de bigode farto e grisalho, com óculos de leitura na ponta do nariz e boné da equipe VoltGrid.
+
+29. D. ADEBAYO
+Função: Analista de Desempenho & Telemetria
+Idade: 31 anos
+Nacionalidade: Nigeriano
+Perfil: Especialista em compilar dados de telemetria e transformá-los em ajustes dinâmicos, monitorando os ganhos em milissegundos.
+Estilo: Jovem com cabelo dreadlock curto e bem estilizado, olhar determinado e headset focado para conversação com o pit-lane.
+
+30. H. TANAKA
+Função: Técnica de Componentes Elétricos & Baterias
+Idade: 29 anos
+Nacionalidade: Japonesa
+Perfil: Extremamente detalhista, responsável por manter toda a fiação complexa, alternadores e sistemas de recuperação operando perfeitamente.
+Estilo: Cabelo curto, óculos delicados de armação preta e olhar profundamente focado, sempre silenciosa e atenta ao diagnóstico do carro.
