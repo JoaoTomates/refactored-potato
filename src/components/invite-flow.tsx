@@ -139,7 +139,7 @@ type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'ENLIST' | 'EMAIL_SENT' | 'SU
 
 const customDialogs = INVITE_V2_DIALOGS;
 
-const DIRECTOR_AVATAR_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/M.AMON.jpg';
+const DIRECTOR_AVATAR_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg';
 
 const ALLIANCE_CHIEFS_AVATARS: Record<'A' | 'B' | 'C', { avatarUrl: string; chiefName: string; chiefRole: string; accentColor: string }> = {
     A: {
@@ -164,10 +164,7 @@ const ALLIANCE_CHIEFS_AVATARS: Record<'A' | 'B' | 'C', { avatarUrl: string; chie
 
 interface InviteBoxCardProps {
     avatarUrl: string;
-    speakerTag: string;
-    speakerTitle: string;
-    speakerRole?: string;
-    stepTag: string;
+    badgeTitle?: string;
     accentColor?: string;
     onClick?: () => void;
     title?: string;
@@ -177,23 +174,35 @@ interface InviteBoxCardProps {
 
 function InviteBoxCard({
     avatarUrl,
-    speakerTag,
-    speakerTitle,
-    speakerRole,
-    stepTag,
+    badgeTitle,
     accentColor = '#fbaa19',
     onClick,
     title,
     footerHint,
     children
 }: InviteBoxCardProps) {
+    const [currentSrc, setCurrentSrc] = useState(avatarUrl);
+
+    useEffect(() => {
+        setCurrentSrc(avatarUrl);
+    }, [avatarUrl]);
+
+    const handleImgError = () => {
+        if (currentSrc.startsWith('http')) {
+            const parts = currentSrc.split('/avatars/');
+            if (parts[1]) {
+                setCurrentSrc(`/avatar/${parts[1]}`);
+            }
+        }
+    };
+
     return (
         <div 
             onClick={onClick}
             title={title}
-            className="relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 backdrop-blur-md flex items-start gap-3.5 sm:gap-4 md:gap-5 shadow-2xl border cursor-pointer group hover:scale-[1.008]"
+            className="relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 backdrop-blur-md flex items-center gap-4 md:gap-5 shadow-2xl border cursor-pointer group hover:scale-[1.008]"
             style={{
-                backgroundColor: 'rgba(11, 13, 18, 0.92)',
+                backgroundColor: 'rgba(5, 5, 5, 0.96)', // Preto com mínimo de transparência
                 borderColor: `${accentColor}40`,
                 boxShadow: `0 12px 35px -10px ${accentColor}35, 0 0 1px 1px ${accentColor}25`
             }}
@@ -207,60 +216,45 @@ function InviteBoxCard({
                 }}
             />
 
-            {/* AVATAR DO ORADOR */}
-            <div className="flex-shrink-0 flex flex-col items-center">
+            {/* AVATAR DO PERSONAGEM (ESTILO RETRATO DE HQ) */}
+            <div className="flex-shrink-0">
                 <div 
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 shadow-lg bg-black/90 flex-shrink-0 transition-transform group-hover:scale-105"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 shadow-lg bg-black flex-shrink-0 transition-transform group-hover:scale-105"
                     style={{
                         borderColor: accentColor,
                         boxShadow: `0 0 16px ${accentColor}40`
                     }}
                 >
                     <img 
-                        src={avatarUrl} 
-                        alt={speakerTitle} 
+                        src={currentSrc} 
+                        alt="Personagem" 
+                        onError={handleImgError}
                         className="w-full h-full object-cover filter contrast-105 group-hover:contrast-115 transition-all"
                     />
                 </div>
-                <span 
-                    className="text-[9px] font-mono text-center mt-1 uppercase font-black tracking-tighter"
-                    style={{ color: accentColor }}
-                >
-                    {speakerTag}
-                </span>
             </div>
 
-            {/* CONTEÚDO PRINCIPAL DO DIÁLOGO */}
-            <div className="flex-1 flex flex-col justify-between gap-2 min-w-0">
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 min-w-0 truncate">
+            {/* CONTEÚDO PRINCIPAL DO DIÁLOGO (DIRETO E SEM BUROCRACIA) */}
+            <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
+                {badgeTitle && (
+                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-0.5">
                         <span 
-                            className="text-xs sm:text-sm font-black uppercase tracking-wider truncate"
+                            className="text-xs sm:text-sm font-black uppercase tracking-wider"
                             style={{ color: accentColor }}
                         >
-                            {speakerTitle}
+                            {badgeTitle}
                         </span>
-                        {speakerRole && (
-                            <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono truncate">
-                                // {speakerRole}
-                            </span>
-                        )}
                     </div>
+                )}
 
-                    <span className="text-[9px] font-bold text-white/60 uppercase tracking-widest font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded flex-shrink-0">
-                        {stepTag}
-                    </span>
-                </div>
-
-                {/* Texto da fala */}
-                <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-1 min-h-[44px]">
+                {/* Texto da fala como num balão/box de HQ */}
+                <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5">
                     {children}
                 </div>
 
-                {/* Rodapé / Dica de Clique */}
+                {/* Rodapé / Dica de Clique quando houver */}
                 {footerHint && (
-                    <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-1">
+                    <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-0.5">
                         {footerHint}
                     </div>
                 )}
@@ -578,13 +572,9 @@ export function InviteFlow() {
                 <div className="absolute bottom-[20%] md:bottom-[25%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
                     <InviteBoxCard
                         avatarUrl={DIRECTOR_AVATAR_URL}
-                        speakerTag="DIR HQ"
-                        speakerTitle="[DIRETOR DE OPERAÇÕES // BAEFF1]"
-                        speakerRole="SALA DE CONTROLE NOTURNA"
-                        stepTag="INTRODUÇÃO"
                         accentColor="#fbaa19"
                         onClick={startAutoDialog}
-                        footerHint="[ Clique para Continuar ] »"
+                        footerHint="[ Continuar ] »"
                     >
                         <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                         <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
@@ -601,14 +591,10 @@ export function InviteFlow() {
                             {pageStep >= 1 && (
                                 <InviteBoxCard
                                     avatarUrl={DIRECTOR_AVATAR_URL}
-                                    speakerTag="DIR HQ"
-                                    speakerTitle="[DIRETOR DE OPERAÇÕES // BAEFF1]"
-                                    speakerRole="SALA DE CONTROLE NOTURNA"
-                                    stepTag="1/4 • MÉDICAÇÃO & METAS"
                                     accentColor="#fbaa19"
                                     onClick={() => setPageStep(2)}
                                     title="Clique para avançar para a próxima fala"
-                                    footerHint="[ Clique para avançar ] »"
+                                    footerHint="[ Avançar ] »"
                                 >
                                     <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
@@ -624,14 +610,10 @@ export function InviteFlow() {
                             {pageStep >= 2 && (
                                 <InviteBoxCard
                                     avatarUrl={DIRECTOR_AVATAR_URL}
-                                    speakerTag="DIR HQ"
-                                    speakerTitle="[DIRETOR DE OPERAÇÕES // BAEFF1]"
-                                    speakerRole="SALA DE CONTROLE NOTURNA"
-                                    stepTag="2/4 • FRIEZA TÁTICA"
                                     accentColor="#fbaa19"
                                     onClick={() => changeToPage(2)}
                                     title="Clique para avançar imediatamente para a próxima página"
-                                    footerHint="[ Clique para próxima página ] »"
+                                    footerHint="[ Próxima Página ] »"
                                 >
                                     <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
@@ -672,14 +654,10 @@ export function InviteFlow() {
                             {pageStep >= 1 && (
                                 <InviteBoxCard
                                     avatarUrl={DIRECTOR_AVATAR_URL}
-                                    speakerTag="DIR HQ"
-                                    speakerTitle="[DIRETOR DE OPERAÇÕES // BAEFF1]"
-                                    speakerRole="SALA DE CONTROLE NOTURNA"
-                                    stepTag="3/4 • GUERRA FRIA 2026"
                                     accentColor="#fbaa19"
                                     onClick={() => setPageStep(2)}
                                     title="Clique para avançar para a próxima fala"
-                                    footerHint="[ Clique para avançar ] »"
+                                    footerHint="[ Avançar ] »"
                                 >
                                     <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
@@ -695,10 +673,6 @@ export function InviteFlow() {
                             {pageStep >= 2 && (
                                 <InviteBoxCard
                                     avatarUrl={DIRECTOR_AVATAR_URL}
-                                    speakerTag="DIR HQ"
-                                    speakerTitle="[DIRETOR DE OPERAÇÕES // BAEFF1]"
-                                    speakerRole="SALA DE CONTROLE NOTURNA"
-                                    stepTag="4/4 • O CHAMADO"
                                     accentColor="#fbaa19"
                                     onClick={() => changeToPage(3)}
                                     title="Clique para avançar imediatamente para as propostas"
@@ -751,16 +725,13 @@ export function InviteFlow() {
                                     <InviteBoxCard
                                         key={g.id}
                                         avatarUrl={chief.avatarUrl}
-                                        speakerTag={`CHIEF ${groupId}`}
-                                        speakerTitle={`[${g.badge}] ${g.title}`}
-                                        speakerRole={chief.chiefName}
-                                        stepTag={`BLOCO ${groupId}`}
+                                        badgeTitle={`[${g.badge}] ${g.title}`}
                                         accentColor={chief.accentColor}
                                         onClick={() => handleSelectAlliance(groupId)}
                                         title={`Escolher ${g.badge}`}
                                         footerHint={`[ ESCOLHER ${g.badge} ] »`}
                                     >
-                                        <div className="text-white/90 text-xs md:text-sm font-normal leading-relaxed min-h-[90px] md:min-h-[80px]">
+                                        <div className="text-white/90 text-xs md:text-sm font-normal leading-relaxed min-h-[80px]">
                                             <TypewriterLine
                                                 text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`}
                                                 startDelay={150}
@@ -795,10 +766,6 @@ export function InviteFlow() {
                     {/* Box do Diretor/Chief da Aliança Escolhida com Avatar */}
                     <InviteBoxCard
                         avatarUrl={ALLIANCE_CHIEFS_AVATARS[selectedGroup].avatarUrl}
-                        speakerTag={`CHIEF ${selectedGroup}`}
-                        speakerTitle={`[RESPOSTA DA DIRETORIA // ${selectedGroup}]`}
-                        speakerRole={ALLIANCE_CHIEFS_AVATARS[selectedGroup].chiefName}
-                        stepTag="HOMOLOGAÇÃO DE PILOTO"
                         accentColor={ALLIANCE_CHIEFS_AVATARS[selectedGroup].accentColor}
                     >
                         <div className="italic">

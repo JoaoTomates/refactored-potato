@@ -219,13 +219,27 @@ function BoxCard({
     const cardColor = isFilled ? '#10b981' : accentColor;
     const cardGlow = isFilled ? 'rgba(16, 185, 129, 0.4)' : (accentGlow || `${accentColor}40`);
 
+    const [currentImg, setCurrentImg] = useState(avatarUrl);
+    useEffect(() => {
+        setCurrentImg(avatarUrl);
+    }, [avatarUrl]);
+
+    const handleImgError = () => {
+        if (currentImg && currentImg.startsWith('http')) {
+            const parts = currentImg.split('/avatars/');
+            if (parts[1]) {
+                setCurrentImg(`/avatar/${parts[1]}`);
+            }
+        }
+    };
+
     return (
         <div 
             className={`relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 backdrop-blur-md flex items-stretch gap-4 md:gap-5 shadow-2xl border ${
                 animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
             }`}
             style={{
-                backgroundColor: isFilled ? 'rgba(8, 20, 15, 0.94)' : 'rgba(11, 13, 18, 0.92)',
+                backgroundColor: isFilled ? 'rgba(5, 14, 10, 0.96)' : 'rgba(5, 5, 5, 0.96)',
                 borderColor: `${cardColor}40`,
                 boxShadow: `0 12px 35px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}30`
             }}
@@ -244,10 +258,11 @@ function BoxCard({
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
                     <div className="flex items-center gap-2.5 min-w-0">
-                        {avatarUrl && (
+                        {currentImg && (
                             <img 
-                                src={avatarUrl} 
+                                src={currentImg} 
                                 alt={speakerBadge} 
+                                onError={handleImgError}
                                 className="w-8 h-8 rounded-full object-cover border border-white/20 shadow-md flex-shrink-0"
                             />
                         )}
