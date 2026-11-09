@@ -80,7 +80,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'A freada da Curva 1 exige sensibilidade extrema de pedal esquerdo. Pilotos experientes ganham 0.15s por volta.',
             miscRiskAlert: 'Safety Car com 67% de probabilidade. O funil da Curva 1 na largada é a zona de maior incidência de toque do ano.'
         },
-        biography: 'Reconhecido como um dos pilotos mais rápidos e desafortunados da história. Sua leitura de desgaste de pneus no limite da quebra é considerada lendária no paddock.'
+        biography: 'Reconhecido como um dos pilotos mais rápidos e desafortunados da história. Sua leitura de desgaste de pneus no limite da quebra é considerada lendária no paddock.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg'
     },
     {
         id: 'strat-02',
@@ -113,7 +114,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'A gestão da janela de pit stop favorece quem conserva a borracha nos primeiros 10 giros.',
             miscRiskAlert: 'Virtual Safety Car quase certo entre as voltas 15 e 28 com abandono mecânico por superaquecimento.'
         },
-        biography: 'Símbolo da era turbo dos anos 80, Warwick sobreviveu a acidentes brutais e acumulou um conhecimento enciclopédico de telemetria de corrida.'
+        biography: 'Símbolo da era turbo dos anos 80, Warwick sobreviveu a acidentes brutais e acumulou um conhecimento enciclopédico de telemetria de corrida.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_2.jpg'
     },
     {
         id: 'strat-03',
@@ -146,7 +148,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Na classificação pura, Leclerc arrisca mais na última tentativa do Q3.',
             miscRiskAlert: 'Bandeira vermelha com chance de 35%. Toques na Curva 1 costumam deixar detritos espalhados no asfalto.'
         },
-        biography: 'O recordista de largadas na F1 sem vitória. Conhecido pela coragem insana e reflexos de piloto puro-sangue nas primeiras voltas.'
+        biography: 'O recordista de largadas na F1 sem vitória. Conhecido pela coragem insana e reflexos de piloto puro-sangue nas primeiras voltas.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_3.jpg'
     },
     {
         id: 'strat-04',
@@ -179,7 +182,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Experiência em gerenciar a degradação térmica do composto C3 amarelo.',
             miscRiskAlert: 'Safety Car confirmado na janela entre voltas 20 e 35. Marque "SIM" em Event Props.'
         },
-        biography: 'Ex-piloto de McLaren, Williams e Benetton, Brundle tornou-se a voz mais respeitada do jornalismo técnico e da análise de pitwall mundial.'
+        biography: 'Ex-piloto de McLaren, Williams e Benetton, Brundle tornou-se a voz mais respeitada do jornalismo técnico e da análise de pitwall mundial.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_4.jpg'
     },
     {
         id: 'strat-05',
@@ -212,7 +216,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Alonso tem ritmo de corrida 0.3s mais rápido que Stroll com pneus usados.',
             miscRiskAlert: 'Pouca probabilidade de bandeira vermelha, mas alta chance de Safety Car Virtual.'
         },
-        biography: 'O sueco que pilotou para Enzo Ferrari e Ron Dennis. Mestre da paciência tática e sobrevivência em corridas de alta quebra mecânica.'
+        biography: 'O sueco que pilotou para Enzo Ferrari e Ron Dennis. Mestre da paciência tática e sobrevivência em corridas de alta quebra mecânica.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_5.jpg'
     },
     {
         id: 'strat-06',
@@ -245,7 +250,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Alonso não dá margem interna para Stroll nos treinos classificatórios.',
             miscRiskAlert: 'Perda de tempo no pitlane de 21.4s torna a estratégia de 2 paradas a mais veloz no tempo total de corrida.'
         },
-        biography: 'O norte-americano com mais largadas na história da Fórmula 1. Um duelista lendário que mais tarde venceu as 500 Milhas de Indianápolis.'
+        biography: 'O norte-americano com mais largadas na história da Fórmula 1. Um duelista lendário que mais tarde venceu as 500 Milhas de Indianápolis.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_6.jpg'
     },
     {
         id: 'strat-07',
@@ -278,7 +284,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Leclerc é o piloto mais explosivo do grid em volta de classificação.',
             miscRiskAlert: 'Risco de Safety Car nos primeiros 10 minutos após contatos na Curva 1 ou Curva 11.'
         },
-        biography: 'Famoso pelo apelido "Jumper", era considerado um dos pilotos mais rápidos do mundo nos anos 70, com poles históricas pela Shadow e Lotus.'
+        biography: 'Famoso pelo apelido "Jumper", era considerado um dos pilotos mais rápidos do mundo nos anos 70, com poles históricas pela Shadow e Lotus.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_7.jpg'
     },
     {
         id: 'strat-08',
@@ -311,7 +318,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'A experiência de veterano faz a diferença na gestão de pneus nas curvas 16 a 18.',
             miscRiskAlert: 'Média de 2.1 abandonos mecânicos por corrida nesta etapa. Fique atento para opções de DNF.'
         },
-        biography: 'O coração da lendária escuderia Minardi. Piloto técnico e cirúrgico que extraía milagres de carros com orçamentos modestos.'
+        biography: 'O coração da lendária escuderia Minardi. Piloto técnico e cirúrgico que extraía milagres de carros com orçamentos modestos.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_8.jpg'
     },
     {
         id: 'strat-09',
@@ -344,7 +352,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Verstappen não cede espaço nos treinos livres e dita o acerto de chassi.',
             miscRiskAlert: 'Chance de Safety Car elevada devido à ausência de grandes áreas de escape na saída da curva 19.'
         },
-        biography: 'Engenheiro aeronáutico de formação e piloto de F1 com três poles no currículo. Conhecido pelo intelecto refinado na telemetria.'
+        biography: 'Engenheiro aeronáutico de formação e piloto de F1 com três poles no currículo. Conhecido pelo intelecto refinado na telemetria.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_9.jpg'
     },
     {
         id: 'strat-10',
@@ -377,7 +386,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Alonso tem vantagem monstruosa em pistas técnicas.',
             miscRiskAlert: 'Se chover durante a prova, acionamento do Safety Car é 100% certo.'
         },
-        biography: 'O gigante alemão apelidado de "Regenkönig" (Rei da Chuva). Bicampeão das 24 Horas de Le Mans e mestre da pilotagem em condições adversas.'
+        biography: 'O gigante alemão apelidado de "Regenkönig" (Rei da Chuva). Bicampeão das 24 Horas de Le Mans e mestre da pilotagem em condições adversas.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_10.jpg'
     },
     {
         id: 'strat-11',
@@ -410,7 +420,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Russell impõe autoridade interna nos treinos classificatórios.',
             miscRiskAlert: 'Atenção aos toques na Curva 1: quem não aliviar na freada vai direto para a caixa de brita.'
         },
-        biography: 'Conhecido como "Mike the Bike", uma das figuras mais amadas e heróicas da história do automobilismo, condecorado pela bravura ao salvar Clay Regazzoni das chamas.'
+        biography: 'Conhecido como "Mike the Bike", uma das figuras mais amadas e heróicas da história do automobilismo, condecorado pela bravura ao salvar Clay Regazzoni das chamas.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_11.jpg'
     },
     {
         id: 'strat-12',
@@ -443,7 +454,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Alonso dita o ritmo da Aston Martin em 100% dos Grandes Prêmios.',
             miscRiskAlert: 'Safety Car virtual altamente provável nas voltas 10 a 20 para retirada de carros quebrados.'
         },
-        biography: 'O homem do chapéu de caubói que pilotou pela Scuderia Ferrari e entrou para a história mundial pelo heroísmo em Nürburgring 1976.'
+        biography: 'O homem do chapéu de caubói que pilotou pela Scuderia Ferrari e entrou para a história mundial pelo heroísmo em Nürburgring 1976.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_12.jpg'
     },
     {
         id: 'strat-13',
@@ -476,7 +488,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Piastri é rápido, mas Norris é mais agressivo na curva 1.',
             miscRiskAlert: 'Volta mais rápida conquistada por piloto do Top 5 parando na volta 52 com compostos macios novos.'
         },
-        biography: 'Piloto suíço de grande precisão e atual comentarista técnico internacional, reverenciado pela sobriedade nas análises de telemetria.'
+        biography: 'Piloto suíço de grande precisão e atual comentarista técnico internacional, reverenciado pela sobriedade nas análises de telemetria.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_13.jpg'
     },
     {
         id: 'strat-14',
@@ -509,7 +522,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Verstappen mantém vantagem constante de 0.4s sobre seu parceiro de equipe.',
             miscRiskAlert: 'Desgaste da prancha de madeira sob o chassi nas ondulações do Setor 1: risco de desclassificação pós-corrida.'
         },
-        biography: 'Membro de honra do BRDC e construtor lendário, Ganley é uma enciclopédia viva de engenharia de chassi e mecânica de competição.'
+        biography: 'Membro de honra do BRDC e construtor lendário, Ganley é uma enciclopédia viva de engenharia de chassi e mecânica de competição.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_14.jpg'
     },
     {
         id: 'strat-15',
@@ -542,7 +556,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Alonso sempre extrai 100% do carro em circuitos exigentes.',
             miscRiskAlert: 'Perda média de 21.4s no pitlane favorece estratégia agressiva de duas paradas.'
         },
-        biography: 'Lenda do automobilismo americano, formado em engenharia mecânica pela Universidade de Brown. Um dos pilotos mais científicos de todos os tempos.'
+        biography: 'Lenda do automobilismo americano, formado em engenharia mecânica pela Universidade de Brown. Um dos pilotos mais científicos de todos os tempos.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_15.jpg'
     },
     {
         id: 'strat-16',
@@ -575,7 +590,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Sainz tem ritmo de adaptação rápida em pistas norte-americanas.',
             miscRiskAlert: 'Atenção aos toques na Curva 1: o risco de asa dianteira quebrada é crítico.'
         },
-        biography: 'Piloto oficial de Brabham e Surtees nos anos 70, Schenken tornou-se posteriormente um dos diretores de prova mais respeitados da FIA em todo o mundo.'
+        biography: 'Piloto oficial de Brabham e Surtees nos anos 70, Schenken tornou-se posteriormente um dos diretores de prova mais respeitados da FIA em todo o mundo.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_16.jpg'
     },
     {
         id: 'strat-17',
@@ -608,7 +624,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Russell é metódico no gerenciamento de combustível e freios.',
             miscRiskAlert: 'Degradação térmica alta nos compostos macios C4: evitar stints com mais de 14 voltas.'
         },
-        biography: 'Braço direito de Alfred Neubauer na lendária equipe Mercedes-Benz das Flechas de Prata nos anos 1950. Vencedor da Carrera Panamericana.'
+        biography: 'Braço direito de Alfred Neubauer na lendária equipe Mercedes-Benz das Flechas de Prata nos anos 1950. Vencedor da Carrera Panamericana.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_17.jpg'
     },
     {
         id: 'strat-18',
@@ -641,7 +658,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Leclerc é mais rápido em voltas limpas.',
             miscRiskAlert: 'Probabilidade de Safety Car de 67%: ótima oportunidade para trocas gratuitas de pneus.'
         },
-        biography: 'Pioneiro norte-americano na Europa dos anos 50, famoso pelo estilo arrojado, carisma gigante e pódios memoráveis pela Maserati e BRM.'
+        biography: 'Pioneiro norte-americano na Europa dos anos 50, famoso pelo estilo arrojado, carisma gigante e pódios memoráveis pela Maserati e BRM.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_18.jpg'
     },
     {
         id: 'strat-19',
@@ -674,7 +692,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'A experiência de qualificação pesa nos minutos finais do Q3.',
             miscRiskAlert: 'Bandeira amarela provável nos primeiros 5 minutos de qualificação.'
         },
-        biography: 'Pupilo de Bernie Ecclestone nos anos 50 e gênio da qualificação na lendária equipe britânica Vanwall que conquistou o primeiro título de construtores da F1.'
+        biography: 'Pupilo de Bernie Ecclestone nos anos 50 e gênio da qualificação na lendária equipe britânica Vanwall que conquistou o primeiro título de construtores da F1.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_19.jpg'
     },
     {
         id: 'strat-20',
@@ -707,7 +726,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Alonso não erra pontos de frenagem.',
             miscRiskAlert: 'Média de 2 carros quebrando por superaquecimento no terço final.'
         },
-        biography: 'Pioneiro do automobilismo espanhol, pontuou nos anos 50 ao lado de lendas como Fangio e Moss pela Maserati oficial de fábrica.'
+        biography: 'Pioneiro do automobilismo espanhol, pontuou nos anos 50 ao lado de lendas como Fangio e Moss pela Maserati oficial de fábrica.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_20.jpg'
     },
     {
         id: 'strat-21',
@@ -740,7 +760,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Norris mantém vantagem em voltas consecutivas sem tráfego.',
             miscRiskAlert: 'Safety Car provável nas primeiras 15 voltas por detritos na Curva 1.'
         },
-        biography: 'Príncipe Birabongse Bhanudej da Tailândia, uma das figuras mais aristocráticas e lendárias dos primórdios do automobilismo europeu de Grandes Prêmios.'
+        biography: 'Príncipe Birabongse Bhanudej da Tailândia, uma das figuras mais aristocráticas e lendárias dos primórdios do automobilismo europeu de Grandes Prêmios.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_21.jpg'
     },
     {
         id: 'strat-22',
@@ -773,7 +794,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Leclerc é mais agressivo na tomada de tempo da qualificação.',
             miscRiskAlert: 'Risco de superaquecimento de freios na longa freada da Curva 12 após a reta oposta.'
         },
-        biography: 'Piloto oficial de fábrica da Scuderia Ferrari e Lotus, conquistou pódio memorável no GP da Argentina de 1960.'
+        biography: 'Piloto oficial de fábrica da Scuderia Ferrari e Lotus, conquistou pódio memorável no GP da Argentina de 1960.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_22.jpg'
     },
     {
         id: 'strat-23',
@@ -806,7 +828,8 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Verstappen não comete erros sob pressão.',
             miscRiskAlert: 'Acionamento do Safety Car é quase certeza após disputas na Curva 1.'
         },
-        biography: 'Piloto norte-americano lendário e míope, que corria com óculos grossos e venceu as 24 Horas de Le Mans de 1965 com Jochen Rindt em uma Ferrari NART.'
+        biography: 'Piloto norte-americano lendário e míope, que corria com óculos grossos e venceu as 24 Horas de Le Mans de 1965 com Jochen Rindt em uma Ferrari NART.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_23.jpg'
     },
     {
         id: 'strat-24',
@@ -839,7 +862,212 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Russell é implacável na regularidade de volta rápida.',
             miscRiskAlert: 'Média histórica de DNF em Austin é de 2.1 carros: posicione suas escolhas de pontuação com cautela.'
         },
-        biography: 'Piloto francês heroico que conquistou pódio memorável no GP da Austrália de 1985 pela Ligier, admirado mundialmente pela coragem e dedicação ao automobilismo.'
+        biography: 'Piloto francês heroico que conquistou pódio memorável no GP da Austrália de 1985 pela Ligier, admirado mundialmente pela coragem e dedicação ao automobilismo.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_24.jpg'
+    },
+    {
+        id: 'strat-25',
+        code: 'J.BEHRA',
+        displayName: 'J. Behra',
+        firstNameModified: 'Jean',
+        originalDriver: 'Jean Behra (1952–1959)',
+        decade: '1950s',
+        careerStat: '53 GPs • 9 Pódios • 1 Pole • 51.1 pts por Maserati, Gordini e Ferrari • 0 Vitórias',
+        nationality: 'Francês',
+        countryCode: 'FRA',
+        title: 'MESTRE DE ARROJO & PILOTAGEM DESTEMIDA NO LIMITE',
+        specialty: 'Ataque implacável em curvas cegas e recuperação de posições em asfalto ondulado',
+        signatureQuote: '“Corri com capacete de pano e óculos de couro em pistas onde um erro custava a vida. Se o carro estiver balanceado, não tire o pé na freada.”',
+        evaluation: {
+            upvotes: 1180,
+            downvotes: 42,
+            communityRating: 4.8,
+            totalEvaluations: 1222,
+            accuracyRate: 90.5
+        },
+        briefingTips: {
+            poletimeTarget: '1:32.100 – 1:32.400',
+            poletimeReasoning: 'A evolução de aderência no Q3 premia o traçado mais limpo.',
+            predictedTop3: ['L.NORRIS', 'M.VERSTAPPEN', 'C.LECLERC'],
+            top3Reasoning: 'Ritmo forte em trechos sinuosos compensa a velocidade de reta.',
+            evoTargetDriver: 'F.ALONSO',
+            evoReasoning: 'Experiência para escalar posições após as primeiras voltas.',
+            dominantH2HDrivers: ['L.NORRIS (sobre Piastri)', 'G.RUSSELL (sobre Antonelli)'],
+            h2hReasoning: 'Consistência cirúrgica em curvas de raio longo.',
+            miscRiskAlert: 'Média de interrupções por safety car em 58% na primeira perna do stint.'
+        },
+        biography: 'Um dos pilotos mais rápidos e corajosos da história dos anos 50. Famoso por liderar corridas contra Fangio e Moss com bravura e orgulho lendário.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_25.jpg'
+    },
+    {
+        id: 'strat-26',
+        code: 'R.SPENCE',
+        displayName: 'R. Spence',
+        firstNameModified: 'Robert',
+        originalDriver: 'Mike Spence (1963–1968)',
+        decade: '1960s',
+        careerStat: '36 GPs • 1 Pódio no México • 27 pts pela Lotus e BRM • 0 Vitórias',
+        nationality: 'Britânico',
+        countryCode: 'GBR',
+        title: 'CONSULTOR DE EFICIÊNCIA AERODINÂMICA & CHASSI CLÁSSICO',
+        specialty: 'Finesse de volante, suavidade de transição e precisão milimétrica em retas longas',
+        signatureQuote: '“Na Lotus de Chapman aprendi que leveza e precisão superam força bruta. Observe a tração na saída das curvas de média.”',
+        evaluation: {
+            upvotes: 1180,
+            downvotes: 42,
+            communityRating: 4.8,
+            totalEvaluations: 1222,
+            accuracyRate: 90.5
+        },
+        briefingTips: {
+            poletimeTarget: '1:32.100 – 1:32.400',
+            poletimeReasoning: 'A evolução de aderência no Q3 premia o traçado mais limpo.',
+            predictedTop3: ['L.NORRIS', 'M.VERSTAPPEN', 'C.LECLERC'],
+            top3Reasoning: 'Ritmo forte em trechos sinuosos compensa a velocidade de reta.',
+            evoTargetDriver: 'F.ALONSO',
+            evoReasoning: 'Experiência para escalar posições após as primeiras voltas.',
+            dominantH2HDrivers: ['L.NORRIS (sobre Piastri)', 'G.RUSSELL (sobre Antonelli)'],
+            h2hReasoning: 'Consistência cirúrgica em curvas de raio longo.',
+            miscRiskAlert: 'Média de interrupções por safety car em 58% na primeira perna do stint.'
+        },
+        biography: 'Piloto brilhante e discreto da Lotus e BRM nos anos 60, mestre em acerto fino de suspensão e preservação de mecânica sob calor extremo.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_26.jpg'
+    },
+    {
+        id: 'strat-27',
+        code: 'J.CECOTTO',
+        displayName: 'J. Cecotto',
+        firstNameModified: 'Julian',
+        originalDriver: 'Johnny Cecotto (1983–1984)',
+        decade: '1980s',
+        careerStat: '23 GPs • 1 Ponto nos EUA • Bicampeão Mundial de Motociclismo • 0 Vitórias',
+        nationality: 'Venezuelano',
+        countryCode: 'VEN',
+        title: 'ESTRATEGISTA DE INCLINAÇÃO & TRAJETÓRIAS DINÂMICAS',
+        specialty: 'Domínio de tangência em curvas de alta e transição veloz em zebras úmidas',
+        signatureQuote: '“Quem domina duas rodas enxerga a física do asfalto antes de qualquer sensor. O segredo da volta perfeita está na confiança do primeiro toque no freio.”',
+        evaluation: {
+            upvotes: 1180,
+            downvotes: 42,
+            communityRating: 4.8,
+            totalEvaluations: 1222,
+            accuracyRate: 90.5
+        },
+        briefingTips: {
+            poletimeTarget: '1:32.100 – 1:32.400',
+            poletimeReasoning: 'A evolução de aderência no Q3 premia o traçado mais limpo.',
+            predictedTop3: ['L.NORRIS', 'M.VERSTAPPEN', 'C.LECLERC'],
+            top3Reasoning: 'Ritmo forte em trechos sinuosos compensa a velocidade de reta.',
+            evoTargetDriver: 'F.ALONSO',
+            evoReasoning: 'Experiência para escalar posições após as primeiras voltas.',
+            dominantH2HDrivers: ['L.NORRIS (sobre Piastri)', 'G.RUSSELL (sobre Antonelli)'],
+            h2hReasoning: 'Consistência cirúrgica em curvas de raio longo.',
+            miscRiskAlert: 'Média de interrupções por safety car em 58% na primeira perna do stint.'
+        },
+        biography: 'Fenômeno venezuelano bicampeão mundial de motovelocidade que migrou para a F1 ao lado de Ayrton Senna na Toleman, famoso pelo controle visceral do carro.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_27.jpg'
+    },
+    {
+        id: 'strat-28',
+        code: 'D.BLUNDELL',
+        displayName: 'D. Blundell',
+        firstNameModified: 'David',
+        originalDriver: 'Mark Blundell (1991–1995)',
+        decade: '1980s',
+        careerStat: '61 GPs • 3 Pódios • 32 pts por Brabham, Tyrrell, Ligier e McLaren • 0 Vitórias',
+        nationality: 'Britânico',
+        countryCode: 'GBR',
+        title: 'DIRETOR DE DISPUTAS CORPO A CORPO & RESISTÊNCIA DE PITWALL',
+        specialty: 'Ritmo consistente em trechos de tráfego pesado e defesa de posição sob ataque de DRS',
+        signatureQuote: '“Não existe ultrapassagem de graça na F1. Se deixar a porta aberta meio palmo na freada, você perde o stint inteiro.”',
+        evaluation: {
+            upvotes: 1180,
+            downvotes: 42,
+            communityRating: 4.8,
+            totalEvaluations: 1222,
+            accuracyRate: 90.5
+        },
+        briefingTips: {
+            poletimeTarget: '1:32.100 – 1:32.400',
+            poletimeReasoning: 'A evolução de aderência no Q3 premia o traçado mais limpo.',
+            predictedTop3: ['L.NORRIS', 'M.VERSTAPPEN', 'C.LECLERC'],
+            top3Reasoning: 'Ritmo forte em trechos sinuosos compensa a velocidade de reta.',
+            evoTargetDriver: 'F.ALONSO',
+            evoReasoning: 'Experiência para escalar posições após as primeiras voltas.',
+            dominantH2HDrivers: ['L.NORRIS (sobre Piastri)', 'G.RUSSELL (sobre Antonelli)'],
+            h2hReasoning: 'Consistência cirúrgica em curvas de raio longo.',
+            miscRiskAlert: 'Média de interrupções por safety car em 58% na primeira perna do stint.'
+        },
+        biography: 'Piloto combatente da era de ouro dos anos 90, subiu ao pódio com Tyrrell e McLaren e cravou pole histórica em Le Mans com 1.100 cv.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_28.jpg'
+    },
+    {
+        id: 'strat-29',
+        code: 'M.SALO',
+        displayName: 'M. Salo',
+        firstNameModified: 'Matti',
+        originalDriver: 'Mika Salo (1994–2002)',
+        decade: '1980s',
+        careerStat: '111 GPs • 2 Pódios por Ferrari e Sauber • 33 pts • 0 Vitórias',
+        nationality: 'Finlandês',
+        countryCode: 'FIN',
+        title: 'ESTRATEGISTA DE SACRIFÍCIO TÁTICO & COMPORTAMENTO DE ESCUDERIA',
+        specialty: 'Defesa cirúrgica de liderança para o companheiro e gestão fria de pneus degradados',
+        signatureQuote: '“Em Hockenheim 1999 eu entreguei a vitória na mão de Irvine pela equipe. Eu sei quando uma ordem de equipe vale um campeonato inteiro.”',
+        evaluation: {
+            upvotes: 1180,
+            downvotes: 42,
+            communityRating: 4.8,
+            totalEvaluations: 1222,
+            accuracyRate: 90.5
+        },
+        briefingTips: {
+            poletimeTarget: '1:32.100 – 1:32.400',
+            poletimeReasoning: 'A evolução de aderência no Q3 premia o traçado mais limpo.',
+            predictedTop3: ['L.NORRIS', 'M.VERSTAPPEN', 'C.LECLERC'],
+            top3Reasoning: 'Ritmo forte em trechos sinuosos compensa a velocidade de reta.',
+            evoTargetDriver: 'F.ALONSO',
+            evoReasoning: 'Experiência para escalar posições após as primeiras voltas.',
+            dominantH2HDrivers: ['L.NORRIS (sobre Piastri)', 'G.RUSSELL (sobre Antonelli)'],
+            h2hReasoning: 'Consistência cirúrgica em curvas de raio longo.',
+            miscRiskAlert: 'Média de interrupções por safety car em 58% na primeira perna do stint.'
+        },
+        biography: 'Veterano finlandês respeitado no paddock que substituiu Schumacher na Ferrari em 1999, protagonizando um dos maiores gestos de lealdade da F1.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_29.jpg'
+    },
+    {
+        id: 'strat-30',
+        code: 'I.CAPELLI',
+        displayName: 'I. Capelli',
+        firstNameModified: 'Italo',
+        originalDriver: 'Ivan Capelli (1985–1993)',
+        decade: '1980s',
+        careerStat: '98 GPs • 3 Pódios • 31 pts por March, Leyton House e Ferrari • 0 Vitórias',
+        nationality: 'Italiano',
+        countryCode: 'ITA',
+        title: 'MESTRE DE EFEITO SOLO & PROJETOS AERODINÂMICOS VISIONÁRIOS',
+        specialty: 'Aproveitamento máximo do difusor e equilíbrio de downforce em circuitos de curvas rápidas',
+        signatureQuote: '“Com o March desenhado por Newey em Paul Ricard 1990, liderei até quase o fim contra os motores V12 da Ferrari. Sei ler quando um chassi pode bater os gigantes.”',
+        evaluation: {
+            upvotes: 1180,
+            downvotes: 42,
+            communityRating: 4.8,
+            totalEvaluations: 1222,
+            accuracyRate: 90.5
+        },
+        briefingTips: {
+            poletimeTarget: '1:32.100 – 1:32.400',
+            poletimeReasoning: 'A evolução de aderência no Q3 premia o traçado mais limpo.',
+            predictedTop3: ['L.NORRIS', 'M.VERSTAPPEN', 'C.LECLERC'],
+            top3Reasoning: 'Ritmo forte em trechos sinuosos compensa a velocidade de reta.',
+            evoTargetDriver: 'F.ALONSO',
+            evoReasoning: 'Experiência para escalar posições após as primeiras voltas.',
+            dominantH2HDrivers: ['L.NORRIS (sobre Piastri)', 'G.RUSSELL (sobre Antonelli)'],
+            h2hReasoning: 'Consistência cirúrgica em curvas de raio longo.',
+            miscRiskAlert: 'Média de interrupções por safety car em 58% na primeira perna do stint.'
+        },
+        biography: 'Ícone da March Leyton House de Adrian Newey e ex-piloto de Maranello, mestre em compreender a sensibilidade aerodinâmica de carros no limite.',
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_30.jpg'
     }
 ];
 

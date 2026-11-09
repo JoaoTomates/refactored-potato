@@ -1,60 +1,179 @@
+1. M.AMON
+Nacionalidade: Neozelandês
+Idade: 68 anos
+Histórico: Chris Amon (1963–1976) • 96 GPs • 11 Pódios • 5 Poles • 83 pts • 0 Vitórias. ESTRATEGISTA SÊNIOR // ESPECIALISTA EM TELEMETRIA DE VOLTA ÚNICA • Extração máxima de aderência em voltas de classificação e controle de pressão de óleo.
+Estilo de Conselhos: “Eu liderei Grandes Prêmios com 30 segundos de vantagem até o motor explodir a três voltas do fim. Conheço cada armadilha invisível deste asfalto. Ouça a telemetria antes de apostar.”
 
-1.J. STEWART
+2. T.WARWICK
 Nacionalidade: Britânico
-Idade: 75 anos
-Histórico: Tricampeão mundial nos anos 70, famoso pela pilotagem cerebral e pela luta histórica pela segurança nas pistas. É o mentor ideal para pilotos rápidos, porém afobados.
-Estilo de Conselhos: Foco extremo em trajetórias, conservação de equipamento e preparação mental pré-corrida.
-
-2.M. ANDRETTI
-Nacionalidade: Norte-americano
 Idade: 65 anos
-Histórico: Uma lenda viva que venceu em tudo que tinha quatro rodas, desde ovais até circuitos de F1. Conhecido pelo estilo carismático e atitude destemida.
-Estilo de Conselhos: Ensina o jovem a ser agressivo em disputas roda a roda e a entender o carro como uma extensão do próprio corpo.
+Histórico: Derek Warwick (1981–1993) • 146 GPs • 4 Pódios • 2 Voltas Rápidas • 71 pts • 0 Vitórias. DIRETOR SÊNIOR DE COMBATE EM PELOTÃO INTERMEDIÁRIO • Gestão de combustível, resistência mecânica e emboscadas de pit stop.
+Estilo de Conselhos: “Bati roda contra os maiores campeões da era turbo com carros que quebravam todo domingo. Sei exatamente quem vai arriscar ultrapassagem quando os pneus começarem a escorregar.”
 
-3.C. REUTEMANN
-Nacionalidade: Argentino
+3. L.DECESARIS
+Nacionalidade: Italiano
+Idade: 60 anos
+Histórico: Andrea de Cesaris (1980–1994) • 208 GPs • 5 Pódios • 1 Pole • 59 pts por 10 escuderias • 0 Vitórias. MESTRE DE APOSTAS DE ALTO RISCO & LARGADAS CAÓTICAS • Agressividade de largada, pilotagem sob pressão extrema e apostas de alto risco.
+Estilo de Conselhos: “Se você não estiver disposto a colocar duas rodas na grama na Curva 1, você não quer vencer de verdade. Mas quem aposta em mim sabe: ou é pódio heroico ou muro na volta 3.”
+
+4. A.BRUNDLE
+Nacionalidade: Britânico
+Idade: 64 anos
+Histórico: Martin Brundle (1984–1996) • 158 GPs • 9 Pódios • 98 pts • 0 Vitórias. ANALISTA CHEFE DE TELEMETRIA & LEITURA TÁTICA DE PROVA • Leitura tática de prova, nuances de desgaste de composto e análise comparativa de telemetria.
+Estilo de Conselhos: “Dividi a pista roda a roda contra Senna e Schumacher. Um décimo de segundo não se ganha na reta: se ganha na paciência de esperar a zebra cuspir o carro.”
+
+5. D.JOHANSSON
+Nacionalidade: Sueco
+Idade: 67 anos
+Histórico: Stefan Johansson (1980–1991) • 79 GPs • 12 Pódios • 88 pts por Ferrari e McLaren • 0 Vitórias. CONSELHEIRO DE RESISTÊNCIA & REGULARIDADE DE CORRIDA • Economia e preservação de pneus em stints longos sem perder ritmo de ponta.
+Estilo de Conselhos: “Fui ao pódio de Ferrari e McLaren sem nunca ter o motor do primeiro piloto. Quando o pelotão da frente começar a se degladiar, é a nossa hora de pontuar silenciosamente.”
+
+6. S.CHEEVER
+Nacionalidade: Norte-Americano
+Idade: 66 anos
+Histórico: Eddie Cheever (1978–1989) • 132 GPs • 9 Pódios • 70 pts por Renault e Arrows • 0 Vitórias. ESTRATEGISTA CHEFE PARA CIRCUITOS DE ALTA VELOCIDADE & RETAS • Ataque em retas longas, eficiência de DRS e ultrapassagens tardias no fim de reta.
+Estilo de Conselhos: “O automobilismo americano me ensinou a não tirar o pé a 350 km/h. Na reta dos boxes, se você hesitar um piscar de olhos, três carros passam você por fora.”
+
+7. C.JARIER
+Nacionalidade: Francês
+Idade: 71 anos
+Histórico: Jean-Pierre Jarier (1971–1983) • 134 GPs • 3 Pódios • 3 Poles • 31.5 pts • 0 Vitórias. ESPECIALISTA EM VELOCIDADE PURA & VOLTA LANÇADA • Extração instantânea de tempo na primeira volta de pneu novo no Q3.
+Estilo de Conselhos: “Em 1975 liderei Grandes Prêmios inteiros com a Shadow até a fiação elétrica derreter. Velocidade pura nunca foi meu problema — a sorte mecânica é que nunca veio.”
+
+8. B.MARTINI
+Nacionalidade: Italiano
+Idade: 63 anos
+Histórico: Pierluigi Martini (1984–1995) • 118 GPs • 1 Primeira Fila • 18 pts pela Minardi • 0 Vitórias. MESTRE DE RESISTÊNCIA & CAÇADOR DE ZEBRAS NO GRID • Estratégia alternativa de paradas em janelas curtas para equipes menores.
+Estilo de Conselhos: “Coloquei a Minardi na primeira fila do grid e liderei uma volta com motor aspirado contra monstros turbo. A grandeza estratégica nasce quando você aprende a vencer com menos recursos.”
+
+9. R.FABI
+Nacionalidade: Italiano
 Idade: 70 anos
-Histórico: Um dos pilotos mais rápidos e enigmáticos da sua era, vice-campeão em 1981. Trazia um estilo técnico refinado, mas de temperamento reservado.
-Estilo de Conselhos: Focado em acerto dinâmico do carro sob condições climáticas adversas e em como lidar com a pressão psicológica da equipe.
+Histórico: Teo Fabi (1982–1987) • 64 GPs • 2 Pódios • 3 Poles • 23 pts por Benetton e Brabham • 0 Vitórias. ESTRATEGISTA DE POLE POSITION & PRESSÃO AERODINÂMICA • Equilíbrio aerodinâmico milimétrico em pistas de alta aderência para voltas voadoras.
+Estilo de Conselhos: “Poles consecutivas com a Benetton BMW de 1.400 cavalos. Na classificação não se pensa: mira-se o ponto de tangência e deixa-se a telemetria fazer a mágica.”
 
-4.K. ROSBERG
-Nacionalidade: Finlandês
-Idade: 58 anos
-Histórico: Campeão de 1982, famoso pelo estilo de pilotagem "no limite", sempre de lado e de forma espetacular. Dono de costeletas marcantes e gênio forte.
-Estilo de Conselhos: Especialista em táticas de largada, defesas de posição extremas e em como "achar tempo" onde não parece haver aderência.
+10. K.STUCK
+Nacionalidade: Alemão
+Idade: 73 anos
+Histórico: Hans-Joachim Stuck (1974–1979) • 74 GPs • 2 Pódios • 29 pts por Brabham e March • 0 Vitórias. MESTRE DE PISTA MOLHADA & PILOTAGEM SOB BAIXA ADERÊNCIA • Antecipação de janelas climáticas, aquecimento de pneu intermediário e controle de aquaplanagem.
+Estilo de Conselhos: “Quando o céu escurece e os pilotos jovens começam a tremer no rádio, é quando eu sorrio. A chuva é o grande equalizador de motores na Fórmula 1.”
 
-5.J. LAFFITE
+11. G.HAILWOOD
+Nacionalidade: Britânico
+Idade: 74 anos
+Histórico: Mike Hailwood (1963–1974) • 50 GPs • 2 Pódios • 1 Volta Rápida • 29 pts • 0 Vitórias. CONSELHEIRO DE BRAVURA TÁTICA & RESGATE EM PISTA • Manobras de ultrapassagem em alta velocidade e pilotagem instintiva sem telemetria.
+Estilo de Conselhos: “Fui nove vezes campeão do mundo em duas rodas na Ilha de Man antes de sentar num F1. Se você tem coragem de frear depois da placa de 100 metros, a posição é sua.”
+
+12. F.MERZARIO
+Nacionalidade: Italiano
+Idade: 75 anos
+Histórico: Arturo Merzario (1972–1979) • 57 GPs • 11 pts pela Ferrari e Williams • Herói de Nürburgring • 0 Vitórias. COMANDANTE DE INSTINTO DE COMBATE & DEFESA DE POSIÇÃO • Combate defensivo agressivo e leitura imediata de incidentes graves de pista.
+Estilo de Conselhos: “Corri de Ferrari nos anos de ouro e tirei Niki Lauda do fogo em Nürburgring com as próprias mãos. Não venha me falar de pressão psicológica de simulador.”
+
+13. N.SURER
+Nacionalidade: Suíço
+Idade: 69 anos
+Histórico: Marc Surer (1979–1986) • 82 GPs • 1 Volta Rápida • 17 pts por Brabham e Arrows • 0 Vitórias. DIRETOR DE ANÁLISE METÓDICA & DESGASTE DE FREIOS • Sensibilidade de pedal de freio, balanceamento de barras estabilizadoras e cálculo de consumo.
+Estilo de Conselhos: “A precisão suíça não falha na telemetria. Se você gastar 2% a mais de combustível no primeiro stint, vai perder três posições nas últimas cinco voltas.”
+
+14. P.GANLEY
+Nacionalidade: Neozelandês
+Idade: 72 anos
+Histórico: Howden Ganley (1971–1974) • 35 GPs • 10 pts por BRM e Iso-Marlboro • 0 Vitórias. CONSULTOR DE CONSTRUÇÃO DE CHASSI & CONFIABILIDADE DE MOTOR • Diagnóstico de fadiga de materiais e comportamento de suspensão sob forte zebra.
+Estilo de Conselhos: “Construí meus próprios carros de corrida depois de pilotar para a BRM. Sei exatamente qual parafuso vai soltar se o piloto continuar abusando das zebras altas.”
+
+15. E.DONOHUE
+Nacionalidade: Norte-Americano
+Idade: 65 anos
+Histórico: Mark Donohue (1971–1975) • 14 GPs • 1 Pódio na estreia • 8 pts pela Penske • Campeão Indy • 0 Vitórias. DIRETOR DE ENGENHARIA DE SUSPENSÃO & PRESSÃO DE PNEU • Ajuste fino de cambagem, caster e pressões dinâmicas de pneu para curvas de alta.
+Estilo de Conselhos: “Se você conseguir acelerar 10 metros antes do rival na saída da curva mais lenta, você será campeão do mundo. O cronômetro não aceita desculpas de engenheiro.”
+
+16. V.SCHENKEN
+Nacionalidade: Australiano
+Idade: 71 anos
+Histórico: Tim Schenken (1970–1974) • 34 GPs • 1 Pódio na Áustria • 7 pts por Brabham e Surtees • 0 Vitórias. COORDENADOR DE SINALIZAÇÃO & PROCEDIMENTOS DE LARGADA • Tempo de reação em apagada de luzes de largada e posicionamento defensivo de pitlane.
+Estilo de Conselhos: “Coloquei a Brabham no pódio em Österreichring no meio dos V12 italianos. Corrida de grid compacto se ganha nos primeiros 300 metros após a largada.”
+
+17. O.KLING
+Nacionalidade: Alemão
+Idade: 78 anos
+Histórico: Karl Kling (1954–1955) • 11 GPs • 2 Pódios pela Mercedes-Benz • 17 pts • 0 Vitórias. ESTRATEGISTA PATRIARCA // PROTOCOLOS DE ENGENHARIA METÓDICA • Gestão matemática de corrida, confiabilidade germânica e estratégia de ritmo sincronizado.
+Estilo de Conselhos: “Quando a Mercedes voltou às pistas em 1954 com os Silver Arrows W196, dividi o pódio com Fangio. Disciplina teutônica vence talento destemperado todo domingo.”
+
+18. J.SCHELL
+Nacionalidade: Norte-Americano
+Idade: 76 anos
+Histórico: Harry Schell (1950–1960) • 56 GPs • 2 Pódios • 32 pts por Maserati e BRM • 0 Vitórias. CONSULTOR DE COMBATE EM TRAÇADOS NORTE-AMERICANOS • Leitura de ondulações de asfalto tradicional e frenagens em descida íngreme.
+Estilo de Conselhos: “Fui o primeiro piloto americano a largar num GP de Fórmula 1 em 1950. Corri de Maserati e Vanwall contra lendas. Sei como o asfalto americano come pneus.”
+
+19. H.LEWISEVANS
+Nacionalidade: Britânico
+Idade: 73 anos
+Histórico: Stuart Lewis-Evans (1957–1958) • 14 GPs • 2 Pódios • 2 Poles • 16 pts pela Vanwall • 0 Vitórias. MESTRE DE QUALIFICAÇÃO DA PRIMEIRA GERAÇÃO • Condução no limite do equilíbrio dinâmico e pole positions de precisão milimétrica.
+Estilo de Conselhos: “Conquistei poles históricas pela Vanwall quando Stirling Moss era meu companheiro de equipe. Na volta rápida, quem pensa perde dois décimos antes da primeira curva.”
+
+20. R.GODIA
+Nacionalidade: Espanhol
+Idade: 77 anos
+Histórico: Paco Godia (1951–1958) • 13 GPs • 6 pts pela Maserati de fábrica • 0 Vitórias. CONSULTOR DE RESISTÊNCIA & REGULARIDADE IBÉRICA • Controle de temperatura de óleo em circuitos de asfalto abrasivo e calor extremo.
+Estilo de Conselhos: “Fui o primeiro piloto espanhol a pontuar na Fórmula 1 de Maserati oficial nos anos 50. Em pistas quentes, a corrida só começa de verdade após a metade da prova.”
+
+21. K.BIRA
+Nacionalidade: Tailandês
+Idade: 79 anos
+Histórico: Prince Bira (1950–1954) • 19 GPs • 1 Pole em Silverstone • 8 pts por Maserati e Gordini • 0 Vitórias. ESTRATEGISTA DE FLUXO & FINESSE DE PILOTAGEM • Fluidez de volante, suavidade de transição de peso e conservação mecânica clássica.
+Estilo de Conselhos: “O azul e amarelo do Sião cruzaram a linha de chegada na primeira corrida oficial da F1 em 1950. A elegância de um traçado limpo ganha corridas silenciosamente.”
+
+22. W.ALLISON
+Nacionalidade: Britânico
+Idade: 72 anos
+Histórico: Cliff Allison (1958–1961) • 16 GPs • 1 Pódio na Argentina • 11 pts por Ferrari e Lotus • 0 Vitórias. ESPECIALISTA EM ENGENHARIA DE MOTORES CLÁSSICOS & PRESSÃO • Tração em subidas, controle de torque e frenagem em relevo ondulado acentuado.
+Estilo de Conselhos: “Enzo Ferrari me colocou no carro dele porque eu sabia ouvir o chassi sem quebrar o motor. Em traçados ondulados, respeite a zebra antes que ela quebre sua suspensão.”
+
+23. Z.GREGORY
+Nacionalidade: Norte-Americano
+Idade: 74 anos
+Histórico: Masten Gregory (1957–1965) • 38 GPs • 3 Pódios • 21 pts • Campeão de Le Mans com Rindt • 0 Vitórias. MESTRE DE LARGADAS FULMINANTES & ATAQUE DESENFREADO • Largadas fulminantes, ultrapassagens arrojadas por fora e agressividade no primeiro stint.
+Estilo de Conselhos: “O ‘Kansas City Flash’ nunca esperou a segunda volta para atacar. Se você vê um espaço na freada e não mergulha, você já perdeu a corrida no pitwall.”
+
+24. T.STREIFF
 Nacionalidade: Francês
 Idade: 68 anos
-Histórico: Veterano carismático e consistente, vencedor de vários GPs nos anos 70 e 80. É a voz da experiência e da camaradagem no box.
-Estilo de Conselhos: Foca na leitura de corrida de longa duração e em como poupar o carro no início para atacar nas voltas finais.
+Histórico: Philippe Streiff (1984–1988) • 53 GPs • 1 Pódio • 11 pts por Ligier e Tyrrell • 0 Vitórias. DEFENSOR DE DETERMINAÇÃO & ANÁLISE DE SEGURANÇA • Determinação sob condições adversas e consistência de ritmo em circuitos técnicos.
+Estilo de Conselhos: “A Fórmula 1 exige respeito absoluto aos limites da física. Quando você analisa a telemetria, não veja apenas números: veja a vida do piloto e o destino da equipe.”
 
-6.E. FITTIPALDI
-Nacionalidade: Brasileiro
-Idade: 62 anos
-Histórico: O pioneiro do automobilismo sul-americano, bicampeão de F1 que revolucionou a categoria com sua precisão e liderança técnica.
-Estilo de Conselhos: Mestre em estratégia de campeonato a longo prazo, ensinando quando é hora de aceitar um 3º lugar em vez de arriscar um abandono.
+25. J.BEHRA
+Nacionalidade: Francês
+Idade: 72 anos
+Histórico: Jean Behra (1952–1959) • 53 GPs • 9 Pódios • 1 Pole • 51.1 pts por Maserati, Gordini e Ferrari • 0 Vitórias. MESTRE DE ARROJO & PILOTAGEM DESTEMIDA NO LIMITE • Ataque implacável em curvas cegas e recuperação de posições em asfalto ondulado.
+Estilo de Conselhos: “Corri com capacete de pano e óculos de couro em pistas onde um erro custava a vida. Se o carro estiver balanceado, não tire o pé na freada.”
 
-7.A. JONES
-Nacionalidade: Australiano
-Idade: 67 anos
-Histórico: O campeão de 1980, conhecido pela atitude dura, sem rodeios, e por uma pilotagem extremamente física e combativa.
-Estilo de Conselhos: Conselhos práticos, diretos e sem "mimimi". Ensina o piloto a não se deixar intimidar por rivais e a se impor na pista.
-
-8.N. LAUDA
-Nacionalidade: Austríaco
-Idade: 70 anos
-Histórico: Tricampeão mundial e uma das mentes mais brilhantes e pragmáticas da história do esporte. Famoso por sua incrível capacidade de superação e análise técnica.
-Estilo de Conselhos: Absolutamente focado em dados, eficiência mecânica, e em como tirar a emoção da tomada de decisões no cockpit.
-
-9.H. STUCK
-Nacionalidade: Alemão
+26. R.SPENCE
+Nacionalidade: Britânico
 Idade: 66 anos
-Histórico: Gigante das pistas, famoso por sua habilidade no molhado e por pilotar com o coração na mão nos circuitos mais perigosos do mundo.
-Estilo de Conselhos: Mestre na pilotagem sob chuva e em condições de baixa aderência, além de motivar o piloto a dar 110% em treinos classificatórios.
+Histórico: Mike Spence (1963–1968) • 36 GPs • 1 Pódio no México • 27 pts pela Lotus e BRM • 0 Vitórias. CONSULTOR DE EFICIÊNCIA AERODINÂMICA & CHASSI CLÁSSICO • Finesse de volante, suavidade de transição e precisão milimétrica em retas longas.
+Estilo de Conselhos: “Na Lotus de Chapman aprendi que leveza e precisão superam força bruta. Observe a tração na saída das curvas de média.”
 
-10.A. RIBEIRO
-Nacionalidade: Angolano
-Idade: 63 anos
-Histórico: Um ex-piloto que fez carreira na Europa nos anos 80 com poucos recursos, conhecido por sua perseverança e inteligência para poupar o carro.
-Estilo de Conselhos: Ensina a arte de improvisar com acertos imperfeitos, a economizar pneus e a extrair o máximo de equipes menores.
+27. J.CECOTTO
+Nacionalidade: Venezuelano
+Idade: 68 anos
+Histórico: Johnny Cecotto (1983–1984) • 23 GPs • 1 Ponto nos EUA • Bicampeão Mundial de Motociclismo • 0 Vitórias. ESTRATEGISTA DE INCLINAÇÃO & TRAJETÓRIAS DINÂMICAS • Domínio de tangência em curvas de alta e transição veloz em zebras úmidas.
+Estilo de Conselhos: “Quem domina duas rodas enxerga a física do asfalto antes de qualquer sensor. O segredo da volta perfeita está na confiança do primeiro toque no freio.”
+
+28. D.BLUNDELL
+Nacionalidade: Britânico
+Idade: 58 anos
+Histórico: Mark Blundell (1991–1995) • 61 GPs • 3 Pódios • 32 pts por Brabham, Tyrrell, Ligier e McLaren • 0 Vitórias. DIRETOR DE DISPUTAS CORPO A CORPO & RESISTÊNCIA DE PITWALL • Ritmo consistente em trechos de tráfego pesado e defesa de posição sob ataque de DRS.
+Estilo de Conselhos: “Não existe ultrapassagem de graça na F1. Se deixar a porta aberta meio palmo na freada, você perde o stint inteiro.”
+
+29. M.SALO
+Nacionalidade: Finlandês
+Idade: 57 anos
+Histórico: Mika Salo (1994–2002) • 111 GPs • 2 Pódios por Ferrari e Sauber • 33 pts • 0 Vitórias. ESTRATEGISTA DE SACRIFÍCIO TÁTICO & COMPORTAMENTO DE ESCUDERIA • Defesa cirúrgica de liderança para o companheiro e gestão fria de pneus degradados.
+Estilo de Conselhos: “Em Hockenheim 1999 eu entreguei a vitória na mão de Irvine pela equipe. Eu sei quando uma ordem de equipe vale um campeonato inteiro.”
+
+30. I.CAPELLI
+Nacionalidade: Italiano
+Idade: 61 anos
+Histórico: Ivan Capelli (1985–1993) • 98 GPs • 3 Pódios • 31 pts por March, Leyton House e Ferrari • 0 Vitórias. MESTRE DE EFEITO SOLO & PROJETOS AERODINÂMICOS VISIONÁRIOS • Aproveitamento máximo do difusor e equilíbrio de downforce em circuitos de curvas rápidas.
+Estilo de Conselhos: “Com o March desenhado por Newey em Paul Ricard 1990, liderei até quase o fim contra os motores V12 da Ferrari. Sei ler quando um chassi pode bater os gigantes.”
