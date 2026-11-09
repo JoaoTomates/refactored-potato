@@ -243,76 +243,123 @@ export default function TelemetryPage() {
     ).size;
 
     return (
-        <main className="w-full min-h-screen bg-[#050505] text-white pt-0 pb-24 overflow-x-hidden font-sans">
+        <main className="w-full min-h-screen bg-[#060608] text-white pt-4 pb-24 overflow-x-hidden font-sans relative selection:bg-[#fbaa19] selection:text-black">
+            {/* AMBIENT RACING NOIR BACKGROUND */}
+            <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(ellipse_at_80%_15%,rgba(225,6,0,0.22)_0%,transparent_50%),radial-gradient(ellipse_at_20%_40%,rgba(251,170,25,0.08)_0%,transparent_50%)]" />
 
-            {/* HERO SECTION */}
-            <section className="relative w-full h-[40vh] md:h-[48vh] min-h-[320px] flex items-end pb-8">
-                <div className="absolute inset-0 w-full h-full">
-                    <img
-                        src="/f1_hero_banner.jpg"
-                        alt="F1 Telemetry"
-                        className="w-full h-full object-cover opacity-35"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/85 to-transparent" />
-                </div>
-
-                <div className="relative z-10 w-full px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-3">
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <span className="bg-[#fbaa19] text-black font-black uppercase px-3 py-1 text-xs md:text-sm tracking-widest">
-                            LIVE TELEMETRY
-                        </span>
-                        {eventData && (
-                            <span className="bg-white/10 text-white font-bold uppercase px-3 py-1 text-xs md:text-sm tracking-widest border border-white/20">
-                                ROUND {eventData.round}
+            {/* CABEÇALHO INTEGRADO: TÍTULO DO GP (ESQUERDA) + POSTER COM EFEITO VINHETA (DIREITA) */}
+            <section className="relative z-10 w-full px-4 md:px-8 max-w-7xl mx-auto pt-4 pb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    
+                    {/* COLUNA ESQUERDA: TÍTULO DO GP EM DESTAQUE AMARELO COM SUBLINHADO */}
+                    <div className="lg:col-span-7 flex flex-col gap-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="bg-[#fbaa19] text-black font-black uppercase px-2.5 py-0.5 text-[11px] tracking-widest font-mono shadow">
+                                LIVE TELEMETRY
                             </span>
-                        )}
-                        <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 text-xs uppercase font-mono font-bold tracking-wider">
-                            {totalUsers} {totalUsers === 1 ? 'PILOT ON GRID' : 'PILOTS ON GRID'}
-                        </span>
+                            {eventData && (
+                                <span className="bg-white/10 text-white font-bold uppercase px-2.5 py-0.5 text-[11px] tracking-widest border border-white/20 font-mono">
+                                    ROUND {eventData.round}
+                                </span>
+                            )}
+                            <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] uppercase font-mono font-bold tracking-wider">
+                                {totalUsers} {totalUsers === 1 ? 'PILOTO NO GRID' : 'PILOTOS NO GRID'}
+                            </span>
+                        </div>
+
+                        {/* Título Principal com Estilo Amarelo Neon e Sublinhado Marcante */}
+                        <div className="mt-1">
+                            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black italic uppercase tracking-wider text-[#ffd700] drop-shadow-[0_4px_25px_rgba(255,215,0,0.35)] font-display inline-block border-b-4 border-[#ffd700] pb-2.5">
+                                {eventData ? eventData.name : 'LAS VEGAS GRAND PRIX'}
+                            </h1>
+                        </div>
+
+                        {/* Metadados Técnicos da Etapa */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 pt-3 border-t border-white/10 text-gray-300 font-mono text-xs uppercase">
+                            <div className="flex flex-col bg-white/[0.02] border border-white/5 p-2 rounded">
+                                <span className="text-[#fbaa19] font-bold text-[9px] tracking-wider">CIRCUITO</span>
+                                <span className="text-white font-bold truncate text-[11px] mt-0.5">
+                                    {eventData ? eventData.circuit : 'LAS VEGAS STRIP CIRCUIT'}
+                                </span>
+                            </div>
+                            <div className="flex flex-col bg-white/[0.02] border border-white/5 p-2 rounded">
+                                <span className="text-[#fbaa19] font-bold text-[9px] tracking-wider">RACE TIME</span>
+                                <span className="text-white font-bold text-[11px] mt-0.5">
+                                    {eventData ? `${eventData.date}` : 'DOMINGO'}
+                                </span>
+                            </div>
+                            <div className="flex flex-col bg-white/[0.02] border border-white/5 p-2 rounded">
+                                <span className="text-[#fbaa19] font-bold text-[9px] tracking-wider">DEADLINE (Q1)</span>
+                                <span className="text-white font-bold text-[11px] mt-0.5 truncate">
+                                    {eventData && eventData.qualiDate && eventData.qualiTime ? (() => { 
+                                        const d = new Date(`${eventData.qualiDate}T${eventData.qualiTime}`); 
+                                        return `${d.toLocaleDateString("pt-BR", { weekday: "short" })} ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`; 
+                                    })() : "EM BREVE"}
+                                </span>
+                            </div>
+                            <div className="flex flex-col bg-white/[0.02] border border-white/5 p-2 rounded">
+                                <span className="text-[#fbaa19] font-bold text-[9px] tracking-wider">EQUIPES ATIVAS</span>
+                                <span className="text-emerald-400 font-bold text-[11px] mt-0.5">
+                                    {teamsRepresented} ESCUDERIAS
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
-                    <h1 className="text-3xl md:text-6xl font-black uppercase tracking-widest font-display text-white mt-1 drop-shadow-xl">
-                        {eventData ? eventData.name : 'LOADING GRAND PRIX...'}
-                    </h1>
+                    {/* COLUNA DIREITA: [POSTER] COM EFEITO VINHETA CARTOON-NOIR */}
+                    <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                        <div className="relative group w-full max-w-[380px] aspect-[4/3] sm:aspect-[16/11] rounded-2xl overflow-hidden bg-black/80 border border-red-500/30 shadow-[0_15px_40px_rgba(225,6,0,0.25)] flex items-center justify-center p-1">
+                            {/* Arte do Pitlane Cartoon-Noir com Vinheta Radial */}
+                            <img
+                                src="/posters/las_vegas_pitlane_noir.jpg"
+                                alt="Las Vegas Grand Prix Pitlane Cartoon-Noir"
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                style={{
+                                    WebkitMaskImage: 'radial-gradient(ellipse 90% 85% at 50% 50%, black 50%, transparent 100%)',
+                                    maskImage: 'radial-gradient(ellipse 90% 85% at 50% 50%, black 50%, transparent 100%)'
+                                }}
+                                onError={(e) => {
+                                    // Fallback para versão pôster caso necessário
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/posters/las_vegas_poster.jpg';
+                                }}
+                            />
 
-                    <div className="flex flex-wrap gap-4 md:gap-8 mt-2 text-gray-400 font-mono text-xs md:text-sm uppercase">
-                        <div className="flex flex-col">
-                            <span className="text-[#fbaa19] font-bold">CIRCUIT</span>
-                            <span className="text-gray-200">{eventData ? eventData.circuit : 'TBD'}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[#fbaa19] font-bold">RACE TIME</span>
-                            <span className="text-gray-200">{eventData ? `${eventData.date} | ${eventData.time}` : 'TBD'}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[#fbaa19] font-bold">DEADLINE (Q1)</span>
-                            <span className="text-gray-200">{eventData && eventData.qualiDate && eventData.qualiTime ? (() => { const d = new Date(`${eventData.qualiDate}T${eventData.qualiTime}`); return `${d.toLocaleDateString("en-US", { weekday: "short" })} | ${d.toLocaleDateString("en-US")} ${d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`; })() : "TBD"}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[#fbaa19] font-bold">TEAMS ACTIVE</span>
-                            <span className="text-emerald-400 font-bold">{teamsRepresented} TEAMS</span>
+                            {/* Efeito Vinheta de Sombras e Luz Neon Sobreposta */}
+                            <div className="absolute inset-0 pointer-events-none rounded-2xl bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                            <div className="absolute inset-0 pointer-events-none rounded-2xl border border-white/10" />
+
+                            {/* Badge Técnico de Homologação do Poster */}
+                            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[8px] font-mono tracking-widest text-white/70 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded border border-white/15">
+                                <span className="text-[#ffd700] font-black uppercase">
+                                    POSTER // CARTOON NOIR
+                                </span>
+                                <span className="text-white/50">PITLANE ACTION</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* GRID DE PROGNÓSTICOS NO MESMO PADRÃO ESTÉTICO GLOBO.COM */}
-            <section className="w-full px-4 md:px-8 max-w-7xl mx-auto my-8 font-sans selection:bg-[#fbaa19] selection:text-black animate-fade-in">
+            {/* SEÇÃO PRINCIPAL UNIFICADA: TELEMETRY + GRID DE PROGNÓSTICOS */}
+            <section className="relative z-10 w-full px-4 md:px-8 max-w-7xl mx-auto my-4 font-sans selection:bg-[#fbaa19] selection:text-black animate-fade-in">
                 <div className="bg-[#0a0c0f] border border-white/10 rounded-md p-5 sm:p-6 shadow-2xl flex flex-col">
 
-                    {/* HEADER: TÍTULO, STATUS E AÇÕES */}
+                    {/* HEADER DA TABELA: HIERARQUIA SOLICITADA (telemetry / Grid de Prognósticos) */}
                     <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4 flex-wrap gap-3">
-                        <div className="flex items-center gap-3">
-                            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white font-display">
-                                GRID DE PROGNÓSTICOS
-                            </h2>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 uppercase font-mono">
-                                TELEMETRIA DA ETAPA
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#ffd700] font-bold">
+                                TELEMETRY
                             </span>
-                            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-gray-400 font-mono">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                <span>{totalUsers} {totalUsers === 1 ? 'estrategista ativo' : 'estrategistas ativos'}</span>
-                            </span>
+                            <div className="flex items-center gap-3 mt-0.5">
+                                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white font-display">
+                                    Grid de Prognósticos
+                                </h2>
+                                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-gray-400 font-mono ml-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                    <span>{totalUsers} {totalUsers === 1 ? 'estrategista ativo' : 'estrategistas ativos'}</span>
+                                </span>
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-3">

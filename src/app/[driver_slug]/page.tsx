@@ -29,6 +29,7 @@ import {
     AllianceBlock 
 } from '@/lib/race-directors';
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
+import { getRealF1Driver, RealF1Driver } from '@/lib/real-f1-drivers';
 
 
 /* ============================================================
@@ -384,13 +385,15 @@ function CredentialCard({
     number, 
     allianceId, 
     mentor,
-    nationality
+    nationality,
+    realDriver
 }: { 
     me: Strategist; 
     number: string; 
     allianceId: AllianceId; 
     mentor?: SeniorStrategist | null;
     nationality?: string | null;
+    realDriver?: RealF1Driver | null;
 }) {
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
@@ -446,6 +449,19 @@ function CredentialCard({
                     </div>
                 </div>
 
+                {/* Badge do Piloto Real F1 no Avatar (3 Letras Oficiais FIA, ex: LEC, HAM, RUS, PER) */}
+                {realDriver && (
+                    <div className="absolute bottom-2.5 left-2.5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/90 border border-white/20 text-xs font-mono font-black tracking-widest text-white shadow-xl backdrop-blur-md">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: me.teamColor }} />
+                        <span className="text-white font-black tracking-wider text-xs">
+                            {realDriver.code}
+                        </span>
+                        <span className="text-[8px] text-white/50 border-l border-white/20 pl-1.5 uppercase font-mono font-bold tracking-normal">
+                            CAR {realDriver.seat} #{realDriver.number}
+                        </span>
+                    </div>
+                )}
+
                 {/* Badge Flutuante no Topo: Status da Superlicença */}
                 <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400 shadow">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -467,12 +483,15 @@ function CredentialCard({
                                     src={flag.flagUrl} 
                                     alt={flag.code} 
                                     className="w-full h-full object-cover rounded-full" 
+                                    onError={(e) => {
+                                        (e.target as HTMLElement).style.display = 'none';
+                                    }}
                                 />
                             </span>
                         )}
                         <div className="min-w-0">
                             <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-mono">
-                                PILOTO TITULAR
+                                ESTRATEGISTA TITULAR
                             </span>
                             <h2 className="text-base font-black tracking-wider leading-none text-white truncate font-mono">
                                 {me.name}
@@ -571,6 +590,7 @@ export default function OfficialStrategistDashboard() {
     const [me, setMe] = useState<Strategist | null>(null);
     const [userPrediction, setUserPrediction] = useState<any>(null);
     const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null; driverNumber?: string; avatarUrl?: string | null } | null>(null);
+    const [userSeat, setUserSeat] = useState<1 | 2>(1);
     const [activeContract, setActiveContract] = useState<any>(null);
     const [squad, setSquad] = useState<TeamworkSquad | null>(null);
     const [squadNameInput, setSquadNameInput] = useState('');
@@ -745,6 +765,14 @@ export default function OfficialStrategistDashboard() {
                     // 7. Busca companheiro de equipe real (mesma equipe e mesmo grupo, outro usuário)
                     const myTeamId = userContract?.team_id || profileData?.team_id;
                     const myGroupId = userContract?.group_id || profileData?.group_id || 1;
+
+                    // Define se é Carro 1 ou Carro 2 pela ordem de contratação na escuderia
+                    const teamContracts = (contracts || [])
+                        .filter((c: any) => c.team_id === myTeamId && c.group_id === myGroupId)
+                        .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                    const seatIdx = teamContracts.findIndex((c: any) => c.user_id === activeStrategistId);
+                    setUserSeat(seatIdx === 1 ? 2 : 1);
+
                     const partnerContract = (contracts || []).find((c: any) => 
                         c.team_id === myTeamId && 
                         c.group_id === myGroupId && 
@@ -860,6 +888,12 @@ export default function OfficialStrategistDashboard() {
         if (!me) return null;
         return getGroupTechnicalEngineer(me.groupId || 1, me.id || 0);
     }, [me?.groupId, me?.id]);
+
+    // Piloto da Vida Real correspondente ao carro (Ferrari 1 = LEC, Mercedes 2 = ANT, Cadillac 1 = PER, etc.)
+    const realDriver = useMemo(() => {
+        if (!me) return null;
+        return getRealF1Driver(me.teamName, userSeat);
+    }, [me?.teamName, userSeat]);
 
     // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
@@ -1264,6 +1298,7 @@ export default function OfficialStrategistDashboard() {
                                 allianceId={allianceId} 
                                 mentor={assignedMentor}
                                 nationality={targetProfile?.nationality}
+                                realDriver={realDriver}
                             />
 
                             {/* SANFONA 1: COMPANHEIRO DE EQUIPE (BOX) */}
