@@ -419,45 +419,49 @@ function CredentialCard({
                 <div 
                     className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center p-3 border-2 transition-all duration-300 shadow-2xl"
                     style={{
-                        backgroundColor: '#070709',
+                        backgroundColor: carBgColor,
                         borderColor: `${me.teamColor}50`,
-                        boxShadow: `inset 0 0 45px rgba(0,0,0,0.95), 0 12px 35px -8px ${me.teamColor}35, 0 0 0 1px rgba(255,255,255,0.08)`
+                        boxShadow: `inset 0 0 50px rgba(0,0,0,0.85), 0 12px 35px -8px ${carBgColor}50, 0 0 0 1px rgba(255,255,255,0.12)`
                     }}
                 >
                     {/* Linha de borda interna de acabamento estilo Card Colecionável Americano */}
                     <div 
-                        className="absolute inset-2 sm:inset-2.5 rounded-xl pointer-events-none border border-white/10" 
-                        style={{ borderColor: `${me.teamColor}30` }}
+                        className="absolute inset-2 sm:inset-2.5 rounded-xl pointer-events-none border border-white/20 z-20" 
+                        style={{ borderColor: 'rgba(255,255,255,0.2)' }}
                     />
 
-                    <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
-                    
-                    {/* PATCH / CAIXA DE COR DA EQUIPE EM TORNO DAS 3 LETRAS (COR 1 SE PILOTO 1, COR 2 SE PILOTO 2) */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 -translate-y-4 sm:-translate-y-6">
+                    {/* BACKGROUND COR DA EQUIPE FULL WIDTH & FULL HEIGHT COM EFEITO VINHETA */}
+                    <div 
+                        className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none select-none z-0"
+                        style={{
+                            backgroundColor: carBgColor,
+                        }}
+                    >
+                        {/* Gradiente para profundidade de card esportivo */}
                         <div 
-                            className="px-3.5 py-4 sm:px-5 sm:py-6 rounded-2xl flex items-center justify-center shadow-2xl"
+                            className="absolute inset-0" 
+                            style={{ 
+                                background: 'radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, transparent 60%, rgba(0,0,0,0.65) 100%), linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.4))' 
+                            }} 
+                        />
+                        
+                        {/* LETRAS DO PILOTO REAL (LEC) EM DESTAQUE NO CENTRO */}
+                        <span 
+                            className="font-black uppercase tracking-tight select-none -translate-y-3 sm:-translate-y-5"
                             style={{
-                                backgroundColor: carBgColor,
+                                fontFamily: 'var(--font-montserrat), sans-serif',
+                                fontWeight: 900,
+                                color: carTextColor,
+                                fontSize: 'clamp(4.5rem, 16vw, 7.5rem)',
+                                lineHeight: 1,
                                 transform: 'rotate(3.5deg)',
-                                boxShadow: `0 0 45px ${carBgColor}70, 0 8px 25px rgba(0,0,0,0.9)`
+                                textShadow: carTextColor === '#000000' 
+                                    ? 'none' 
+                                    : '0 4px 20px rgba(0,0,0,0.6)'
                             }}
                         >
-                            <span 
-                                className="font-black uppercase tracking-tight"
-                                style={{
-                                    fontFamily: 'var(--font-montserrat), sans-serif',
-                                    fontWeight: 900,
-                                    color: carTextColor,
-                                    fontSize: 'clamp(3.8rem, 13vw, 6.5rem)',
-                                    lineHeight: 1,
-                                    textShadow: carTextColor === '#000000' 
-                                        ? 'none' 
-                                        : '0 2px 10px rgba(0,0,0,0.45)'
-                                }}
-                            >
-                                {realDriver?.code || 'LEC'}
-                            </span>
-                        </div>
+                            {realDriver?.code || 'LEC'}
+                        </span>
                     </div>
 
                     <div className="w-full h-full flex items-center justify-center relative scale-110 transition-transform z-10">
