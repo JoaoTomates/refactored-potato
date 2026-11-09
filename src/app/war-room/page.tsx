@@ -198,9 +198,9 @@ interface BoxCardProps {
     avatarUrl?: string;
 }
 
-// Componente individual de Box Text com design de silhueta de cápsula unificada (Círculo na ponta + cápsula retangular)
-// Se a conversa vier da esquerda (Sênior): Círculo na ponta esquerda, cápsula à direita
-// Se a conversa vier da direita (Técnico): Círculo na ponta direita, cápsula à esquerda
+// Componente individual de Box Text DESACOPLADO (Círculo fixo + Retângulo de Diálogo)
+// Se a conversa vier da esquerda (Sênior): Círculo na ponta esquerda, retângulo à direita
+// Se a conversa vier da direita (Técnico): Círculo na ponta direita, retângulo à esquerda
 function BoxCard({
     speakerBadge,
     speakerRole,
@@ -239,157 +239,98 @@ function BoxCard({
     const cleanBadge = (speakerBadge || '').replace(/[\[\]]/g, '').trim();
     const isRight = animationDirection === 'right';
 
-    const containerRef = useRef<HTMLDivElement>(null);
-    // Altura e largura base estáveis para evitar saltos ou morphing durante a digitação do typewriter
-    const [size, setSize] = useState({ w: 600, h: 92 });
-
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const updateSize = () => {
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                // Apenas atualiza se a diferença for significativa (> 4px) para evitar jitter
-                setSize(prev => {
-                    const newW = Math.round(rect.width);
-                    const newH = Math.max(90, Math.round(rect.height));
-                    if (Math.abs(prev.w - newW) > 2 || Math.abs(prev.h - newH) > 4) {
-                        return { w: newW, h: newH };
-                    }
-                    return prev;
-                });
-            }
-        };
-        updateSize();
-        const ro = new ResizeObserver(() => updateSize());
-        ro.observe(containerRef.current);
-        return () => ro.disconnect();
-    }, []);
-
-    const W = size.w || 600;
-    const H = Math.max(90, size.h || 92);
-    const protrusion = 10;
-    const R = H / 2 + protrusion;
-    const dy = H / 2;
-    const dx = Math.sqrt(Math.max(0, R * R - dy * dy));
-    const rCorner = Math.min(22, H / 2);
-
-    const pathD = !isRight 
-        ? `M ${R + dx} 0 L ${W - rCorner} 0 A ${rCorner} ${rCorner} 0 0 1 ${W} ${rCorner} L ${W} ${H - rCorner} A ${rCorner} ${rCorner} 0 0 1 ${W - rCorner} ${H} L ${R + dx} ${H} A ${R} ${R} 0 1 1 ${R + dx} 0 Z`
-        : `M ${W - (R + dx)} 0 L ${rCorner} 0 A ${rCorner} ${rCorner} 0 0 0 0 ${rCorner} L 0 ${H - rCorner} A ${rCorner} ${rCorner} 0 0 0 ${rCorner} ${H} L ${W - (R + dx)} ${H} A ${R} ${R} 0 1 0 ${W - (R + dx)} 0 Z`;
-
-    const xInt = R + dx;
-
     return (
         <div 
-            ref={containerRef}
-            className={`relative w-full transition-all duration-300 py-2.5 ${
+            className={`w-full flex items-center gap-3 sm:gap-4 transition-all duration-300 py-1.5 ${
+                isRight ? 'flex-row-reverse' : 'flex-row'
+            } ${
                 animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
             }`}
         >
-            {/* SVG SILHUETA UNIFICADA: CÍRCULO NA EXTREMIDADE (ESQ/DIR) + CÁPSULA RETANGULAR */}
-            <svg 
-                className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
-                style={{ filter: `drop-shadow(0 8px 24px ${cardGlow})` }}
-            >
-                <path 
-                    d={pathD} 
-                    fill={isFilled ? 'rgba(5, 14, 10, 0.98)' : 'rgba(7, 7, 9, 0.98)'} 
-                    stroke={cardColor} 
-                    strokeWidth="2" 
-                    strokeLinejoin="round" 
-                />
-            </svg>
-
-            {/* CONTEÚDO DISTRIBUÍDO NO FORMATO DO CARD */}
-            <div 
-                className={`relative z-10 w-full flex items-center min-h-[90px] ${
-                    isRight ? 'flex-row-reverse' : 'flex-row'
-                }`}
-                style={{
-                    paddingLeft: isRight ? '24px' : `${Math.round(xInt + 14)}px`,
-                    paddingRight: isRight ? `${Math.round(xInt + 14)}px` : '24px',
-                    paddingTop: '12px',
-                    paddingBottom: '12px',
-                }}
-            >
-                {/* AVATAR POD: PERFEITAMENTE CENTRALIZADO NO CÍRCULO DA EXTREMIDADE */}
+            {/* 1. CÍRCULO DO AVATAR TOTALMENTE DESACOPLADO E COM TAMANHO FIXO */}
+            <div className="flex flex-col items-center shrink-0 select-none">
                 <div 
-                    className="absolute top-0 bottom-0 flex items-center justify-center select-none"
-                    style={{
-                        [isRight ? 'right' : 'left']: 0,
-                        width: `${Math.round(R * 2)}px`
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-2xl bg-black shrink-0 transition-transform"
+                    style={{ 
+                        borderColor: cardColor,
+                        boxShadow: `0 0 22px ${cardGlow}, inset 0 0 10px rgba(0,0,0,0.8)` 
                     }}
                 >
-                    <div className="relative flex items-center justify-center">
-                        <div 
-                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black shrink-0"
-                            style={{ borderColor: `${cardColor}` }}
-                        >
-                            <img 
-                                src={currentImg} 
-                                alt={cleanBadge} 
-                                onError={handleImgError}
-                                className="w-full h-full object-cover rounded-full"
-                            />
-                        </div>
-                        <div 
-                            className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/95 border text-[9px] sm:text-[10px] font-mono font-black tracking-wider uppercase whitespace-nowrap shadow-md z-20"
-                            style={{ borderColor: `${cardColor}80`, color: cardColor }}
-                        >
-                            [ {cleanBadge} ]
-                        </div>
-                    </div>
+                    <img 
+                        src={currentImg} 
+                        alt={cleanBadge} 
+                        onError={handleImgError}
+                        className="w-full h-full object-cover rounded-full"
+                    />
+                </div>
+                {/* Plaqueta de nome ancorada logo abaixo do círculo */}
+                <span 
+                    className="text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center truncate max-w-[80px] sm:max-w-[96px]"
+                    style={{ color: cardColor }}
+                >
+                    [ {cleanBadge} ]
+                </span>
+            </div>
+
+            {/* 2. RETÂNGULO DO DIÁLOGO TOTALMENTE DESACOPLADO E ESTÁVEL */}
+            <div 
+                className="flex-1 rounded-2xl p-4 sm:p-5 transition-all duration-300 shadow-2xl border flex flex-col justify-between min-h-[92px] sm:min-h-[98px] backdrop-blur-md"
+                style={{
+                    backgroundColor: isFilled ? 'rgba(5, 14, 10, 0.97)' : 'rgba(7, 7, 9, 0.97)',
+                    borderColor: isFilled ? 'rgba(16, 185, 129, 0.45)' : `${cardColor}40`,
+                    boxShadow: `0 10px 30px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}20`
+                }}
+            >
+                {/* Fala do personagem com min-height estável para evitar qualquer expansão durante a digitação */}
+                <div className={`text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-0.5 min-h-[44px] flex items-center ${
+                    isRight ? 'text-right justify-end' : 'text-left justify-start'
+                }`}>
+                    <TypewriterLine text={text} startDelay={60} />
                 </div>
 
-                {/* CORPO DO DIÁLOGO (TEXTO + DIVISÓRIA + AÇÕES) */}
-                <div className="flex-1 flex flex-col justify-between min-w-0">
-                    {/* Fala do personagem com min-height estável para evitar expansão na digitação */}
-                    <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-0.5 text-left min-h-[44px] flex items-center">
-                        <TypewriterLine text={text} startDelay={60} />
-                    </div>
+                {/* Divisória e Ações */}
+                <div className={`mt-2 pt-2 border-t border-white/10 flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono ${
+                    isRight ? 'justify-start' : 'justify-end'
+                }`}>
+                    {isSettled ? (
+                        <div 
+                            className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold font-mono"
+                            style={{ 
+                                color: isFilled ? '#10b981' : '#ffffff80',
+                                backgroundColor: isFilled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                                border: isFilled ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)'
+                            }}
+                        >
+                            {isFilled && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            <span>{settledLabel || (isFilled ? 'HOMOLOGADO' : 'OK REGISTRADO')}</span>
+                        </div>
+                    ) : (
+                        <>
+                            {onOk && (
+                                <button
+                                    type="button"
+                                    onClick={onOk}
+                                    className="px-4 py-1.5 rounded text-white/80 hover:text-white bg-black/80 hover:bg-white/10 border border-white/20 transition-all font-mono text-xs font-bold cursor-pointer"
+                                >
+                                    [ {okLabel} ]
+                                </button>
+                            )}
 
-                    {/* Divisória e Ações */}
-                    <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-end gap-2.5 text-xs font-bold uppercase tracking-widest font-mono">
-                        {isSettled ? (
-                            <div 
-                                className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold font-mono"
-                                style={{ 
-                                    color: isFilled ? '#10b981' : '#ffffff80',
-                                    backgroundColor: isFilled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                                    border: isFilled ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)'
-                                }}
-                            >
-                                {isFilled && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                                <span>{settledLabel || (isFilled ? 'HOMOLOGADO' : 'OK REGISTRADO')}</span>
-                            </div>
-                        ) : (
-                            <>
-                                {onOk && (
-                                    <button
-                                        type="button"
-                                        onClick={onOk}
-                                        className="px-4 py-1.5 rounded text-white/80 hover:text-white bg-black/80 hover:bg-white/10 border border-white/20 transition-all font-mono text-xs font-bold cursor-pointer"
-                                    >
-                                        [ {okLabel} ]
-                                    </button>
-                                )}
-
-                                {onFill && fillLabel && (
-                                    <button
-                                        type="button"
-                                        onClick={onFill}
-                                        className="px-4 py-1.5 rounded font-mono font-black text-xs text-black hover:brightness-110 transition-all uppercase tracking-wider shadow cursor-pointer flex items-center gap-1"
-                                        style={{
-                                            backgroundColor: cardColor,
-                                            boxShadow: `0 0 16px ${cardColor}40`
-                                        }}
-                                    >
-                                        <span>{fillLabel}</span>
-                                    </button>
-                                )}
-                            </>
-                        )}
-                    </div>
+                            {onFill && fillLabel && (
+                                <button
+                                    type="button"
+                                    onClick={onFill}
+                                    className="px-4 py-1.5 rounded font-mono font-black text-xs text-black hover:brightness-110 transition-all uppercase tracking-wider shadow cursor-pointer flex items-center gap-1"
+                                    style={{
+                                        backgroundColor: cardColor,
+                                        boxShadow: `0 0 16px ${cardColor}40`
+                                    }}
+                                >
+                                    <span>{fillLabel}</span>
+                                </button>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
         </div>

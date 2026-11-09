@@ -199,124 +199,64 @@ function InviteBoxCard({
     };
 
     const isRight = direction === 'right';
-    const containerRef = useRef<HTMLDivElement>(null);
-    // Altura e largura base estáveis para evitar saltos ou morphing durante a digitação
-    const [size, setSize] = useState({ w: 600, h: 92 });
-
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const updateSize = () => {
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                setSize(prev => {
-                    const newW = Math.round(rect.width);
-                    const newH = Math.max(90, Math.round(rect.height));
-                    if (Math.abs(prev.w - newW) > 2 || Math.abs(prev.h - newH) > 4) {
-                        return { w: newW, h: newH };
-                    }
-                    return prev;
-                });
-            }
-        };
-        updateSize();
-        const ro = new ResizeObserver(() => updateSize());
-        ro.observe(containerRef.current);
-        return () => ro.disconnect();
-    }, []);
-
-    const W = size.w || 600;
-    const H = Math.max(90, size.h || 92);
-    const protrusion = 10;
-    const R = H / 2 + protrusion;
-    const dy = H / 2;
-    const dx = Math.sqrt(Math.max(0, R * R - dy * dy));
-    const rCorner = Math.min(22, H / 2);
-
-    const pathD = !isRight 
-        ? `M ${R + dx} 0 L ${W - rCorner} 0 A ${rCorner} ${rCorner} 0 0 1 ${W} ${rCorner} L ${W} ${H - rCorner} A ${rCorner} ${rCorner} 0 0 1 ${W - rCorner} ${H} L ${R + dx} ${H} A ${R} ${R} 0 1 1 ${R + dx} 0 Z`
-        : `M ${W - (R + dx)} 0 L ${rCorner} 0 A ${rCorner} ${rCorner} 0 0 0 0 ${rCorner} L 0 ${H - rCorner} A ${rCorner} ${rCorner} 0 0 0 ${rCorner} ${H} L ${W - (R + dx)} ${H} A ${R} ${R} 0 1 0 ${W - (R + dx)} 0 Z`;
-
-    const xInt = R + dx;
 
     return (
         <div 
-            ref={containerRef}
             onClick={onClick}
             title={title}
-            className="relative w-full py-2.5 transition-all duration-300 cursor-pointer group hover:scale-[1.008]"
+            className={`w-full flex items-center gap-3 sm:gap-4 transition-all duration-300 py-1.5 cursor-pointer group hover:scale-[1.008] ${
+                isRight ? 'flex-row-reverse' : 'flex-row'
+            }`}
         >
-            {/* SVG SILHUETA UNIFICADA: CÍRCULO NA EXTREMIDADE + CÁPSULA RETANGULAR */}
-            <svg 
-                className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
-                style={{ filter: `drop-shadow(0 8px 24px ${accentColor}35)` }}
-            >
-                <path 
-                    d={pathD} 
-                    fill="rgba(5, 5, 7, 0.96)" 
-                    stroke={accentColor} 
-                    strokeWidth="2" 
-                    strokeLinejoin="round" 
-                />
-            </svg>
-
-            {/* CONTEÚDO DISTRIBUÍDO NO FORMATO DO CARD */}
-            <div 
-                className={`relative z-10 w-full flex items-center min-h-[90px] ${
-                    isRight ? 'flex-row-reverse' : 'flex-row'
-                }`}
-                style={{
-                    paddingLeft: isRight ? '24px' : `${Math.round(xInt + 14)}px`,
-                    paddingRight: isRight ? `${Math.round(xInt + 14)}px` : '24px',
-                    paddingTop: '12px',
-                    paddingBottom: '12px',
-                }}
-            >
-                {/* AVATAR DO PERSONAGEM PERFEITAMENTE CENTRALIZADO NO CÍRCULO DA EXTREMIDADE */}
+            {/* 1. CÍRCULO DO AVATAR TOTALMENTE DESACOPLADO E COM TAMANHO FIXO */}
+            <div className="flex flex-col items-center shrink-0 select-none">
                 <div 
-                    className="absolute top-0 bottom-0 flex items-center justify-center select-none"
-                    style={{
-                        [isRight ? 'right' : 'left']: 0,
-                        width: `${Math.round(R * 2)}px`
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-2xl bg-black shrink-0 transition-transform group-hover:scale-105"
+                    style={{ 
+                        borderColor: accentColor,
+                        boxShadow: `0 0 22px ${accentColor}40, inset 0 0 10px rgba(0,0,0,0.8)` 
                     }}
                 >
-                    <div 
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black shrink-0"
-                        style={{ borderColor: `${accentColor}` }}
-                    >
-                        <img 
-                            src={currentSrc} 
-                            alt="Personagem" 
-                            onError={handleImgError}
-                            className="w-full h-full object-cover rounded-full filter contrast-105 group-hover:contrast-115 transition-all"
-                        />
+                    <img 
+                        src={currentSrc} 
+                        alt="Personagem" 
+                        onError={handleImgError}
+                        className="w-full h-full object-cover rounded-full filter contrast-105 group-hover:contrast-115 transition-all"
+                    />
+                </div>
+            </div>
+
+            {/* 2. RETÂNGULO DO DIÁLOGO TOTALMENTE DESACOPLADO E ESTÁVEL */}
+            <div 
+                className="flex-1 rounded-2xl p-4 sm:p-5 transition-all duration-300 shadow-2xl border flex flex-col justify-between min-h-[92px] sm:min-h-[98px] backdrop-blur-md"
+                style={{
+                    backgroundColor: 'rgba(7, 7, 9, 0.97)',
+                    borderColor: `${accentColor}40`,
+                    boxShadow: `0 10px 30px -10px ${accentColor}35, 0 0 1px 1px ${accentColor}20`
+                }}
+            >
+                {badgeTitle && (
+                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-0.5">
+                        <span 
+                            className="text-xs sm:text-sm font-black uppercase tracking-wider"
+                            style={{ color: accentColor }}
+                        >
+                            {badgeTitle}
+                        </span>
                     </div>
+                )}
+
+                {/* Texto da fala como num balão/box de HQ com min-height estável */}
+                <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5 text-left min-h-[44px] flex items-center">
+                    {children}
                 </div>
 
-                {/* CONTEÚDO PRINCIPAL DO DIÁLOGO */}
-                <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
-                    {badgeTitle && (
-                        <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-0.5">
-                            <span 
-                                className="text-xs sm:text-sm font-black uppercase tracking-wider"
-                                style={{ color: accentColor }}
-                            >
-                                {badgeTitle}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Texto da fala com min-height estável para evitar saltos */}
-                    <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5 text-left min-h-[44px] flex items-center">
-                        {children}
+                {/* Rodapé / Dica de Clique quando houver */}
+                {footerHint && (
+                    <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-0.5">
+                        {footerHint}
                     </div>
-
-                    {/* Rodapé / Dica de Clique quando houver */}
-                    {footerHint && (
-                        <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-0.5">
-                            {footerHint}
-                        </div>
-                    )}
-                </div>
+                )}
             </div>
         </div>
     );
