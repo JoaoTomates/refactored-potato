@@ -29,7 +29,7 @@ import {
     AllianceBlock 
 } from '@/lib/race-directors';
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
-import { getRealF1Driver, RealF1Driver } from '@/lib/real-f1-drivers';
+import { getRealF1Driver, RealF1Driver, getContrastingColor } from '@/lib/real-f1-drivers';
 
 
 /* ============================================================
@@ -398,6 +398,7 @@ function CredentialCard({
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
     const flag = getCountryFlag(nationality);
+    const contrastColor = getContrastingColor(me.teamCode || me.teamName);
 
     return (
         <Panel 
@@ -411,11 +412,25 @@ function CredentialCard({
             <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-[#060606] flex items-center justify-center p-3 border-b border-white/10">
                 <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
                 
-                <div className="w-full h-full max-h-[250px] md:max-h-[270px] flex items-center justify-center relative scale-110 transition-transform">
+                {/* LETRAS GRANDES DO PILOTO REAL ATRÁS DO CAPACETE (Elevadas alguns pixels, cor contrastante com a escuderia) */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 -translate-y-5 sm:-translate-y-7">
+                    <span 
+                        className="font-black font-display tracking-tight text-7xl sm:text-8xl md:text-9xl uppercase transform scale-110"
+                        style={{
+                            color: contrastColor,
+                            opacity: 0.65,
+                            textShadow: `0 0 50px ${contrastColor}70, 0 0 15px ${contrastColor}90`
+                        }}
+                    >
+                        {realDriver?.code || 'LEC'}
+                    </span>
+                </div>
+
+                <div className="w-full h-full max-h-[250px] md:max-h-[270px] flex items-center justify-center relative scale-110 transition-transform z-10">
                     <div className="relative w-full h-full flex items-center justify-center">
                         <img 
                             alt="Capacete Oficial F1" 
-                            className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)]" 
+                            className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen" 
                             src="/avatar-overlay.svg" 
                         />
                         <div 

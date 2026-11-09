@@ -89,3 +89,38 @@ export function getRealF1Driver(teamNameOrCode: string, seat: 1 | 2 = 1): RealF1
     const entry = REAL_F1_GRID[key] || REAL_F1_GRID.ferrari;
     return seat === 2 ? entry.car2 : entry.car1;
 }
+
+/**
+ * Retorna uma cor de alto contraste em relação à escuderia
+ * (ex: Ferrari Vermelha -> Ciano Elétrico / Azul Neon, McLaren Laranja -> Azul Cobalto / Ciano,
+ * Mercedes Verde Água -> Carmim / Vermelho Neon, Red Bull Azul -> Amarelo Ouro Neon)
+ */
+export function getContrastingColor(teamNameOrCode: string): string {
+    const key = normalizeTeamKey(teamNameOrCode);
+    switch (key) {
+        case 'ferrari':
+            return '#00e5ff'; // Ciano Elétrico vibrante contra o Vermelho Ferrari
+        case 'mclaren':
+            return '#00b4d8'; // Azul / Ciano contra o Laranja Papaia
+        case 'mercedes':
+            return '#ff2a5f'; // Carmim / Vermelho Neon contra o Verde Água Petronas
+        case 'redbull':
+            return '#ffe600'; // Amarelo Neon contra o Azul Escuro Red Bull
+        case 'astonmartin':
+            return '#ffd700'; // Dourado Neon contra o Verde Racing
+        case 'alpine':
+            return '#ff5964'; // Coral / Rosa Neon contra o Azul Alpine
+        case 'haas':
+            return '#e8002d'; // Vermelho vivo contra o Cinza/Preto Haas
+        case 'cadillac':
+            return '#00e5ff'; // Ciano Elétrico contra o Dourado/Preto Cadillac
+        case 'williams':
+            return '#ffcc00'; // Amarelo Ouro contra o Azul Williams
+        case 'audi':
+            return '#00f5d4'; // Verde Menta / Ciano Neon contra o Vermelho Audi
+        case 'racingbulls':
+            return '#ffd000'; // Amarelo Ouro contra o Azul Racing Bulls
+        default:
+            return '#ffd700'; // Dourado padrão
+    }
+}

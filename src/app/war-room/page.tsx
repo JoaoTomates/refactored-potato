@@ -198,7 +198,7 @@ interface BoxCardProps {
     avatarUrl?: string;
 }
 
-// Componente individual de Box Text com fade-in left ou right:
+// Componente individual de Box Text com design de quadrinhos Noir (Avatar à esquerda com tag abaixo e texto/ações à direita):
 function BoxCard({
     speakerBadge,
     speakerRole,
@@ -233,67 +233,53 @@ function BoxCard({
         }
     };
 
+    // Extrai o nome limpo para exibição no formato [ NOME ]
+    const cleanBadge = (speakerBadge || '').replace(/[\[\]]/g, '').trim();
+
     return (
         <div 
-            className={`relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 backdrop-blur-md flex items-stretch gap-4 md:gap-5 shadow-2xl border ${
+            className={`relative w-full rounded-xl p-4 sm:p-5 transition-all duration-300 backdrop-blur-md flex items-start gap-4 sm:gap-5 shadow-2xl border ${
                 animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
             }`}
             style={{
-                backgroundColor: isFilled ? 'rgba(5, 14, 10, 0.96)' : 'rgba(5, 5, 5, 0.96)',
-                borderColor: `${cardColor}40`,
-                boxShadow: `0 12px 35px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}30`
+                backgroundColor: isFilled ? 'rgba(5, 14, 10, 0.97)' : 'rgba(5, 5, 6, 0.97)',
+                borderColor: isFilled ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255, 255, 255, 0.12)',
+                boxShadow: `0 12px 35px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}25`
             }}
         >
-            {/* BARRA VERTICAL NEON NA LATERAL ESQUERDA */}
-            <div 
-                className="w-1.5 self-stretch rounded-full flex-shrink-0 transition-all duration-300"
-                style={{
-                    backgroundColor: cardColor,
-                    boxShadow: `0 0 14px ${cardColor}, 0 0 4px ${cardColor}`
-                }}
-            />
-
-            {/* CONTEÚDO PRINCIPAL DO DIÁLOGO */}
-            <div className="flex-1 flex flex-col justify-between gap-2.5 min-w-0">
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                        {currentImg && (
-                            <img 
-                                src={currentImg} 
-                                alt={speakerBadge} 
-                                onError={handleImgError}
-                                className="w-8 h-8 rounded-full object-cover border border-white/20 shadow-md flex-shrink-0"
-                            />
-                        )}
-                        <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 min-w-0 truncate">
-                            <span 
-                                className="text-xs sm:text-sm font-black uppercase tracking-wider"
-                                style={{ color: cardColor }}
-                            >
-                                {speakerBadge}
-                            </span>
-                            <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono truncate">
-                                // {speakerRole}
-                            </span>
-                        </div>
-                    </div>
-
-                    <span className="text-[9px] font-bold text-white/60 uppercase tracking-widest font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded flex-shrink-0">
-                        {categoryTag}
-                    </span>
+            {/* LADO ESQUERDO: AVATAR EM MOLDURA CIRCULAR + TAG DE NOME ABAIXO */}
+            <div className="flex flex-col items-center shrink-0 w-20">
+                <div 
+                    className="w-14 h-14 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-md bg-black/80"
+                    style={{ borderColor: `${cardColor}70` }}
+                >
+                    <img 
+                        src={currentImg} 
+                        alt={cleanBadge} 
+                        onError={handleImgError}
+                        className="w-full h-full object-cover rounded-full"
+                    />
                 </div>
+                <span 
+                    className="text-[11px] font-mono font-bold tracking-wider mt-1.5 uppercase text-center truncate max-w-full"
+                    style={{ color: cardColor }}
+                >
+                    [ {cleanBadge} ]
+                </span>
+            </div>
 
-                {/* Texto da fala conciso */}
-                <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-1 min-h-[44px]">
+            {/* LADO DIREITO: TEXTO DO DIÁLOGO + DIVISÓRIA + BOTÕES DE AÇÃO */}
+            <div className="flex-1 flex flex-col justify-between min-w-0 min-h-[72px]">
+                {/* Fala do personagem */}
+                <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-0.5">
                     <TypewriterLine text={text} startDelay={60} />
                 </div>
 
-                {/* Ações interativas da rodada */}
-                <div className="mt-1 pt-2 border-t border-white/10 flex flex-wrap items-center justify-end gap-3 text-xs font-bold uppercase tracking-widest">
+                {/* Divisória e Ações */}
+                <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-end gap-2.5 text-xs font-bold uppercase tracking-widest font-mono">
                     {isSettled ? (
                         <div 
-                            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold"
+                            className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold font-mono"
                             style={{ 
                                 color: isFilled ? '#10b981' : '#ffffff80',
                                 backgroundColor: isFilled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
@@ -309,7 +295,7 @@ function BoxCard({
                                 <button
                                     type="button"
                                     onClick={onOk}
-                                    className="px-3.5 py-1.5 rounded-lg text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
+                                    className="px-4 py-1.5 rounded text-white/80 hover:text-white bg-black/80 hover:bg-white/10 border border-white/20 transition-all font-mono text-xs font-bold cursor-pointer"
                                 >
                                     [ {okLabel} ]
                                 </button>
@@ -319,10 +305,10 @@ function BoxCard({
                                 <button
                                     type="button"
                                     onClick={onFill}
-                                    className="px-4 py-2 rounded-lg font-black tracking-wider transition-all cursor-pointer flex items-center gap-1.5 text-xs text-black hover:opacity-95"
+                                    className="px-4 py-1.5 rounded font-mono font-black text-xs text-black hover:brightness-110 transition-all uppercase tracking-wider shadow cursor-pointer flex items-center gap-1"
                                     style={{
                                         backgroundColor: cardColor,
-                                        boxShadow: `0 0 16px ${cardColor}50`
+                                        boxShadow: `0 0 16px ${cardColor}40`
                                     }}
                                 >
                                     <span>{fillLabel}</span>
@@ -365,6 +351,9 @@ export function WarRoomContent() {
     // 'TECH': Técnico entrou abaixo em Row 2 (porque deu OK ou preencheu)
     const [subStep, setSubStep] = useState<'SENIOR' | 'TECH'>('SENIOR');
     const [topicSettledStatus, setTopicSettledStatus] = useState<string | null>(null);
+
+    // Seletor de posicionamento dos diálogos (V1: Topo-Esquerdo [Padrão], V2: Centro)
+    const [dialogVersion, setDialogVersion] = useState<1 | 2>(1);
 
     // Dados salvos para o protocolo
     const [chosenPoletime, setChosenPoletime] = useState<string>('1:12.209');
@@ -588,7 +577,9 @@ export function WarRoomContent() {
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center justify-center">
+        <main className={`w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono transition-all duration-300 ${
+            dialogVersion === 1 ? 'items-start justify-start pt-16 sm:pt-20 px-4 sm:px-10' : 'items-center justify-center p-4'
+        }`}>
 
             {/* KEYFRAME ANIMATIONS PARA FADE-IN LEFT & FADE-IN RIGHT */}
             <style jsx global>{`
@@ -621,20 +612,52 @@ export function WarRoomContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/75" />
             </div>
 
-            {/* BOTÃO DISCRETO DE SAÍDA NO CANTO SUPERIOR */}
-            <div className="absolute top-4 left-4 z-20">
+            {/* BARRA SUPERIOR: SAÍDA + SELETOR DE VERSÃO (V1 PADRÃO vs V2 CENTRO) */}
+            <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between">
                 <Link
                     href={`/${user?.user_metadata?.slug || 'pitwall'}`}
-                    className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
+                    className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
                 >
                     <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />
                     <span>[ « SAIR ]</span>
                 </Link>
+
+                {/* Seletor de Versão de Posicionamento do Diálogo */}
+                <div className="flex items-center gap-2 bg-black/85 border border-white/15 px-3 py-1.5 rounded-lg text-xs font-mono shadow-2xl backdrop-blur-md">
+                    <span className="text-white/40 uppercase text-[10px]">VERSÃO:</span>
+                    <button
+                        type="button"
+                        onClick={() => setDialogVersion(1)}
+                        className={`px-2.5 py-0.5 rounded text-xs font-bold font-mono transition-all cursor-pointer ${
+                            dialogVersion === 1
+                                ? 'bg-[#fbaa19] text-black shadow'
+                                : 'bg-white/10 text-white/70 hover:text-white'
+                        }`}
+                    >
+                        1
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setDialogVersion(2)}
+                        className={`px-2.5 py-0.5 rounded text-xs font-bold font-mono transition-all cursor-pointer ${
+                            dialogVersion === 2
+                                ? 'bg-[#fbaa19] text-black shadow'
+                                : 'bg-white/10 text-white/70 hover:text-white'
+                        }`}
+                    >
+                        2
+                    </button>
+                    <span className="text-[#fbaa19] text-[10px] font-bold ml-1">(V1 PADRÃO)</span>
+                </div>
+
+                <div className="w-16 hidden sm:block" />
             </div>
 
             {/* CONTAINER VERTICAL DE DIÁLOGOS COM TRANSIÇÃO DE LIMPEZA DE TELA */}
             <div 
-                className={`relative z-10 w-full max-w-2xl px-4 py-8 flex flex-col gap-5 justify-center transition-all duration-300 ${
+                className={`relative z-10 w-full max-w-2xl px-2 sm:px-0 flex flex-col gap-5 transition-all duration-300 ${
+                    dialogVersion === 1 ? 'self-start mt-2 sm:mt-4' : 'self-center mx-auto my-auto'
+                } ${
                     isClearing ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
                 }`}
             >
