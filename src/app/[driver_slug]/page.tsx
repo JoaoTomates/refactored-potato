@@ -419,7 +419,7 @@ function CredentialCard({
                 <div 
                     className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center border-2 transition-all duration-300 shadow-2xl"
                     style={{
-                        background: `linear-gradient(to bottom, ${carBgColor} 0%, ${carBgColor} 66%, #050507 66%, #050507 100%)`,
+                        backgroundColor: '#070709',
                         borderColor: `${me.teamColor}50`,
                         boxShadow: `inset 0 0 50px rgba(0,0,0,0.85), 0 12px 35px -8px ${carBgColor}50, 0 0 0 1px rgba(255,255,255,0.12)`
                     }}
@@ -430,9 +430,14 @@ function CredentialCard({
                         style={{ borderColor: 'rgba(255,255,255,0.2)' }}
                     />
 
-                    {/* BACKGROUND BI-COLOR (2/3 COR DO CARRO NO TOPO, 1/3 FINAL PRETO) */}
+                    {/* BACKGROUND BI-COLOR COM DEGRADÊ LATERAL 100% TRANSPARENTE NAS BORDAS */}
                     <div 
                         className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
+                        style={{
+                            background: `linear-gradient(to bottom, ${carBgColor} 0%, ${carBgColor} 66%, #050507 66%, #050507 100%)`,
+                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 18px, black calc(100% - 18px), transparent 100%)',
+                            maskImage: 'linear-gradient(to right, transparent 0%, black 18px, black calc(100% - 18px), transparent 100%)',
+                        }}
                     >
                         {/* Gradiente para profundidade de card esportivo */}
                         <div 
@@ -466,9 +471,9 @@ function CredentialCard({
                         </div>
                     </div>
 
-                    {/* CAPACETE OFICIAL F1 ALINHADO AO TOPO DO CONTAINER */}
-                    <div className="w-full h-full flex items-start justify-center relative scale-110 pt-1 sm:pt-2 transition-transform z-10">
-                        <div className="relative w-full h-[68%] flex items-center justify-center">
+                    {/* CAPACETE OFICIAL F1 COM PADDING SUPERIOR EM RELAÇÃO AO TOPO */}
+                    <div className="w-full h-full flex items-start justify-center relative scale-105 pt-5 sm:pt-7 transition-transform z-10">
+                        <div className="relative w-full h-[65%] flex items-center justify-center">
                             <img 
                                 alt="Capacete Oficial F1" 
                                 className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen" 
