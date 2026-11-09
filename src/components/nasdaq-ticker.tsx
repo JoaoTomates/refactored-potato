@@ -127,12 +127,22 @@ export default function NasdaqTicker() {
         return list;
     }, [tickerList]);
 
-    // Não exibe em telas de onboarding ou autenticação
+    // Exibição EXCLUSIVA na página de Dashboard
     if (
         pathname === '/' ||
         pathname === '/superlicense' ||
         pathname === '/invite' ||
-        pathname === '/academy'
+        pathname === '/academy' ||
+        pathname === '/war-room' ||
+        pathname === '/positions' ||
+        pathname === '/poletime' ||
+        pathname === '/rankings' ||
+        pathname === '/race-week' ||
+        pathname === '/race-control' ||
+        pathname === '/news' ||
+        pathname === '/socialmedia' ||
+        pathname === '/telemetry' ||
+        pathname === '/headquarters'
     ) {
         return null;
     }
