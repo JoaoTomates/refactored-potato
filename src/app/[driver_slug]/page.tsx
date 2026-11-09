@@ -417,9 +417,9 @@ function CredentialCard({
             {/* AVATAR BOX TRANSFORMADO EM FORMATO DE CARD AMERICANO RETANGULAR (PROPORÇÃO 2.5 x 3.5 / 5:7) */}
             <div className="p-3 bg-black flex justify-center">
                 <div 
-                    className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center p-3 border-2 transition-all duration-300 shadow-2xl"
+                    className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center border-2 transition-all duration-300 shadow-2xl"
                     style={{
-                        backgroundColor: carBgColor,
+                        background: `linear-gradient(to bottom, ${carBgColor} 0%, ${carBgColor} 66%, #050507 66%, #050507 100%)`,
                         borderColor: `${me.teamColor}50`,
                         boxShadow: `inset 0 0 50px rgba(0,0,0,0.85), 0 12px 35px -8px ${carBgColor}50, 0 0 0 1px rgba(255,255,255,0.12)`
                     }}
@@ -430,42 +430,45 @@ function CredentialCard({
                         style={{ borderColor: 'rgba(255,255,255,0.2)' }}
                     />
 
-                    {/* BACKGROUND COR DA EQUIPE FULL WIDTH & FULL HEIGHT COM EFEITO VINHETA */}
+                    {/* BACKGROUND BI-COLOR (2/3 COR DO CARRO NO TOPO, 1/3 FINAL PRETO) */}
                     <div 
-                        className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none select-none z-0"
-                        style={{
-                            backgroundColor: carBgColor,
-                        }}
+                        className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
                     >
                         {/* Gradiente para profundidade de card esportivo */}
                         <div 
                             className="absolute inset-0" 
                             style={{ 
-                                background: 'radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, transparent 60%, rgba(0,0,0,0.65) 100%), linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.4))' 
+                                background: 'radial-gradient(circle at 50% 32%, rgba(255,255,255,0.14) 0%, transparent 60%, rgba(0,0,0,0.45) 100%), linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 66%, rgba(0,0,0,0.8) 100%)' 
                             }} 
                         />
+
+                        {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
+                        <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
                         
-                        {/* LETRAS DO PILOTO REAL (LEC) EM DESTAQUE NO CENTRO */}
-                        <span 
-                            className="font-black uppercase tracking-tight select-none -translate-y-3 sm:-translate-y-5"
-                            style={{
-                                fontFamily: 'var(--font-montserrat), sans-serif',
-                                fontWeight: 900,
-                                color: carTextColor,
-                                fontSize: 'clamp(4.5rem, 16vw, 7.5rem)',
-                                lineHeight: 1,
-                                transform: 'rotate(3.5deg)',
-                                textShadow: carTextColor === '#000000' 
-                                    ? 'none' 
-                                    : '0 4px 20px rgba(0,0,0,0.6)'
-                            }}
-                        >
-                            {realDriver?.code || 'LEC'}
-                        </span>
+                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (ATRAS DO CAPACETE) */}
+                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center">
+                            <span 
+                                className="font-black uppercase tracking-tight select-none -translate-y-2"
+                                style={{
+                                    fontFamily: 'var(--font-montserrat), sans-serif',
+                                    fontWeight: 900,
+                                    color: carTextColor,
+                                    fontSize: 'clamp(4.2rem, 15vw, 6.8rem)',
+                                    lineHeight: 1,
+                                    transform: 'rotate(3.5deg)',
+                                    textShadow: carTextColor === '#000000' 
+                                        ? 'none' 
+                                        : '0 4px 20px rgba(0,0,0,0.6)'
+                                }}
+                            >
+                                {realDriver?.code || 'LEC'}
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="w-full h-full flex items-center justify-center relative scale-110 transition-transform z-10">
-                        <div className="relative w-full h-full flex items-center justify-center">
+                    {/* CAPACETE OFICIAL F1 ALINHADO AO TOPO DO CONTAINER */}
+                    <div className="w-full h-full flex items-start justify-center relative scale-110 pt-1 sm:pt-2 transition-transform z-10">
+                        <div className="relative w-full h-[68%] flex items-center justify-center">
                             <img 
                                 alt="Capacete Oficial F1" 
                                 className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen" 
@@ -502,18 +505,29 @@ function CredentialCard({
                         </div>
                     </div>
 
-                    {/* Badge do Piloto Real F1 no Avatar (3 Letras Oficiais FIA, ex: LEC, HAM, RUS, PER) */}
-                    {realDriver && (
-                        <div className="absolute bottom-2.5 left-2.5 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/90 border border-white/20 text-xs font-mono font-black tracking-widest text-white shadow-xl backdrop-blur-md">
-                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: carBgColor }} />
-                            <span className="text-white font-black tracking-wider text-xs">
-                                {realDriver.code}
+                    {/* TERÇO FINAL (PRETO): NOME DO ESTRATEGISTA PRINCIPAL EM DESTAQUE */}
+                    <div className="absolute bottom-0 left-0 right-0 h-[34%] z-20 flex flex-col items-center justify-center px-3 select-none">
+                        <span className="text-[8px] sm:text-[9px] font-mono font-bold tracking-[0.25em] text-white/50 uppercase mb-0.5">
+                            ESTRATEGISTA PRINCIPAL
+                        </span>
+                        <h3 
+                            className="font-black uppercase tracking-wider text-center leading-tight truncate max-w-full font-mono"
+                            style={{
+                                fontFamily: 'var(--font-montserrat), sans-serif',
+                                fontWeight: 900,
+                                color: '#FFFFFF',
+                                fontSize: 'clamp(1.5rem, 5.5vw, 2.2rem)',
+                                textShadow: `0 0 20px ${carBgColor}80, 0 2px 10px rgba(0,0,0,0.9)`
+                            }}
+                        >
+                            {me.name}
+                        </h3>
+                        {realDriver && (
+                            <span className="text-[7.5px] font-mono tracking-widest text-white/40 uppercase mt-0.5">
+                                {realDriver.code} // CAR {realDriver.seat} #{realDriver.number}
                             </span>
-                            <span className="text-[8px] text-white/50 border-l border-white/20 pl-1.5 uppercase font-mono font-bold tracking-normal">
-                                CAR {realDriver.seat} #{realDriver.number}
-                            </span>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {/* Badge Flutuante no Topo: Status da Superlicença */}
                     <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400 shadow">
@@ -545,7 +559,7 @@ function CredentialCard({
                         )}
                         <div className="min-w-0">
                             <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-mono">
-                                ESTRATEGISTA TITULAR
+                                ESTRATEGISTA PRINCIPAL
                             </span>
                             <h2 className="text-base font-black tracking-wider leading-none text-white truncate font-mono">
                                 {me.name}
