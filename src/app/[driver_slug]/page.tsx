@@ -451,8 +451,8 @@ function CredentialCard({
                         {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
                         <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
 
-                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (ÂNGULO OPOSTO: ASCENDENTE) */}
-                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2 -translate-y-2">
+                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (10PX MAIS PARA CIMA) */}
+                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2 -translate-y-[18px]">
                             <svg
                                 viewBox="0 0 320 160"
                                 className="w-full max-w-[310px] overflow-visible select-none pointer-events-none"
