@@ -107,10 +107,10 @@ export default function SetupForm() {
                 seniorStrategistId = randomStrategist.id;
             }
             if (!slug && cleanFirst && cleanLast) {
-                // e.g. "Ayrton Senna" -> "a.senna99"
-                const firstInitial = cleanFirst.charAt(0).toLowerCase().replace(/[^a-z0-9]/g, '');
-                const lastName = cleanLast.toLowerCase().replace(/[^a-z0-9]/g, '');
-                slug = `@${firstInitial}${lastName}${driverNumber}`;
+                // Golden Rule: "L.GUSTAVO88" (maiúsculo, primeira letra do primeiro nome, ponto sem espaço, sobrenome, número)
+                const firstInitial = cleanFirst.charAt(0).toUpperCase().replace(/[^A-Z0-9]/g, '');
+                const lastName = cleanLast.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                slug = `${firstInitial}.${lastName}${driverNumber}`;
             }
 
             const formattedFirstName = cleanFirst.charAt(0).toUpperCase() + cleanFirst.slice(1).toLowerCase();

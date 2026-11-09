@@ -429,7 +429,7 @@ function CredentialCard({
                     {/* PATCH / CAIXA DE COR DA EQUIPE EM TORNO DAS 3 LETRAS (COR 1 SE PILOTO 1, COR 2 SE PILOTO 2) */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 -translate-y-4 sm:-translate-y-6">
                         <div 
-                            className="px-6 py-2 sm:px-8 sm:py-3.5 rounded-2xl flex items-center justify-center shadow-2xl"
+                            className="px-3.5 py-4 sm:px-5 sm:py-6 rounded-2xl flex items-center justify-center shadow-2xl"
                             style={{
                                 backgroundColor: carBgColor,
                                 transform: 'rotate(3.5deg)',
@@ -665,19 +665,51 @@ export default function OfficialStrategistDashboard() {
                 let profileData: any = null;
                 if (targetSlug) {
                     const clean = targetSlug.replace('@', '');
+                    const cleanAlpha = clean.replace(/[^a-zA-Z0-9]/g, '');
+
+                    // 1a. Busca direta por slug (com @ ou sem @, case-insensitive)
                     const { data: pBySlug } = await supabase
                         .from('profiles')
                         .select('*')
-                        .or(`slug.eq.${targetSlug},slug.eq.${clean},slug.ilike.${targetSlug},slug.ilike.${clean}`)
+                        .or(`slug.eq.${targetSlug},slug.eq.${clean},slug.ilike.${targetSlug},slug.ilike.${clean},slug.ilike.@${clean}`)
                         .maybeSingle();
 
                     if (pBySlug) {
                         profileData = pBySlug;
                     }
+
+                    // 1b. Busca por slug sem caracteres especiais (ex: D.ALVAR casa com dalvar88 ou @dalvar88)
+                    if (!profileData && cleanAlpha.length >= 3) {
+                        const { data: pByAlpha } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .or(`slug.ilike.%${cleanAlpha}%,slug.ilike.%${clean}%`)
+                            .limit(1)
+                            .maybeSingle();
+                        if (pByAlpha) profileData = pByAlpha;
+                    }
+
+                    // 1c. Se o padrão for D.ALVAR (primeira letra do nome + sobrenome)
+                    if (!profileData && clean.includes('.')) {
+                        const parts = clean.split('.');
+                        const firstInitial = parts[0]?.trim();
+                        const lastPart = parts[1]?.replace(/[0-9]/g, '').trim();
+                        if (firstInitial && lastPart) {
+                            const { data: pByName } = await supabase
+                                .from('profiles')
+                                .select('*')
+                                .ilike('first_name', `${firstInitial}%`)
+                                .ilike('last_name', `${lastPart}%`)
+                                .limit(1)
+                                .maybeSingle();
+                            if (pByName) profileData = pByName;
+                        }
+                    }
                 }
 
-                // 2. Se não encontrou por slug e o usuário está autenticado, usa o perfil logado
-                if (!profileData && user) {
+                // 2. Fallback para usuário autenticado SOMENTE se não havia slug na URL (ex: rota / ou /pitwall)
+                // Se a URL especificava um slug e não foi encontrado, NÃO sobrescrever com outro usuário logado
+                if (!profileData && user && (!rawSlug || rawSlug === 'pitwall' || rawSlug === 'dashboard')) {
                     const { data: pUser } = await supabase
                         .from('profiles')
                         .select('*')
@@ -713,7 +745,7 @@ export default function OfficialStrategistDashboard() {
                     return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
                 });
 
-                // 3.1. Busca direta e resiliente do contrato do usuário autenticado
+                // 3.1. Busca direta do contrato do usuário autenticado e do perfil exibido
                 let directContract = null;
                 if (user) {
                     const { data: myContract } = await supabase
@@ -724,8 +756,9 @@ export default function OfficialStrategistDashboard() {
                     directContract = myContract;
                 }
 
-                // Verifica se o usuário atual já possui contrato assinado
-                const userContract = directContract || (contracts || []).find((c: any) => c.user_id === (profileData?.id || user?.id));
+                // Contrato do perfil exibido na página (prioriza o perfil alvo)
+                const profileContract = (contracts || []).find((c: any) => c.user_id === profileData?.id);
+                const userContract = profileContract || (profileData?.id === user?.id ? directContract : null);
                 setActiveContract(userContract || null);
 
                 // 4. Se o usuário atual está sem contrato assinado E não completou setup, vai para headquarters
@@ -762,7 +795,7 @@ export default function OfficialStrategistDashboard() {
                         false,
                         profileData.mls_balance ?? 100
                     );
-                } else if (user) {
+                } else if (user && (!rawSlug || rawSlug === 'pitwall')) {
                     currentStrategist = realStrategists.find(s => s.id === user.id) || null;
                 }
 
