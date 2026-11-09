@@ -419,24 +419,22 @@ function CredentialCard({
                 <div 
                     className="relative w-full aspect-[5/7] max-w-[340px] rounded-2xl overflow-hidden flex items-center justify-center border-2 transition-all duration-300 shadow-2xl"
                     style={{
-                        backgroundColor: '#070709',
+                        backgroundColor: '#000000',
                         borderColor: `${me.teamColor}50`,
                         boxShadow: `inset 0 0 50px rgba(0,0,0,0.85), 0 12px 35px -8px ${carBgColor}50, 0 0 0 1px rgba(255,255,255,0.12)`
                     }}
                 >
                     {/* Linha de borda interna de acabamento estilo Card Colecionável Americano */}
                     <div 
-                        className="absolute inset-2 sm:inset-2.5 rounded-xl pointer-events-none border border-white/20 z-20" 
+                        className="absolute inset-[8px] rounded-xl pointer-events-none border border-white/20 z-20" 
                         style={{ borderColor: 'rgba(255,255,255,0.2)' }}
                     />
 
-                    {/* BACKGROUND BI-COLOR COM DEGRADÊ LATERAL 100% TRANSPARENTE NAS BORDAS */}
+                    {/* BACKGROUND BI-COLOR COM MARGEM INTERNA PRETA DE 8PX */}
                     <div 
-                        className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
+                        className="absolute inset-[8px] rounded-xl overflow-hidden pointer-events-none select-none z-0"
                         style={{
                             background: `linear-gradient(to bottom, ${carBgColor} 0%, ${carBgColor} 66%, #050507 66%, #050507 100%)`,
-                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 18px, black calc(100% - 18px), transparent 100%)',
-                            maskImage: 'linear-gradient(to right, transparent 0%, black 18px, black calc(100% - 18px), transparent 100%)',
                         }}
                     >
                         {/* Gradiente para profundidade de card esportivo */}
