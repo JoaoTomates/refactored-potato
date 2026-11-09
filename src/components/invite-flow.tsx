@@ -200,14 +200,22 @@ function InviteBoxCard({
 
     const isRight = direction === 'right';
     const containerRef = useRef<HTMLDivElement>(null);
-    const [size, setSize] = useState({ w: 0, h: 0 });
+    // Altura e largura base estáveis para evitar saltos ou morphing durante a digitação
+    const [size, setSize] = useState({ w: 600, h: 92 });
 
     useEffect(() => {
         if (!containerRef.current) return;
         const updateSize = () => {
             if (containerRef.current) {
                 const rect = containerRef.current.getBoundingClientRect();
-                setSize({ w: rect.width, h: rect.height });
+                setSize(prev => {
+                    const newW = Math.round(rect.width);
+                    const newH = Math.max(90, Math.round(rect.height));
+                    if (Math.abs(prev.w - newW) > 2 || Math.abs(prev.h - newH) > 4) {
+                        return { w: newW, h: newH };
+                    }
+                    return prev;
+                });
             }
         };
         updateSize();
@@ -217,8 +225,8 @@ function InviteBoxCard({
     }, []);
 
     const W = size.w || 600;
-    const H = size.h || 100;
-    const protrusion = 12;
+    const H = Math.max(90, size.h || 92);
+    const protrusion = 10;
     const R = H / 2 + protrusion;
     const dy = H / 2;
     const dx = Math.sqrt(Math.max(0, R * R - dy * dy));
@@ -228,14 +236,14 @@ function InviteBoxCard({
         ? `M ${R + dx} 0 L ${W - rCorner} 0 A ${rCorner} ${rCorner} 0 0 1 ${W} ${rCorner} L ${W} ${H - rCorner} A ${rCorner} ${rCorner} 0 0 1 ${W - rCorner} ${H} L ${R + dx} ${H} A ${R} ${R} 0 1 1 ${R + dx} 0 Z`
         : `M ${W - (R + dx)} 0 L ${rCorner} 0 A ${rCorner} ${rCorner} 0 0 0 0 ${rCorner} L 0 ${H - rCorner} A ${rCorner} ${rCorner} 0 0 0 ${rCorner} ${H} L ${W - (R + dx)} ${H} A ${R} ${R} 0 1 0 ${W - (R + dx)} 0 Z`;
 
-    const circleWidth = R + dx;
+    const xInt = R + dx;
 
     return (
         <div 
             ref={containerRef}
             onClick={onClick}
             title={title}
-            className="relative w-full py-3 transition-all duration-300 cursor-pointer group hover:scale-[1.008]"
+            className="relative w-full py-2.5 transition-all duration-300 cursor-pointer group hover:scale-[1.008]"
         >
             {/* SVG SILHUETA UNIFICADA: CÍRCULO NA EXTREMIDADE + CÁPSULA RETANGULAR */}
             <svg 
@@ -253,28 +261,27 @@ function InviteBoxCard({
 
             {/* CONTEÚDO DISTRIBUÍDO NO FORMATO DO CARD */}
             <div 
-                className={`relative z-10 w-full flex items-center min-h-[85px] sm:min-h-[95px] ${
+                className={`relative z-10 w-full flex items-center min-h-[90px] ${
                     isRight ? 'flex-row-reverse' : 'flex-row'
                 }`}
                 style={{
-                    paddingLeft: isRight ? '24px' : `${Math.max(circleWidth + 8, 92)}px`,
-                    paddingRight: isRight ? `${Math.max(circleWidth + 8, 92)}px` : '24px',
+                    paddingLeft: isRight ? '24px' : `${Math.round(xInt + 14)}px`,
+                    paddingRight: isRight ? `${Math.round(xInt + 14)}px` : '24px',
                     paddingTop: '12px',
                     paddingBottom: '12px',
                 }}
             >
-                {/* AVATAR DO PERSONAGEM DENTRO DO CÍRCULO DA EXTREMIDADE */}
+                {/* AVATAR DO PERSONAGEM PERFEITAMENTE CENTRALIZADO NO CÍRCULO DA EXTREMIDADE */}
                 <div 
-                    className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center justify-center shrink-0 select-none pointer-events-none"
+                    className="absolute top-0 bottom-0 flex items-center justify-center select-none"
                     style={{
-                        [isRight ? 'right' : 'left']: `${Math.max(R - 36, 12)}px`,
-                        width: `${R * 2 - 20}px`,
-                        maxWidth: '84px'
+                        [isRight ? 'right' : 'left']: 0,
+                        width: `${Math.round(R * 2)}px`
                     }}
                 >
                     <div 
-                        className="w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black/90 shrink-0 pointer-events-auto"
-                        style={{ borderColor: `${accentColor}80` }}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black shrink-0"
+                        style={{ borderColor: `${accentColor}` }}
                     >
                         <img 
                             src={currentSrc} 
@@ -298,8 +305,8 @@ function InviteBoxCard({
                         </div>
                     )}
 
-                    {/* Texto da fala como num balão/box de HQ */}
-                    <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5 text-left">
+                    {/* Texto da fala com min-height estável para evitar saltos */}
+                    <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5 text-left min-h-[44px] flex items-center">
                         {children}
                     </div>
 

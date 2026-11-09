@@ -240,14 +240,23 @@ function BoxCard({
     const isRight = animationDirection === 'right';
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const [size, setSize] = useState({ w: 0, h: 0 });
+    // Altura e largura base estáveis para evitar saltos ou morphing durante a digitação do typewriter
+    const [size, setSize] = useState({ w: 600, h: 92 });
 
     useEffect(() => {
         if (!containerRef.current) return;
         const updateSize = () => {
             if (containerRef.current) {
                 const rect = containerRef.current.getBoundingClientRect();
-                setSize({ w: rect.width, h: rect.height });
+                // Apenas atualiza se a diferença for significativa (> 4px) para evitar jitter
+                setSize(prev => {
+                    const newW = Math.round(rect.width);
+                    const newH = Math.max(90, Math.round(rect.height));
+                    if (Math.abs(prev.w - newW) > 2 || Math.abs(prev.h - newH) > 4) {
+                        return { w: newW, h: newH };
+                    }
+                    return prev;
+                });
             }
         };
         updateSize();
@@ -257,8 +266,8 @@ function BoxCard({
     }, []);
 
     const W = size.w || 600;
-    const H = size.h || 100;
-    const protrusion = 12;
+    const H = Math.max(90, size.h || 92);
+    const protrusion = 10;
     const R = H / 2 + protrusion;
     const dy = H / 2;
     const dx = Math.sqrt(Math.max(0, R * R - dy * dy));
@@ -268,12 +277,12 @@ function BoxCard({
         ? `M ${R + dx} 0 L ${W - rCorner} 0 A ${rCorner} ${rCorner} 0 0 1 ${W} ${rCorner} L ${W} ${H - rCorner} A ${rCorner} ${rCorner} 0 0 1 ${W - rCorner} ${H} L ${R + dx} ${H} A ${R} ${R} 0 1 1 ${R + dx} 0 Z`
         : `M ${W - (R + dx)} 0 L ${rCorner} 0 A ${rCorner} ${rCorner} 0 0 0 0 ${rCorner} L 0 ${H - rCorner} A ${rCorner} ${rCorner} 0 0 0 ${rCorner} ${H} L ${W - (R + dx)} ${H} A ${R} ${R} 0 1 0 ${W - (R + dx)} 0 Z`;
 
-    const circleWidth = R + dx;
+    const xInt = R + dx;
 
     return (
         <div 
             ref={containerRef}
-            className={`relative w-full transition-all duration-300 py-3 ${
+            className={`relative w-full transition-all duration-300 py-2.5 ${
                 animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
             }`}
         >
@@ -293,53 +302,54 @@ function BoxCard({
 
             {/* CONTEÚDO DISTRIBUÍDO NO FORMATO DO CARD */}
             <div 
-                className={`relative z-10 w-full flex items-center min-h-[85px] sm:min-h-[95px] ${
+                className={`relative z-10 w-full flex items-center min-h-[90px] ${
                     isRight ? 'flex-row-reverse' : 'flex-row'
                 }`}
                 style={{
-                    paddingLeft: isRight ? '24px' : `${Math.max(circleWidth + 8, 92)}px`,
-                    paddingRight: isRight ? `${Math.max(circleWidth + 8, 92)}px` : '24px',
+                    paddingLeft: isRight ? '24px' : `${Math.round(xInt + 14)}px`,
+                    paddingRight: isRight ? `${Math.round(xInt + 14)}px` : '24px',
                     paddingTop: '12px',
                     paddingBottom: '12px',
                 }}
             >
-                {/* AVATAR POD FIXADO DENTRO DO CÍRCULO DA EXTREMIDADE */}
+                {/* AVATAR POD: PERFEITAMENTE CENTRALIZADO NO CÍRCULO DA EXTREMIDADE */}
                 <div 
-                    className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center justify-center shrink-0 select-none pointer-events-none"
+                    className="absolute top-0 bottom-0 flex items-center justify-center select-none"
                     style={{
-                        [isRight ? 'right' : 'left']: `${Math.max(R - 36, 12)}px`,
-                        width: `${R * 2 - 20}px`,
-                        maxWidth: '84px'
+                        [isRight ? 'right' : 'left']: 0,
+                        width: `${Math.round(R * 2)}px`
                     }}
                 >
-                    <div 
-                        className="w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black/90 shrink-0 pointer-events-auto"
-                        style={{ borderColor: `${cardColor}80` }}
-                    >
-                        <img 
-                            src={currentImg} 
-                            alt={cleanBadge} 
-                            onError={handleImgError}
-                            className="w-full h-full object-cover rounded-full"
-                        />
+                    <div className="relative flex items-center justify-center">
+                        <div 
+                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black shrink-0"
+                            style={{ borderColor: `${cardColor}` }}
+                        >
+                            <img 
+                                src={currentImg} 
+                                alt={cleanBadge} 
+                                onError={handleImgError}
+                                className="w-full h-full object-cover rounded-full"
+                            />
+                        </div>
+                        <div 
+                            className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/95 border text-[9px] sm:text-[10px] font-mono font-black tracking-wider uppercase whitespace-nowrap shadow-md z-20"
+                            style={{ borderColor: `${cardColor}80`, color: cardColor }}
+                        >
+                            [ {cleanBadge} ]
+                        </div>
                     </div>
-                    <span 
-                        className="text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1 uppercase text-center truncate max-w-full"
-                        style={{ color: cardColor }}
-                    >
-                        [ {cleanBadge} ]
-                    </span>
                 </div>
 
                 {/* CORPO DO DIÁLOGO (TEXTO + DIVISÓRIA + AÇÕES) */}
                 <div className="flex-1 flex flex-col justify-between min-w-0">
-                    {/* Fala do personagem */}
-                    <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-0.5 text-left">
+                    {/* Fala do personagem com min-height estável para evitar expansão na digitação */}
+                    <div className="text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-0.5 text-left min-h-[44px] flex items-center">
                         <TypewriterLine text={text} startDelay={60} />
                     </div>
 
                     {/* Divisória e Ações */}
-                    <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-end gap-2.5 text-xs font-bold uppercase tracking-widest font-mono">
+                    <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-end gap-2.5 text-xs font-bold uppercase tracking-widest font-mono">
                         {isSettled ? (
                             <div 
                                 className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold font-mono"
