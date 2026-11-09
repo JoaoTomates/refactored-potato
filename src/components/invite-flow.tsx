@@ -169,6 +169,7 @@ interface InviteBoxCardProps {
     onClick?: () => void;
     title?: string;
     footerHint?: string;
+    direction?: 'left' | 'right';
     children: React.ReactNode;
 }
 
@@ -179,6 +180,7 @@ function InviteBoxCard({
     onClick,
     title,
     footerHint,
+    direction = 'left',
     children
 }: InviteBoxCardProps) {
     const [currentSrc, setCurrentSrc] = useState(avatarUrl);
@@ -196,68 +198,118 @@ function InviteBoxCard({
         }
     };
 
+    const isRight = direction === 'right';
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [size, setSize] = useState({ w: 0, h: 0 });
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const updateSize = () => {
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                setSize({ w: rect.width, h: rect.height });
+            }
+        };
+        updateSize();
+        const ro = new ResizeObserver(() => updateSize());
+        ro.observe(containerRef.current);
+        return () => ro.disconnect();
+    }, []);
+
+    const W = size.w || 600;
+    const H = size.h || 100;
+    const protrusion = 12;
+    const R = H / 2 + protrusion;
+    const dy = H / 2;
+    const dx = Math.sqrt(Math.max(0, R * R - dy * dy));
+    const rCorner = Math.min(22, H / 2);
+
+    const pathD = !isRight 
+        ? `M ${R + dx} 0 L ${W - rCorner} 0 A ${rCorner} ${rCorner} 0 0 1 ${W} ${rCorner} L ${W} ${H - rCorner} A ${rCorner} ${rCorner} 0 0 1 ${W - rCorner} ${H} L ${R + dx} ${H} A ${R} ${R} 0 1 1 ${R + dx} 0 Z`
+        : `M ${W - (R + dx)} 0 L ${rCorner} 0 A ${rCorner} ${rCorner} 0 0 0 0 ${rCorner} L 0 ${H - rCorner} A ${rCorner} ${rCorner} 0 0 0 ${rCorner} ${H} L ${W - (R + dx)} ${H} A ${R} ${R} 0 1 0 ${W - (R + dx)} 0 Z`;
+
+    const circleWidth = R + dx;
+
     return (
         <div 
+            ref={containerRef}
             onClick={onClick}
             title={title}
-            className="relative w-full rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 backdrop-blur-md flex items-center gap-4 md:gap-5 shadow-2xl border cursor-pointer group hover:scale-[1.008]"
-            style={{
-                backgroundColor: 'rgba(5, 5, 5, 0.96)', // Preto com mínimo de transparência
-                borderColor: `${accentColor}40`,
-                boxShadow: `0 12px 35px -10px ${accentColor}35, 0 0 1px 1px ${accentColor}25`
-            }}
+            className="relative w-full py-3 transition-all duration-300 cursor-pointer group hover:scale-[1.008]"
         >
-            {/* BARRA VERTICAL NEON NA LATERAL ESQUERDA */}
-            <div 
-                className="w-1.5 self-stretch rounded-full flex-shrink-0 transition-all duration-300"
-                style={{
-                    backgroundColor: accentColor,
-                    boxShadow: `0 0 14px ${accentColor}, 0 0 4px ${accentColor}`
-                }}
-            />
+            {/* SVG SILHUETA UNIFICADA: CÍRCULO NA EXTREMIDADE + CÁPSULA RETANGULAR */}
+            <svg 
+                className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+                style={{ filter: `drop-shadow(0 8px 24px ${accentColor}35)` }}
+            >
+                <path 
+                    d={pathD} 
+                    fill="rgba(5, 5, 7, 0.96)" 
+                    stroke={accentColor} 
+                    strokeWidth="2" 
+                    strokeLinejoin="round" 
+                />
+            </svg>
 
-            {/* AVATAR DO PERSONAGEM (ESTILO RETRATO DE HQ) */}
-            <div className="flex-shrink-0">
+            {/* CONTEÚDO DISTRIBUÍDO NO FORMATO DO CARD */}
+            <div 
+                className={`relative z-10 w-full flex items-center min-h-[85px] sm:min-h-[95px] ${
+                    isRight ? 'flex-row-reverse' : 'flex-row'
+                }`}
+                style={{
+                    paddingLeft: isRight ? '24px' : `${Math.max(circleWidth + 8, 92)}px`,
+                    paddingRight: isRight ? `${Math.max(circleWidth + 8, 92)}px` : '24px',
+                    paddingTop: '12px',
+                    paddingBottom: '12px',
+                }}
+            >
+                {/* AVATAR DO PERSONAGEM DENTRO DO CÍRCULO DA EXTREMIDADE */}
                 <div 
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 shadow-lg bg-black flex-shrink-0 transition-transform group-hover:scale-105"
+                    className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center justify-center shrink-0 select-none pointer-events-none"
                     style={{
-                        borderColor: accentColor,
-                        boxShadow: `0 0 16px ${accentColor}40`
+                        [isRight ? 'right' : 'left']: `${Math.max(R - 36, 12)}px`,
+                        width: `${R * 2 - 20}px`,
+                        maxWidth: '84px'
                     }}
                 >
-                    <img 
-                        src={currentSrc} 
-                        alt="Personagem" 
-                        onError={handleImgError}
-                        className="w-full h-full object-cover filter contrast-105 group-hover:contrast-115 transition-all"
-                    />
-                </div>
-            </div>
-
-            {/* CONTEÚDO PRINCIPAL DO DIÁLOGO (DIRETO E SEM BUROCRACIA) */}
-            <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
-                {badgeTitle && (
-                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-0.5">
-                        <span 
-                            className="text-xs sm:text-sm font-black uppercase tracking-wider"
-                            style={{ color: accentColor }}
-                        >
-                            {badgeTitle}
-                        </span>
+                    <div 
+                        className="w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-lg bg-black/90 shrink-0 pointer-events-auto"
+                        style={{ borderColor: `${accentColor}80` }}
+                    >
+                        <img 
+                            src={currentSrc} 
+                            alt="Personagem" 
+                            onError={handleImgError}
+                            className="w-full h-full object-cover rounded-full filter contrast-105 group-hover:contrast-115 transition-all"
+                        />
                     </div>
-                )}
-
-                {/* Texto da fala como num balão/box de HQ */}
-                <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5">
-                    {children}
                 </div>
 
-                {/* Rodapé / Dica de Clique quando houver */}
-                {footerHint && (
-                    <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-0.5">
-                        {footerHint}
+                {/* CONTEÚDO PRINCIPAL DO DIÁLOGO */}
+                <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
+                    {badgeTitle && (
+                        <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-0.5">
+                            <span 
+                                className="text-xs sm:text-sm font-black uppercase tracking-wider"
+                                style={{ color: accentColor }}
+                            >
+                                {badgeTitle}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Texto da fala como num balão/box de HQ */}
+                    <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5 text-left">
+                        {children}
                     </div>
-                )}
+
+                    {/* Rodapé / Dica de Clique quando houver */}
+                    {footerHint && (
+                        <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-0.5">
+                            {footerHint}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
