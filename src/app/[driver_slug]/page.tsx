@@ -28,6 +28,7 @@ import {
     getStrategistVoice, 
     AllianceBlock 
 } from '@/lib/race-directors';
+import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
 
 
 /* ============================================================
@@ -396,10 +397,18 @@ function CredentialCard({
     const flag = getCountryFlag(nationality);
 
     return (
-        <Panel title="Credencial" tag="SUPERLICENÇA 2026" bodyClass="p-0" className="!bg-black bg-black" accentColor={me.teamColor}>
-            <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-black flex items-center justify-center p-2">
-                {/* Capacete Oficial F1 Expandido sobre Fundo 100% Preto */}
-                <div className="w-full h-full max-h-[260px] md:max-h-[280px] flex items-center justify-center relative scale-110 md:scale-120 transition-transform">
+        <Panel 
+            title="Credencial Oficial" 
+            tag={me.teamCode} 
+            bodyClass="p-0 overflow-hidden" 
+            className="!bg-black bg-black" 
+            accentColor={me.teamColor}
+        >
+            {/* Visualização de Capacete Oficial F1 */}
+            <div className="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-[#060606] flex items-center justify-center p-3 border-b border-white/10">
+                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, ${me.teamColor} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} />
+                
+                <div className="w-full h-full max-h-[250px] md:max-h-[270px] flex items-center justify-center relative scale-110 transition-transform">
                     <div className="relative w-full h-full flex items-center justify-center">
                         <img 
                             alt="Capacete Oficial F1" 
@@ -437,69 +446,103 @@ function CredentialCard({
                     </div>
                 </div>
 
-                {/* Bloco Compacto Sobreposto: [Bandeira Circular] USERNAME NÚMERO // EQUIPE // GRUPO */}
-                <div className="absolute inset-x-0 bottom-2 pt-12 pb-2 px-3 flex flex-col items-center justify-end bg-gradient-to-t from-black via-black/80 to-transparent z-10 pointer-events-none">
-                    <div className="flex flex-col items-center text-center gap-1 max-w-full">
-                        {/* Linha 1: [Bandeira Circular Opcional] NOME NÚMERO */}
-                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                            {flag && (
-                                <span 
-                                    className="w-4 h-4 rounded-full overflow-hidden border border-white/30 inline-flex items-center justify-center shrink-0 shadow bg-black/60"
-                                    title={nationality || flag.code.toUpperCase()}
-                                >
-                                    <img 
-                                        src={flag.flagUrl} 
-                                        alt={flag.code} 
-                                        className="w-full h-full object-cover rounded-full" 
-                                    />
-                                </span>
-                            )}
-                            <h2 className="text-base md:text-lg font-black tracking-wider leading-none text-white drop-shadow-md truncate">
-                                {me.name}
-                            </h2>
-                            <span className="text-base md:text-lg font-black font-mono tracking-wider leading-none text-[#fbaa19] drop-shadow-md">
-                                {number}
-                            </span>
-                        </div>
-
-                        {/* Linha 2: • EQUIPE */}
-                        <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-white/90">
-                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: me.teamColor }} />
-                            <span className="truncate">{me.teamName}</span>
-                        </div>
-
-                        {/* Linha 3: GRUPO */}
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 truncate">
-                            {getChampionGroupName(me.groupId)}
-                        </div>
-                    </div>
+                {/* Badge Flutuante no Topo: Status da Superlicença */}
+                <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400 shadow">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>SUPERLICENÇA ATIVA</span>
                 </div>
             </div>
 
-            {/* Grid 2 colunas: Aliança e Rating */}
-            <div className="grid grid-cols-2 text-[10px] tracking-widest border-t border-white/10 bg-black">
-                <div className="px-4 py-3 border-r border-white/10">
-                    <p className="text-white/40 mb-1">ALIANÇA</p>
-                    <div className="text-white font-bold uppercase truncate">
-                        {ALLIANCES[allianceId].short}
+            {/* SEÇÃO TÉCNICA HARMONIZADA: DADOS DO PILOTO E ESCUDERIA */}
+            <div className="p-3.5 bg-gradient-to-b from-[#0a0a0c] to-black flex flex-col gap-2.5">
+                {/* Linha 1: Piloto & Número */}
+                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                        {flag && (
+                            <span 
+                                className="w-4 h-4 rounded-full overflow-hidden border border-white/30 inline-flex items-center justify-center shrink-0 shadow bg-black/60"
+                                title={nationality || flag.code.toUpperCase()}
+                            >
+                                <img 
+                                    src={flag.flagUrl} 
+                                    alt={flag.code} 
+                                    className="w-full h-full object-cover rounded-full" 
+                                />
+                            </span>
+                        )}
+                        <div className="min-w-0">
+                            <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-mono">
+                                PILOTO TITULAR
+                            </span>
+                            <h2 className="text-base font-black tracking-wider leading-none text-white truncate font-mono">
+                                {me.name}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                        <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-mono">
+                            Nº
+                        </span>
+                        <span className="text-xl font-black font-mono tracking-tight leading-none" style={{ color: me.teamColor }}>
+                            #{number}
+                        </span>
                     </div>
                 </div>
-                <div className="px-4 py-3">
-                    <p className="text-[9px] tracking-[0.3em] text-white/50 font-bold mb-1">RATING</p>
-                    <p className="text-xl font-black leading-none" style={{ color: me.teamColor }}>
-                        {rating}
-                    </p>
+
+                {/* Linha 2: Equipe e Grid/Grupo (Harmonizados em 2 colunas com labels técnicos) */}
+                <div className="grid grid-cols-2 gap-2 text-left font-mono">
+                    <div className="bg-white/[0.02] border border-white/5 rounded p-2">
+                        <span className="text-[7.5px] text-white/40 uppercase tracking-widest block mb-0.5">
+                            ESCUDERIA
+                        </span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: me.teamColor }} />
+                            <span className="text-xs font-bold text-white uppercase truncate">
+                                {me.teamName}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/[0.02] border border-white/5 rounded p-2">
+                        <span className="text-[7.5px] text-white/40 uppercase tracking-widest block mb-0.5">
+                            GRID // GRUPO
+                        </span>
+                        <span className="text-xs font-bold text-white/90 uppercase truncate block">
+                            {getChampionGroupName(me.groupId)}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Linha 3: Aliança e Rating */}
+                <div className="grid grid-cols-2 gap-2 text-left font-mono">
+                    <div className="bg-white/[0.02] border border-white/5 rounded p-2">
+                        <span className="text-[7.5px] text-white/40 uppercase tracking-widest block mb-0.5">
+                            ALIANÇA TÉCNICA
+                        </span>
+                        <span className="text-xs font-bold text-[#fbaa19] uppercase truncate block">
+                            {ALLIANCES[allianceId].short}
+                        </span>
+                    </div>
+
+                    <div className="bg-white/[0.02] border border-white/5 rounded p-2">
+                        <span className="text-[7.5px] text-white/40 uppercase tracking-widest block mb-0.5">
+                            RATING TÁTICO
+                        </span>
+                        <span className="text-xs font-black uppercase tracking-widest block" style={{ color: me.teamColor }}>
+                            {rating}
+                        </span>
+                    </div>
                 </div>
             </div>
 
             {/* Conselheiro Sênior Vinculado */}
             {mentor && (
-                <div className="px-4 py-2.5 border-t border-white/10 bg-white/[0.02] flex items-center justify-between text-[10px] font-mono">
+                <div className="px-3.5 py-2 border-t border-white/10 bg-black flex items-center justify-between text-[10px] font-mono">
                     <div>
-                        <span className="text-white/40 block text-[8px] uppercase tracking-widest">CONSELHEIRO SÊNIOR</span>
-                        <span className="font-bold text-[#fbaa19] tracking-wider">{mentor.code}</span>
+                        <span className="text-white/40 block text-[7px] uppercase tracking-widest">CONSELHEIRO SÊNIOR</span>
+                        <span className="font-bold text-[#fbaa19] tracking-wider text-xs">{mentor.code}</span>
                     </div>
-                    <span className="text-[9px] text-white/60 border border-white/10 px-2 py-0.5 rounded bg-black/40">
+                    <span className="text-[8.5px] text-white/60 border border-white/10 px-2 py-0.5 rounded bg-white/[0.03]">
                         {mentor.displayName} ({mentor.decade})
                     </span>
                 </div>
@@ -527,7 +570,7 @@ export default function OfficialStrategistDashboard() {
     const [targetProfile, setTargetProfile] = useState<any>(null);
     const [me, setMe] = useState<Strategist | null>(null);
     const [userPrediction, setUserPrediction] = useState<any>(null);
-    const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null } | null>(null);
+    const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null; driverNumber?: string; avatarUrl?: string | null } | null>(null);
     const [activeContract, setActiveContract] = useState<any>(null);
     const [squad, setSquad] = useState<TeamworkSquad | null>(null);
     const [squadNameInput, setSquadNameInput] = useState('');
@@ -596,7 +639,7 @@ export default function OfficialStrategistDashboard() {
                 // 3. Busca todos os contratos ativos no grid (com perfis reais e saldos MLS)
                 const { data: contracts } = await supabase
                     .from('contracts')
-                    .select('user_id, group_id, team_id, created_at, profiles(slug, first_name, last_name, driver_number, mls_balance)');
+                    .select('user_id, group_id, team_id, created_at, profiles(slug, first_name, last_name, driver_number, mls_balance, nationality, avatar_url)');
 
                 const realStrategists: Strategist[] = (contracts || []).map((c: any) => {
                     const p = Array.isArray(c.profiles) ? c.profiles[0] || {} : c.profiles || {};
@@ -716,7 +759,9 @@ export default function OfficialStrategistDashboard() {
                         setTeamPartner({
                             id: partnerContract.user_id,
                             name: pName,
-                            slug: p.slug || null
+                            slug: p.slug || null,
+                            driverNumber: p.driver_number ? String(p.driver_number) : undefined,
+                            avatarUrl: p.avatar_url || null
                         });
                     } else {
                         setTeamPartner(null);
@@ -809,6 +854,12 @@ export default function OfficialStrategistDashboard() {
             me?.name
         );
     }, [assignedMentor, allianceId, targetProfile, me]);
+
+    // Engenheiro Técnico Oficial Alocado (Determinístico por grupo, sem repetição e sem números)
+    const assignedEngineer = useMemo(() => {
+        if (!me) return null;
+        return getGroupTechnicalEngineer(me.groupId || 1, me.id || 0);
+    }, [me?.groupId, me?.id]);
 
     // Métricas das 4 competições baseadas no ID do usuário e dados reais do banco
     const compStats = useMemo(() => {
@@ -1215,6 +1266,160 @@ export default function OfficialStrategistDashboard() {
                                 nationality={targetProfile?.nationality}
                             />
 
+                            {/* SANFONA 1: COMPANHEIRO DE EQUIPE (BOX) */}
+                            <Panel 
+                                title="Companheiro de Box" 
+                                tag={teamPartner ? (teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : "CONFIRMADO") : "VAGA ABERTA"} 
+                                accentColor={teamColor}
+                                collapsible={true}
+                                defaultOpen={false}
+                            >
+                                {teamPartner ? (
+                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                            <div 
+                                                className="w-10 h-10 rounded-full border flex items-center justify-center font-black text-xs shrink-0 overflow-hidden bg-black/60"
+                                                style={{ borderColor: `${teamColor}40` }}
+                                            >
+                                                {teamPartner.avatarUrl ? (
+                                                    <img 
+                                                        src={teamPartner.avatarUrl} 
+                                                        alt={teamPartner.name}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            (e.target as HTMLElement).style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span style={{ color: teamColor }}>
+                                                        {teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : teamPartner.name.slice(0, 2)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <span className="text-[7.5px] text-white/40 uppercase tracking-widest block">
+                                                    2º PILOTO DA ESCUDERIA
+                                                </span>
+                                                <h3 className="font-black text-white text-sm tracking-wider truncate">
+                                                    {teamPartner.name}
+                                                </h3>
+                                                <span className="text-[9px] text-white/50 block">
+                                                    {me.teamName} · {getChampionGroupName(me.groupId)}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-white/40 uppercase">TELEMETRIA:</span>
+                                                <span className="text-emerald-400 font-bold flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                                    COMPARTILHADA
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-[9px] text-white/50">
+                                                <span>CANAL DE GARAGEM:</span>
+                                                <span>{me.teamCode}-PIT-2</span>
+                                            </div>
+                                        </div>
+
+                                        {teamPartner.slug && (
+                                            <Link
+                                                href={`/${teamPartner.slug}`}
+                                                className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
+                                            >
+                                                <span>[ VER TELEMETRIA DO COMPANHEIRO ]</span>
+                                                <span style={{ color: teamColor }}>»</span>
+                                            </Link>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                        <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+                                            <span className="font-bold block text-[11px] mb-1 uppercase tracking-wider">
+                                                ASSENTO DISPONÍVEL NO BOX
+                                            </span>
+                                            <p className="text-[10px] text-white/70 leading-relaxed">
+                                                A segunda vaga da <strong className="text-white">{me.teamName}</strong> no grupo <strong>{getChampionGroupName(me.groupId)}</strong> ainda não foi ocupada. Convide outro estrategista para compartilhar telemetria.
+                                            </p>
+                                        </div>
+
+                                        <Link
+                                            href="/invite"
+                                            className="w-full bg-[#fbaa19]/10 hover:bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
+                                        >
+                                            <span>[ ENVIAR CONVITE DE BOX ]</span>
+                                            <span>»</span>
+                                        </Link>
+                                    </div>
+                                )}
+                            </Panel>
+
+                            {/* SANFONA 2: ENGENHEIRO TÉCNICO ALOCADO */}
+                            {assignedEngineer && (
+                                <Panel 
+                                    title="Engenheiro Técnico" 
+                                    tag={assignedEngineer.code} 
+                                    accentColor={teamColor}
+                                    collapsible={true}
+                                    defaultOpen={false}
+                                >
+                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                        {/* Header com Avatar do Engenheiro */}
+                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                            <div 
+                                                className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
+                                                style={{ borderColor: `${teamColor}50` }}
+                                            >
+                                                <img 
+                                                    src={assignedEngineer.avatarUrl} 
+                                                    alt={assignedEngineer.fullName}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = `/avatar/eng/avatar_${assignedEngineer.avatarIndex}.jpg`;
+                                                    }}
+                                                />
+                                                <div 
+                                                    className="absolute bottom-0 inset-x-0 h-1"
+                                                    style={{ backgroundColor: teamColor }}
+                                                />
+                                            </div>
+
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="font-black text-white text-sm tracking-wider truncate">
+                                                        {assignedEngineer.code}
+                                                    </span>
+                                                    <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
+                                                        ENG #{assignedEngineer.avatarIndex}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[10px] text-white/60 block truncate">
+                                                    {assignedEngineer.fullName} ({assignedEngineer.nationality}, {assignedEngineer.age}a)
+                                                </span>
+                                                <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
+                                                    {assignedEngineer.role}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Especialidade Técnica */}
+                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                            <span className="text-white/40 uppercase text-[8px] tracking-widest">ESPECIALIDADE TÁTICA:</span>
+                                            <p className="text-white/90 leading-relaxed text-[10.5px]">
+                                                {assignedEngineer.specialty}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
+                                            <span>ALOCAÇÃO: DETERMINÍSTICA</span>
+                                            <span className="text-emerald-400 font-bold">DISPONÍVEL NO PITWALL</span>
+                                        </div>
+                                    </div>
+                                </Panel>
+                            )}
+
                             {/* Card do Conselheiro Sênior de Paddock */}
                             {assignedMentor && mentorVoice && (
                                 <Panel 
@@ -1310,6 +1515,14 @@ export default function OfficialStrategistDashboard() {
                                         <span>HEADQUARTERS</span>
                                         <span style={{ color: teamColor }}>ALIANÇA »</span>
                                     </Link>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setRankingModalComp('master')}
+                                        className="flex items-center justify-between p-2.5 rounded bg-[#3874ff]/10 hover:bg-[#3874ff]/20 border border-[#3874ff]/30 text-white transition-all text-[11px] font-bold text-left cursor-pointer"
+                                    >
+                                        <span>MASTER LEAGUE & DUELOS</span>
+                                        <span className="text-[#3874ff]">TABELAS »</span>
+                                    </button>
                                 </div>
                             </Panel>
                         </section>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { ArrowUp, ArrowDown, Search, X, ExternalLink, Trophy, Timer, Globe, Users, ChevronRight, Activity, Zap } from 'lucide-react';
+import MasterRankingsTable from '@/components/master-rankings-table';
 
 export type CompetitionKey = 'poletime' | 'master' | 'milesimus' | 'teamwork';
 
@@ -1077,7 +1078,108 @@ export default function CompetitionRankingsScreen({
         </div>
     );
 
-    const content = activeComp === 'poletime' ? renderPoletimeBroadcast() : renderTelemetryTable();
+    const renderMasterView = () => (
+        <div className="w-full flex flex-col font-sans selection:bg-[#fbaa19] selection:text-black">
+            {/* CABEÇALHO DO CONSOLE COM TÍTULO, SUBTÍTULO E ABAS DE COMPETIÇÃO */}
+            <div className="bg-[#0a0c0f] border border-white/10 rounded-t-lg p-5 sm:p-6 shadow-2xl flex flex-col gap-4 border-b-0">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-3">
+                        <span 
+                            className="w-10 h-10 rounded-lg flex items-center justify-center border font-black text-lg"
+                            style={{ 
+                                backgroundColor: `${activeConfig.accentColor}20`, 
+                                borderColor: `${activeConfig.accentColor}50`,
+                                color: activeConfig.accentColor 
+                            }}
+                        >
+                            <activeConfig.icon className="w-5 h-5" />
+                        </span>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white font-display">
+                                    {activeConfig.title}
+                                </h2>
+                                <span 
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded border uppercase font-mono"
+                                    style={{ 
+                                        backgroundColor: `${activeConfig.accentColor}18`, 
+                                        borderColor: `${activeConfig.accentColor}40`,
+                                        color: activeConfig.accentColor 
+                                    }}
+                                >
+                                    {activeConfig.badge}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 uppercase tracking-widest mt-0.5">
+                                {activeConfig.subtitle}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {isModal && onClose && (
+                            <button
+                                onClick={onClose}
+                                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                                title="Fechar [ESC]"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                <p className="text-xs text-gray-400 font-mono border-t border-white/5 pt-3 leading-relaxed">
+                    {activeConfig.desc}
+                </p>
+
+                {/* NAVEGADOR DE ABAS DAS 4 COMPETIÇÕES */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+                    {COMPETITIONS.map(comp => {
+                        const isActive = activeComp === comp.id;
+                        const Icon = comp.icon;
+                        return (
+                            <button
+                                key={comp.id}
+                                onClick={() => setActiveComp(comp.id)}
+                                className={`flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                                    isActive
+                                        ? 'ring-2 shadow-lg scale-[1.01]'
+                                        : 'bg-black/50 border-white/10 hover:border-white/20 hover:bg-white/5 text-gray-400'
+                                }`}
+                                style={{
+                                    borderColor: isActive ? comp.accentColor : undefined,
+                                    backgroundColor: isActive ? `${comp.accentColor}18` : undefined,
+                                    color: isActive ? '#fff' : undefined
+                                }}
+                            >
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <Icon className="w-4 h-4 shrink-0" style={{ color: comp.accentColor }} />
+                                    <span className="text-xs font-black uppercase tracking-wider truncate">
+                                        {comp.code}
+                                    </span>
+                                </div>
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-bold uppercase ${isActive ? 'bg-white/20 text-white' : 'text-gray-500'}`}>
+                                    {comp.badge}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* TABELAS MASTER: RANKINGS (ESQUERDA) + DUELOS DE RODADAS (DIREITA) */}
+            <div className="bg-[#0a0c0f] border border-white/10 border-t-0 rounded-b-lg p-2 sm:p-4 shadow-2xl">
+                <MasterRankingsTable isModalView={true} />
+            </div>
+        </div>
+    );
+
+    const content = activeComp === 'poletime' 
+        ? renderPoletimeBroadcast() 
+        : activeComp === 'master' 
+        ? renderMasterView() 
+        : renderTelemetryTable();
 
     // Se estiver em modo Modal, renderiza backdrop fixo responsivo
     if (isModal) {

@@ -154,7 +154,12 @@ const ROUNDS_DATA: RoundData[] = [
     }
 ];
 
-export default function MasterRankingsTable() {
+export interface MasterRankingsTableProps {
+    isModalView?: boolean;
+    className?: string;
+}
+
+export default function MasterRankingsTable({ isModalView = false, className = '' }: MasterRankingsTableProps = {}) {
     const [standings, setStandings] = useState<MasterStanding[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedRoundIdx, setSelectedRoundIdx] = useState(0); // 0 = EUA Grand Prix
@@ -260,7 +265,7 @@ export default function MasterRankingsTable() {
     const visibleRows = showAllRows ? standings : standings.slice(0, 10);
 
     return (
-        <section className="w-full px-4 md:px-8 max-w-7xl mx-auto my-8 font-sans selection:bg-[#fbaa19] selection:text-black animate-fade-in">
+        <section className={`w-full ${isModalView ? 'px-0 max-w-full my-0' : 'px-4 md:px-8 max-w-7xl mx-auto my-8'} font-sans selection:bg-[#fbaa19] selection:text-black animate-fade-in ${className}`}>
             
             {/* GRID PRINCIPAL: 2 COLUNAS (RANKINGS à esquerda e ROUNDS à direita) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
