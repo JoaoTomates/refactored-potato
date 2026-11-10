@@ -460,11 +460,11 @@ function CredentialCard({
                         }}
                     />
 
-                    {/* BACKGROUND BI-COLOR COM BORDA PRETA (#030303) AO REDOR DO CAPACETE */}
+                    {/* BACKGROUND BI-COLOR COM BORDA PRETA (#000000) AO REDOR DO CAPACETE */}
                     <div
                         className="absolute inset-[8px] rounded-xl overflow-hidden pointer-events-none select-none z-0"
                         style={{
-                            background: 'linear-gradient(to bottom, #030303 0%, #030303 66%, #050507 66%, #050507 100%)',
+                            background: 'linear-gradient(to bottom, #000000 0%, #000000 66%, #000000 66%, #000000 100%)',
                         }}
                     >
                         {/* Preenchimento colorido restrito à área do capacete (sem vazar nas bordas laterais ou topo) */}
@@ -472,7 +472,7 @@ function CredentialCard({
                             <div
                                 className="w-[92%] aspect-square rounded-full"
                                 style={{
-                                    background: `radial-gradient(circle at 50% 48%, ${carBgColor} 0%, ${carBgColor} 72%, rgba(3,3,3,0.95) 90%, #030303 98%)`,
+                                    background: `radial-gradient(circle at 50% 48%, ${carBgColor} 0%, ${carBgColor} 72%, rgba(0,0,0,0.95) 90%, #000000 98%)`,
                                 }}
                             />
                         </div>
@@ -612,9 +612,9 @@ function CredentialCard({
             </div>
         </Panel>
 
-        {/* SEÇÃO TÉCNICA HARMONIZADA: DADOS DO PILOTO E ESCUDERIA EM SANFONA */}
+        {/* SEÇÃO TÉCNICA HARMONIZADA: DADOS DO ESTRATEGISTA E ESCUDERIA EM SANFONA */}
         <Panel
-            title="Informações do Piloto"
+            title="Informações do Estrategista"
             tag={`#${number}`}
             accentColor={me.teamColor}
             collapsible={true}
