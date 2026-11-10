@@ -13,6 +13,7 @@ import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import { StewardAlertBanner, StewardVotingModal, useStewardVoting } from "@/components/steward-voting-panel";
+import PitwallQuickDock from "@/components/pitwall-quick-dock";
 import SillySeason from "@/components/silly-season";
 import RaceWeekSchedule from "@/components/race-week-schedule";
 import PaddockRadioPlayer from "@/components/paddock-radio-player";
@@ -2146,6 +2147,15 @@ export default function OfficialStrategistDashboard() {
                                     userTeamColor={teamColor}
                                 />
                             )}
+
+                            {/* 8 BOTÕES TÁTICOS PITWALL (ABAIXO DOS CARDS DE COMPETIÇÃO E ANTES DA RACE WEEK) */}
+                            <PitwallQuickDock
+                                userPrediction={userPrediction}
+                                pendingStewardCount={stewardVoting.pendingReports.length}
+                                teamColor={teamColor}
+                                onOpenVoting={() => setIsVotingModalOpen(true)}
+                                onJumpToBookTab={() => setActiveTab('book')}
+                            />
 
                             {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
                             {raceWeek && (
