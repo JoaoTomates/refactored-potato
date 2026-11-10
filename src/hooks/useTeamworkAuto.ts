@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
-import { F1_DRIVERS, F1_MATCHUPS } from '@/api/f1-data';
+import { F1_DRIVERS, F1_MATCHUPS, normalizeDriverName } from '@/api/f1-data';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { getSeniorStrategistForRound } from '@/lib/race-directors';
@@ -152,8 +152,9 @@ export const useTeamworkAuto = () => {
                 predictions.forEach(row => {
                     if (row.top10 && Array.isArray(row.top10)) {
                         row.top10.forEach((driver: string, idx: number) => {
-                            if (driver) {
-                                positionCounts[idx][driver] = (positionCounts[idx][driver] || 0) + 1;
+                            const normalized = normalizeDriverName(driver);
+                            if (normalized && F1_DRIVERS.includes(normalized) && idx < 10) {
+                                positionCounts[idx][normalized] = (positionCounts[idx][normalized] || 0) + 1;
                             }
                         });
                     }
@@ -206,7 +207,10 @@ export const useTeamworkAuto = () => {
                 predictions.forEach(row => {
                     if (row.evo && Array.isArray(row.evo)) {
                         row.evo.forEach((driver: string) => {
-                            if (driver) driverCounts[driver] = (driverCounts[driver] || 0) + 1;
+                            const normalized = normalizeDriverName(driver);
+                            if (normalized && F1_DRIVERS.includes(normalized)) {
+                                driverCounts[normalized] = (driverCounts[normalized] || 0) + 1;
+                            }
                         });
                     }
                 });

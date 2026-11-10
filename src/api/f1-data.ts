@@ -39,12 +39,66 @@ export const F1_DRIVERS = [
   'G.BORTOLETO'
 ];
 
-export function getDriverDetails(driverName: string) {
+export const DRIVER_CODE_MAP: Record<string, string> = {
+  NOR: 'L.NORRIS',
+  PIA: 'O.PIASTRI',
+  LEC: 'C.LECLERC',
+  HAM: 'L.HAMILTON',
+  RUS: 'G.RUSSELL',
+  ANT: 'K.ANTONELLI',
+  VER: 'M.VERSTAPPEN',
+  HAD: 'I.HADJAR',
+  ALO: 'F.ALONSO',
+  STR: 'L.STROLL',
+  COL: 'F.COLAPINTO',
+  GAS: 'P.GASLY',
+  OCO: 'E.OCON',
+  BEA: 'O.BEARMAN',
+  LAW: 'L.LAWSON',
+  LIN: 'A.LINDBLAD',
+  PER: 'S.PEREZ',
+  BOT: 'V.BOTTAS',
+  ALB: 'A.ALBON',
+  SAI: 'C.SAINZ',
+  HUL: 'N.HULKENBERG',
+  BOR: 'G.BORTOLETO',
+  // Fallbacks históricos de temporadas/bases anteriores
+  TSU: 'A.LINDBLAD',
+  MAG: 'O.BEARMAN',
+  SAR: 'C.SAINZ',
+  ZHO: 'N.HULKENBERG',
+  RIC: 'L.LAWSON',
+};
+
+export function normalizeDriverName(driverInput: string): string {
+  if (!driverInput) return '';
+  const clean = driverInput.trim().toUpperCase();
+  if (!clean) return '';
+
+  if (F1_DRIVERS.includes(clean)) return clean;
+  if (DRIVER_CODE_MAP[clean]) return DRIVER_CODE_MAP[clean];
+
+  // Caso venha número (ex: "16", "04", "1")
+  const padded = clean.padStart(2, '0');
   for (const match of F1_MATCHUPS) {
-    if (match.d1.name === driverName) return { ...match.d1, team: match.team };
-    if (match.d2.name === driverName) return { ...match.d2, team: match.team };
+    if (match.d1.num === clean || match.d1.num === padded) return match.d1.name;
+    if (match.d2.num === clean || match.d2.num === padded) return match.d2.name;
   }
-  return { name: driverName, num: '??', team: 'Unknown' };
+
+  // Caso venha apenas o sobrenome (ex: "LECLERC" ou "VERSTAPPEN")
+  const byLastName = F1_DRIVERS.find((d) => d.split('.')[1] === clean);
+  if (byLastName) return byLastName;
+
+  return clean;
+}
+
+export function getDriverDetails(driverName: string) {
+  const normalized = normalizeDriverName(driverName);
+  for (const match of F1_MATCHUPS) {
+    if (match.d1.name === normalized) return { ...match.d1, team: match.team };
+    if (match.d2.name === normalized) return { ...match.d2, team: match.team };
+  }
+  return { name: normalized || driverName, num: '??', team: 'Unknown' };
 }
 export interface F1Event {
     round: string;

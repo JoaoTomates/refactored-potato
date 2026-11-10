@@ -8,11 +8,11 @@ import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
-import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails, fetchNextEvent, F1Event } from '@/api/f1-data';
+import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails, normalizeDriverName, fetchNextEvent, F1Event } from '@/api/f1-data';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
-import PassoZeroBriefing from '@/components/passo-zero-briefing';
 import { getSeniorStrategistForRound } from '@/lib/race-directors';
 import { getCircuitIntel } from '@/lib/circuits-intel';
+import { MISC_QUESTIONS, DEFAULT_ACTIVE_MISC_IDS, resolveActiveMiscIds } from '@/lib/misc-questions';
 
 
 // --- Paleta Oficial de Equipes (Conforme NARRATIVE_STYLE_GUIDE.md) ---
@@ -60,13 +60,18 @@ function formatPilotName(firstName?: string | null, lastName?: string | null, dr
 }
 
 
-const QUESTIONS = [
-    { id: 'q1', text: 'Safety car durante o Grande Prêmio?', options: ['SIM', 'NÃO'] },
-    { id: 'q2', text: 'Bandeira vermelha acionada na corrida?', options: ['SIM', 'NÃO'] },
-    { id: 'q3', text: 'Algum carro da primeira fila sofrerá DNF?', options: ['SIM', 'NÃO'] },
-    { id: 'q4', text: 'Ambas as Ferraris terminarão no TOP 5?', options: ['SIM', 'NÃO'] },
-    { id: 'q5', text: 'Volta mais rápida conquistada por M. VERSTAPPEN?', options: ['SIM', 'NÃO'] },
-];
+function normalizeDriverList(list: string[], length: number): string[] {
+    const used = new Set<string>();
+    const result = Array(length).fill('');
+    for (let i = 0; i < Math.min(list.length, length); i++) {
+        const normalized = normalizeDriverName(list[i] || '');
+        if (normalized && F1_DRIVERS.includes(normalized) && !used.has(normalized)) {
+            result[i] = normalized;
+            used.add(normalized);
+        }
+    }
+    return result;
+}
 
 const TABS = [
     { id: 'all', label: 'TODAS AS POSIÇÕES', code: 'ALL', desc: 'Protocolo consolidado com todas as tomadas de posição do GP.' },
@@ -117,6 +122,14 @@ export default function PositionsPage() {
     const [hasSyncedFromDb, setHasSyncedFromDb] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<{ type: 'top10' | 'evo', index: number } | null>(null);
     const [eventData, setEventData] = useState<F1Event | null>(null);
+    const [activeMiscIds, setActiveMiscIds] = useState<string[]>(DEFAULT_ACTIVE_MISC_IDS);
+
+    const visibleMiscQuestions = useMemo(() => {
+        return activeMiscIds
+            .map(id => MISC_QUESTIONS.find(q => q.id === id))
+            .filter((q): q is typeof MISC_QUESTIONS[number] => Boolean(q))
+            .slice(0, 3);
+    }, [activeMiscIds]);
 
     const roundNumber = useMemo(() => {
         return parseInt(eventData?.round || '19', 10) || 19;
@@ -134,6 +147,16 @@ export default function PositionsPage() {
         fetchNextEvent().then((ev) => {
             if (ev) setEventData(ev);
         });
+        supabase
+            .from('global_settings')
+            .select('value')
+            .eq('id', 'active_misc')
+            .single()
+            .then(({ data }) => {
+                if (data?.value) {
+                    setActiveMiscIds(resolveActiveMiscIds(data.value));
+                }
+            });
     }, []);
 
     // Estado da calibragem do Bloco do usuário
@@ -257,10 +280,10 @@ export default function PositionsPage() {
                         }
                     }
                     if (Array.isArray(data.top10) && data.top10.length === 10) {
-                        setTop10(data.top10);
+                        setTop10(normalizeDriverList(data.top10, 10));
                     }
                     if (Array.isArray(data.evo) && data.evo.length === 5) {
-                        setEvo(data.evo);
+                        setEvo(normalizeDriverList(data.evo, 5));
                     }
                     if (data.h2h && typeof data.h2h === 'object') {
                         setH2H(data.h2h);
@@ -291,10 +314,10 @@ export default function PositionsPage() {
                                 }
                             }
                             if (Array.isArray(wrDraft?.top10) && wrDraft.top10.length === 10) {
-                                setTop10(wrDraft.top10);
+                                setTop10(normalizeDriverList(wrDraft.top10, 10));
                             }
                             if (Array.isArray(wrDraft?.evo) && wrDraft.evo.length === 5) {
-                                setEvo(wrDraft.evo);
+                                setEvo(normalizeDriverList(wrDraft.evo, 5));
                             }
                             if (wrDraft?.h2h && typeof wrDraft.h2h === 'object' && Object.keys(wrDraft.h2h).length > 0) {
                                 setH2H(wrDraft.h2h);
@@ -311,6 +334,18 @@ export default function PositionsPage() {
         return () => { isSubscribed = false; };
     }, [user, setPoletime, setTop10, setEvo, setH2H, setMisc]);
 
+    // Garante que valores hidratados do localStorage (ex: códigos "LEC", "VER") virem nomes reais da F1
+    useEffect(() => {
+        const hasLegacyTop10 = top10.some(d => d && !F1_DRIVERS.includes(d));
+        if (hasLegacyTop10) {
+            setTop10(normalizeDriverList(top10, 10));
+        }
+        const hasLegacyEvo = evo.some(d => d && !F1_DRIVERS.includes(d));
+        if (hasLegacyEvo) {
+            setEvo(normalizeDriverList(evo, 5));
+        }
+    }, [top10, evo, setTop10, setEvo]);
+
     // Helpers de validação e contadores
     const countTop10 = top10.filter(Boolean).length;
     const isTop10Complete = countTop10 === 10;
@@ -319,7 +354,7 @@ export default function PositionsPage() {
     const countH2H = Object.keys(h2h).length;
     const isH2HComplete = countH2H === F1_MATCHUPS.length;
     const isPoletimeSet = poletime.some(d => d > 0);
-    const countMisc = Object.keys(misc).filter(k => k !== 'stake').length;
+    const countMisc = visibleMiscQuestions.filter(q => Boolean(misc[q.id])).length;
     const isMiscComplete = countMisc >= 1;
 
     const isAllComplete = isTop10Complete && isEvoComplete && isH2HComplete && isPoletimeSet;
@@ -479,72 +514,7 @@ export default function PositionsPage() {
             {/* CONTAINER PRINCIPAL */}
             <div className="relative z-10 w-full max-w-5xl px-4 md:px-8 mt-6 flex flex-col gap-6">
 
-                {/* NOVO HEADER // PRÓXIMO EVENTO (LARGURA FIXA DE NO MÁXIMO 50% DO BOX DOS FORMULÁRIOS) */}
-                <header className="w-full sm:w-1/2 sm:max-w-[50%] flex flex-col shadow-2xl font-mono overflow-hidden">
-                    {/* Título: Black, Background Yellow, Nome do Evento */}
-                    <div className="bg-[#fbaa19] text-black px-4 py-2 flex items-center justify-between gap-2">
-                        <span className="text-xs sm:text-sm md:text-base font-black uppercase tracking-tight sm:tracking-wider truncate block">
-                            {eventData?.name || 'MEXICO CITY GRAND PRIX'}
-                        </span>
-                        {eventData?.round && (
-                            <span className="text-[10px] font-black px-1.5 py-0.5 bg-black text-[#fbaa19] rounded-xs shrink-0">
-                                R{eventData.round}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Subtítulo: Margin Top 0, Nome do Circuito, Color White, Background Black */}
-                    <div className="mt-0 bg-black border-x border-b border-white/20 text-white px-4 py-1.5">
-                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate block text-white/90">
-                            {eventData?.circuit || 'AUTÓDROMO HERMANOS RODRÍGUEZ'}
-                        </span>
-                    </div>
-
-                    {/* Abaixo: Race Date Time e ao lado Deadline Date Time "Q1" */}
-                    <div className="mt-0 bg-[#0d0e12] border-x border-b border-white/20 px-4 py-2 flex items-center justify-between gap-3 text-[10px] sm:text-[11px]">
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-[#fbaa19] text-[8px] sm:text-[9px] font-black uppercase tracking-widest">
-                                RACE DATE TIME
-                            </span>
-                            <span className="text-gray-200 font-bold truncate">
-                                {eventData ? `${eventData.date} · ${eventData.time}` : 'TBA'}
-                            </span>
-                        </div>
-
-                        <div className="flex flex-col text-right min-w-0">
-                            <span className="text-red-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">
-                                DEADLINE DATE TIME "Q1"
-                            </span>
-                            <span className="text-white font-bold truncate">
-                                {eventData && eventData.qualiDate && eventData.qualiTime ? (() => {
-                                    const d = new Date(`${eventData.qualiDate}T${eventData.qualiTime}`);
-                                    return `${d.toLocaleDateString("en-US", { month: "short", day: "2-digit" }).toUpperCase()} · ${d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
-                                })() : (eventData?.qualiDate || 'TBD')}
-                            </span>
-                        </div>
-                    </div>
-                </header>
-
-                {/* 2. PASSO ZERO: BRIEFING DO CONSELHEIRO & TELEMETRIA CANÔNICA */}
-                <PassoZeroBriefing
-                    roundNumber={roundNumber}
-                    circuitIdentifier={eventData?.circuit || eventData?.round || 'americas'}
-                    pilot={pilot}
-                    allianceBlock={getBlockInfo(pilot?.teamName).id as 'A' | 'B' | 'C'}
-                    activeTab={activeTab}
-                    onApplyPoletime={(digits) => setPoletime(digits)}
-                    onApplyTop10={(picks) => setTop10(picks)}
-                    onApplyEvo={(drivers) => setEvo(drivers)}
-                    onApplyH2H={(picks) => setH2H(picks)}
-                    onApplyAll={({ poletime, top10, evo, h2h }) => {
-                        setPoletime(poletime);
-                        setTop10(top10);
-                        setEvo(evo);
-                        setH2H(h2h);
-                    }}
-                />
-
-                {/* 3. CONTROLE DE ABAS (PITWALL CONSOLE) */}
+                {/* CONTROLE DE ABAS (PITWALL CONSOLE) */}
                 <nav aria-label="Abas de Posições" className="w-full bg-black/80 backdrop-blur-md border border-white/15 rounded-lg p-1.5 flex flex-wrap md:flex-nowrap gap-1.5 shadow-xl">
                     {TABS.map((tab) => {
                         const isActive = activeTab === tab.id;
@@ -553,7 +523,7 @@ export default function PositionsPage() {
                         if (tab.id === 'master') progress = `${countTop10}/10`;
                         if (tab.id === 'evo') progress = `${countEvo}/5`;
                         if (tab.id === 'h2h') progress = `${countH2H}/${F1_MATCHUPS.length}`;
-                        if (tab.id === 'misc') progress = `${countMisc}/1`;
+                        if (tab.id === 'misc') progress = `${countMisc}/${visibleMiscQuestions.length}`;
                         if (tab.id === 'all') progress = isAllComplete ? '✔ COMPLETO' : 'EM ABERTO';
 
                         return (
@@ -815,15 +785,21 @@ export default function PositionsPage() {
                                                 <div className="flex-1 flex items-center justify-between px-4 py-2">
                                                     {details ? (
                                                         <div className="flex flex-col leading-tight">
-                                                            <span className="text-base md:text-lg font-black uppercase tracking-widest text-black">
-                                                                {details.name} <span className="text-black/70"># {details.num}</span>
+                                                            <span
+                                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                                className="text-base sm:text-lg md:text-xl font-black uppercase tracking-wide text-black"
+                                                            >
+                                                                {details.name} <span className="text-black/70">#{details.num}</span>
                                                             </span>
-                                                            <span className="text-xs font-bold uppercase tracking-wider mt-0.5 text-black/70">
+                                                            <span className="text-[11px] font-bold uppercase tracking-wider mt-0.5 text-black/75">
                                                                 {details.team}
                                                             </span>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-sm md:text-base font-black uppercase tracking-widest text-white/40">
+                                                        <span
+                                                            style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                            className="text-base sm:text-lg font-black uppercase tracking-wider text-white/40"
+                                                        >
                                                             Select Driver
                                                         </span>
                                                     )}
@@ -856,18 +832,23 @@ export default function PositionsPage() {
                                                                     setTop10(next);
                                                                     setOpenDropdown(null);
                                                                 }}
-                                                                className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
+                                                                className={`w-full p-3 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
                                                                     ? 'opacity-30 cursor-not-allowed bg-black/40'
                                                                     : 'hover:bg-[#fbaa19] hover:text-black group'
                                                                     }`}
                                                             >
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-xs font-black uppercase group-hover:text-black">{dInfo.name}</span>
-                                                                    <span className="text-[10px] font-black px-1.5 py-0.2 rounded" style={{ backgroundColor: `${dColor}25`, color: dColor }}>
+                                                                <div className="flex items-center gap-2.5">
+                                                                    <span
+                                                                        style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                                        className="text-sm sm:text-base font-black uppercase tracking-wide group-hover:text-black"
+                                                                    >
+                                                                        {dInfo.name}
+                                                                    </span>
+                                                                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded" style={{ backgroundColor: `${dColor}25`, color: dColor }}>
                                                                         #{dInfo.num}
                                                                     </span>
                                                                 </div>
-                                                                <span className="text-[10px] uppercase tracking-widest font-bold group-hover:text-black" style={{ color: dColor }}>
+                                                                <span className="text-[11px] uppercase tracking-widest font-bold group-hover:text-black" style={{ color: dColor }}>
                                                                     {dInfo.team}
                                                                 </span>
                                                             </button>
@@ -976,15 +957,21 @@ export default function PositionsPage() {
                                                 <div className="flex-1 flex items-center justify-between px-4 py-2">
                                                     {details ? (
                                                         <div className="flex flex-col leading-tight">
-                                                            <span className="text-base md:text-lg font-black uppercase tracking-widest text-black">
-                                                                {details.name} <span className="text-black/70"># {details.num}</span>
+                                                            <span
+                                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                                className="text-base sm:text-lg md:text-xl font-black uppercase tracking-wide text-black"
+                                                            >
+                                                                {details.name} <span className="text-black/70">#{details.num}</span>
                                                             </span>
-                                                            <span className="text-xs font-bold uppercase tracking-wider mt-0.5 text-black/70">
+                                                            <span className="text-[11px] font-bold uppercase tracking-wider mt-0.5 text-black/75">
                                                                 {details.team}
                                                             </span>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-sm md:text-base font-black uppercase tracking-widest text-white/40">
+                                                        <span
+                                                            style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                            className="text-base sm:text-lg font-black uppercase tracking-wider text-white/40"
+                                                        >
                                                             Select Driver
                                                         </span>
                                                     )}
@@ -1017,18 +1004,23 @@ export default function PositionsPage() {
                                                                     setEvo(next);
                                                                     setOpenDropdown(null);
                                                                 }}
-                                                                className={`w-full p-2.5 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
+                                                                className={`w-full p-3 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
                                                                     ? 'opacity-30 cursor-not-allowed bg-black/40'
                                                                     : 'hover:bg-[#fbaa19] hover:text-black group'
                                                                     }`}
                                                             >
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-xs font-black uppercase group-hover:text-black">{dInfo.name}</span>
-                                                                    <span className="text-[10px] font-black px-1.5 py-0.2 rounded" style={{ backgroundColor: `${dColor}25`, color: dColor }}>
+                                                                <div className="flex items-center gap-2.5">
+                                                                    <span
+                                                                        style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                                        className="text-sm sm:text-base font-black uppercase tracking-wide group-hover:text-black"
+                                                                    >
+                                                                        {dInfo.name}
+                                                                    </span>
+                                                                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded" style={{ backgroundColor: `${dColor}25`, color: dColor }}>
                                                                         #{dInfo.num}
                                                                     </span>
                                                                 </div>
-                                                                <span className="text-[10px] uppercase tracking-widest font-bold group-hover:text-black" style={{ color: dColor }}>
+                                                                <span className="text-[11px] uppercase tracking-widest font-bold group-hover:text-black" style={{ color: dColor }}>
                                                                     {dInfo.team}
                                                                 </span>
                                                             </button>
@@ -1135,10 +1127,13 @@ export default function PositionsPage() {
                                                                 : 'bg-black/50 text-white hover:bg-black/90 hover:text-[#fbaa19]'
                                                                 }`}
                                                         >
-                                                            <span className="text-base md:text-lg font-black uppercase tracking-widest leading-tight">
+                                                            <span
+                                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                                className="text-base sm:text-lg md:text-xl font-black uppercase tracking-wide leading-tight"
+                                                            >
                                                                 {driver.name}{' '}
                                                                 <span className={isPicked ? "text-black/70" : "text-[#fbaa19]"}>
-                                                                    # {driver.num}
+                                                                    #{driver.num}
                                                                 </span>
                                                             </span>
 
@@ -1184,7 +1179,7 @@ export default function PositionsPage() {
                             </div>
 
                             <div className="flex flex-col gap-4 max-w-3xl w-full mx-auto">
-                                {QUESTIONS.map((q) => {
+                                {visibleMiscQuestions.map((q) => {
                                     const picked = misc[q.id];
 
                                     return (
