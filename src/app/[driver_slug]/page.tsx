@@ -408,7 +408,9 @@ function CredentialCard({
     allianceId,
     mentor,
     nationality,
-    realDriver
+    realDriver,
+    isOwner = false,
+    onOpenSetup,
 }: {
     me: Strategist;
     number: string;
@@ -416,10 +418,13 @@ function CredentialCard({
     mentor?: SeniorStrategist | null;
     nationality?: string | null;
     realDriver?: RealF1Driver | null;
+    isOwner?: boolean;
+    onOpenSetup?: () => void;
 }) {
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
-    const flag = getCountryFlag(nationality);
+    const cleanNationality = nationality?.trim() || '';
+    const flag = getCountryFlag(cleanNationality);
 
     // Cor 1 se piloto 1, Cor 2 se piloto 2
     const carSeat = realDriver?.seat || 1;
@@ -653,6 +658,60 @@ function CredentialCard({
                         </span>
                     </div>
                 </div>
+
+                {/* Linha 1.5: Nacionality (Botão -> Setup apenas para o próprio usuário) */}
+                {(() => {
+                    const nationalityContent = (
+                        <>
+                            <div className="min-w-0">
+                                <span className="text-[7.5px] text-white/40 uppercase tracking-widest block mb-0.5">
+                                    NACIONALITY
+                                </span>
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    {flag && (
+                                        <span className="w-3.5 h-3.5 rounded-full overflow-hidden border border-white/30 inline-flex items-center justify-center shrink-0 bg-black/60">
+                                            <img
+                                                src={flag.flagUrl}
+                                                alt={flag.code}
+                                                className="w-full h-full object-cover rounded-full"
+                                                onError={(e) => {
+                                                    (e.target as HTMLElement).style.display = 'none';
+                                                }}
+                                            />
+                                        </span>
+                                    )}
+                                    <span
+                                        className={`text-xs font-bold uppercase truncate ${
+                                            cleanNationality ? 'text-white' : 'text-white/50'
+                                        }`}
+                                    >
+                                        {cleanNationality || 'UNDEFINED'}
+                                    </span>
+                                </div>
+                            </div>
+                            {isOwner && onOpenSetup && (
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-[#fbaa19]/70 group-hover:text-[#fbaa19] shrink-0 transition-colors">
+                                    SETUP »
+                                </span>
+                            )}
+                        </>
+                    );
+
+                    return isOwner && onOpenSetup ? (
+                        <button
+                            type="button"
+                            onClick={onOpenSetup}
+                            className="w-full text-left bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 hover:border-[#fbaa19]/50 rounded p-2 transition-all flex items-center justify-between gap-2 cursor-pointer group font-mono"
+                            title="Abrir Setup"
+                        >
+                            {nationalityContent}
+                        </button>
+                    ) : (
+                        <div className="w-full text-left bg-white/[0.02] border border-white/5 rounded p-2 flex items-center justify-between gap-2 font-mono">
+                            {nationalityContent}
+                        </div>
+                    );
+                })()}
 
                 {/* Linha 2: Equipe e Grid/Grupo (Harmonizados em 2 colunas com labels técnicos) */}
                 <div className="grid grid-cols-2 gap-2 text-left font-mono">
@@ -1569,6 +1628,13 @@ export default function OfficialStrategistDashboard() {
                                 mentor={assignedMentor}
                                 nationality={targetProfile?.nationality}
                                 realDriver={realDriver}
+                                isOwner={isOwner}
+                                onOpenSetup={() => {
+                                    setActiveView('setup');
+                                    if (typeof window !== 'undefined') {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }
+                                }}
                             />
 
                             {/* SANFONA 1: COMPANHEIRO DE EQUIPE (BOX) */}
@@ -2609,12 +2675,6 @@ export default function OfficialStrategistDashboard() {
                                 </div>
 
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
-                                    <button
-                                        onClick={() => setActiveView('setup')}
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Setup
-                                    </button>
                                     <button
                                         onClick={() => setActiveView('report')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
