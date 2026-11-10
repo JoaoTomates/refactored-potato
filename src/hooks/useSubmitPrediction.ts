@@ -13,7 +13,7 @@ export function useSubmitPrediction() {
 
     const submit = async (redirectToTelemetry: boolean = false) => {
         if (!user) {
-            alert('Você precisa estar logado (Superlicense) para enviar suas previsões.');
+            router.push('/superlicense?redirect=/positions&reason=transmit');
             return;
         }
 

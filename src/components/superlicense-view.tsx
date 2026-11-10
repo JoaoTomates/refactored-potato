@@ -23,6 +23,12 @@ function SuperlicenseAuthContent() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     
+    const rawRedirect = searchParams?.get('redirect');
+    const safeRedirect = rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+        ? rawRedirect
+        : null;
+    const isTransmitRedirect = searchParams?.get('reason') === 'transmit';
+
     // UI states
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
@@ -40,7 +46,7 @@ function SuperlicenseAuthContent() {
             return;
         }
 
-        // Se usuário autenticado com setup COMPLETO, redireciona para o pitwall
+        // Se usuário autenticado com setup COMPLETO, redireciona para destino solicitado ou pitwall
         const checkExistingSession = async () => {
             if (isLoading) return;
             if (user) {
@@ -48,13 +54,17 @@ function SuperlicenseAuthContent() {
                 if (data?.slug && data.setup_completed === true) {
                     const lowerSlug = data.slug.toLowerCase();
                     if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerSlug);
+                    if (safeRedirect) {
+                        window.location.replace(safeRedirect);
+                        return;
+                    }
                     const target = lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`;
                     window.location.replace(`/${target}`);
                 }
             }
         };
         checkExistingSession();
-    }, [user, isLoading, searchParams]);
+    }, [user, isLoading, searchParams, safeRedirect]);
 
     // Resolução resiliente do e-mail oficial a partir de E-mail, @slug, slug ou formato L.GUSTAVO88
     const resolveLoginEmail = async (rawInput: string): Promise<string> => {
@@ -116,7 +126,7 @@ function SuperlicenseAuthContent() {
             const { error } = await supabase.auth.signInWithOtp({
                 email: resolvedEmail,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/superlicense`
+                    emailRedirectTo: `${window.location.origin}/superlicense${safeRedirect ? `?redirect=${encodeURIComponent(safeRedirect)}` : ''}`
                 }
             });
             if (error) throw error;
@@ -177,6 +187,11 @@ function SuperlicenseAuthContent() {
                     .select('slug')
                     .eq('id', authData.user.id)
                     .maybeSingle();
+
+                if (safeRedirect) {
+                    window.location.href = safeRedirect;
+                    return;
+                }
 
                 if (profile?.slug) {
                     const lowerSlug = profile.slug.toLowerCase();
@@ -248,6 +263,10 @@ function SuperlicenseAuthContent() {
                             <button
                                 type="button"
                                 onClick={async () => {
+                                    if (safeRedirect) {
+                                        window.location.href = safeRedirect;
+                                        return;
+                                    }
                                     const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
                                     if (data?.slug && data.setup_completed) {
                                         const lowerSlug = data.slug.toLowerCase();
@@ -271,6 +290,12 @@ function SuperlicenseAuthContent() {
                                 Sair / Trocar Conta
                             </button>
                         </div>
+                    </div>
+                )}
+
+                {isTransmitRedirect && !user && (
+                    <div className="mb-6 p-3.5 bg-[#fbaa19]/10 border border-[#fbaa19]/40 text-[#fbaa19] text-[10px] font-bold uppercase tracking-widest text-center">
+                        ● AUTENTIQUE SUA SUPERLICENÇA PARA CONCLUIR A TRANSMISSÃO DAS POSIÇÕES (SEUS PALPITES ESTÃO SALVOS).
                     </div>
                 )}
 
