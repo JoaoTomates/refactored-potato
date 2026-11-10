@@ -321,7 +321,8 @@ export function InviteFlow() {
                 }
 
                 if (data.setup_completed && data.slug) {
-                    window.location.replace(`/${data.slug}`);
+                    const lowerSlug = data.slug.toLowerCase();
+                    window.location.replace(`/${lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`}`);
                     return;
                 }
 
@@ -467,10 +468,10 @@ export function InviteFlow() {
             const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
             const cleanLastName = rawLast.toUpperCase();
             const generatedNumber = Math.floor(Math.random() * 99) + 1;
-            // Golden Rule: "L.GUSTAVO88" (maiúsculo, primeira letra do primeiro nome, ponto sem espaço, sobrenome, número)
+            // Golden Rule (exibição): "L.GUSTAVO88" | Slug (URL/Banco): 100% minúsculo ("l.gustavo88")
             const initial = cleanFirstName.charAt(0).toUpperCase().replace(/[^A-Z0-9]/g, '');
             const lastName = cleanLastName.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            const slug = `${initial}.${lastName}${generatedNumber}`;
+            const slug = `${initial}.${lastName}${generatedNumber}`.toLowerCase();
 
             localStorage.setItem('draft_name', `${cleanFirstName} ${cleanLastName}`);
             localStorage.setItem('draft_email', emailToUse);

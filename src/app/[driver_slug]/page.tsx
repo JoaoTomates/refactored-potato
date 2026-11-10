@@ -852,7 +852,8 @@ export default function OfficialStrategistDashboard() {
                     const name = p.first_name
                         ? `${p.first_name.charAt(0).toUpperCase()}.${(p.last_name || '').trim().toUpperCase()}`
                         : 'ESTRATEGISTA';
-                    return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
+                    const lowerSlug = p.slug ? String(p.slug).toLowerCase() : null;
+                    return makeStrategist(c.user_id, name, lowerSlug, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
                 });
 
                 // 3.0. Busca palpites gerais para os rankings Top 10 de Master e Poletime
@@ -879,15 +880,17 @@ export default function OfficialStrategistDashboard() {
                         .maybeSingle();
                     directContract = myContract;
 
-                    // Atualiza cache do slug do próprio usuário logado para navegação rápida
+                    // Atualiza cache do slug do próprio usuário logado para navegação rápida (100% minúsculo)
                     if (profileData && profileData.id === user.id && profileData.slug) {
-                        setMySlug(profileData.slug);
-                        if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', profileData.slug);
+                        const lowerMySlug = String(profileData.slug).toLowerCase();
+                        setMySlug(lowerMySlug);
+                        if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerMySlug);
                     } else if (!mySlug) {
                         const { data: myP } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
                         if (myP?.slug) {
-                            setMySlug(myP.slug);
-                            if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', myP.slug);
+                            const lowerMySlug = String(myP.slug).toLowerCase();
+                            setMySlug(lowerMySlug);
+                            if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerMySlug);
                         }
                     }
                 }
@@ -925,7 +928,7 @@ export default function OfficialStrategistDashboard() {
                     currentStrategist = makeStrategist(
                         profileData.id,
                         name,
-                        profileData.slug || targetSlug,
+                        (profileData.slug || targetSlug || '').toLowerCase() || null,
                         userContract?.team_id || profileData.team_id,
                         userContract?.group_id || 1,
                         false,
@@ -1000,7 +1003,7 @@ export default function OfficialStrategistDashboard() {
                         setTeamPartner({
                             id: partnerContract.user_id,
                             name: pName,
-                            slug: p.slug || null,
+                            slug: p.slug ? String(p.slug).toLowerCase() : null,
                             driverNumber: p.driver_number ? String(p.driver_number) : undefined,
                             avatarUrl: p.avatar_url || null
                         });

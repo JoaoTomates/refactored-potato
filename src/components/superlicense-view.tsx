@@ -46,8 +46,9 @@ function SuperlicenseAuthContent() {
             if (user) {
                 const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
                 if (data?.slug && data.setup_completed === true) {
-                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', data.slug);
-                    const target = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
+                    const lowerSlug = data.slug.toLowerCase();
+                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerSlug);
+                    const target = lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`;
                     window.location.replace(`/${target}`);
                 }
             }
@@ -178,7 +179,8 @@ function SuperlicenseAuthContent() {
                     .maybeSingle();
 
                 if (profile?.slug) {
-                    const target = profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`;
+                    const lowerSlug = profile.slug.toLowerCase();
+                    const target = lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`;
                     window.location.href = `/${target}`;
                     return;
                 } else {
@@ -248,7 +250,8 @@ function SuperlicenseAuthContent() {
                                 onClick={async () => {
                                     const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
                                     if (data?.slug && data.setup_completed) {
-                                        window.location.href = `/${data.slug.startsWith('@') ? data.slug : `@${data.slug}`}`;
+                                        const lowerSlug = data.slug.toLowerCase();
+                                        window.location.href = `/${lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`}`;
                                     } else {
                                         window.location.href = '/headquarters';
                                     }

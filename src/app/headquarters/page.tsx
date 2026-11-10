@@ -148,7 +148,7 @@ function HeadquartersFlow() {
                             sessionStorage.removeItem(redirectKey);
                         } else {
                             sessionStorage.setItem(redirectKey, String(count + 1));
-                            const target = profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`;
+                            const target = (profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`).toLowerCase();
                             window.location.replace(`/${target}`);
                             return;
                         }
@@ -291,7 +291,7 @@ function HeadquartersFlow() {
                 .single();
 
             const targetSlug = profile?.slug || 'dashboard';
-            const cleanTarget = targetSlug.startsWith('@') ? targetSlug : `@${targetSlug}`;
+            const cleanTarget = (targetSlug.startsWith('@') ? targetSlug : `@${targetSlug}`).toLowerCase();
             window.location.replace(`/${cleanTarget}`);
 
         } catch (err: any) {

@@ -88,8 +88,8 @@ export default function NasdaqTicker() {
                     const num = p.driver_number ? String(p.driver_number) : '';
                     const codeName = firstInitial && lastName ? `${firstInitial}.${lastName}${num}` : 'ESTRATEGISTA';
                     const balance = typeof p.mls_balance === 'number' ? p.mls_balance : 100;
-                    const cleanSlug = p.slug ? p.slug.replace('@', '') : `${firstInitial.toLowerCase()}${lastName.toLowerCase()}${num}`;
-                    const targetSlug = p.slug || (cleanSlug ? `@${cleanSlug}` : null);
+                    const cleanSlug = p.slug ? p.slug.replace('@', '').toLowerCase() : `${firstInitial.toLowerCase()}.${lastName.toLowerCase()}${num}`;
+                    const targetSlug = (p.slug ? p.slug.toLowerCase() : (cleanSlug ? `@${cleanSlug}` : null));
 
                     return {
                         id: c.user_id,

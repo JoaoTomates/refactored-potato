@@ -95,7 +95,7 @@ export default function SetupForm() {
             const { data: currentProfile } = await supabase.from('profiles').select('driver_number, slug, senior_strategist_id').eq('id', user.id).single();
             
             let driverNumber = currentProfile?.driver_number;
-            let slug = currentProfile?.slug;
+            let slug = currentProfile?.slug ? currentProfile.slug.toLowerCase() : null;
             let seniorStrategistId = currentProfile?.senior_strategist_id;
             
             if (!driverNumber) {
@@ -107,10 +107,10 @@ export default function SetupForm() {
                 seniorStrategistId = randomStrategist.id;
             }
             if (!slug && cleanFirst && cleanLast) {
-                // Golden Rule: "L.GUSTAVO88" (maiúsculo, primeira letra do primeiro nome, ponto sem espaço, sobrenome, número)
+                // Golden Rule (exibição): "L.GUSTAVO88" | Slug (URL/Banco): 100% minúsculo ("l.gustavo88")
                 const firstInitial = cleanFirst.charAt(0).toUpperCase().replace(/[^A-Z0-9]/g, '');
                 const lastName = cleanLast.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                slug = `${firstInitial}.${lastName}${driverNumber}`;
+                slug = `${firstInitial}.${lastName}${driverNumber}`.toLowerCase();
             }
 
             const formattedFirstName = cleanFirst.charAt(0).toUpperCase() + cleanFirst.slice(1).toLowerCase();

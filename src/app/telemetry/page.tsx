@@ -512,9 +512,9 @@ export default function TelemetryPage() {
                                             const teamName = team?.name || 'Equipe Independente';
                                             const teamGroup = team?.groupId ? `G${team.groupId}` : null;
 
-                                            // Dashboard Link
+                                            // Dashboard Link (100% minúsculo)
                                             const dashboardSlug = prof?.slug 
-                                                ? (prof.slug.startsWith('@') ? prof.slug : `@${prof.slug}`)
+                                                ? (prof.slug.startsWith('@') ? prof.slug : `@${prof.slug}`).toLowerCase()
                                                 : null;
 
                                             const miscAns = pred.misc?.[activeMisc] || '-';

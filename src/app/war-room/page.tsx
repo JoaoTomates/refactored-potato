@@ -192,10 +192,10 @@ interface BoxCardProps {
     isSettled?: boolean;
     settledLabel?: string;
     isFilled?: boolean;
-    onOk?: () => void;
+    onCopy?: () => void;
     onFill?: () => void;
     fillLabel?: string;
-    okLabel?: string;
+    copyLabel?: string;
     avatarUrl?: string;
 }
 
@@ -213,10 +213,10 @@ function BoxCard({
     isSettled = false,
     settledLabel,
     isFilled = false,
-    onOk,
+    onCopy,
     onFill,
     fillLabel,
-    okLabel = 'OK',
+    copyLabel = 'COPY',
     avatarUrl
 }: BoxCardProps) {
     const cardColor = isFilled ? '#10b981' : accentColor;
@@ -248,13 +248,13 @@ function BoxCard({
                 animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
             }`}
         >
-            {/* 1. CÍRCULO DO AVATAR TOTALMENTE DESACOPLADO E COM TAMANHO FIXO */}
-            <div className="flex flex-col items-center shrink-0 select-none">
+            {/* 1. CÍRCULO DO AVATAR COM SOMBRA ESCURA INTENSA PARA CONTRASTE COM O BACKGROUND */}
+            <div className="flex flex-col items-center shrink-0 select-none filter drop-shadow-[0_12px_28px_rgba(0,0,0,0.98)]">
                 <div 
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-2xl bg-black shrink-0 transition-transform"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center bg-black shrink-0 transition-transform"
                     style={{ 
                         borderColor: cardColor,
-                        boxShadow: `0 0 22px ${cardGlow}, inset 0 0 10px rgba(0,0,0,0.8)` 
+                        boxShadow: `0 12px 35px rgba(0, 0, 0, 0.98), 0 0 28px rgba(0, 0, 0, 0.95), 0 0 20px ${cardGlow}, inset 0 0 12px rgba(0,0,0,0.85)` 
                     }}
                 >
                     <img 
@@ -266,7 +266,7 @@ function BoxCard({
                 </div>
                 {/* Plaqueta de nome ancorada logo abaixo do círculo */}
                 <span 
-                    className="text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center truncate max-w-[80px] sm:max-w-[96px]"
+                    className="text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center truncate max-w-[90px] sm:max-w-[106px] bg-black/85 px-2 py-0.5 rounded border border-white/10 shadow-[0_6px_16px_rgba(0,0,0,0.98)]"
                     style={{ color: cardColor }}
                 >
                     [ {cleanBadge} ]
@@ -279,7 +279,7 @@ function BoxCard({
                 style={{
                     backgroundColor: isFilled ? 'rgba(5, 14, 10, 0.97)' : 'rgba(7, 7, 9, 0.97)',
                     borderColor: isFilled ? 'rgba(16, 185, 129, 0.45)' : `${cardColor}40`,
-                    boxShadow: `0 10px 30px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}20`
+                    boxShadow: `0 14px 36px rgba(0,0,0,0.92), 0 10px 30px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}20`
                 }}
             >
                 {/* Fala do personagem com min-height estável para evitar qualquer expansão durante a digitação */}
@@ -290,30 +290,36 @@ function BoxCard({
                 </div>
 
                 {/* Divisória e Ações */}
-                <div className={`mt-2 pt-2 border-t border-white/10 flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono ${
+                <div className={`mt-2 pt-2 border-t border-white/10 flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono flex-wrap ${
                     isRight ? 'justify-start' : 'justify-end'
                 }`}>
-                    {isSettled ? (
+                    {isFilled ? (
                         <div 
                             className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold font-mono"
                             style={{ 
-                                color: isFilled ? '#10b981' : '#ffffff80',
-                                backgroundColor: isFilled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                                border: isFilled ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)'
+                                color: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                                border: '1px solid rgba(16, 185, 129, 0.4)'
                             }}
                         >
-                            {isFilled && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                            <span>{settledLabel || (isFilled ? 'HOMOLOGADO' : 'OK REGISTRADO')}</span>
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                            <span>{settledLabel || 'HOMOLOGADO'}</span>
                         </div>
                     ) : (
                         <>
-                            {onOk && (
+                            {isSettled && (
+                                <span className="px-2.5 py-1 rounded text-[10px] font-mono text-white/50 bg-white/5 border border-white/10">
+                                    {settledLabel || 'COPY'}
+                                </span>
+                            )}
+
+                            {!isSettled && onCopy && (
                                 <button
                                     type="button"
-                                    onClick={onOk}
+                                    onClick={onCopy}
                                     className="px-4 py-1.5 rounded text-white/80 hover:text-white bg-black/80 hover:bg-white/10 border border-white/20 transition-all font-mono text-xs font-bold cursor-pointer"
                                 >
-                                    [ {okLabel} ]
+                                    [ {copyLabel} ]
                                 </button>
                             )}
 
@@ -563,14 +569,14 @@ export function WarRoomContent() {
     // 'SENIOR': apenas fala do Sênior visível (Row 1)
     // 'TECH': Técnico entrou abaixo em Row 2 (porque deu OK ou preencheu)
     const [subStep, setSubStep] = useState<'SENIOR' | 'TECH'>('SENIOR');
-    const [topicSettledStatus, setTopicSettledStatus] = useState<string | null>(null);
 
-    // Seletor de posicionamento dos diálogos (V1: Topo-Esquerdo [Padrão], V2: Centro)
-    const [dialogVersion, setDialogVersion] = useState<1 | 2>(1);
     const [userSlug, setUserSlug] = useState<string>(() => {
         if (typeof window !== 'undefined') {
             const cached = localStorage.getItem('vg_user_slug');
-            if (cached) return cached.startsWith('@') ? cached : `@${cached}`;
+            if (cached) {
+                const lower = cached.toLowerCase();
+                return lower.startsWith('@') ? lower : `@${lower}`;
+            }
         }
         return 'pitwall';
     });
@@ -602,9 +608,10 @@ export function WarRoomContent() {
                     .maybeSingle();
 
                 if (p?.slug) {
-                    const s = p.slug.startsWith('@') ? p.slug : `@${p.slug}`;
+                    const lower = p.slug.toLowerCase();
+                    const s = lower.startsWith('@') ? lower : `@${lower}`;
                     setUserSlug(s);
-                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', p.slug);
+                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lower);
                 }
 
                 if (p?.senior_strategist_id) {
@@ -751,7 +758,6 @@ export function WarRoomContent() {
         setTimeout(() => {
             setCurrentTopic(next);
             setSubStep('SENIOR');
-            setTopicSettledStatus(null);
             setIsClearing(false);
         }, 320);
     };
@@ -759,26 +765,23 @@ export function WarRoomContent() {
     // ==========================================
     // TÓPICO 1: POLETIME
     // ==========================================
-    const handlePoletimeSeniorFill = () => {
+    const handlePoletimeSeniorAccept = () => {
         setChosenPoletime(seniorTimeTarget);
         saveToLocalStorage({ poletime: seniorTimeTarget });
-        setTopicSettledStatus(`POLETIME [${seniorTimeTarget}] HOMOLOGADO`);
-        // Técnico confirma sem contrariar e avança para Top 10
+        transitionToTopic('TOP10');
+    };
+
+    const handlePoletimeSeniorCopy = () => {
         setSubStep('TECH');
     };
 
-    const handlePoletimeSeniorOk = () => {
-        // Técnico surge com contra-proposta
-        setSubStep('TECH');
-    };
-
-    const handlePoletimeTechFill = () => {
+    const handlePoletimeTechAccept = () => {
         setChosenPoletime(techTimeTarget);
         saveToLocalStorage({ poletime: techTimeTarget });
         transitionToTopic('TOP10');
     };
 
-    const handlePoletimeTechOk = () => {
+    const handlePoletimeTechCopy = () => {
         saveToLocalStorage({ poletime: chosenPoletime });
         transitionToTopic('TOP10');
     };
@@ -786,24 +789,23 @@ export function WarRoomContent() {
     // ==========================================
     // TÓPICO 2: TOP 10 FINISH
     // ==========================================
-    const handleTop10SeniorFill = () => {
+    const handleTop10SeniorAccept = () => {
         setChosenTop10(seniorTop10List);
         saveToLocalStorage({ top10: seniorTop10List });
-        setTopicSettledStatus('TOP 10 HOMOLOGADO');
+        transitionToTopic('EVO');
+    };
+
+    const handleTop10SeniorCopy = () => {
         setSubStep('TECH');
     };
 
-    const handleTop10SeniorOk = () => {
-        setSubStep('TECH');
-    };
-
-    const handleTop10TechFill = () => {
+    const handleTop10TechAccept = () => {
         setChosenTop10(techTop10List);
         saveToLocalStorage({ top10: techTop10List });
         transitionToTopic('EVO');
     };
 
-    const handleTop10TechOk = () => {
+    const handleTop10TechCopy = () => {
         saveToLocalStorage({ top10: chosenTop10 });
         transitionToTopic('EVO');
     };
@@ -811,26 +813,25 @@ export function WarRoomContent() {
     // ==========================================
     // TÓPICO 3: EVO / ESCALADA
     // ==========================================
-    const handleEvoSeniorFill = () => {
+    const handleEvoSeniorAccept = () => {
         const evoGrid = [seniorEvoDriver, 'SAI', 'ALO', 'TSU', 'ALB'];
         setChosenEvo(evoGrid);
         saveToLocalStorage({ evo: evoGrid });
-        setTopicSettledStatus(`ESCALADA [${seniorEvoDriver}] HOMOLOGADA`);
+        transitionToTopic('H2H');
+    };
+
+    const handleEvoSeniorCopy = () => {
         setSubStep('TECH');
     };
 
-    const handleEvoSeniorOk = () => {
-        setSubStep('TECH');
-    };
-
-    const handleEvoTechFill = () => {
+    const handleEvoTechAccept = () => {
         const evoGrid = [techEvoDriver, 'HAM', 'ALO', 'TSU', 'COL'];
         setChosenEvo(evoGrid);
         saveToLocalStorage({ evo: evoGrid });
         transitionToTopic('H2H');
     };
 
-    const handleEvoTechOk = () => {
+    const handleEvoTechCopy = () => {
         saveToLocalStorage({ evo: chosenEvo });
         transitionToTopic('H2H');
     };
@@ -838,22 +839,21 @@ export function WarRoomContent() {
     // ==========================================
     // TÓPICO 4: H2H / DUELOS TÁTICOS
     // ==========================================
-    const handleH2HSeniorFill = () => {
+    const handleH2HSeniorAccept = () => {
         const seniorPicks = {
             m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
             m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27'
         };
         setChosenH2H(seniorPicks);
         saveToLocalStorage({ h2h: seniorPicks });
-        setTopicSettledStatus('DUELOS HOMOLOGADOS NO PROTOCOLO');
+        transitionToTopic('FINAL_MISC');
+    };
+
+    const handleH2HSeniorCopy = () => {
         setSubStep('TECH');
     };
 
-    const handleH2HSeniorOk = () => {
-        setSubStep('TECH');
-    };
-
-    const handleH2HTechFill = () => {
+    const handleH2HTechAccept = () => {
         const techPicks = {
             m1: '81', m2: '44', m3: '12', m4: '01', m5: '14',
             m6: '43', m7: '87', m8: '41', m9: '77', m10: '23', m11: '05'
@@ -863,7 +863,7 @@ export function WarRoomContent() {
         transitionToTopic('FINAL_MISC');
     };
 
-    const handleH2HTechOk = () => {
+    const handleH2HTechCopy = () => {
         saveToLocalStorage({ h2h: chosenH2H });
         transitionToTopic('FINAL_MISC');
     };
@@ -874,9 +874,7 @@ export function WarRoomContent() {
     };
 
     return (
-        <main className={`w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono transition-all duration-300 ${
-            dialogVersion === 1 ? 'items-start justify-start pt-16 sm:pt-20 px-4 sm:px-10' : 'items-center justify-center p-4'
-        }`}>
+        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center justify-center p-4 transition-all duration-300">
 
             {/* KEYFRAME ANIMATIONS PARA FADE-IN LEFT & FADE-IN RIGHT */}
             <style jsx global>{`
@@ -909,7 +907,7 @@ export function WarRoomContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/75" />
             </div>
 
-            {/* BARRA SUPERIOR: SAÍDA + SELETOR DE VERSÃO (V1 PADRÃO vs V2 CENTRO) */}
+            {/* BARRA SUPERIOR: SAÍDA */}
             <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between">
                 <Link
                     href={`/${userSlug}`}
@@ -918,43 +916,11 @@ export function WarRoomContent() {
                     <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />
                     <span>[ « SAIR ]</span>
                 </Link>
-
-                {/* Seletor de Versão de Posicionamento do Diálogo */}
-                <div className="flex items-center gap-2 bg-black/85 border border-white/15 px-3 py-1.5 rounded-lg text-xs font-mono shadow-2xl backdrop-blur-md">
-                    <span className="text-white/40 uppercase text-[10px]">VERSÃO:</span>
-                    <button
-                        type="button"
-                        onClick={() => setDialogVersion(1)}
-                        className={`px-2.5 py-0.5 rounded text-xs font-bold font-mono transition-all cursor-pointer ${
-                            dialogVersion === 1
-                                ? 'bg-[#fbaa19] text-black shadow'
-                                : 'bg-white/10 text-white/70 hover:text-white'
-                        }`}
-                    >
-                        1
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setDialogVersion(2)}
-                        className={`px-2.5 py-0.5 rounded text-xs font-bold font-mono transition-all cursor-pointer ${
-                            dialogVersion === 2
-                                ? 'bg-[#fbaa19] text-black shadow'
-                                : 'bg-white/10 text-white/70 hover:text-white'
-                        }`}
-                    >
-                        2
-                    </button>
-                    <span className="text-[#fbaa19] text-[10px] font-bold ml-1">(V1 PADRÃO)</span>
-                </div>
-
-                <div className="w-16 hidden sm:block" />
             </div>
 
-            {/* CONTAINER VERTICAL DE DIÁLOGOS COM TRANSIÇÃO DE LIMPEZA DE TELA */}
+            {/* CONTAINER VERTICAL DE DIÁLOGOS CENTRALIZADO NA TELA */}
             <div 
-                className={`relative z-10 w-full max-w-2xl px-2 sm:px-0 flex flex-col gap-5 transition-all duration-300 ${
-                    dialogVersion === 1 ? 'self-start mt-2 sm:mt-4' : 'self-center mx-auto my-auto'
-                } ${
+                className={`relative z-10 w-full max-w-2xl px-2 sm:px-0 flex flex-col gap-5 self-center mx-auto my-auto transition-all duration-300 ${
                     isClearing ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
                 }`}
             >
@@ -979,12 +945,11 @@ export function WarRoomContent() {
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
-                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
-                                isFilled={!!topicSettledStatus}
-                                onOk={subStep === 'SENIOR' ? handlePoletimeSeniorOk : undefined}
-                                onFill={subStep === 'SENIOR' ? handlePoletimeSeniorFill : undefined}
-                                fillLabel={`PREENCHER (${seniorTimeTarget}) »`}
-                                okLabel="OK"
+                                settledLabel="COPY"
+                                onCopy={subStep === 'SENIOR' ? handlePoletimeSeniorCopy : undefined}
+                                onFill={handlePoletimeSeniorAccept}
+                                fillLabel={`ACCEPT (${seniorTimeTarget}) »`}
+                                copyLabel="COPY"
                             />
                         </div>
 
@@ -997,19 +962,17 @@ export function WarRoomContent() {
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="TELEMETRIA"
                                     text={
-                                        topicSettledStatus 
-                                            ? `"Pole em ${chosenPoletime} homologada, chefe. Telemetria alinhada."`
-                                            : isSeniorHistoricalRole
-                                                ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
-                                                : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
+                                        isSeniorHistoricalRole
+                                            ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
+                                            : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
                                     }
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
-                                    onOk={handlePoletimeTechOk}
-                                    onFill={!topicSettledStatus ? handlePoletimeTechFill : undefined}
-                                    fillLabel={`PREENCHER (${techTimeTarget}) »`}
-                                    okLabel="AVANÇAR PARA TOP 10 »"
+                                    onCopy={handlePoletimeTechCopy}
+                                    onFill={handlePoletimeTechAccept}
+                                    fillLabel={`ACCEPT (${techTimeTarget}) »`}
+                                    copyLabel="COPY"
                                 />
                             </div>
                         )}
@@ -1036,12 +999,11 @@ export function WarRoomContent() {
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
-                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
-                                isFilled={!!topicSettledStatus}
-                                onOk={subStep === 'SENIOR' ? handleTop10SeniorOk : undefined}
-                                onFill={subStep === 'SENIOR' ? handleTop10SeniorFill : undefined}
-                                fillLabel={`PREENCHER TOP 10 (${seniorStrategist.code}) »`}
-                                okLabel="OK"
+                                settledLabel="COPY"
+                                onCopy={subStep === 'SENIOR' ? handleTop10SeniorCopy : undefined}
+                                onFill={handleTop10SeniorAccept}
+                                fillLabel={`ACCEPT TOP 10 (${seniorStrategist.code}) »`}
+                                copyLabel="COPY"
                             />
                         </div>
 
@@ -1054,19 +1016,17 @@ export function WarRoomContent() {
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="MONTE CARLO"
                                     text={
-                                        topicSettledStatus
-                                            ? `"Top 10 homologado no pitwall. Consistência blindada para domingo."`
-                                            : isSeniorHistoricalRole
-                                                ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
-                                                : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
+                                        isSeniorHistoricalRole
+                                            ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
+                                            : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
                                     }
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
-                                    onOk={handleTop10TechOk}
-                                    onFill={!topicSettledStatus ? handleTop10TechFill : undefined}
-                                    fillLabel={`PREENCHER TOP 10 (${technicalStrategist.code}) »`}
-                                    okLabel="AVANÇAR PARA EVO »"
+                                    onCopy={handleTop10TechCopy}
+                                    onFill={handleTop10TechAccept}
+                                    fillLabel={`ACCEPT TOP 10 (${technicalStrategist.code}) »`}
+                                    copyLabel="COPY"
                                 />
                             </div>
                         )}
@@ -1089,12 +1049,11 @@ export function WarRoomContent() {
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
-                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
-                                isFilled={!!topicSettledStatus}
-                                onOk={subStep === 'SENIOR' ? handleEvoSeniorOk : undefined}
-                                onFill={subStep === 'SENIOR' ? handleEvoSeniorFill : undefined}
-                                fillLabel={`PREENCHER ESCALADA (${seniorEvoDriver}) »`}
-                                okLabel="OK"
+                                settledLabel="COPY"
+                                onCopy={subStep === 'SENIOR' ? handleEvoSeniorCopy : undefined}
+                                onFill={handleEvoSeniorAccept}
+                                fillLabel={`ACCEPT (${seniorEvoDriver}) »`}
+                                copyLabel="COPY"
                             />
                         </div>
 
@@ -1106,18 +1065,14 @@ export function WarRoomContent() {
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DELTA ULTRAPASSAGEM"
-                                    text={
-                                        topicSettledStatus
-                                            ? `"Estratégia de escalada aceita. 5 pilotos setados na ofensiva."`
-                                            : `"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`
-                                    }
+                                    text={`"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`}
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
-                                    onOk={handleEvoTechOk}
-                                    onFill={!topicSettledStatus ? handleEvoTechFill : undefined}
-                                    fillLabel={`PREENCHER ESCALADA (${techEvoDriver}) »`}
-                                    okLabel="AVANÇAR PARA H2H »"
+                                    onCopy={handleEvoTechCopy}
+                                    onFill={handleEvoTechAccept}
+                                    fillLabel={`ACCEPT (${techEvoDriver}) »`}
+                                    copyLabel="COPY"
                                 />
                             </div>
                         )}
@@ -1140,12 +1095,11 @@ export function WarRoomContent() {
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
-                                settledLabel={topicSettledStatus || 'OK REGISTRADO'}
-                                isFilled={!!topicSettledStatus}
-                                onOk={subStep === 'SENIOR' ? handleH2HSeniorOk : undefined}
-                                onFill={subStep === 'SENIOR' ? handleH2HSeniorFill : undefined}
-                                fillLabel="PREENCHER DUELOS SÊNIOR »"
-                                okLabel="OK"
+                                settledLabel="COPY"
+                                onCopy={subStep === 'SENIOR' ? handleH2HSeniorCopy : undefined}
+                                onFill={handleH2HSeniorAccept}
+                                fillLabel={`ACCEPT (${seniorStrategist.code}) »`}
+                                copyLabel="COPY"
                             />
                         </div>
 
@@ -1157,18 +1111,14 @@ export function WarRoomContent() {
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DUELOS ASA MÓVEL"
-                                    text={
-                                        topicSettledStatus
-                                            ? `"Duelos confirmados no pitwall. Protocolo fechado para os 11 confrontos."`
-                                            : `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`
-                                    }
+                                    text={`"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`}
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
-                                    onOk={handleH2HTechOk}
-                                    onFill={!topicSettledStatus ? handleH2HTechFill : undefined}
-                                    fillLabel="PREENCHER DUELOS TÉCNICO »"
-                                    okLabel="CONCLUIR REUNIÃO »"
+                                    onCopy={handleH2HTechCopy}
+                                    onFill={handleH2HTechAccept}
+                                    fillLabel={`ACCEPT (${technicalStrategist.code}) »`}
+                                    copyLabel="COPY"
                                 />
                             </div>
                         )}

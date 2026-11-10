@@ -114,7 +114,7 @@ export default function PitwallPage() {
                 .eq('id', user.id)
                 .maybeSingle();
             if (data?.slug) {
-                setUserSlug(data.slug);
+                setUserSlug(String(data.slug).toLowerCase());
             }
         };
 
@@ -552,7 +552,7 @@ export default function PitwallPage() {
                                                                 </span>
                                                                 {driver?.slug ? (
                                                                     <Link
-                                                                        href={`/${driver.slug}`}
+                                                                        href={`/${String(driver.slug).toLowerCase()}`}
                                                                         className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded bg-white/10 hover:bg-[#fbaa19] text-white hover:text-black border border-white/20 hover:border-[#fbaa19] transition-all font-mono"
                                                                         title={`Acessar telemetria de ${driverFormattedName}`}
                                                                     >

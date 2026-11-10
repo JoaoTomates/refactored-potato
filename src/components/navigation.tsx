@@ -18,7 +18,8 @@ const Navigation = () => {
         if (typeof window !== 'undefined') {
             const cached = localStorage.getItem('vg_user_slug');
             if (cached) {
-                return `/${cached.startsWith('@') ? cached : `@${cached}`}`;
+                const lower = cached.toLowerCase();
+                return `/${lower.startsWith('@') ? lower : `@${lower}`}`;
             }
         }
         return '/superlicense';
@@ -47,10 +48,11 @@ const Navigation = () => {
 
                 if (!isMounted) return;
                 if (data?.slug) {
+                    const lower = data.slug.toLowerCase();
                     if (typeof window !== 'undefined') {
-                        localStorage.setItem('vg_user_slug', data.slug);
+                        localStorage.setItem('vg_user_slug', lower);
                     }
-                    const cleanSlug = data.slug.startsWith('@') ? data.slug : `@${data.slug}`;
+                    const cleanSlug = lower.startsWith('@') ? lower : `@${lower}`;
                     setDashboardUrl(`/${cleanSlug}`);
                 } else {
                     setDashboardUrl('/playground');
