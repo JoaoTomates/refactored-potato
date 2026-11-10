@@ -12,6 +12,7 @@ import Settings from "@/components/settings";
 import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
+import { StewardAlertBanner, StewardVotingModal, useStewardVoting } from "@/components/steward-voting-panel";
 import SillySeason from "@/components/silly-season";
 import RaceWeekSchedule from "@/components/race-week-schedule";
 import PaddockRadioPlayer from "@/components/paddock-radio-player";
@@ -824,6 +825,8 @@ export default function OfficialStrategistDashboard() {
 
     // Subtelas operacionais (Setup, Settings, Calendar, Report, Silly Season)
     const [activeView, setActiveView] = useState<"menu" | "settings" | "setup" | "calendar" | "report" | "silly_season">("menu");
+    const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
+    const stewardVoting = useStewardVoting();
 
     useEffect(() => {
         if (authLoading) return;
@@ -1589,6 +1592,15 @@ export default function OfficialStrategistDashboard() {
                     </div>
                 )}
 
+                {activeView === "menu" && (
+                    <StewardAlertBanner
+                        pendingReports={stewardVoting.pendingReports}
+                        unvotedCount={stewardVoting.unvotedPendingCount}
+                        onOpenVoting={() => setIsVotingModalOpen(true)}
+                        onOpenReport={() => setActiveView("report")}
+                    />
+                )}
+
                 {/* SUB-TELA OPERACIONAL (SETUP, REPORT, SILLY SEASON, CALENDAR, SETTINGS) */}
                 {activeView !== "menu" ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 py-6 animate-fade-in flex flex-col gap-6">
@@ -1611,7 +1623,15 @@ export default function OfficialStrategistDashboard() {
                             {activeView === "setup" && <SetupForm />}
                             {activeView === "settings" && <Settings />}
                             {activeView === "calendar" && <Calendar />}
-                            {activeView === "report" && <ReportForm />}
+                            {activeView === "report" && (
+                                <ReportForm
+                                    onReportSubmitted={() => stewardVoting.refresh()}
+                                    onBackToDashboard={() => {
+                                        setActiveView("menu");
+                                        setIsVotingModalOpen(true);
+                                    }}
+                                />
+                            )}
                             {activeView === "silly_season" && <SillySeason />}
                         </div>
                     </div>
@@ -2682,6 +2702,21 @@ export default function OfficialStrategistDashboard() {
                                         Report
                                     </button>
                                     <button
+                                        onClick={() => setIsVotingModalOpen(true)}
+                                        className={`p-2.5 rounded text-center transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
+                                            stewardVoting.pendingReports.length > 0
+                                                ? 'border-[#fbaa19]/60 bg-[#fbaa19]/15 text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black'
+                                                : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+                                        }`}
+                                    >
+                                        <span>Voting</span>
+                                        {stewardVoting.pendingReports.length > 0 && (
+                                            <span className="px-1.5 py-0.2 rounded bg-black/70 text-[#fbaa19] text-[9px] font-black">
+                                                {stewardVoting.pendingReports.length}
+                                            </span>
+                                        )}
+                                    </button>
+                                    <button
                                         onClick={() => setActiveView('silly_season')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
@@ -2841,6 +2876,18 @@ export default function OfficialStrategistDashboard() {
                     <span>BAEFF1 TERMINAL // PAINEL OFICIAL DO ESTRATEGISTA {targetSlug.toUpperCase()}</span>
                 </footer>
             </div>
+
+            <StewardVotingModal
+                isOpen={isVotingModalOpen}
+                onClose={() => setIsVotingModalOpen(false)}
+                reports={stewardVoting.reports}
+                myVotes={stewardVoting.myVotes}
+                votingReportId={stewardVoting.votingReportId}
+                voteError={stewardVoting.voteError}
+                isAuthenticated={stewardVoting.isAuthenticated}
+                onVote={(reportId, choice) => stewardVoting.castVote(reportId, choice)}
+                onOpenReport={() => setActiveView("report")}
+            />
         </main>
     );
 }

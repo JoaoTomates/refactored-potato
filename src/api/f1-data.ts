@@ -141,21 +141,53 @@ export const DRIVER_AVATAR_CODE_MAP: Record<string, string> = {
   'G.BORTOLETO': 'BOR',
 };
 
-export const AVAILABLE_F1_PIXEL_CODES = new Set<string>([
-  'VER', 'LEC', 'HAM', 'NOR', 'RUS', 'ALO', 'OCO', 'BEA', 'PER', 'BOR',
-]);
+export const F1_AVATAR_PATH_MAP: Record<string, string> = {
+  NOR: '/avatar/f1/NOR.jpg',
+  PIA: '/avatar/f1/PIA.jfif',
+  LEC: '/avatar/f1/LEC.jpg',
+  HAM: '/avatar/f1/HAM.jpg',
+  RUS: '/avatar/f1/RUS.jpg',
+  ANT: '/avatar/f1/ANT.jfif',
+  VER: '/avatar/f1/VER.jpg',
+  HAD: '/avatar/f1/HAD.jfif',
+  ALO: '/avatar/f1/ALO.jpg',
+  STR: '/avatar/f1/STR.jfif',
+  COL: '/avatar/f1/COL.jfif',
+  GAS: '/avatar/f1/GAS.jfif',
+  OCO: '/avatar/f1/OCO.jpg',
+  BEA: '/avatar/f1/BEA.jpg',
+  LAW: '/avatar/f1/LAW.jfif',
+  LIN: '/avatar/f1/LIN.jfif',
+  PER: '/avatar/f1/PER.jpg',
+  BOT: '/avatar/f1/BOT.jfif',
+  ALB: '/avatar/f1/ALB.jfif',
+  SAI: '/avatar/f1/SAI.jfif',
+  HUL: '/avatar/f1/HUL.jfif',
+  BOR: '/avatar/f1/BOR.jpg',
+  CAM: '/avatar/f1/CAM.jfif',
+};
+
+export const AVAILABLE_F1_PIXEL_CODES = new Set<string>(Object.keys(F1_AVATAR_PATH_MAP));
+
+export const RESERVE_DRIVER_AVATARS = [
+  { code: 'CAM', label: 'CAM (Novo Piloto / Reserva)', avatarUrl: '/avatar/f1/CAM.jfif' },
+];
 
 export function getDriverAvatarUrl(driverName: string): string | null {
+  const clean = (driverName || '').trim().toUpperCase();
+  if (F1_AVATAR_PATH_MAP[clean]) return F1_AVATAR_PATH_MAP[clean];
   const normalized = normalizeDriverName(driverName);
   const code = DRIVER_AVATAR_CODE_MAP[normalized];
-  if (!code || !AVAILABLE_F1_PIXEL_CODES.has(code)) return null;
-  return `/avatar/f1/${code}.jpg`;
+  if (code && F1_AVATAR_PATH_MAP[code]) return F1_AVATAR_PATH_MAP[code];
+  // Se vier um nome novo contendo CAM (ex: R.CAMARA), aponta para CAM.jfif
+  if (clean.includes('CAM')) return F1_AVATAR_PATH_MAP.CAM;
+  return null;
 }
 
 export function getDriverDetails(driverName: string) {
   const normalized = normalizeDriverName(driverName);
-  const code = DRIVER_AVATAR_CODE_MAP[normalized] || '';
-  const avatarUrl = code && AVAILABLE_F1_PIXEL_CODES.has(code) ? `/avatar/f1/${code}.jpg` : null;
+  const code = DRIVER_AVATAR_CODE_MAP[normalized] || (normalized.includes('CAM') ? 'CAM' : '');
+  const avatarUrl = (code && F1_AVATAR_PATH_MAP[code]) || getDriverAvatarUrl(driverName);
   for (const match of F1_MATCHUPS) {
     if (match.d1.name === normalized) {
       return { ...match.d1, team: match.team, teamColor: getF1TeamColor(match.team), code, avatarUrl };
@@ -164,7 +196,7 @@ export function getDriverDetails(driverName: string) {
       return { ...match.d2, team: match.team, teamColor: getF1TeamColor(match.team), code, avatarUrl };
     }
   }
-  return { name: normalized || driverName, num: '??', team: 'Unknown', teamColor: '#fbaa19', code, avatarUrl: null };
+  return { name: normalized || driverName, num: '??', team: 'Unknown', teamColor: '#fbaa19', code, avatarUrl };
 }
 export interface F1Event {
     round: string;
