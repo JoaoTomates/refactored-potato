@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useEffect, Suspense, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
-import { SENIOR_STRATEGISTS, SeniorStrategist, getSeniorStrategistForRound } from '@/lib/race-directors';
+import { SENIOR_STRATEGISTS, SeniorStrategist, getSeniorStrategistForRound, getSeniorStrategistById } from '@/lib/race-directors';
 import { 
     TechnicalStrategist, 
     getActiveTechnicalStrategist, 
     AllianceCode 
 } from '@/lib/technical-strategists';
 import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
+import { getStrategistSquad } from '@/lib/teamwork';
 import { ChevronLeft, ArrowRight, Check } from 'lucide-react';
 
 // --- PitWall Sound Engine (Cliques táteis da sala de estratégia) ---
@@ -337,6 +338,195 @@ function BoxCard({
     );
 }
 
+// ==========================================
+// ESTRUTURAS DE DADOS: REFERÊNCIA HISTÓRICA DO EVENTO ANTERIOR & CONSENSO
+// ==========================================
+interface HistoricalRaceRef {
+    year: string;
+    circuitName: string;
+    poleTime: string;
+    poleDriver: string;
+    top10Finish: string[];
+    top3: string;
+    details: string;
+}
+
+const HISTORICAL_RACES: Record<string, HistoricalRaceRef> = {
+    '18': {
+        year: '2025',
+        circuitName: 'Austin (COTA)',
+        poleTime: '1:32.329',
+        poleDriver: 'L.NORRIS',
+        top10Finish: ['LEC', 'SAI', 'VER', 'NOR', 'PIA', 'RUS', 'PER', 'HUL', 'LAW', 'COL'],
+        top3: 'LEC, SAI, VER',
+        details: 'Pole histórica de L. Norris em 1:32.329. Dobradinha da Ferrari no GP com Charles Leclerc em P1.'
+    },
+    '19': {
+        year: '2025',
+        circuitName: 'México (Hermanos Rodríguez)',
+        poleTime: '1:15.946',
+        poleDriver: 'C.SAINZ',
+        top10Finish: ['SAI', 'NOR', 'LEC', 'HAM', 'RUS', 'VER', 'MAG', 'PIA', 'HUL', 'GAS'],
+        top3: 'SAI, NOR, LEC',
+        details: 'Pole e vitória histórica de C. Sainz em 1:15.946 na altitude do México.'
+    },
+    '20': {
+        year: '2025',
+        circuitName: 'Brasil (Interlagos)',
+        poleTime: '1:09.680',
+        poleDriver: 'L.NORRIS',
+        top10Finish: ['VER', 'OCO', 'GAS', 'RUS', 'LEC', 'NOR', 'TSU', 'LAW', 'HAM', 'PIA'],
+        top3: 'VER, OCO, GAS',
+        details: 'Pole histórica de L. Norris (1:09.680) e vitória histórica de Verstappen na chuva.'
+    },
+    '1': {
+        year: '2025',
+        circuitName: 'Bahrein (Sakhir)',
+        poleTime: '1:29.179',
+        poleDriver: 'M.VERSTAPPEN',
+        top10Finish: ['VER', 'PER', 'SAI', 'LEC', 'RUS', 'NOR', 'HAM', 'PIA', 'ALO', 'STR'],
+        top3: 'VER, PER, SAI',
+        details: 'Pole histórica de M. Verstappen em 1:29.179 com ritmo dominante.'
+    }
+};
+
+function getHistoricalRaceData(round: number | string): HistoricalRaceRef {
+    const key = String(round);
+    return HISTORICAL_RACES[key] || HISTORICAL_RACES['19'];
+}
+
+interface ConsensusData {
+    source: 'TEAMWORK' | 'ALLIANCE' | 'GENERAL';
+    sourceLabel: string;
+    categoryTag: string;
+    poleTime: string;
+    top10Finish: string[];
+    top3: string;
+    reasoning: string;
+}
+
+async function fetchConsensusData(
+    userId: string,
+    allianceKey: AllianceCode,
+    defaultTechTime: string,
+    defaultTechTop10: string[]
+): Promise<ConsensusData> {
+    try {
+        // 1. Prioridade 1: Teamwork Squad do Usuário
+        if (userId && userId !== 'guest') {
+            const squad = await getStrategistSquad(userId);
+            if (squad && squad.members.length > 0) {
+                const memberIds = squad.members.map(m => m.userId);
+                const { data: squadPreds } = await supabase
+                    .from('predictions')
+                    .select('poletime, top10, positions')
+                    .in('user_id', memberIds)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (squadPreds && squadPreds.length > 0) {
+                    const validTimes = squadPreds.map((p: any) => p.poletime).filter(Boolean);
+                    const chosenTime = validTimes.length > 0 ? validTimes[0] : defaultTechTime;
+                    
+                    const driverCounts: Record<string, number> = {};
+                    squadPreds.forEach((p: any) => {
+                        const list = (p.top10 || p.positions || []) as string[];
+                        list.forEach((drv, idx) => {
+                            if (typeof drv === 'string') {
+                                driverCounts[drv] = (driverCounts[drv] || 0) + (10 - idx);
+                            }
+                        });
+                    });
+                    const ranked = Object.keys(driverCounts).sort((a, b) => driverCounts[b] - driverCounts[a]);
+                    const finalTop10 = ranked.length >= 5 
+                        ? ranked.concat(defaultTechTop10.filter(d => !ranked.includes(d))).slice(0, 10)
+                        : defaultTechTop10;
+
+                    return {
+                        source: 'TEAMWORK',
+                        sourceLabel: `TEAMWORK [${squad.name.toUpperCase()}]`,
+                        categoryTag: 'TEAMWORK SQUAD',
+                        poleTime: chosenTime,
+                        top10Finish: finalTop10,
+                        top3: finalTop10.slice(0, 3).join(', '),
+                        reasoning: `Consenso calculado a partir dos estrategistas do esquadrão ${squad.name}.`
+                    };
+                }
+            }
+        }
+
+        // 2. Prioridade 2: Aliança Técnica de Motor (Bloco A, B ou C)
+        const allianceTeams = allianceKey === 'A' ? ['MER', 'MCL', 'ALP', 'WIL']
+            : allianceKey === 'B' ? ['FER', 'HAA', 'CAD']
+            : ['RBR', 'RBA', 'AST', 'AUD'];
+
+        const { data: allianceContracts } = await supabase
+            .from('contracts')
+            .select('user_id, team_id, teams!inner(code)')
+            .in('teams.code', allianceTeams)
+            .limit(15);
+
+        if (allianceContracts && allianceContracts.length > 0) {
+            const userIds = allianceContracts.map((c: any) => c.user_id).filter(Boolean);
+            if (userIds.length > 0) {
+                const { data: alliancePreds } = await supabase
+                    .from('predictions')
+                    .select('poletime, top10, positions')
+                    .in('user_id', userIds)
+                    .order('created_at', { ascending: false })
+                    .limit(15);
+
+                if (alliancePreds && alliancePreds.length > 0) {
+                    const validTimes = alliancePreds.map((p: any) => p.poletime).filter(Boolean);
+                    const chosenTime = validTimes.length > 0 ? validTimes[0] : defaultTechTime;
+                    return {
+                        source: 'ALLIANCE',
+                        sourceLabel: `ALIANÇA TÉCNICA [BLOCO ${allianceKey}]`,
+                        categoryTag: 'ALIANÇA TÉCNICA',
+                        poleTime: chosenTime,
+                        top10Finish: defaultTechTop10,
+                        top3: defaultTechTop10.slice(0, 3).join(', '),
+                        reasoning: `Telemetria compartilhada entre as garagens do Bloco ${allianceKey}.`
+                    };
+                }
+            }
+        }
+
+        // 3. Prioridade 3: Mercado Geral do Grid
+        const { data: generalPreds } = await supabase
+            .from('predictions')
+            .select('poletime, top10, positions')
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+        if (generalPreds && generalPreds.length > 0) {
+            const validTimes = generalPreds.map((p: any) => p.poletime).filter(Boolean);
+            const chosenTime = validTimes.length > 0 ? validTimes[0] : defaultTechTime;
+            return {
+                source: 'GENERAL',
+                sourceLabel: 'MERCADO GERAL DO GRID',
+                categoryTag: 'TENDÊNCIA GERAL',
+                poleTime: chosenTime,
+                top10Finish: defaultTechTop10,
+                top3: defaultTechTop10.slice(0, 3).join(', '),
+                reasoning: 'Média de apostas e projeções coletivas de todo o grid BAEFF1.'
+            };
+        }
+    } catch (e) {
+        console.error('Erro ao buscar dados de consenso:', e);
+    }
+
+    return {
+        source: 'GENERAL',
+        sourceLabel: 'CONSENSO GERAL DO GRID',
+        categoryTag: 'TENDÊNCIA GERAL',
+        poleTime: defaultTechTime,
+        top10Finish: defaultTechTop10,
+        top3: defaultTechTop10.slice(0, 3).join(', '),
+        reasoning: 'Calibrado com os modelos estocásticos de telemetria do paddock.'
+    };
+}
+
 // 5 Tópicos Paginados (A tela limpa entre cada tópico):
 // 1: POLETIME
 // 2: TOP10
@@ -347,6 +537,9 @@ type Topic = 'POLETIME' | 'TOP10' | 'EVO' | 'H2H' | 'FINAL_MISC';
 
 export function WarRoomContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const mentorParam = searchParams.get('mentor');
+    const driverParam = searchParams.get('driver');
     const { user } = useSupabaseAuth();
 
     // Aliança e Equipe
@@ -356,6 +549,11 @@ export function WarRoomContent() {
     // Personagens da Mesa
     const [seniorStrategist, setSeniorStrategist] = useState<SeniorStrategist>(SENIOR_STRATEGISTS[0]);
     const [technicalStrategist, setTechnicalStrategist] = useState<TechnicalStrategist | null>(null);
+
+    // Fontes de inteligência (Histórica do Ano Anterior e Consenso Teamwork/Aliança/Geral)
+    const [historicalData, setHistoricalData] = useState<HistoricalRaceRef>(HISTORICAL_RACES['19']);
+    const [consensusData, setConsensusData] = useState<ConsensusData | null>(null);
+    const [isSeniorHistoricalRole, setIsSeniorHistoricalRole] = useState<boolean>(true);
 
     // Estado de Tópico Paginado & Efeito de Limpeza de Tela
     const [currentTopic, setCurrentTopic] = useState<Topic>('POLETIME');
@@ -392,14 +590,25 @@ export function WarRoomContent() {
         const loadProfile = async () => {
             let allianceKey: AllianceCode = 'B';
             let teamCode = 'FER';
-
             let userGroupId = 1;
+            let resolvedSenior: SeniorStrategist | null = null;
+
+            // 1. Carrega dados do perfil e contrato
             if (user) {
-                const { data: p } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
+                const { data: p } = await supabase
+                    .from('profiles')
+                    .select('id, slug, senior_strategist_id, group_id')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
                 if (p?.slug) {
                     const s = p.slug.startsWith('@') ? p.slug : `@${p.slug}`;
                     setUserSlug(s);
                     if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', p.slug);
+                }
+
+                if (p?.senior_strategist_id) {
+                    resolvedSenior = getSeniorStrategistById(p.senior_strategist_id) || null;
                 }
 
                 const { data: contract } = await supabase
@@ -419,12 +628,35 @@ export function WarRoomContent() {
                 }
             }
 
+            // 2. Se veio mentor específico via URL query param (?mentor=strat-01), prioriza-o
+            if (mentorParam) {
+                const queryMentor = getSeniorStrategistById(mentorParam);
+                if (queryMentor) resolvedSenior = queryMentor;
+            }
+
+            // 3. Se veio driver via URL (?driver=f.azevedo) e ainda não achamos o sênior
+            if (!resolvedSenior && driverParam) {
+                const clean = driverParam.replace('@', '');
+                const { data: pDriver } = await supabase
+                    .from('profiles')
+                    .select('id, slug, senior_strategist_id')
+                    .or(`slug.eq.${clean},slug.eq.@${clean},slug.ilike.${clean}`)
+                    .maybeSingle();
+                if (pDriver?.senior_strategist_id) {
+                    resolvedSenior = getSeniorStrategistById(pDriver.senior_strategist_id) || null;
+                }
+            }
+
+            // 4. Fallback final para rodada oficial (ex: round 19)
+            if (!resolvedSenior) {
+                resolvedSenior = getSeniorStrategistForRound(19);
+            }
+
             setUserAlliance(allianceKey);
             setUserTeamCode(teamCode);
+            setSeniorStrategist(resolvedSenior);
 
-            const senior = getSeniorStrategistForRound(2);
-            setSeniorStrategist(senior);
-
+            // 5. Configura o Engenheiro Técnico da Garagem
             const tech = getActiveTechnicalStrategist(user?.id || 'guest', teamCode, allianceKey);
             const groupEng = getGroupTechnicalEngineer(userGroupId, user?.id || 'guest');
             if (groupEng) {
@@ -435,19 +667,57 @@ export function WarRoomContent() {
                 tech.specialty = groupEng.specialty;
             }
             setTechnicalStrategist({ ...tech });
+
+            // 6. SORTEIO DETERMINÍSTICO POR CORRIDA (ROUND):
+            // Um engenheiro busca a referência do evento do ano anterior (pole e top 10)
+            // e o outro baseia-se no Teamwork / Aliança / Geral
+            const activeRound = 19;
+            const seed = ((activeRound * 9301 + 49297) % 233280);
+            const seniorIsHist = seed % 2 === 0;
+            setIsSeniorHistoricalRole(seniorIsHist);
+
+            const histRef = getHistoricalRaceData(activeRound);
+            setHistoricalData(histRef);
+
+            const cData = await fetchConsensusData(
+                user?.id || 'guest',
+                allianceKey,
+                tech.telemetryBriefing.poletimeTarget,
+                tech.telemetryBriefing.top10Picks
+            );
+            setConsensusData(cData);
         };
 
         loadProfile();
-    }, [user]);
+    }, [user, mentorParam, driverParam]);
 
     const theme = ALLIANCE_THEMES[userAlliance] || ALLIANCE_THEMES['B'];
 
-    // Valores do Sênior e do Técnico
-    const seniorTimeTarget = seniorStrategist.briefingTips.poletimeTarget.split(' ')[0] || '1:12.209';
-    const techTimeTarget = technicalStrategist?.telemetryBriefing.poletimeTarget || '1:12.164';
+    // ==========================================
+    // CÁLCULO DAS PROPOSTAS: ANO ANTERIOR VS TEAMWORK/ALIANÇA/GERAL
+    // ==========================================
+    const seniorTimeTarget = isSeniorHistoricalRole
+        ? historicalData.poleTime
+        : (consensusData?.poleTime || seniorStrategist.briefingTips.poletimeTarget.split(' ')[0] || '1:12.209');
 
-    const seniorTop3 = seniorStrategist.briefingTips.predictedTop3.slice(0, 3).join(', ');
-    const techTop3 = technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 3).join(', ') || 'NOR, VER, LEC';
+    const techTimeTarget = isSeniorHistoricalRole
+        ? (consensusData?.poleTime || technicalStrategist?.telemetryBriefing.poletimeTarget || '1:12.164')
+        : historicalData.poleTime;
+
+    const seniorTop10List = useMemo(() => {
+        if (isSeniorHistoricalRole) return historicalData.top10Finish;
+        if (consensusData?.top10Finish && consensusData.top10Finish.length > 0) return consensusData.top10Finish;
+        return seniorStrategist.briefingTips.predictedTop3.concat(['RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB', 'TSU']).slice(0, 10);
+    }, [isSeniorHistoricalRole, historicalData, consensusData, seniorStrategist]);
+
+    const techTop10List = useMemo(() => {
+        if (!isSeniorHistoricalRole) return historicalData.top10Finish;
+        if (consensusData?.top10Finish && consensusData.top10Finish.length > 0) return consensusData.top10Finish;
+        return technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 10) || ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'];
+    }, [isSeniorHistoricalRole, historicalData, consensusData, technicalStrategist]);
+
+    const seniorTop3 = seniorTop10List.slice(0, 3).join(', ');
+    const techTop3 = techTop10List.slice(0, 3).join(', ');
 
     const seniorEvoDriver = seniorStrategist.briefingTips.predictedEvoDriver || 'HAM';
     const techEvoDriver = technicalStrategist?.telemetryBriefing.top10Picks[4] || 'SAI';
@@ -517,10 +787,9 @@ export function WarRoomContent() {
     // TÓPICO 2: TOP 10 FINISH
     // ==========================================
     const handleTop10SeniorFill = () => {
-        const grid = seniorStrategist.briefingTips.predictedTop3.concat(['RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB', 'TSU']).slice(0, 10);
-        setChosenTop10(grid);
-        saveToLocalStorage({ top10: grid });
-        setTopicSettledStatus('TOP 10 SÊNIOR HOMOLOGADO');
+        setChosenTop10(seniorTop10List);
+        saveToLocalStorage({ top10: seniorTop10List });
+        setTopicSettledStatus('TOP 10 HOMOLOGADO');
         setSubStep('TECH');
     };
 
@@ -529,9 +798,8 @@ export function WarRoomContent() {
     };
 
     const handleTop10TechFill = () => {
-        const grid = technicalStrategist?.telemetryBriefing.top10Picks.slice(0, 10) || ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'];
-        setChosenTop10(grid);
-        saveToLocalStorage({ top10: grid });
+        setChosenTop10(techTop10List);
+        saveToLocalStorage({ top10: techTop10List });
         transitionToTopic('EVO');
     };
 
@@ -702,8 +970,16 @@ export function WarRoomContent() {
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
-                                categoryTag="1/4 • POLETIME Q3"
-                                text={`"Sinto no estômago. Minha meta para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo."`}
+                                categoryTag={
+                                    isSeniorHistoricalRole
+                                        ? `1/4 • HISTÓRICO ${historicalData.year} (${historicalData.circuitName})`
+                                        : `1/4 • ${consensusData?.categoryTag || 'CONSENSO'} // POLE`
+                                }
+                                text={
+                                    isSeniorHistoricalRole
+                                        ? `"Puxei a telemetria do evento do ano anterior (${historicalData.year}): a pole cravada aqui foi de ${historicalData.poleTime} (${historicalData.poleDriver}). Esse é o tempo histórico a ser batido."`
+                                        : `"Conversei com nossos contatos no pitwall e no ${consensusData?.sourceLabel || 'grid'}. A média projetada é de ${seniorTimeTarget}. É onde o grid está mirando."`
+                                }
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
@@ -711,7 +987,11 @@ export function WarRoomContent() {
                                 isFilled={!!topicSettledStatus}
                                 onOk={subStep === 'SENIOR' ? handlePoletimeSeniorOk : undefined}
                                 onFill={subStep === 'SENIOR' ? handlePoletimeSeniorFill : undefined}
-                                fillLabel={`PREENCHER (${seniorTimeTarget}) »`}
+                                fillLabel={
+                                    isSeniorHistoricalRole
+                                        ? `PREENCHER COM ANO ANTERIOR (${seniorTimeTarget}) »`
+                                        : `PREENCHER VIA ${consensusData?.categoryTag || 'CONSENSO'} (${seniorTimeTarget}) »`
+                                }
                                 okLabel="OK"
                             />
                         </div>
@@ -723,18 +1003,28 @@ export function WarRoomContent() {
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
-                                    categoryTag="TELEMETRIA"
+                                    categoryTag={
+                                        isSeniorHistoricalRole
+                                            ? `TELEMETRIA // ${consensusData?.categoryTag || 'CONSENSO'}`
+                                            : `HISTÓRICO ${historicalData.year} // TELEMETRIA`
+                                    }
                                     text={
                                         topicSettledStatus 
-                                            ? `"Pole em ${seniorTimeTarget} homologada, chefe. Telemetria alinhada."`
-                                            : `"Telemetria aponta ${techTimeTarget}. Há ganho aerodinâmico real no setor 2."`
+                                            ? `"Pole em ${chosenPoletime} homologada, chefe. Telemetria alinhada."`
+                                            : isSeniorHistoricalRole
+                                                ? `"Cruzando com a inteligência do ${consensusData?.sourceLabel || 'grupo'}: a projeção calibrada aponta ${techTimeTarget}. ${consensusData?.reasoning || 'Há ganho aerodinâmico real nos setores 2 e 3.'}"`
+                                                : `"Nossa base histórica do evento anterior (${historicalData.year}) cravou a pole em ${historicalData.poleTime} com ${historicalData.poleDriver}. Temos os micro-setores registrados."`
                                     }
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
                                     onOk={handlePoletimeTechOk}
                                     onFill={!topicSettledStatus ? handlePoletimeTechFill : undefined}
-                                    fillLabel={`PREENCHER (${techTimeTarget}) »`}
+                                    fillLabel={
+                                        isSeniorHistoricalRole
+                                            ? `PREENCHER VIA ${consensusData?.categoryTag || 'CONSENSO'} (${techTimeTarget}) »`
+                                            : `PREENCHER COM ANO ANTERIOR (${techTimeTarget}) »`
+                                    }
                                     okLabel="AVANÇAR PARA TOP 10 »"
                                 />
                             </div>
@@ -753,8 +1043,16 @@ export function WarRoomContent() {
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
-                                categoryTag="2/4 • TOP 10 FINISH"
-                                text={`"Corrida é desgaste. Casca grossa decide: ${seniorTop3} na ponta."`}
+                                categoryTag={
+                                    isSeniorHistoricalRole
+                                        ? `2/4 • HISTÓRICO ${historicalData.year} // TOP 10`
+                                        : `2/4 • ${consensusData?.categoryTag || 'CONSENSO'} // TOP 10`
+                                }
+                                text={
+                                    isSeniorHistoricalRole
+                                        ? `"Corrida é desgaste e casca grossa. No evento de ${historicalData.year}, os líderes da prova foram ${historicalData.top3}. Quem tem regularidade repete o feito."`
+                                        : `"A leitura tática coletiva do ${consensusData?.sourceLabel || 'grid'} aponta ${seniorTop3} na disputa direta pelo pódio."`
+                                }
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
@@ -762,7 +1060,11 @@ export function WarRoomContent() {
                                 isFilled={!!topicSettledStatus}
                                 onOk={subStep === 'SENIOR' ? handleTop10SeniorOk : undefined}
                                 onFill={subStep === 'SENIOR' ? handleTop10SeniorFill : undefined}
-                                fillLabel="PREENCHER TOP 10 SÊNIOR »"
+                                fillLabel={
+                                    isSeniorHistoricalRole
+                                        ? `PREENCHER TOP 10 HISTÓRICO (${historicalData.year}) »`
+                                        : `PREENCHER TOP 10 ${consensusData?.categoryTag || 'CONSENSO'} »`
+                                }
                                 okLabel="OK"
                             />
                         </div>
@@ -774,18 +1076,28 @@ export function WarRoomContent() {
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
-                                    categoryTag="MONTE CARLO"
+                                    categoryTag={
+                                        isSeniorHistoricalRole
+                                            ? `MONTE CARLO // ${consensusData?.categoryTag || 'CONSENSO'}`
+                                            : `HISTÓRICO ${historicalData.year} // BANDEIRADA`
+                                    }
                                     text={
                                         topicSettledStatus
-                                            ? `"Top 10 do chefe gravado no pitwall. Consistência blindada para domingo."`
-                                            : `"Pirelli discorda, chefe. A degradação térmica favorece ${techTop3}."`
+                                            ? `"Top 10 homologado no pitwall. Consistência blindada para domingo."`
+                                            : isSeniorHistoricalRole
+                                                ? `"O algoritmo calibrado pelo ${consensusData?.sourceLabel || 'grupo'} aponta ${techTop3} com melhor ritmo de corrida sustentado."`
+                                                : `"Os dados brutos do ano anterior (${historicalData.year}) registraram ${historicalData.top3} na ponta da bandeirada."`
                                     }
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
                                     onOk={handleTop10TechOk}
                                     onFill={!topicSettledStatus ? handleTop10TechFill : undefined}
-                                    fillLabel="PREENCHER TOP 10 TÉCNICO »"
+                                    fillLabel={
+                                        isSeniorHistoricalRole
+                                            ? `PREENCHER TOP 10 ${consensusData?.categoryTag || 'CONSENSO'} »`
+                                            : `PREENCHER TOP 10 HISTÓRICO (${historicalData.year}) »`
+                                    }
                                     okLabel="AVANÇAR PARA EVO »"
                                 />
                             </div>

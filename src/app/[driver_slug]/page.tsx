@@ -57,6 +57,27 @@ const ALLIANCES = {
 } as const;
 type AllianceId = keyof typeof ALLIANCES;
 
+const ALLIANCE_CHIEFS_DATA: Record<AllianceId, { avatarUrl: string; fallbackUrl: string; chiefName: string; chiefRole: string }> = {
+    A: {
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_a.jpg',
+        fallbackUrl: '/avatar/others/alianca_1_a.jpg',
+        chiefName: 'D. CHADWICK',
+        chiefRole: 'Engenheiro-Chefe de Calibração Térmica'
+    },
+    B: {
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_a.jpg',
+        fallbackUrl: '/avatar/others/alianca_2_a.jpg',
+        chiefName: 'M. BELLINI',
+        chiefRole: 'Mestre de Metalurgia & Resistência'
+    },
+    C: {
+        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_a.jpg',
+        fallbackUrl: '/avatar/others/alianca_3_a.jpg',
+        chiefName: 'S. ZIMMERMANN',
+        chiefRole: 'Analista de Lubrificação & Refrigeração'
+    }
+};
+
 const allianceForCode = (code?: string): AllianceId =>
     (Object.keys(ALLIANCES) as AllianceId[]).find(k => (ALLIANCES[k].codes as readonly string[]).includes(code || '')) || 'A';
 
@@ -407,6 +428,7 @@ function CredentialCard({
     const carTextColor = getContrastingTextColor(carBgColor);
 
     return (
+        <div className="flex flex-col gap-4 md:gap-5">
         <Panel
             title="Credencial Oficial"
             tag={me.teamCode}
@@ -581,8 +603,17 @@ function CredentialCard({
                     </div>
                 </div>
             </div>
+        </Panel>
 
-            {/* SEÇÃO TÉCNICA HARMONIZADA: DADOS DO PILOTO E ESCUDERIA */}
+        {/* SEÇÃO TÉCNICA HARMONIZADA: DADOS DO PILOTO E ESCUDERIA EM SANFONA */}
+        <Panel
+            title="Informações do Piloto"
+            tag={`#${number}`}
+            accentColor={me.teamColor}
+            collapsible={true}
+            defaultOpen={false}
+            bodyClass="p-0 overflow-hidden"
+        >
             <div className="p-3.5 bg-gradient-to-b from-[#0a0a0c] to-black flex flex-col gap-2.5">
                 {/* Linha 1: Piloto & Número */}
                 <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
@@ -680,6 +711,7 @@ function CredentialCard({
                 </div>
             )}
         </Panel>
+        </div>
     );
 }
 
@@ -1634,17 +1666,46 @@ export default function OfficialStrategistDashboard() {
                                     defaultOpen={false}
                                 >
                                     <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                                            <div>
-                                                <span className="font-black text-white text-sm tracking-wider block">
-                                                    {assignedMentor.code}
+                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                            {/* Avatar do Conselheiro Sênior */}
+                                            <div
+                                                className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
+                                                style={{ borderColor: `${teamColor}50` }}
+                                            >
+                                                <img
+                                                    src={assignedMentor.avatarUrl || `/avatar/ex_drivers/avatar_driver_${parseInt(assignedMentor.id.replace('strat-', ''), 10)}.jpg`}
+                                                    alt={assignedMentor.displayName}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        const num = parseInt(assignedMentor.id.replace('strat-', ''), 10);
+                                                        (e.target as HTMLImageElement).src = `/avatar/ex_drivers/avatar_driver_${num}.jpg`;
+                                                    }}
+                                                />
+                                                <div
+                                                    className="absolute bottom-0 inset-x-0 h-1"
+                                                    style={{ backgroundColor: teamColor }}
+                                                />
+                                            </div>
+
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="font-black text-white text-sm tracking-wider truncate">
+                                                        {assignedMentor.code}
+                                                    </span>
+                                                    <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
+                                                        {assignedMentor.decade}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[10px] text-white/60 block truncate">
+                                                    {assignedMentor.displayName} ({assignedMentor.nationality})
                                                 </span>
-                                                <span className="text-[9px] text-white/40 uppercase">
-                                                    {assignedMentor.displayName} ({assignedMentor.decade})
+                                                <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
+                                                    CONSELHEIRO SÊNIOR
                                                 </span>
                                             </div>
+
                                             <span
-                                                className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest border"
+                                                className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0"
                                                 style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}15` }}
                                             >
                                                 {ALLIANCES[allianceId].short}
@@ -1681,15 +1742,44 @@ export default function OfficialStrategistDashboard() {
                                     defaultOpen={false}
                                 >
                                     <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                                            <div className="min-w-0">
-                                                <span className="font-black text-white text-sm tracking-wider block">
-                                                    {teamPrincipal.code}
-                                                </span>
-                                                <span className="text-[9px] text-white/50 uppercase block truncate">
+                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                            {/* Avatar do Engenheiro-Chefe da Aliança / Chefe de Equipe */}
+                                            <div
+                                                className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
+                                                style={{ borderColor: `${teamColor}50` }}
+                                            >
+                                                <img
+                                                    src={ALLIANCE_CHIEFS_DATA[allianceId]?.avatarUrl || ALLIANCE_CHIEFS_DATA[allianceId]?.fallbackUrl}
+                                                    alt={ALLIANCE_CHIEFS_DATA[allianceId]?.chiefName || teamPrincipal.fullName}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = ALLIANCE_CHIEFS_DATA[allianceId]?.fallbackUrl || '/avatar/others/alianca_1_a.jpg';
+                                                    }}
+                                                />
+                                                <div
+                                                    className="absolute bottom-0 inset-x-0 h-1"
+                                                    style={{ backgroundColor: teamColor }}
+                                                />
+                                            </div>
+
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="font-black text-white text-sm tracking-wider truncate">
+                                                        {teamPrincipal.code}
+                                                    </span>
+                                                    <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
+                                                        CHIEF
+                                                    </span>
+                                                </div>
+                                                <span className="text-[10px] text-white/60 block truncate">
                                                     {teamPrincipal.fullName}
                                                 </span>
+                                                <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
+                                                    {teamPrincipal.title}
+                                                </span>
                                             </div>
+
                                             <span
                                                 className="text-[8.5px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border shrink-0"
                                                 style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}12` }}
@@ -1732,7 +1822,7 @@ export default function OfficialStrategistDashboard() {
                             <div className="w-full flex flex-col sm:flex-row gap-2.5">
                                 {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
                                 <Link
-                                    href="/war-room"
+                                    href={`/war-room?driver=${encodeURIComponent(targetSlug || me.slug || '')}&mentor=${encodeURIComponent(assignedMentor?.id || '')}`}
                                     className="flex-1 py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
                                     style={{
                                         borderColor: '#fbaa19',
