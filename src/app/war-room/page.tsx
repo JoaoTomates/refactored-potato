@@ -970,15 +970,11 @@ export function WarRoomContent() {
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
-                                categoryTag={
-                                    isSeniorHistoricalRole
-                                        ? `1/4 • HISTÓRICO ${historicalData.year} (${historicalData.circuitName})`
-                                        : `1/4 • ${consensusData?.categoryTag || 'CONSENSO'} // POLE`
-                                }
+                                categoryTag="1/4 • POLETIME Q3"
                                 text={
                                     isSeniorHistoricalRole
-                                        ? `"Puxei a telemetria do evento do ano anterior (${historicalData.year}): a pole cravada aqui foi de ${historicalData.poleTime} (${historicalData.poleDriver}). Esse é o tempo histórico a ser batido."`
-                                        : `"Conversei com nossos contatos no pitwall e no ${consensusData?.sourceLabel || 'grid'}. A média projetada é de ${seniorTimeTarget}. É onde o grid está mirando."`
+                                        ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo perfeito."`
+                                        : `"Pelo movimento dos boxes e contatos no pitwall, a marca de referência é ${seniorTimeTarget}. Esse é o ponto ótimo de aposta."`
                                 }
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
@@ -987,11 +983,7 @@ export function WarRoomContent() {
                                 isFilled={!!topicSettledStatus}
                                 onOk={subStep === 'SENIOR' ? handlePoletimeSeniorOk : undefined}
                                 onFill={subStep === 'SENIOR' ? handlePoletimeSeniorFill : undefined}
-                                fillLabel={
-                                    isSeniorHistoricalRole
-                                        ? `PREENCHER COM ANO ANTERIOR (${seniorTimeTarget}) »`
-                                        : `PREENCHER VIA ${consensusData?.categoryTag || 'CONSENSO'} (${seniorTimeTarget}) »`
-                                }
+                                fillLabel={`PREENCHER (${seniorTimeTarget}) »`}
                                 okLabel="OK"
                             />
                         </div>
@@ -1003,28 +995,20 @@ export function WarRoomContent() {
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
-                                    categoryTag={
-                                        isSeniorHistoricalRole
-                                            ? `TELEMETRIA // ${consensusData?.categoryTag || 'CONSENSO'}`
-                                            : `HISTÓRICO ${historicalData.year} // TELEMETRIA`
-                                    }
+                                    categoryTag="TELEMETRIA"
                                     text={
                                         topicSettledStatus 
                                             ? `"Pole em ${chosenPoletime} homologada, chefe. Telemetria alinhada."`
                                             : isSeniorHistoricalRole
-                                                ? `"Cruzando com a inteligência do ${consensusData?.sourceLabel || 'grupo'}: a projeção calibrada aponta ${techTimeTarget}. ${consensusData?.reasoning || 'Há ganho aerodinâmico real nos setores 2 e 3.'}"`
-                                                : `"Nossa base histórica do evento anterior (${historicalData.year}) cravou a pole em ${historicalData.poleTime} com ${historicalData.poleDriver}. Temos os micro-setores registrados."`
+                                                ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
+                                                : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
                                     }
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
                                     onOk={handlePoletimeTechOk}
                                     onFill={!topicSettledStatus ? handlePoletimeTechFill : undefined}
-                                    fillLabel={
-                                        isSeniorHistoricalRole
-                                            ? `PREENCHER VIA ${consensusData?.categoryTag || 'CONSENSO'} (${techTimeTarget}) »`
-                                            : `PREENCHER COM ANO ANTERIOR (${techTimeTarget}) »`
-                                    }
+                                    fillLabel={`PREENCHER (${techTimeTarget}) »`}
                                     okLabel="AVANÇAR PARA TOP 10 »"
                                 />
                             </div>
@@ -1043,15 +1027,11 @@ export function WarRoomContent() {
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
-                                categoryTag={
-                                    isSeniorHistoricalRole
-                                        ? `2/4 • HISTÓRICO ${historicalData.year} // TOP 10`
-                                        : `2/4 • ${consensusData?.categoryTag || 'CONSENSO'} // TOP 10`
-                                }
+                                categoryTag="2/4 • TOP 10 FINISH"
                                 text={
                                     isSeniorHistoricalRole
-                                        ? `"Corrida é desgaste e casca grossa. No evento de ${historicalData.year}, os líderes da prova foram ${historicalData.top3}. Quem tem regularidade repete o feito."`
-                                        : `"A leitura tática coletiva do ${consensusData?.sourceLabel || 'grid'} aponta ${seniorTop3} na disputa direta pelo pódio."`
+                                        ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${seniorTop3}."`
+                                        : `"Quem quer pontuar alto no campeonato precisa mirar nestes nomes: ${seniorTop3} decidem as primeiras posições."`
                                 }
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
@@ -1060,11 +1040,7 @@ export function WarRoomContent() {
                                 isFilled={!!topicSettledStatus}
                                 onOk={subStep === 'SENIOR' ? handleTop10SeniorOk : undefined}
                                 onFill={subStep === 'SENIOR' ? handleTop10SeniorFill : undefined}
-                                fillLabel={
-                                    isSeniorHistoricalRole
-                                        ? `PREENCHER TOP 10 HISTÓRICO (${historicalData.year}) »`
-                                        : `PREENCHER TOP 10 ${consensusData?.categoryTag || 'CONSENSO'} »`
-                                }
+                                fillLabel={`PREENCHER TOP 10 (${seniorStrategist.code}) »`}
                                 okLabel="OK"
                             />
                         </div>
@@ -1076,28 +1052,20 @@ export function WarRoomContent() {
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
-                                    categoryTag={
-                                        isSeniorHistoricalRole
-                                            ? `MONTE CARLO // ${consensusData?.categoryTag || 'CONSENSO'}`
-                                            : `HISTÓRICO ${historicalData.year} // BANDEIRADA`
-                                    }
+                                    categoryTag="MONTE CARLO"
                                     text={
                                         topicSettledStatus
                                             ? `"Top 10 homologado no pitwall. Consistência blindada para domingo."`
                                             : isSeniorHistoricalRole
-                                                ? `"O algoritmo calibrado pelo ${consensusData?.sourceLabel || 'grupo'} aponta ${techTop3} com melhor ritmo de corrida sustentado."`
-                                                : `"Os dados brutos do ano anterior (${historicalData.year}) registraram ${historicalData.top3} na ponta da bandeirada."`
+                                                ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
+                                                : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
                                     }
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
                                     onOk={handleTop10TechOk}
                                     onFill={!topicSettledStatus ? handleTop10TechFill : undefined}
-                                    fillLabel={
-                                        isSeniorHistoricalRole
-                                            ? `PREENCHER TOP 10 ${consensusData?.categoryTag || 'CONSENSO'} »`
-                                            : `PREENCHER TOP 10 HISTÓRICO (${historicalData.year}) »`
-                                    }
+                                    fillLabel={`PREENCHER TOP 10 (${technicalStrategist.code}) »`}
                                     okLabel="AVANÇAR PARA EVO »"
                                 />
                             </div>
