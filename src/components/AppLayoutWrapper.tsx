@@ -2,7 +2,6 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import NasdaqTicker from './nasdaq-ticker';
-import VersionSwitchBar from './version-switch-bar';
 
 /**
  * Helper que determina se a rota atual é exclusivamente o Dashboard do Estrategista:
@@ -14,6 +13,7 @@ export function isDashboardRoute(pathname: string | null): boolean {
 
     // Rotas estáticas que explicitamente NÃO são o Dashboard
     const nonDashboardRoutes = new Set([
+        '/crew',
         '/f1',
         '/fantasy',
         '/fantasy2',
@@ -76,9 +76,6 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
 
     return (
         <div className="flex flex-col min-h-screen w-full relative">
-            {/* Componente Provisório de Navegação entre Versões (V1 / V2 NC) */}
-            <VersionSwitchBar />
-
             {/* Componente Nasdaq exibido EXCLUSIVAMENTE na página de Dashboard */}
             {isDashboard && <NasdaqTicker />}
             

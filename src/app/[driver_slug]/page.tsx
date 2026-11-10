@@ -750,6 +750,7 @@ export default function OfficialStrategistDashboard() {
     const [squadActionMsg, setSquadActionMsg] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
     const [copiedCode, setCopiedCode] = useState(false);
     const [field, setField] = useState<Strategist[]>([]);
+    const [allPredictions, setAllPredictions] = useState<Map<string, any>>(new Map());
     const [range, setRange] = useState<5 | 10 | 24>(10);
     const [feedIdx, setFeedIdx] = useState(0);
     const [assignedMentor, setAssignedMentor] = useState<SeniorStrategist | null>(null);
@@ -851,6 +852,20 @@ export default function OfficialStrategistDashboard() {
                         : 'ESTRATEGISTA';
                     return makeStrategist(c.user_id, name, p.slug || null, c.team_id, c.group_id || 1, false, p.mls_balance ?? 100);
                 });
+
+                // 3.0. Busca palpites gerais para os rankings Top 10 de Master e Poletime
+                const { data: predsList } = await supabase
+                    .from('predictions')
+                    .select('user_id, poletime, top10, created_at')
+                    .order('created_at', { ascending: false });
+
+                const pMap = new Map<string, any>();
+                (predsList || []).forEach((pr: any) => {
+                    if (pr.user_id && !pMap.has(pr.user_id)) {
+                        pMap.set(pr.user_id, pr);
+                    }
+                });
+                setAllPredictions(pMap);
 
                 // 3.1. Busca direta do contrato do usuário autenticado e do perfil exibido
                 let directContract = null;
@@ -1320,6 +1335,55 @@ export default function OfficialStrategistDashboard() {
             })
             .sort((a, b) => b.v - a.v);
     }, [field, me]);
+
+    // Top 10 do Ranking Geral por Competição (Master, Milesimus, Poletime)
+    const { masterTop10, milesimusTop10, poletimeTop10 } = useMemo(() => {
+        const allPool = field.length > 0 ? field : (me ? [me] : []);
+
+        // 1. Milesimus: Ranking geral por saldo MLS
+        const milesimusList = [...allPool]
+            .sort((a, b) => (b.mlsBalance ?? 100) - (a.mlsBalance ?? 100))
+            .slice(0, 10)
+            .map(s => ({ s, value: formatMls(s.mlsBalance ?? 100), sub: 'MLS' }));
+
+        // 2. Master: Pontuação Master (saldo base + palpites homologados Top 10)
+        const masterList = [...allPool]
+            .map(s => {
+                const pred = allPredictions.get(String(s.id));
+                const top10Count = Array.isArray(pred?.top10) ? pred.top10.length : 0;
+                const pts = Math.round((s.mlsBalance ?? 100) * 1.15) + top10Count * 10;
+                return { s, pts, top10Count };
+            })
+            .sort((a, b) => b.pts - a.pts)
+            .slice(0, 10)
+            .map(item => ({
+                s: item.s,
+                value: `${item.pts}`,
+                sub: item.top10Count > 0 ? `${item.top10Count}/10` : 'PTS'
+            }));
+
+        // 3. Poletime: Estrategistas ordenados por envio de poletime e desempenho
+        const poletimeList = [...allPool]
+            .map(s => {
+                const pred = allPredictions.get(String(s.id));
+                const hasPole = Boolean(pred?.poletime);
+                const bal = s.mlsBalance ?? 100;
+                return { s, hasPole, poleTime: pred?.poletime || null, score: (hasPole ? 10000 : 0) + bal };
+            })
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10)
+            .map(item => ({
+                s: item.s,
+                value: item.poleTime || '--:--.---',
+                sub: item.hasPole ? 'Q3 ATIVO' : 'PENDENTE'
+            }));
+
+        return {
+            masterTop10: masterList,
+            milesimusTop10: milesimusList,
+            poletimeTop10: poletimeList,
+        };
+    }, [field, me, allPredictions]);
 
     const allianceIdx = useMemo(() => (Object.keys(ALLIANCES) as AllianceId[]).map(k => {
         const teamCodes = ALLIANCES[k].codes as readonly string[];
@@ -2608,7 +2672,7 @@ export default function OfficialStrategistDashboard() {
 
                         </section>
 
-                        {/* COLUNA DIREITA: Índices das Alianças + Ranking do Grupo */}
+                        {/* COLUNA DIREITA: Índices das Alianças + Sanfonas das Competições (Master, Milesimus, Poletime) + Ranking do Grupo */}
                         <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
                             <Panel title="Índices das Alianças" bodyClass="p-0" accentColor={teamColor}>
                                 {allianceIdx.map(a => (
@@ -2625,6 +2689,59 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 ))}
                             </Panel>
+
+                            {/* SANFONAS DE RANKING GERAL (TOP 10): MASTER, MILESIMUS E POLETIME */}
+                            {[
+                                { title: 'Master · Ranking Geral', accent: '#3874ff', list: masterTop10 },
+                                { title: 'Milesimus · Ranking Geral', accent: '#fbaa19', list: milesimusTop10 },
+                                { title: 'Poletime · Ranking Geral', accent: '#e10600', list: poletimeTop10 },
+                            ].map(comp => (
+                                <Panel
+                                    key={comp.title}
+                                    title={comp.title}
+                                    tag="TOP 10"
+                                    bodyClass="p-0"
+                                    accentColor={comp.accent}
+                                    collapsible={true}
+                                    defaultOpen={false}
+                                >
+                                    <div className="max-h-[380px] overflow-y-auto">
+                                        {comp.list.map((item, i) => {
+                                            const isMe = item.s.id === me.id;
+                                            const row = (
+                                                <div
+                                                    className={`flex items-center gap-3 px-4 py-2.5 border-b border-white/5 last:border-0 text-[11px] tracking-widest transition-colors ${isMe ? 'border-l-2' : 'hover:bg-white/5'}`}
+                                                    style={{
+                                                        backgroundColor: isMe ? `${comp.accent}15` : undefined,
+                                                        borderLeftColor: isMe ? comp.accent : undefined,
+                                                    }}
+                                                >
+                                                    <span
+                                                        className={`w-5 text-right tabular-nums ${i < 3 ? 'font-black' : 'text-white/40'}`}
+                                                        style={{ color: i < 3 ? comp.accent : undefined }}
+                                                    >
+                                                        {i + 1}
+                                                    </span>
+                                                    <span className="w-1 h-6 rounded-sm shrink-0" style={{ background: item.s.teamColor }} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-bold truncate" style={{ color: isMe ? comp.accent : undefined }}>
+                                                            {item.s.name}
+                                                        </p>
+                                                        <p className="text-[9px] text-white/40">{item.s.teamCode}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-bold tabular-nums font-mono">{item.value}</p>
+                                                        <span className="text-[9px] text-white/40">{item.sub}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                            return item.s.slug && !isMe
+                                                ? <Link key={`${comp.title}-${item.s.id}`} href={`/${item.s.slug}`}>{row}</Link>
+                                                : <div key={`${comp.title}-${item.s.id}`}>{row}</div>;
+                                        })}
+                                    </div>
+                                </Panel>
+                            ))}
 
                             <Panel title={`Ranking · ${getChampionGroupName(me.groupId)}`} tag={`${groupRanking.length}/22 PILOTOS`} bodyClass="p-0" accentColor={teamColor}>
                                 <div className="max-h-[420px] overflow-y-auto">
