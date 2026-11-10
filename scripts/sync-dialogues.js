@@ -145,10 +145,11 @@ function parseScript(md) {
 
     const cleanInviteV2 = [
         inviteV2Boxes[0] || "Entre e feche a porta.",
-        inviteV2Boxes[1] || "O mercado procura estrategistas capazes de • cravar o Poletime - ou pelo menos ficar dentro da margem de 5 segundos, • prever a linha de chegada, • os principais escaladores do grid e antecipar • quem é o piloto dominante nos duelos internos.",
-        inviteV2Boxes[2] || "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
-        inviteV2Boxes[3] || "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
-        inviteV2Boxes[4] || "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
+        inviteV2Boxes[1] || "Os relatórios da sua telemetria caíram na minha mesa e os números são impressionantes. Você lê o traçado antes das luzes apagarem.",
+        inviteV2Boxes[2] || "O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.",
+        inviteV2Boxes[3] || "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
+        inviteV2Boxes[4] || "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid e exigem lealdade absoluta.",
+        inviteV2Boxes[5] || "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
     ];
 
     return {

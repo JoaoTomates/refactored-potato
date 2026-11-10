@@ -586,7 +586,7 @@ export function InviteFlow() {
             {phase === 'AUTO_DIALOG' && (
                 <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 md:mt-16 mb-24 px-4 transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
-                    {/* PÁGINA 1: Mérito e Telemetria (Boxes 1 e 2) */}
+                    {/* PÁGINA 1: Reconhecimento, Mérito e Telemetria (Boxes 1, 2 e 3) */}
                     {dialogPage === 1 && (
                         <>
                             {pageStep >= 1 && (
@@ -612,13 +612,32 @@ export function InviteFlow() {
                                 <InviteBoxCard
                                     avatarUrl={DIRECTOR_AVATAR_URL}
                                     accentColor="#fbaa19"
+                                    onClick={() => setPageStep(3)}
+                                    title="Clique para avançar para a próxima fala"
+                                    footerHint="[ Avançar ] »"
+                                >
+                                    <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
+                                    <TypewriterLine
+                                        text={customDialogs[2]}
+                                        startDelay={150}
+                                        onReadyForNext={() => {
+                                            setTimeout(() => setPageStep(3), 300);
+                                        }}
+                                    />
+                                </InviteBoxCard>
+                            )}
+
+                            {pageStep >= 3 && (
+                                <InviteBoxCard
+                                    avatarUrl={DIRECTOR_AVATAR_URL}
+                                    accentColor="#fbaa19"
                                     onClick={() => changeToPage(2)}
                                     title="Clique para avançar imediatamente para a próxima página"
                                     footerHint="[ Próxima Página ] »"
                                 >
                                     <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
-                                        text={customDialogs[2]}
+                                        text={customDialogs[3]}
                                         startDelay={150}
                                         onReadyForNext={() => {
                                             // Pausa de 10 segundos antes de mudar automaticamente
@@ -649,7 +668,7 @@ export function InviteFlow() {
                         </>
                     )}
 
-                    {/* PÁGINA 2: O Novo Regulamento e o Chamado (Boxes 3 e 4) */}
+                    {/* PÁGINA 2: O Novo Regulamento e o Chamado (Boxes 4 e 5) */}
                     {dialogPage === 2 && (
                         <>
                             {pageStep >= 1 && (
@@ -662,7 +681,7 @@ export function InviteFlow() {
                                 >
                                     <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
-                                        text={customDialogs[3]}
+                                        text={customDialogs[4]}
                                         startDelay={150}
                                         onReadyForNext={() => {
                                             setTimeout(() => setPageStep(2), 300);
@@ -681,7 +700,7 @@ export function InviteFlow() {
                                 >
                                     <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
                                     <TypewriterLine
-                                        text={customDialogs[4]}
+                                        text={customDialogs[5]}
                                         startDelay={150}
                                         onReadyForNext={() => {
                                             // Pausa de 10 segundos antes de mudar automaticamente para as alianças

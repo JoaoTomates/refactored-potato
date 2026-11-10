@@ -75,22 +75,31 @@
           ]
         },
         {
-          "id": "fase_2_m_rito_t_cnico_telemetria_a_provoca_o_do_bankroll_p_gina_1_",
-          "title": "Fase 2: Mérito Técnico, Telemetria & A Provocação do Bankroll (Página 1)",
+          "id": "fase_2_reconhecimento_m_rito_t_cnico_a_provoca_o_do_bankroll_p_gina_1_",
+          "title": "Fase 2: Reconhecimento, Mérito Técnico & A Provocação do Bankroll (Página 1)",
           "boxes": [
             {
-              "id": "box_1_perfil_de_estrategista_habilidades_chave_",
+              "id": "box_1_reconhecimento_da_telemetria_",
               "boxNumber": 1,
-              "title": "Box 1 (Perfil de Estrategista & Habilidades-Chave)",
+              "title": "Box 1 (Reconhecimento da Telemetria)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Os relatórios da sua telemetria caíram na minha mesa e os números são impressionantes. Você lê o traçado antes das luzes apagarem.",
+              "actions": [],
+              "tone": "Seco, contido, reconhecendo o talento acima da média."
+            },
+            {
+              "id": "box_2_perfil_de_estrategista_habilidades_chave_",
+              "boxNumber": 2,
+              "title": "Box 2 (Perfil de Estrategista & Habilidades-Chave)",
               "speaker": "DIRETOR DE OPERAÇÕES",
               "text": "O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.",
               "actions": [],
               "tone": "Profissional, desafiador, definindo as quatro mecânicas do fantasy."
             },
             {
-              "id": "box_2_o_teste_de_nervos_de_a_o_",
-              "boxNumber": 2,
-              "title": "Box 2 (O Teste de Nervos de Aço)",
+              "id": "box_3_o_teste_de_nervos_de_a_o_",
+              "boxNumber": 3,
+              "title": "Box 3 (O Teste de Nervos de Aço)",
               "speaker": "DIRETOR DE OPERAÇÕES",
               "text": "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
               "actions": [
@@ -108,18 +117,18 @@
           "title": "Fase 3: A Nova Ordem e a Tomada de Posição (Página 2)",
           "boxes": [
             {
-              "id": "box_3_guerra_fria_dos_motores_",
-              "boxNumber": 3,
-              "title": "Box 3 (Guerra Fria dos Motores)",
+              "id": "box_4_guerra_fria_dos_motores_",
+              "boxNumber": 4,
+              "title": "Box 4 (Guerra Fria dos Motores)",
               "speaker": "DIRETOR DE OPERAÇÕES",
               "text": "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.",
               "actions": [],
               "tone": "Geopolítica de paddock, tensão entre as montadoras."
             },
             {
-              "id": "box_4_o_chamado_s_armas_",
-              "boxNumber": 4,
-              "title": "Box 4 (O Chamado às Armas)",
+              "id": "box_5_o_chamado_s_armas_",
+              "boxNumber": 5,
+              "title": "Box 5 (O Chamado às Armas)",
               "speaker": "DIRETOR DE OPERAÇÕES",
               "text": "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações.",
               "actions": [
@@ -355,6 +364,7 @@
   },
   "inviteV2Dialogs": [
     "Entre e feche a porta.",
+    "Os relatórios da sua telemetria caíram na minha mesa e os números são impressionantes. Você lê o traçado antes das luzes apagarem.",
     "O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.",
     "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
     "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.",

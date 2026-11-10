@@ -58,20 +58,23 @@
   > *“Entre e feche a porta.”*  
   *(Ação do usuário: Clicar para avançar ou aguardar digitação do teletipo retro.)*
 
-#### Fase 2: Mérito Técnico, Telemetria & A Provocação do Bankroll (Página 1)
-- **Box 1 (Perfil de Estrategista & Habilidades-Chave):**  
+#### Fase 2: Reconhecimento, Mérito Técnico & A Provocação do Bankroll (Página 1)
+- **Box 1 (Reconhecimento da Telemetria):**  
+  > *“Os relatórios da sua telemetria caíram na minha mesa e os números são impressionantes. Você lê o traçado antes das luzes apagarem.”*  
+  *(Tom: Seco, contido, reconhecendo o talento acima da média.)*
+- **Box 2 (Perfil de Estrategista & Habilidades-Chave):**  
   > *“O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.”*  
   *(Tom: Profissional, desafiador, definindo as quatro mecânicas do fantasy.)*
-- **Box 2 (O Teste de Nervos de Aço):**  
+- **Box 3 (O Teste de Nervos de Aço):**  
   > *“Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
   *(Tom: Provocativo e visceral. Coloca o jogador sob teste psicológico de risco financeiro.)*  
   *(Transição: Contagem regressiva de 10s com botão `[ AVANÇAR ] »` disponível.)*
 
 #### Fase 3: A Nova Ordem e a Tomada de Posição (Página 2)
-- **Box 3 (Guerra Fria dos Motores):**  
+- **Box 4 (Guerra Fria dos Motores):**  
   > *“Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.”*  
   *(Tom: Geopolítica de paddock, tensão entre as montadoras.)*
-- **Box 4 (O Chamado às Armas):**  
+- **Box 5 (O Chamado às Armas):**  
   > *“Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações.”*  
   *(Ação: Abre a seleção das 3 frentes de motores com botão `[ VER ALIANÇAS ] »`.)*
 
