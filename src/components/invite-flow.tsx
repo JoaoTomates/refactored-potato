@@ -764,10 +764,10 @@ export function InviteFlow() {
                 <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${
                     isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                 }`}>
-                    {/* Box do Diretor/Chief da Aliança Escolhida com Avatar */}
+                    {/* Box do mesmo Diretor do início comentando a escolha da aliança */}
                     <InviteBoxCard
-                        avatarUrl={ALLIANCE_CHIEFS_AVATARS[selectedGroup].avatarUrl}
-                        accentColor={ALLIANCE_CHIEFS_AVATARS[selectedGroup].accentColor}
+                        avatarUrl={DIRECTOR_AVATAR_URL}
+                        accentColor="#fbaa19"
                     >
                         <div className="italic">
                             <TypewriterLine 
