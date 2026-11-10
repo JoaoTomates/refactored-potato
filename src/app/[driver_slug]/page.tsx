@@ -455,20 +455,22 @@ function CredentialCard({
                         }}
                     />
 
-                    {/* BACKGROUND BI-COLOR COM MARGEM INTERNA PRETA DE 8PX */}
+                    {/* BACKGROUND BI-COLOR COM BORDA PRETA (#030303) AO REDOR DO CAPACETE */}
                     <div
                         className="absolute inset-[8px] rounded-xl overflow-hidden pointer-events-none select-none z-0"
                         style={{
-                            background: `linear-gradient(to bottom, ${carBgColor} 0%, ${carBgColor} 66%, #050507 66%, #050507 100%)`,
+                            background: 'linear-gradient(to bottom, #030303 0%, #030303 66%, #050507 66%, #050507 100%)',
                         }}
                     >
-                        {/* Gradiente para profundidade de card esportivo */}
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                background: 'radial-gradient(circle at 50% 32%, rgba(255,255,255,0.14) 0%, transparent 60%, rgba(0,0,0,0.45) 100%), linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 66%, rgba(0,0,0,0.8) 100%)'
-                            }}
-                        />
+                        {/* Preenchimento colorido restrito à área do capacete (sem vazar nas bordas laterais ou topo) */}
+                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center pointer-events-none pt-3">
+                            <div
+                                className="w-[92%] aspect-square rounded-full"
+                                style={{
+                                    background: `radial-gradient(circle at 50% 48%, ${carBgColor} 0%, ${carBgColor} 72%, rgba(3,3,3,0.95) 90%, #030303 98%)`,
+                                }}
+                            />
+                        </div>
 
                         {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
                         <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
