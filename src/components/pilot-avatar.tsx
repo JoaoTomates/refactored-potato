@@ -15,6 +15,8 @@ export interface PilotAvatarProps {
     seed?: string;
     showHUD?: boolean;
     showBadge?: boolean;
+    showStatusBlip?: boolean;
+    flipped?: boolean;
     className?: string;
 }
 
@@ -38,6 +40,8 @@ export const PilotAvatar: React.FC<PilotAvatarProps> = ({
     seed,
     showHUD = true,
     showBadge = true,
+    showStatusBlip = true,
+    flipped = false,
     className = '',
 }) => {
     const rawId = useId();
@@ -172,7 +176,7 @@ export const PilotAvatar: React.FC<PilotAvatarProps> = ({
             {/* 2. OFFICIAL HELMET OVERLAY LAYER (avatar-overlay.svg) */}
             {/* ============================================================ */}
             <div className="absolute inset-0 flex items-center justify-center p-[6%] pointer-events-none">
-                <div className="relative w-full h-full flex items-center justify-center">
+                <div className={`relative w-full h-full flex items-center justify-center ${flipped ? 'scale-x-[-1]' : ''}`}>
                     {/* Official Vector Helmet SVG */}
                     <img
                         src="/avatar-overlay.svg"
@@ -240,8 +244,12 @@ export const PilotAvatar: React.FC<PilotAvatarProps> = ({
                     </g>
 
                     {/* Status Sensor Blip (Top Right HUD LED) */}
-                    <circle cx="168" cy="32" r="3.5" fill="#00ff66" />
-                    <circle cx="168" cy="32" r="6" stroke="#00ff66" strokeWidth="1" opacity="0.6" />
+                    {showStatusBlip && (
+                        <>
+                            <circle cx="168" cy="32" r="3.5" fill="#00ff66" />
+                            <circle cx="168" cy="32" r="6" stroke="#00ff66" strokeWidth="1" opacity="0.6" />
+                        </>
+                    )}
                 </svg>
             )}
 

@@ -92,13 +92,79 @@ export function normalizeDriverName(driverInput: string): string {
   return clean;
 }
 
+export const F1_TEAM_COLORS: Record<string, string> = {
+  'Mercedes': '#00D2BE',
+  'Mercedes-AMG': '#00D2BE',
+  'Ferrari': '#DC0000',
+  'Scuderia Ferrari': '#DC0000',
+  'McLaren': '#FF8000',
+  'Red Bull': '#3671C6',
+  'Red Bull Racing': '#3671C6',
+  'Aston Martin': '#229971',
+  'Williams': '#005AFF',
+  'Williams Racing': '#005AFF',
+  'Alpine': '#FD4BC7',
+  'Haas': '#E6002B',
+  'Haas F1 Team': '#E6002B',
+  'Racing Bulls': '#6692FF',
+  'Audi/Sauber': '#F50537',
+  'Audi': '#F50537',
+  'Cadillac': '#FFC80C',
+};
+
+export function getF1TeamColor(teamName: string): string {
+  return F1_TEAM_COLORS[teamName] || '#fbaa19';
+}
+
+export const DRIVER_AVATAR_CODE_MAP: Record<string, string> = {
+  'L.NORRIS': 'NOR',
+  'O.PIASTRI': 'PIA',
+  'C.LECLERC': 'LEC',
+  'L.HAMILTON': 'HAM',
+  'G.RUSSELL': 'RUS',
+  'K.ANTONELLI': 'ANT',
+  'M.VERSTAPPEN': 'VER',
+  'I.HADJAR': 'HAD',
+  'F.ALONSO': 'ALO',
+  'L.STROLL': 'STR',
+  'F.COLAPINTO': 'COL',
+  'P.GASLY': 'GAS',
+  'E.OCON': 'OCO',
+  'O.BEARMAN': 'BEA',
+  'L.LAWSON': 'LAW',
+  'A.LINDBLAD': 'LIN',
+  'S.PEREZ': 'PER',
+  'V.BOTTAS': 'BOT',
+  'A.ALBON': 'ALB',
+  'C.SAINZ': 'SAI',
+  'N.HULKENBERG': 'HUL',
+  'G.BORTOLETO': 'BOR',
+};
+
+export const AVAILABLE_F1_PIXEL_CODES = new Set<string>([
+  'VER', 'LEC', 'HAM', 'NOR', 'RUS', 'ALO', 'OCO', 'BEA', 'PER', 'BOR',
+]);
+
+export function getDriverAvatarUrl(driverName: string): string | null {
+  const normalized = normalizeDriverName(driverName);
+  const code = DRIVER_AVATAR_CODE_MAP[normalized];
+  if (!code || !AVAILABLE_F1_PIXEL_CODES.has(code)) return null;
+  return `/avatar/f1/${code}.jpg`;
+}
+
 export function getDriverDetails(driverName: string) {
   const normalized = normalizeDriverName(driverName);
+  const code = DRIVER_AVATAR_CODE_MAP[normalized] || '';
+  const avatarUrl = code && AVAILABLE_F1_PIXEL_CODES.has(code) ? `/avatar/f1/${code}.jpg` : null;
   for (const match of F1_MATCHUPS) {
-    if (match.d1.name === normalized) return { ...match.d1, team: match.team };
-    if (match.d2.name === normalized) return { ...match.d2, team: match.team };
+    if (match.d1.name === normalized) {
+      return { ...match.d1, team: match.team, teamColor: getF1TeamColor(match.team), code, avatarUrl };
+    }
+    if (match.d2.name === normalized) {
+      return { ...match.d2, team: match.team, teamColor: getF1TeamColor(match.team), code, avatarUrl };
+    }
   }
-  return { name: normalized || driverName, num: '??', team: 'Unknown' };
+  return { name: normalized || driverName, num: '??', team: 'Unknown', teamColor: '#fbaa19', code, avatarUrl: null };
 }
 export interface F1Event {
     round: string;

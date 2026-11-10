@@ -8,37 +8,17 @@ import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
-import { F1_MATCHUPS, F1_DRIVERS, getDriverDetails, normalizeDriverName, fetchNextEvent, F1Event } from '@/api/f1-data';
+import { F1_MATCHUPS, F1_DRIVERS, normalizeDriverName, fetchNextEvent, F1Event } from '@/api/f1-data';
+import {
+    HybridTop10Row,
+    EvoHybridCardGrid,
+    H2HHelmetBattleGrid,
+    PaddockPickerDrawer,
+} from '@/components/positions-hybrid-ui';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { getSeniorStrategistForRound } from '@/lib/race-directors';
 import { getCircuitIntel } from '@/lib/circuits-intel';
 import { MISC_QUESTIONS, DEFAULT_ACTIVE_MISC_IDS, resolveActiveMiscIds } from '@/lib/misc-questions';
-
-
-// --- Paleta Oficial de Equipes (Conforme NARRATIVE_STYLE_GUIDE.md) ---
-const TEAM_COLORS: Record<string, string> = {
-    'Mercedes': '#00D2BE',
-    'Mercedes-AMG': '#00D2BE',
-    'Ferrari': '#DC0000',
-    'Scuderia Ferrari': '#DC0000',
-    'McLaren': '#FF8000',
-    'Red Bull': '#3671C6',
-    'Red Bull Racing': '#3671C6',
-    'Aston Martin': '#229971',
-    'Williams': '#005AFF',
-    'Williams Racing': '#005AFF',
-    'Alpine': '#FD4BC7',
-    'Haas': '#E6002B',
-    'Haas F1 Team': '#E6002B',
-    'Racing Bulls': '#6692FF',
-    'Audi/Sauber': '#F50537',
-    'Audi': '#F50537',
-    'Cadillac': '#FFC80C',
-};
-
-function getTeamColor(teamName: string): string {
-    return TEAM_COLORS[teamName] || '#fbaa19';
-}
 
 // Formatação rigorosa de nomes no padrão de ouro do sistema: "L.GUSTAVO"
 function formatPilotName(firstName?: string | null, lastName?: string | null, driverNumber?: string | null, fallback?: string | null): string {
@@ -755,110 +735,22 @@ export default function PositionsPage() {
                                 </div>
                             </div>
 
-                            {/* Lista dos 10 Pilotos ALINHADA VERTICALMENTE */}
-                            <div className="flex flex-col gap-3 max-w-3xl w-full mx-auto relative">
-                                {top10.map((driverName, idx) => {
-                                    const details = driverName ? getDriverDetails(driverName) : null;
-                                    const isOpen = openDropdown?.type === 'top10' && openDropdown.index === idx;
-                                    const isPicked = !!driverName;
-
-                                    return (
-                                        <div key={idx} className="relative w-full">
-                                            {/* Container com padrão de cores de BET */}
-                                            <div
-                                                onClick={() => setOpenDropdown(isOpen ? null : { type: 'top10', index: idx })}
-                                                style={{ minHeight: '3.5rem' }}
-                                                className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${isPicked
-                                                    ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
-                                                    : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
-                                                    } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
-                                            >
-                                                {/* Badge lateral ordinal no padrão de BET */}
-                                                <div className={`w-16 flex items-center justify-center font-black uppercase text-base md:text-lg border-r shrink-0 ${isPicked
-                                                    ? 'bg-[#e59914] text-black border-[#e59914]'
-                                                    : 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                    }`}>
-                                                    {getOrdinal(idx + 1)}
-                                                </div>
-
-                                                {/* Conteúdo do Piloto */}
-                                                <div className="flex-1 flex items-center justify-between px-4 py-2">
-                                                    {details ? (
-                                                        <div className="flex flex-col leading-tight">
-                                                            <span
-                                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                                className="text-base sm:text-lg md:text-xl font-black uppercase tracking-wide text-black"
-                                                            >
-                                                                {details.name} <span className="text-black/70">#{details.num}</span>
-                                                            </span>
-                                                            <span className="text-[11px] font-bold uppercase tracking-wider mt-0.5 text-black/75">
-                                                                {details.team}
-                                                            </span>
-                                                        </div>
-                                                    ) : (
-                                                        <span
-                                                            style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                            className="text-base sm:text-lg font-black uppercase tracking-wider text-white/40"
-                                                        >
-                                                            Select Driver
-                                                        </span>
-                                                    )}
-
-                                                    <div className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${isPicked ? 'text-black' : 'text-[#fbaa19]'}`}>
-                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Dropdown Menu Noir de Seleção */}
-                                            {isOpen && (
-                                                <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-[#0a0a0a] border-2 border-[#fbaa19] rounded shadow-2xl max-h-60 overflow-y-auto">
-                                                    {F1_DRIVERS.map((dName) => {
-                                                        const dInfo = getDriverDetails(dName);
-                                                        const dColor = getTeamColor(dInfo.team);
-                                                        const isSelected = top10.includes(dName);
-
-                                                        return (
-                                                            <button
-                                                                key={dName}
-                                                                type="button"
-                                                                disabled={isSelected && driverName !== dName}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    const next = [...top10];
-                                                                    next[idx] = dName;
-                                                                    setTop10(next);
-                                                                    setOpenDropdown(null);
-                                                                }}
-                                                                className={`w-full p-3 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
-                                                                    ? 'opacity-30 cursor-not-allowed bg-black/40'
-                                                                    : 'hover:bg-[#fbaa19] hover:text-black group'
-                                                                    }`}
-                                                            >
-                                                                <div className="flex items-center gap-2.5">
-                                                                    <span
-                                                                        style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                                        className="text-sm sm:text-base font-black uppercase tracking-wide group-hover:text-black"
-                                                                    >
-                                                                        {dInfo.name}
-                                                                    </span>
-                                                                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded" style={{ backgroundColor: `${dColor}25`, color: dColor }}>
-                                                                        #{dInfo.num}
-                                                                    </span>
-                                                                </div>
-                                                                <span className="text-[11px] uppercase tracking-widest font-bold group-hover:text-black" style={{ color: dColor }}>
-                                                                    {dInfo.team}
-                                                                </span>
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                            {/* Lista dos 10 Pilotos (Chips Híbridos com Helmet Overlay) */}
+                            <div className="flex flex-col gap-2.5 max-w-3xl w-full mx-auto relative">
+                                {top10.map((driverName, idx) => (
+                                    <HybridTop10Row
+                                        key={idx}
+                                        index={idx}
+                                        driverName={driverName}
+                                        ordinalLabel={getOrdinal(idx + 1)}
+                                        onOpenPicker={() => setOpenDropdown({ type: 'top10', index: idx })}
+                                        onClear={() => {
+                                            const next = [...top10];
+                                            next[idx] = '';
+                                            setTop10(next);
+                                        }}
+                                    />
+                                ))}
                             </div>
                         </section>
                     )}
@@ -927,111 +819,16 @@ export default function PositionsPage() {
                                 </div>
                             </div>
 
-                            {/* Lista dos 5 Pilotos ALINHADA VERTICALMENTE */}
-                            <div className="flex flex-col gap-3 max-w-3xl w-full mx-auto relative">
-                                {evo.map((driverName, idx) => {
-                                    const details = driverName ? getDriverDetails(driverName) : null;
-                                    const isOpen = openDropdown?.type === 'evo' && openDropdown.index === idx;
-                                    const isPicked = !!driverName;
-
-                                    return (
-                                        <div key={idx} className="relative w-full">
-                                            {/* Container com padrão de cores de BET */}
-                                            <div
-                                                onClick={() => setOpenDropdown(isOpen ? null : { type: 'evo', index: idx })}
-                                                style={{ minHeight: '3.5rem' }}
-                                                className={`w-full flex items-stretch border transition-all duration-200 cursor-pointer ${isPicked
-                                                    ? 'bg-[#fbaa19] border-[#fbaa19] text-black shadow-lg'
-                                                    : 'bg-black/75 border-white/20 text-white hover:border-[#fbaa19]'
-                                                    } ${isOpen ? 'z-50 ring-2 ring-[#fbaa19]' : 'z-10'}`}
-                                            >
-                                                {/* Badge lateral no padrão BET */}
-                                                <div className={`w-20 flex items-center justify-center font-bold uppercase text-xs border-r shrink-0 ${isPicked
-                                                    ? 'bg-[#e59914] text-black border-[#e59914]'
-                                                    : 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                    }`}>
-                                                    EVO {idx + 1}
-                                                </div>
-
-                                                {/* Conteúdo do Piloto */}
-                                                <div className="flex-1 flex items-center justify-between px-4 py-2">
-                                                    {details ? (
-                                                        <div className="flex flex-col leading-tight">
-                                                            <span
-                                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                                className="text-base sm:text-lg md:text-xl font-black uppercase tracking-wide text-black"
-                                                            >
-                                                                {details.name} <span className="text-black/70">#{details.num}</span>
-                                                            </span>
-                                                            <span className="text-[11px] font-bold uppercase tracking-wider mt-0.5 text-black/75">
-                                                                {details.team}
-                                                            </span>
-                                                        </div>
-                                                    ) : (
-                                                        <span
-                                                            style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                            className="text-base sm:text-lg font-black uppercase tracking-wider text-white/40"
-                                                        >
-                                                            Select Driver
-                                                        </span>
-                                                    )}
-
-                                                    <div className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${isPicked ? 'text-black' : 'text-[#fbaa19]'}`}>
-                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Dropdown Menu Noir de Seleção */}
-                                            {isOpen && (
-                                                <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-[#0a0a0a] border-2 border-[#fbaa19] rounded shadow-2xl max-h-60 overflow-y-auto">
-                                                    {F1_DRIVERS.map((dName) => {
-                                                        const dInfo = getDriverDetails(dName);
-                                                        const dColor = getTeamColor(dInfo.team);
-                                                        const isSelected = evo.includes(dName);
-
-                                                        return (
-                                                            <button
-                                                                key={dName}
-                                                                type="button"
-                                                                disabled={isSelected && driverName !== dName}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    const next = [...evo];
-                                                                    next[idx] = dName;
-                                                                    setEvo(next);
-                                                                    setOpenDropdown(null);
-                                                                }}
-                                                                className={`w-full p-3 px-4 flex items-center justify-between text-left border-b border-white/5 transition-colors cursor-pointer ${isSelected && driverName !== dName
-                                                                    ? 'opacity-30 cursor-not-allowed bg-black/40'
-                                                                    : 'hover:bg-[#fbaa19] hover:text-black group'
-                                                                    }`}
-                                                            >
-                                                                <div className="flex items-center gap-2.5">
-                                                                    <span
-                                                                        style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                                        className="text-sm sm:text-base font-black uppercase tracking-wide group-hover:text-black"
-                                                                    >
-                                                                        {dInfo.name}
-                                                                    </span>
-                                                                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded" style={{ backgroundColor: `${dColor}25`, color: dColor }}>
-                                                                        #{dInfo.num}
-                                                                    </span>
-                                                                </div>
-                                                                <span className="text-[11px] uppercase tracking-widest font-bold group-hover:text-black" style={{ color: dColor }}>
-                                                                    {dInfo.team}
-                                                                </span>
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {/* Cards Pixel Art + Helmet Badge para os 5 slots de EVO */}
+                            <EvoHybridCardGrid
+                                evo={evo}
+                                onOpenPicker={(idx) => setOpenDropdown({ type: 'evo', index: idx })}
+                                onClearSlot={(idx) => {
+                                    const next = [...evo];
+                                    next[idx] = '';
+                                    setEvo(next);
+                                }}
+                            />
                         </section>
                     )}
 
@@ -1099,57 +896,13 @@ export default function PositionsPage() {
                                 </div>
                             </div>
 
-                            {/* Lista dos 11 Confrontos ALINHADA VERTICALMENTE */}
-                            <div className="flex flex-col gap-4 max-w-3xl w-full mx-auto">
-                                {F1_MATCHUPS.map((match) => {
-                                    const picked = h2h[match.id];
-
-                                    return (
-                                        <article key={match.id} className="bg-black/85 border border-white/20 hover:border-[#fbaa19] rounded flex flex-col transition-colors overflow-hidden shadow-md">
-                                            {/* Cabeçalho da Equipe estilo BET */}
-                                            <p className="bg-black/90 text-white px-4 py-2 font-bold uppercase tracking-widest text-xs md:text-sm border-b border-white/10 text-center">
-                                                {match.team}
-                                            </p>
-
-                                            {/* Dois Pilotos com seleção no padrão BET */}
-                                            <div className="flex flex-row w-full h-full">
-                                                {[match.d1, match.d2].map((driver) => {
-                                                    const isPicked = picked === driver.num;
-
-                                                    return (
-                                                        <button
-                                                            key={driver.num}
-                                                            type="button"
-                                                            onClick={() => setH2H(prev => ({ ...prev, [match.id]: driver.num }))}
-                                                            style={{ minHeight: '3.5rem' }}
-                                                            className={`flex-1 flex flex-row items-center justify-between px-4 py-2 transition-all text-left border-r border-white/10 last:border-r-0 cursor-pointer ${isPicked
-                                                                ? 'bg-[#fbaa19] text-black font-black'
-                                                                : 'bg-black/50 text-white hover:bg-black/90 hover:text-[#fbaa19]'
-                                                                }`}
-                                                        >
-                                                            <span
-                                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                                                className="text-base sm:text-lg md:text-xl font-black uppercase tracking-wide leading-tight"
-                                                            >
-                                                                {driver.name}{' '}
-                                                                <span className={isPicked ? "text-black/70" : "text-[#fbaa19]"}>
-                                                                    #{driver.num}
-                                                                </span>
-                                                            </span>
-
-                                                            {isPicked && (
-                                                                <svg className="w-5 h-5 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                                                </svg>
-                                                            )}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </article>
-                                    );
-                                })}
-                            </div>
+                            {/* Lista dos 11 Confrontos com Capacetes Frente a Frente */}
+                            <H2HHelmetBattleGrid
+                                h2h={h2h}
+                                onSelectDriver={(matchId, driverNum) =>
+                                    setH2H((prev) => ({ ...prev, [matchId]: driverNum }))
+                                }
+                            />
                         </section>
                     )}
 
@@ -1293,7 +1046,49 @@ export default function PositionsPage() {
                 </div>
             </footer>
 
+            {/* PADDOCK PICKER DRAWER (HÍBRIDO: CARTA PIXEL ART + SELEÇÃO RÁPIDA) */}
+            <PaddockPickerDrawer
+                isOpen={openDropdown !== null}
+                mode={openDropdown?.type || 'top10'}
+                slotIndex={openDropdown?.index ?? 0}
+                currentList={openDropdown?.type === 'evo' ? evo : top10}
+                ordinalLabel={getOrdinal((openDropdown?.index ?? 0) + 1)}
+                onSelectDriver={(driverName) => {
+                    if (!openDropdown) return;
+                    const { type, index } = openDropdown;
+                    const sourceList = type === 'evo' ? [...evo] : [...top10];
+                    sourceList[index] = driverName;
 
+                    if (type === 'evo') {
+                        setEvo(sourceList);
+                    } else {
+                        setTop10(sourceList);
+                    }
+
+                    // Avança automaticamente para o próximo slot vazio, se existir
+                    const nextEmpty = sourceList.findIndex((val, i) => i > index && !val);
+                    const wrapEmpty = nextEmpty !== -1 ? nextEmpty : sourceList.findIndex((val) => !val);
+                    if (wrapEmpty !== -1) {
+                        setOpenDropdown({ type, index: wrapEmpty });
+                    } else {
+                        setOpenDropdown(null);
+                    }
+                }}
+                onClearSlot={() => {
+                    if (!openDropdown) return;
+                    const { type, index } = openDropdown;
+                    if (type === 'evo') {
+                        const next = [...evo];
+                        next[index] = '';
+                        setEvo(next);
+                    } else {
+                        const next = [...top10];
+                        next[index] = '';
+                        setTop10(next);
+                    }
+                }}
+                onClose={() => setOpenDropdown(null)}
+            />
 
         </main>
     );
