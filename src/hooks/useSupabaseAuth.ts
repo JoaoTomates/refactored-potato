@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "next/navigation";
+import { clearCachedStrategistSession } from "@/lib/slug";
 
 export function useSupabaseAuth() {
     const router = useRouter();
@@ -30,7 +31,10 @@ export function useSupabaseAuth() {
         getInitialSession();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => {
+            (event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    clearCachedStrategistSession();
+                }
                 setSession(session);
                 setUser(session?.user ?? null);
                 setIsLoading(false);
@@ -123,6 +127,7 @@ export function useSupabaseAuth() {
         } catch (err) {
             console.error("Error signing out:", (err as Error).message);
         } finally {
+            clearCachedStrategistSession();
             setIsLoading(false);
             setUser(null);
             setSession(null);

@@ -23,6 +23,7 @@ export interface PitwallQuickDockProps {
     userPrediction: any;
     pendingStewardCount: number;
     teamColor: string;
+    isOwner?: boolean;
     onOpenVoting: () => void;
     onJumpToBookTab: () => void;
 }
@@ -31,6 +32,7 @@ export default function PitwallQuickDock({
     userPrediction,
     pendingStewardCount,
     teamColor,
+    isOwner = true,
     onOpenVoting,
     onJumpToBookTab,
 }: PitwallQuickDockProps) {
@@ -294,13 +296,15 @@ export default function PitwallQuickDock({
                         >
                             VER NO BOOK DE PREVISÕES
                         </button>
-                        <Link
-                            href="/positions"
-                            className="px-3 py-1.5 rounded-xs text-[10px] font-black uppercase tracking-wider text-black transition-colors"
-                            style={{ backgroundColor: teamColor || '#fbaa19' }}
-                        >
-                            EDIT IN POSITIONS »
-                        </Link>
+                        {isOwner && (
+                            <Link
+                                href="/positions"
+                                className="px-3 py-1.5 rounded-xs text-[10px] font-black uppercase tracking-wider text-black transition-colors"
+                                style={{ backgroundColor: teamColor || '#fbaa19' }}
+                            >
+                                EDIT IN POSITIONS »
+                            </Link>
+                        )}
                     </div>
                 </div>
             )}

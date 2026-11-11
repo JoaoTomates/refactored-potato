@@ -9,6 +9,7 @@ import { F1_TEAMS } from '@/lib/teams';
 import { getChampionGroupName } from '@/lib/champions';
 import { PilotAvatar, AvatarVariant } from '@/components/pilot-avatar';
 import { getCountryFlag } from '@/lib/country-flags';
+import { clearCachedStrategistSession, getDashboardPath } from '@/lib/slug';
 
 /* ============================================================
  * PLAYGROUND — Terminal do Estrategista Multi-Painel
@@ -435,8 +436,12 @@ export default function PlaygroundPage() {
                 let mine: Strategist | null = null;
                 if (user) {
                     const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
-                    if (prof?.slug) {
-                        router.replace(`/${prof.slug}`);
+                    if (prof?.slug && prof?.setup_completed === true) {
+                        router.replace(getDashboardPath(prof.slug));
+                        return;
+                    }
+                    if (prof && prof.setup_completed === false) {
+                        router.replace('/headquarters');
                         return;
                     }
                     setMeProfile(prof);
@@ -606,6 +611,7 @@ export default function PlaygroundPage() {
     }
 
     const handleLogout = async () => {
+        clearCachedStrategistSession();
         try {
             if (logout) await logout();
             window.location.href = '/';

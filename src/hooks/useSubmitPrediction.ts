@@ -38,6 +38,10 @@ export function useSubmitPrediction() {
                 .upsert(payload, { onConflict: 'user_id, round' });
             
             if (error) throw error;
+
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('war_room_draft');
+            }
             
             setIsSuccess(true);
             setTimeout(() => {

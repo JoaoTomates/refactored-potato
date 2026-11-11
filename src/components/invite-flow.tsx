@@ -6,6 +6,7 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, ALLIANCE_KEYS, FactionData } from '@/utils/alliance-data';
 import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
 import { INVITE_V2_DIALOGS } from '@/data/dialogues';
+import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
@@ -315,14 +316,16 @@ export function InviteFlow() {
                     .maybeSingle();
 
                 if (error || !data) {
+                    clearCachedStrategistSession();
                     await supabase.auth.signOut();
                     setPhase('INTRO');
                     return;
                 }
 
-                if (data.setup_completed && data.slug) {
-                    const lowerSlug = data.slug.toLowerCase();
-                    window.location.replace(`/${lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`}`);
+                const normalizedSlug = normalizeAtSlug(data.slug);
+                if (data.setup_completed && normalizedSlug) {
+                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', normalizedSlug);
+                    window.location.replace(getDashboardPath(normalizedSlug));
                     return;
                 }
 
@@ -479,7 +482,8 @@ export function InviteFlow() {
                 localStorage.setItem('draft_alliance', selectedGroup);
             }
 
-            // Desloga qualquer sessão prévia limpa antes de registrar
+            // Desloga qualquer sessão prévia limpa antes de registrar e remove caches antigos
+            clearCachedStrategistSession();
             try {
                 await supabase.auth.signOut();
             } catch (_) { }

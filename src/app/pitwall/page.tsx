@@ -6,6 +6,7 @@ import { supabase } from '@/utils/supabase';
 import { F1_TEAMS, TeamData } from '@/lib/teams';
 import { TEAM_SPECS } from '@/utils/alliance-data';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 
 // Mapeamento Canônico de Campeões para Grupos/Ligas
 const CHAMPION_NAMES: Record<number, string> = {
@@ -107,14 +108,19 @@ export default function PitwallPage() {
         };
 
         const fetchUserProfile = async () => {
-            if (!user) return;
+            if (!user) {
+                setUserSlug(null);
+                return;
+            }
             const { data } = await supabase
                 .from('profiles')
-                .select('slug')
+                .select('slug, setup_completed')
                 .eq('id', user.id)
                 .maybeSingle();
-            if (data?.slug) {
-                setUserSlug(String(data.slug).toLowerCase());
+            if (data?.slug && data?.setup_completed === true) {
+                setUserSlug(normalizeAtSlug(data.slug));
+            } else {
+                setUserSlug(null);
             }
         };
 
@@ -552,7 +558,7 @@ export default function PitwallPage() {
                                                                 </span>
                                                                 {driver?.slug ? (
                                                                     <Link
-                                                                        href={`/${String(driver.slug).toLowerCase()}`}
+                                                                        href={getDashboardPath(driver.slug)}
                                                                         className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded bg-white/10 hover:bg-[#fbaa19] text-white hover:text-black border border-white/20 hover:border-[#fbaa19] transition-all font-mono"
                                                                         title={`Acessar telemetria de ${driverFormattedName}`}
                                                                     >

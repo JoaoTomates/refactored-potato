@@ -287,20 +287,24 @@ export default function PositionsPage() {
                     if (warRoomDraftRaw) {
                         try {
                             const wrDraft = JSON.parse(warRoomDraftRaw);
-                            if (wrDraft?.poletime && typeof wrDraft.poletime === 'string') {
-                                const digits = wrDraft.poletime.replace(/[^0-9]/g, '');
-                                if (digits.length >= 6) {
-                                    setPoletime(digits.slice(0, 6).split('').map((d: string) => parseInt(d, 10)));
+                            if (wrDraft?.userId && user?.id && wrDraft.userId !== user.id) {
+                                localStorage.removeItem('war_room_draft');
+                            } else {
+                                if (wrDraft?.poletime && typeof wrDraft.poletime === 'string') {
+                                    const digits = wrDraft.poletime.replace(/[^0-9]/g, '');
+                                    if (digits.length >= 6) {
+                                        setPoletime(digits.slice(0, 6).split('').map((d: string) => parseInt(d, 10)));
+                                    }
                                 }
-                            }
-                            if (Array.isArray(wrDraft?.top10) && wrDraft.top10.length === 10) {
-                                setTop10(normalizeDriverList(wrDraft.top10, 10));
-                            }
-                            if (Array.isArray(wrDraft?.evo) && wrDraft.evo.length === 5) {
-                                setEvo(normalizeDriverList(wrDraft.evo, 5));
-                            }
-                            if (wrDraft?.h2h && typeof wrDraft.h2h === 'object' && Object.keys(wrDraft.h2h).length > 0) {
-                                setH2H(wrDraft.h2h);
+                                if (Array.isArray(wrDraft?.top10) && wrDraft.top10.length === 10) {
+                                    setTop10(normalizeDriverList(wrDraft.top10, 10));
+                                }
+                                if (Array.isArray(wrDraft?.evo) && wrDraft.evo.length === 5) {
+                                    setEvo(normalizeDriverList(wrDraft.evo, 5));
+                                }
+                                if (wrDraft?.h2h && typeof wrDraft.h2h === 'object' && Object.keys(wrDraft.h2h).length > 0) {
+                                    setH2H(wrDraft.h2h);
+                                }
                             }
                         } catch (_) {}
                     }

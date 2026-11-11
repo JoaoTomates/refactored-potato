@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 
 type AuthMode = 'MAGIC_LINK' | 'PASSWORD';
 
@@ -42,6 +43,7 @@ function SuperlicenseAuthContent() {
     useEffect(() => {
         const forceLogin = searchParams?.get('force') === 'login' || searchParams?.get('logout') === 'true';
         if (forceLogin) {
+            clearCachedStrategistSession();
             supabase.auth.signOut().then(() => {});
             return;
         }
@@ -51,15 +53,20 @@ function SuperlicenseAuthContent() {
             if (isLoading) return;
             if (user) {
                 const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
-                if (data?.slug && data.setup_completed === true) {
-                    const lowerSlug = data.slug.toLowerCase();
-                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerSlug);
+                const normalizedSlug = normalizeAtSlug(data?.slug);
+                if (typeof window !== 'undefined') {
+                    if (normalizedSlug) {
+                        localStorage.setItem('vg_user_slug', normalizedSlug);
+                    } else {
+                        localStorage.removeItem('vg_user_slug');
+                    }
+                }
+                if (normalizedSlug && data?.setup_completed === true) {
                     if (safeRedirect) {
                         window.location.replace(safeRedirect);
                         return;
                     }
-                    const target = lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`;
-                    window.location.replace(`/${target}`);
+                    window.location.replace(getDashboardPath(normalizedSlug));
                 }
             }
         };
@@ -184,19 +191,26 @@ function SuperlicenseAuthContent() {
             if (authData?.user) {
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('slug')
+                    .select('slug, setup_completed')
                     .eq('id', authData.user.id)
                     .maybeSingle();
+
+                const normalizedSlug = normalizeAtSlug(profile?.slug);
+                if (typeof window !== 'undefined') {
+                    if (normalizedSlug) {
+                        localStorage.setItem('vg_user_slug', normalizedSlug);
+                    } else {
+                        localStorage.removeItem('vg_user_slug');
+                    }
+                }
 
                 if (safeRedirect) {
                     window.location.href = safeRedirect;
                     return;
                 }
 
-                if (profile?.slug) {
-                    const lowerSlug = profile.slug.toLowerCase();
-                    const target = lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`;
-                    window.location.href = `/${target}`;
+                if (normalizedSlug && profile?.setup_completed === true) {
+                    window.location.href = getDashboardPath(normalizedSlug);
                     return;
                 } else {
                     window.location.href = '/headquarters';
@@ -268,9 +282,13 @@ function SuperlicenseAuthContent() {
                                         return;
                                     }
                                     const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
-                                    if (data?.slug && data.setup_completed) {
-                                        const lowerSlug = data.slug.toLowerCase();
-                                        window.location.href = `/${lowerSlug.startsWith('@') ? lowerSlug : `@${lowerSlug}`}`;
+                                    const normalizedSlug = normalizeAtSlug(data?.slug);
+                                    if (typeof window !== 'undefined') {
+                                        if (normalizedSlug) localStorage.setItem('vg_user_slug', normalizedSlug);
+                                        else localStorage.removeItem('vg_user_slug');
+                                    }
+                                    if (normalizedSlug && data?.setup_completed) {
+                                        window.location.href = getDashboardPath(normalizedSlug);
                                     } else {
                                         window.location.href = '/headquarters';
                                     }
@@ -282,6 +300,7 @@ function SuperlicenseAuthContent() {
                             <button
                                 type="button"
                                 onClick={async () => {
+                                    clearCachedStrategistSession();
                                     await supabase.auth.signOut();
                                     window.location.href = '/superlicense?force=login';
                                 }}

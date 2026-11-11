@@ -13,6 +13,7 @@ import {
 } from '@/lib/technical-strategists';
 import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getStrategistSquad } from '@/lib/teamwork';
+import { getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/slug';
 import { ChevronLeft, ArrowRight, Check } from 'lucide-react';
 
 // --- PitWall Sound Engine (Cliques táteis da sala de estratégia) ---
@@ -546,7 +547,8 @@ export function WarRoomContent() {
     const searchParams = useSearchParams();
     const mentorParam = searchParams.get('mentor');
     const driverParam = searchParams.get('driver');
-    const { user } = useSupabaseAuth();
+    const { user, isLoading: authLoading } = useSupabaseAuth();
+    const [accessReady, setAccessReady] = useState(false);
 
     // Aliança e Equipe
     const [userAlliance, setUserAlliance] = useState<AllianceCode>('B');
@@ -570,16 +572,7 @@ export function WarRoomContent() {
     // 'TECH': Técnico entrou abaixo em Row 2 (porque deu OK ou preencheu)
     const [subStep, setSubStep] = useState<'SENIOR' | 'TECH'>('SENIOR');
 
-    const [userSlug, setUserSlug] = useState<string>(() => {
-        if (typeof window !== 'undefined') {
-            const cached = localStorage.getItem('vg_user_slug');
-            if (cached) {
-                const lower = cached.toLowerCase();
-                return lower.startsWith('@') ? lower : `@${lower}`;
-            }
-        }
-        return 'pitwall';
-    });
+    const [userSlug, setUserSlug] = useState<string>('');
 
     // Dados salvos para o protocolo
     const [chosenPoletime, setChosenPoletime] = useState<string>('1:12.209');
@@ -591,7 +584,15 @@ export function WarRoomContent() {
     });
 
     useEffect(() => {
+        if (authLoading) return;
+
+        if (!user) {
+            router.replace('/superlicense?redirect=/war-room');
+            return;
+        }
+
         soundEngine.init();
+        let isActive = true;
 
         const loadProfile = async () => {
             let allianceKey: AllianceCode = 'B';
@@ -599,59 +600,57 @@ export function WarRoomContent() {
             let userGroupId = 1;
             let resolvedSenior: SeniorStrategist | null = null;
 
-            // 1. Carrega dados do perfil e contrato
-            if (user) {
-                const { data: p } = await supabase
+            // 1. Carrega exclusivamente dados do perfil e contrato do usuário autenticado
+            const [{ data: p }, { data: contract }] = await Promise.all([
+                supabase
                     .from('profiles')
-                    .select('id, slug, senior_strategist_id, group_id')
+                    .select('id, slug, senior_strategist_id, setup_completed')
                     .eq('id', user.id)
-                    .maybeSingle();
-
-                if (p?.slug) {
-                    const lower = p.slug.toLowerCase();
-                    const s = lower.startsWith('@') ? lower : `@${lower}`;
-                    setUserSlug(s);
-                    if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lower);
-                }
-
-                if (p?.senior_strategist_id) {
-                    resolvedSenior = getSeniorStrategistById(p.senior_strategist_id) || null;
-                }
-
-                const { data: contract } = await supabase
+                    .maybeSingle(),
+                supabase
                     .from('contracts')
                     .select('team_id, teams(code, color), group_id')
                     .eq('user_id', user.id)
-                    .maybeSingle();
+                    .maybeSingle()
+            ]);
 
-                if (contract) {
-                    if (contract.group_id) userGroupId = Number(contract.group_id);
-                    const t = Array.isArray(contract.teams) ? contract.teams[0] : contract.teams;
-                    if (t?.code) teamCode = t.code;
+            if (!isActive) return;
 
-                    if (['MER', 'MCL', 'ALP', 'WIL'].includes(teamCode)) allianceKey = 'A';
-                    else if (['FER', 'HAA', 'CAD'].includes(teamCode)) allianceKey = 'B';
-                    else allianceKey = 'C';
-                }
+            if (!p || p.setup_completed !== true || !contract) {
+                router.replace('/headquarters');
+                return;
             }
 
-            // 2. Se veio mentor específico via URL query param (?mentor=strat-01), prioriza-o
-            if (mentorParam) {
+            // 2. Bloqueia participação na War Room de outro estrategista via query param (?driver=...)
+            if (driverParam && p.slug && slugAlphanumericKey(driverParam) !== slugAlphanumericKey(p.slug)) {
+                router.replace('/war-room');
+                return;
+            }
+
+            const ownSlug = normalizeAtSlug(p.slug);
+            if (ownSlug) {
+                setUserSlug(ownSlug);
+                if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', ownSlug);
+            }
+
+            if (p.senior_strategist_id) {
+                resolvedSenior = getSeniorStrategistById(p.senior_strategist_id) || null;
+            }
+
+            if (contract) {
+                if (contract.group_id) userGroupId = Number(contract.group_id);
+                const t = Array.isArray(contract.teams) ? contract.teams[0] : contract.teams;
+                if (t?.code) teamCode = t.code;
+
+                if (['MER', 'MCL', 'ALP', 'WIL'].includes(teamCode)) allianceKey = 'A';
+                else if (['FER', 'HAA', 'CAD'].includes(teamCode)) allianceKey = 'B';
+                else allianceKey = 'C';
+            }
+
+            // 3. Apenas se o usuário autenticado não possuir mentor salvo no perfil, aceita fallback de URL/rodada
+            if (!resolvedSenior && mentorParam) {
                 const queryMentor = getSeniorStrategistById(mentorParam);
                 if (queryMentor) resolvedSenior = queryMentor;
-            }
-
-            // 3. Se veio driver via URL (?driver=f.azevedo) e ainda não achamos o sênior
-            if (!resolvedSenior && driverParam) {
-                const clean = driverParam.replace('@', '');
-                const { data: pDriver } = await supabase
-                    .from('profiles')
-                    .select('id, slug, senior_strategist_id')
-                    .or(`slug.eq.${clean},slug.eq.@${clean},slug.ilike.${clean}`)
-                    .maybeSingle();
-                if (pDriver?.senior_strategist_id) {
-                    resolvedSenior = getSeniorStrategistById(pDriver.senior_strategist_id) || null;
-                }
             }
 
             // 4. Fallback final para rodada oficial (ex: round 19)
@@ -663,9 +662,9 @@ export function WarRoomContent() {
             setUserTeamCode(teamCode);
             setSeniorStrategist(resolvedSenior);
 
-            // 5. Configura o Engenheiro Técnico da Garagem
-            const tech = getActiveTechnicalStrategist(user?.id || 'guest', teamCode, allianceKey);
-            const groupEng = getGroupTechnicalEngineer(userGroupId, user?.id || 'guest');
+            // 5. Configura o Engenheiro Técnico da Garagem do próprio usuário
+            const tech = getActiveTechnicalStrategist(user.id, teamCode, allianceKey);
+            const groupEng = getGroupTechnicalEngineer(userGroupId, user.id);
             if (groupEng) {
                 tech.code = groupEng.code;
                 tech.avatarUrl = groupEng.avatarUrl;
@@ -687,16 +686,19 @@ export function WarRoomContent() {
             setHistoricalData(histRef);
 
             const cData = await fetchConsensusData(
-                user?.id || 'guest',
+                user.id,
                 allianceKey,
                 tech.telemetryBriefing.poletimeTarget,
                 tech.telemetryBriefing.top10Picks
             );
+            if (!isActive) return;
             setConsensusData(cData);
+            setAccessReady(true);
         };
 
         loadProfile();
-    }, [user, mentorParam, driverParam]);
+        return () => { isActive = false; };
+    }, [authLoading, user, mentorParam, driverParam, router]);
 
     const theme = ALLIANCE_THEMES[userAlliance] || ALLIANCE_THEMES['B'];
 
@@ -742,6 +744,7 @@ export function WarRoomContent() {
 
         const updated = {
             ...currentDraft,
+            userId: user?.id || null,
             poletime: updates.poletime || currentDraft.poletime || chosenPoletime,
             top10: updates.top10 || currentDraft.top10 || chosenTop10,
             evo: updates.evo || currentDraft.evo || chosenEvo,
@@ -873,6 +876,17 @@ export function WarRoomContent() {
         router.push('/positions?tab=misc&from=war_room');
     };
 
+    if (authLoading || !user || !accessReady) {
+        return (
+            <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono gap-4 p-4">
+                <div className="w-10 h-10 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs font-bold tracking-[0.22em] text-[#fbaa19] uppercase animate-pulse text-center">
+                    &gt;_ VERIFICANDO CREDENCIAL NA WAR ROOM...
+                </p>
+            </main>
+        );
+    }
+
     return (
         <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center justify-center p-4 transition-all duration-300">
 
@@ -910,7 +924,7 @@ export function WarRoomContent() {
             {/* BARRA SUPERIOR: SAÍDA */}
             <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between">
                 <Link
-                    href={`/${userSlug}`}
+                    href={getDashboardPath(userSlug, '/headquarters')}
                     className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
                 >
                     <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />

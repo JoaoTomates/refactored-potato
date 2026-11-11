@@ -7,31 +7,25 @@ import Logo from './logo';
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useSmartScroll } from '@/hooks/useSmartScroll';
 import { supabase } from '@/utils/supabase';
+import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 
 const Navigation = () => {
     const pathname = usePathname();
     const { isVisible, isScrolled } = useSmartScroll({ threshold: 20 });
-    const { user } = useSupabaseAuth();
+    const { user, isLoading: authLoading } = useSupabaseAuth();
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [dashboardUrl, setDashboardUrl] = useState<string>(() => {
-        if (typeof window !== 'undefined') {
-            const cached = localStorage.getItem('vg_user_slug');
-            if (cached) {
-                const lower = cached.toLowerCase();
-                return `/${lower.startsWith('@') ? lower : `@${lower}`}`;
-            }
-        }
-        return '/superlicense';
-    });
+    const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
 
     // Close mobile menu on route change
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
 
-    // Fetch user dashboard target directly to avoid bouncing through login/superlicense
+    // Fetch user dashboard target directly from authenticated user to avoid stale cached slugs
     useEffect(() => {
+        if (authLoading) return;
+
         if (!user) {
             setDashboardUrl('/superlicense');
             return;
@@ -42,29 +36,32 @@ const Navigation = () => {
             try {
                 const { data } = await supabase
                     .from('profiles')
-                    .select('slug')
+                    .select('slug, setup_completed')
                     .eq('id', user.id)
                     .maybeSingle();
 
                 if (!isMounted) return;
-                if (data?.slug) {
-                    const lower = data.slug.toLowerCase();
-                    if (typeof window !== 'undefined') {
-                        localStorage.setItem('vg_user_slug', lower);
+                const normalizedSlug = normalizeAtSlug(data?.slug);
+                if (typeof window !== 'undefined') {
+                    if (normalizedSlug) {
+                        localStorage.setItem('vg_user_slug', normalizedSlug);
+                    } else {
+                        localStorage.removeItem('vg_user_slug');
                     }
-                    const cleanSlug = lower.startsWith('@') ? lower : `@${lower}`;
-                    setDashboardUrl(`/${cleanSlug}`);
+                }
+                if (normalizedSlug && data?.setup_completed === true) {
+                    setDashboardUrl(getDashboardPath(normalizedSlug));
                 } else {
-                    setDashboardUrl('/playground');
+                    setDashboardUrl('/headquarters');
                 }
             } catch {
-                if (isMounted) setDashboardUrl('/playground');
+                if (isMounted) setDashboardUrl('/headquarters');
             }
         };
 
         fetchDashboardTarget();
         return () => { isMounted = false; };
-    }, [user]);
+    }, [user, authLoading]);
 
     // Hide navbar on onboarding and studio pages (called AFTER all hooks to adhere to Rules of Hooks)
     if (pathname === '/' || pathname === '/academy' || pathname === '/invite' || pathname === '/invite4' || pathname === '/lore') {

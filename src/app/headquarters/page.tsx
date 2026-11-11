@@ -5,6 +5,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
 import { Check, ArrowRight, ShieldCheck } from 'lucide-react';
+import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 
 // --- PitWall Sound Engine ---
 class PitWallSoundEngine {
@@ -290,9 +291,12 @@ function HeadquartersFlow() {
                 .eq('id', user.id)
                 .single();
 
-            const targetSlug = profile?.slug || 'dashboard';
-            const cleanTarget = (targetSlug.startsWith('@') ? targetSlug : `@${targetSlug}`).toLowerCase();
-            window.location.replace(`/${cleanTarget}`);
+            const normalizedSlug = normalizeAtSlug(profile?.slug);
+            if (typeof window !== 'undefined') {
+                if (normalizedSlug) localStorage.setItem('vg_user_slug', normalizedSlug);
+                else localStorage.removeItem('vg_user_slug');
+            }
+            window.location.replace(getDashboardPath(normalizedSlug, '/headquarters'));
 
         } catch (err: any) {
             console.error(err);
@@ -302,6 +306,7 @@ function HeadquartersFlow() {
     };
 
     const handleSignOut = async () => {
+        clearCachedStrategistSession();
         try {
             await supabase.auth.signOut();
         } catch (_) {}

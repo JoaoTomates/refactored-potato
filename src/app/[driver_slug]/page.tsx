@@ -22,6 +22,7 @@ import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { formatMls, formatTimeAgo } from '@/lib/mls';
 import { getCountryFlag } from '@/lib/country-flags';
+import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/slug';
 import { TeamworkSquad, getStrategistSquad, createTeamworkSquad, joinTeamworkSquad, leaveTeamworkSquad } from '@/lib/teamwork';
 import {
     SeniorStrategist,
@@ -795,12 +796,8 @@ export default function OfficialStrategistDashboard() {
 
     const [loading, setLoading] = useState(true);
     const [targetProfile, setTargetProfile] = useState<any>(null);
-    const [mySlug, setMySlug] = useState<string | null>(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('vg_user_slug') || null;
-        }
-        return null;
-    });
+    const [mySlug, setMySlug] = useState<string | null>(null);
+    const [mySetupCompleted, setMySetupCompleted] = useState<boolean>(false);
     const [me, setMe] = useState<Strategist | null>(null);
     const [userPrediction, setUserPrediction] = useState<any>(null);
     const [teamPartner, setTeamPartner] = useState<{ id: string; name: string; slug: string | null; driverNumber?: string; avatarUrl?: string | null } | null>(null);
@@ -834,48 +831,93 @@ export default function OfficialStrategistDashboard() {
 
         const loadDashboard = async () => {
             try {
-                // 1. Busca perfil pelo slug da URL de forma resiliente
+                // 1. Busca perfil pelo slug da URL de forma determinística e resiliente
                 let profileData: any = null;
                 if (targetSlug) {
-                    const clean = targetSlug.replace('@', '');
-                    const cleanAlpha = clean.replace(/[^a-zA-Z0-9]/g, '');
+                    const rawClean = decodedSlug.replace(/^@+/, '').trim();
+                    const lowerClean = rawClean.toLowerCase();
+                    const withAtLower = `@${lowerClean}`;
+                    const cleanAlpha = slugAlphanumericKey(rawClean);
 
-                    // 1a. Busca direta por slug (com @ ou sem @, case-insensitive)
-                    const { data: pBySlug } = await supabase
+                    // 1a. Busca exata por variações com e sem @ sem depender de maybeSingle()
+                    const slugCandidates = Array.from(
+                        new Set([
+                            decodedSlug,
+                            rawClean,
+                            lowerClean,
+                            withAtLower,
+                            `@${rawClean}`,
+                            rawClean.toUpperCase(),
+                            `@${rawClean.toUpperCase()}`,
+                        ].filter(Boolean))
+                    );
+
+                    const { data: exactMatches } = await supabase
                         .from('profiles')
                         .select('*')
-                        .or(`slug.eq.${targetSlug},slug.eq.${clean},slug.ilike.${targetSlug},slug.ilike.${clean},slug.ilike.@${clean}`)
-                        .maybeSingle();
+                        .in('slug', slugCandidates)
+                        .limit(5);
 
-                    if (pBySlug) {
-                        profileData = pBySlug;
+                    if (exactMatches && exactMatches.length > 0) {
+                        profileData =
+                            exactMatches.find((p: any) => String(p.slug || '').replace(/^@+/, '').toLowerCase() === lowerClean) ||
+                            exactMatches[0];
                     }
 
-                    // 1b. Busca por slug sem caracteres especiais (ex: D.ALVAR casa com dalvar88 ou @dalvar88)
-                    if (!profileData && cleanAlpha.length >= 3) {
-                        const { data: pByAlpha } = await supabase
+                    // 1b. Busca case-insensitive direta (sem % coringa para evitar colisão)
+                    if (!profileData && lowerClean) {
+                        const { data: ilikeWithAt } = await supabase
                             .from('profiles')
                             .select('*')
-                            .or(`slug.ilike.%${cleanAlpha}%,slug.ilike.%${clean}%`)
-                            .limit(1)
-                            .maybeSingle();
-                        if (pByAlpha) profileData = pByAlpha;
+                            .ilike('slug', withAtLower)
+                            .limit(2);
+                        if (ilikeWithAt && ilikeWithAt.length > 0) {
+                            profileData = ilikeWithAt[0];
+                        } else {
+                            const { data: ilikeNoAt } = await supabase
+                                .from('profiles')
+                                .select('*')
+                                .ilike('slug', lowerClean)
+                                .limit(2);
+                            if (ilikeNoAt && ilikeNoAt.length > 0) {
+                                profileData = ilikeNoAt[0];
+                            }
+                        }
                     }
 
-                    // 1c. Se o padrão for D.ALVAR (primeira letra do nome + sobrenome)
-                    if (!profileData && clean.includes('.')) {
-                        const parts = clean.split('.');
+                    // 1c. Equivalência alfanumérica exata (ex: c.santiago85 <-> @csantiago85)
+                    if (!profileData && cleanAlpha.length >= 3) {
+                        const { data: alphaCandidates } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .or(`slug.ilike.%${cleanAlpha}%,slug.ilike.%${lowerClean}%`)
+                            .limit(10);
+                        const exactAlpha = (alphaCandidates || []).find(
+                            (p: any) => slugAlphanumericKey(p.slug) === cleanAlpha
+                        );
+                        if (exactAlpha) profileData = exactAlpha;
+                    }
+
+                    // 1d. Se o padrão for L.GUSTAVO88 ou L.GUSTAVO (inicial + sobrenome + número opcional)
+                    if (!profileData && lowerClean.includes('.')) {
+                        const parts = lowerClean.split('.');
                         const firstInitial = parts[0]?.trim();
-                        const lastPart = parts[1]?.replace(/[0-9]/g, '').trim();
+                        const rawSuffix = parts.slice(1).join('').trim();
+                        const numMatch = rawSuffix.match(/(\d+)$/);
+                        const lastPart = rawSuffix.replace(/[0-9]/g, '').trim();
                         if (firstInitial && lastPart) {
-                            const { data: pByName } = await supabase
+                            let q = supabase
                                 .from('profiles')
                                 .select('*')
                                 .ilike('first_name', `${firstInitial}%`)
-                                .ilike('last_name', `${lastPart}%`)
-                                .limit(1)
-                                .maybeSingle();
-                            if (pByName) profileData = pByName;
+                                .ilike('last_name', lastPart);
+                            if (numMatch) {
+                                q = q.eq('driver_number', parseInt(numMatch[1], 10));
+                            }
+                            const { data: nameMatches } = await q.limit(2);
+                            if (nameMatches && nameMatches.length === 1) {
+                                profileData = nameMatches[0];
+                            }
                         }
                     }
                 }
@@ -943,18 +985,39 @@ export default function OfficialStrategistDashboard() {
                         .maybeSingle();
                     directContract = myContract;
 
-                    // Atualiza cache do slug do próprio usuário logado para navegação rápida (100% minúsculo)
-                    if (profileData && profileData.id === user.id && profileData.slug) {
-                        const lowerMySlug = String(profileData.slug).toLowerCase();
-                        setMySlug(lowerMySlug);
-                        if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerMySlug);
-                    } else if (!mySlug) {
-                        const { data: myP } = await supabase.from('profiles').select('slug').eq('id', user.id).maybeSingle();
-                        if (myP?.slug) {
-                            const lowerMySlug = String(myP.slug).toLowerCase();
-                            setMySlug(lowerMySlug);
-                            if (typeof window !== 'undefined') localStorage.setItem('vg_user_slug', lowerMySlug);
+                    // Sempre sincroniza slug e status do usuário autenticado (sem confiar em cache antigo de outro usuário)
+                    let resolvedMySlug: string | null = null;
+                    let resolvedMySetup = false;
+
+                    if (profileData && profileData.id === user.id) {
+                        resolvedMySlug = normalizeAtSlug(profileData.slug);
+                        resolvedMySetup = Boolean(profileData.setup_completed);
+                    } else {
+                        const { data: myP } = await supabase
+                            .from('profiles')
+                            .select('slug, setup_completed')
+                            .eq('id', user.id)
+                            .maybeSingle();
+                        if (myP) {
+                            resolvedMySlug = normalizeAtSlug(myP.slug);
+                            resolvedMySetup = Boolean(myP.setup_completed);
                         }
+                    }
+
+                    setMySlug(resolvedMySlug);
+                    setMySetupCompleted(resolvedMySetup);
+                    if (typeof window !== 'undefined') {
+                        if (resolvedMySlug) {
+                            localStorage.setItem('vg_user_slug', resolvedMySlug);
+                        } else {
+                            localStorage.removeItem('vg_user_slug');
+                        }
+                    }
+                } else {
+                    setMySlug(null);
+                    setMySetupCompleted(false);
+                    if (typeof window !== 'undefined') {
+                        localStorage.removeItem('vg_user_slug');
                     }
                 }
 
@@ -1089,6 +1152,15 @@ export default function OfficialStrategistDashboard() {
     }, [authLoading, user, targetSlug]);
 
     const isOwner = Boolean(user && targetProfile && user.id === targetProfile.id);
+    const myTerminalHref = user
+        ? (mySlug && mySetupCompleted ? getDashboardPath(mySlug) : '/headquarters')
+        : '/superlicense';
+
+    useEffect(() => {
+        if (!isOwner && (activeView === 'settings' || activeView === 'setup' || activeView === 'report' || activeView === 'silly_season')) {
+            setActiveView('menu');
+        }
+    }, [isOwner, activeView]);
 
     const handleCreateSquad = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -1507,6 +1579,7 @@ export default function OfficialStrategistDashboard() {
     }
 
     const handleLogout = async () => {
+        clearCachedStrategistSession();
         try {
             if (logout) await logout();
             window.location.href = '/';
@@ -1558,13 +1631,20 @@ export default function OfficialStrategistDashboard() {
                         )}
                     </div>
                     <div className="flex items-center gap-4 md:gap-6 text-[10px] tracking-widest">
-                        <Link
-                            href="/positions"
-                            className={`flex items-center gap-1.5 font-bold transition-all hover:opacity-80 ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}
-                        >
-                            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
-                            <span>{raceWeek ? 'PITLANE OPEN // PISTA DISPONÍVEL' : 'PITLANE OPEN'}</span>
-                        </Link>
+                        {isOwner ? (
+                            <Link
+                                href="/positions"
+                                className={`flex items-center gap-1.5 font-bold transition-all hover:opacity-80 ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}
+                            >
+                                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
+                                <span>{raceWeek ? 'PITLANE OPEN // PISTA DISPONÍVEL' : 'PITLANE OPEN'}</span>
+                            </Link>
+                        ) : (
+                            <span className={`flex items-center gap-1.5 font-bold ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
+                                <span>{raceWeek ? 'PITLANE OPEN // PISTA DISPONÍVEL' : 'PITLANE OPEN'}</span>
+                            </span>
+                        )}
                         <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: raceWeek ? '#fbaa19' : teamColor }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
 
@@ -1572,9 +1652,12 @@ export default function OfficialStrategistDashboard() {
                         {isOwner ? (
                             <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
                         ) : user ? (
-                            <Link href={mySlug ? `/${mySlug.startsWith('@') ? mySlug : `@${mySlug}`}` : "/superlicense"} className="hover:text-white transition-colors" style={{ color: teamColor }}>
-                                [ MEU TERMINAL ]
-                            </Link>
+                            <div className="flex items-center gap-3">
+                                <Link href={myTerminalHref} className="hover:text-white transition-colors" style={{ color: teamColor }}>
+                                    [ MEU TERMINAL ]
+                                </Link>
+                                <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
+                            </div>
                         ) : (
                             <Link href="/superlicense" className="hover:text-white transition-colors" style={{ color: teamColor }}>
                                 [ ENTRAR ]
@@ -1584,16 +1667,27 @@ export default function OfficialStrategistDashboard() {
                 </header>
 
 
-                {isDemo && (
+                {isDemo ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
                         <div className="border bg-black/40 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${teamColor}40`, color: teamColor }}>
                             <span>[SISTEMA] VISUALIZANDO MODO PÚBLICO / DEMONSTRAÇÃO DO ESTRATEGISTA.</span>
-                            <Link href="/superlicense" className="font-bold hover:text-white transition-colors">ACESSAR MINHA CONTA »</Link>
+                            <Link href={user ? myTerminalHref : "/superlicense"} className="font-bold hover:text-white transition-colors">
+                                {user ? 'IR PARA MEU TERMINAL »' : 'ACESSAR MINHA CONTA »'}
+                            </Link>
                         </div>
                     </div>
-                )}
+                ) : !isOwner && targetProfile ? (
+                    <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
+                        <div className="border bg-black/50 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${teamColor}40`, color: teamColor }}>
+                            <span>[VISUALIZAÇÃO PÚBLICA // SOMENTE LEITURA] TERMINAL DE {me.name} ({me.slug || targetSlug}).</span>
+                            <Link href={user ? myTerminalHref : "/superlicense"} className="font-bold hover:text-white transition-colors">
+                                {user ? 'VOLTAR AO MEU TERMINAL »' : 'ENTRAR NA MINHA CONTA »'}
+                            </Link>
+                        </div>
+                    </div>
+                ) : null}
 
-                {activeView === "menu" && (
+                {isOwner && activeView === "menu" && (
                     <StewardAlertBanner
                         pendingReports={stewardVoting.pendingReports}
                         unvotedCount={stewardVoting.unvotedPendingCount}
@@ -1621,10 +1715,10 @@ export default function OfficialStrategistDashboard() {
                         </div>
 
                         <div className="w-full">
-                            {activeView === "setup" && <SetupForm />}
-                            {activeView === "settings" && <Settings />}
+                            {activeView === "setup" && isOwner && <SetupForm />}
+                            {activeView === "settings" && isOwner && <Settings />}
                             {activeView === "calendar" && <Calendar />}
-                            {activeView === "report" && (
+                            {activeView === "report" && isOwner && (
                                 <ReportForm
                                     onReportSubmitted={() => stewardVoting.refresh()}
                                     onBackToDashboard={() => {
@@ -1633,7 +1727,7 @@ export default function OfficialStrategistDashboard() {
                                     }}
                                 />
                             )}
-                            {activeView === "silly_season" && <SillySeason />}
+                            {activeView === "silly_season" && isOwner && <SillySeason />}
                         </div>
                     </div>
                 ) : (
@@ -1717,7 +1811,7 @@ export default function OfficialStrategistDashboard() {
 
                                         {teamPartner.slug && (
                                             <Link
-                                                href={`/${teamPartner.slug}`}
+                                                href={getDashboardPath(teamPartner.slug)}
                                                 className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
                                             >
                                                 <span>[ VER TELEMETRIA DO COMPANHEIRO ]</span>
@@ -1736,13 +1830,15 @@ export default function OfficialStrategistDashboard() {
                                             </p>
                                         </div>
 
-                                        <Link
-                                            href="/invite"
-                                            className="w-full bg-[#fbaa19]/10 hover:bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
-                                        >
-                                            <span>[ ENVIAR CONVITE DE BOX ]</span>
-                                            <span>»</span>
-                                        </Link>
+                                        {isOwner && (
+                                            <Link
+                                                href="/invite"
+                                                className="w-full bg-[#fbaa19]/10 hover:bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
+                                            >
+                                                <span>[ ENVIAR CONVITE DE BOX ]</span>
+                                                <span>»</span>
+                                            </Link>
+                                        )}
                                     </div>
                                 )}
                             </Panel>
@@ -1974,42 +2070,44 @@ export default function OfficialStrategistDashboard() {
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
                         <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
 
-                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) */}
-                            <div className="w-full flex flex-col sm:flex-row gap-2.5">
-                                {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
-                                <Link
-                                    href={`/war-room?driver=${encodeURIComponent(targetSlug || me.slug || '')}&mentor=${encodeURIComponent(assignedMentor?.id || '')}`}
-                                    className="flex-1 py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
-                                    style={{
-                                        borderColor: '#fbaa19',
-                                        backgroundColor: 'rgba(251, 170, 25, 0.18)',
-                                        color: '#fbaa19'
-                                    }}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-[#fbaa19] animate-ping inline-block" />
-                                        <span className="group-hover:text-white transition-colors">&gt;_ REUNIÃO TÁTICA // WAR ROOM</span>
-                                    </div>
-                                    <span className="text-[10px] font-black px-2 py-0.5 rounded bg-black/80 border border-[#fbaa19]/50 text-white flex items-center gap-1 group-hover:bg-[#fbaa19] group-hover:text-black transition-all">
-                                        <span>ENTRAR NA MESA</span>
-                                        <span>»</span>
-                                    </span>
-                                </Link>
+                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) — SOMENTE DONO DO TERMINAL */}
+                            {isOwner && (
+                                <div className="w-full flex flex-col sm:flex-row gap-2.5">
+                                    {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
+                                    <Link
+                                        href={`/war-room?driver=${encodeURIComponent(me.slug || targetSlug || '')}&mentor=${encodeURIComponent(assignedMentor?.id || '')}`}
+                                        className="flex-1 py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
+                                        style={{
+                                            borderColor: '#fbaa19',
+                                            backgroundColor: 'rgba(251, 170, 25, 0.18)',
+                                            color: '#fbaa19'
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-[#fbaa19] animate-ping inline-block" />
+                                            <span className="group-hover:text-white transition-colors">&gt;_ REUNIÃO TÁTICA // WAR ROOM</span>
+                                        </div>
+                                        <span className="text-[10px] font-black px-2 py-0.5 rounded bg-black/80 border border-[#fbaa19]/50 text-white flex items-center gap-1 group-hover:bg-[#fbaa19] group-hover:text-black transition-all">
+                                            <span>ENTRAR NA MESA</span>
+                                            <span>»</span>
+                                        </span>
+                                    </Link>
 
-                                {/* BOTÃO SECUNDÁRIO: FORMULÁRIO RÁPIDO // POSITIONS */}
-                                <Link
-                                    href="/positions"
-                                    className="sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer bg-white/5 hover:bg-white/10"
-                                    style={{
-                                        borderColor: `${teamColor}50`,
-                                        color: teamColor
-                                    }}
-                                    title="Preenchimento direto de palpites sem o briefing da mesa"
-                                >
-                                    <span>FORMULÁRIO RÁPIDO</span>
-                                    <span className="text-[10px] opacity-70">»</span>
-                                </Link>
-                            </div>
+                                    {/* BOTÃO SECUNDÁRIO: FORMULÁRIO RÁPIDO // POSITIONS */}
+                                    <Link
+                                        href="/positions"
+                                        className="sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer bg-white/5 hover:bg-white/10"
+                                        style={{
+                                            borderColor: `${teamColor}50`,
+                                            color: teamColor
+                                        }}
+                                        title="Preenchimento direto de palpites sem o briefing da mesa"
+                                    >
+                                        <span>FORMULÁRIO RÁPIDO</span>
+                                        <span className="text-[10px] opacity-70">»</span>
+                                    </Link>
+                                </div>
+                            )}
 
                             {/* 1. OS 4 CARDS DE COMPETIÇÃO (Clicáveis) - Cores dinâmicas por desempenho global (Verde / Amarela / Vermelha) */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -2153,6 +2251,7 @@ export default function OfficialStrategistDashboard() {
                                 userPrediction={userPrediction}
                                 pendingStewardCount={stewardVoting.pendingReports.length}
                                 teamColor={teamColor}
+                                isOwner={isOwner}
                                 onOpenVoting={() => setIsVotingModalOpen(true)}
                                 onJumpToBookTab={() => setActiveTab('book')}
                             />
@@ -2320,14 +2419,16 @@ export default function OfficialStrategistDashboard() {
                                                         </div>
                                                     </div>
 
-                                                    <Link
-                                                        href="/positions"
-                                                        className="mt-1 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
-                                                        style={{ borderColor: `${teamColor}60`, backgroundColor: `${teamColor}15`, color: teamColor }}
-                                                    >
-                                                        <span>&gt;_ EDITAR / AJUSTAR POSIÇÕES NO TERMINAL</span>
-                                                        <span>»</span>
-                                                    </Link>
+                                                    {isOwner && (
+                                                        <Link
+                                                            href="/positions"
+                                                            className="mt-1 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
+                                                            style={{ borderColor: `${teamColor}60`, backgroundColor: `${teamColor}15`, color: teamColor }}
+                                                        >
+                                                            <span>&gt;_ EDITAR / AJUSTAR POSIÇÕES NO TERMINAL</span>
+                                                            <span>»</span>
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col gap-3">
@@ -2337,15 +2438,19 @@ export default function OfficialStrategistDashboard() {
                                                             NENHUMA PREVISÃO REGISTRADA NA ETAPA ATUAL
                                                         </h4>
                                                         <p className="text-[10px] text-white/50 max-w-md">
-                                                            Suas ordens para Poletime, Top 10, Evo e Confrontos Diretos ainda não foram homologadas no Pitwall.
+                                                            {isOwner
+                                                                ? 'Suas ordens para Poletime, Top 10, Evo e Confrontos Diretos ainda não foram homologadas no Pitwall.'
+                                                                : 'Este estrategista ainda não registrou previsões para a etapa atual.'}
                                                         </p>
-                                                        <Link
-                                                            href="/positions"
-                                                            className="mt-2 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all hover:brightness-110"
-                                                            style={{ borderColor: teamColor, backgroundColor: teamColor, color: '#000' }}
-                                                        >
-                                                            [ TOMAR POSIÇÕES AGORA » ]
-                                                        </Link>
+                                                        {isOwner && (
+                                                            <Link
+                                                                href="/positions"
+                                                                className="mt-2 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all hover:brightness-110"
+                                                                style={{ borderColor: teamColor, backgroundColor: teamColor, color: '#000' }}
+                                                            >
+                                                                [ TOMAR POSIÇÕES AGORA » ]
+                                                            </Link>
+                                                        )}
                                                     </div>
 
                                                     <div className="flex items-center justify-between pb-2 border-b border-white/5 text-[9px] tracking-widest uppercase text-white/40">
@@ -2705,45 +2810,51 @@ export default function OfficialStrategistDashboard() {
                                 </div>
 
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
-                                    <button
-                                        onClick={() => setActiveView('report')}
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Report
-                                    </button>
-                                    <button
-                                        onClick={() => setIsVotingModalOpen(true)}
-                                        className={`p-2.5 rounded text-center transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
-                                            stewardVoting.pendingReports.length > 0
-                                                ? 'border-[#fbaa19]/60 bg-[#fbaa19]/15 text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black'
-                                                : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
-                                        }`}
-                                    >
-                                        <span>Voting</span>
-                                        {stewardVoting.pendingReports.length > 0 && (
-                                            <span className="px-1.5 py-0.2 rounded bg-black/70 text-[#fbaa19] text-[9px] font-black">
-                                                {stewardVoting.pendingReports.length}
-                                            </span>
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveView('silly_season')}
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Silly Season
-                                    </button>
+                                    {isOwner && (
+                                        <>
+                                            <button
+                                                onClick={() => setActiveView('report')}
+                                                className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                            >
+                                                Report
+                                            </button>
+                                            <button
+                                                onClick={() => setIsVotingModalOpen(true)}
+                                                className={`p-2.5 rounded text-center transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
+                                                    stewardVoting.pendingReports.length > 0
+                                                        ? 'border-[#fbaa19]/60 bg-[#fbaa19]/15 text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black'
+                                                        : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+                                                }`}
+                                            >
+                                                <span>Voting</span>
+                                                {stewardVoting.pendingReports.length > 0 && (
+                                                    <span className="px-1.5 py-0.2 rounded bg-black/70 text-[#fbaa19] text-[9px] font-black">
+                                                        {stewardVoting.pendingReports.length}
+                                                    </span>
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => setActiveView('silly_season')}
+                                                className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                            >
+                                                Silly Season
+                                            </button>
+                                        </>
+                                    )}
                                     <button
                                         onClick={() => setActiveView('calendar')}
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         F1 Calendar
                                     </button>
-                                    <button
-                                        onClick={() => setActiveView('settings')}
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Settings
-                                    </button>
+                                    {isOwner && (
+                                        <button
+                                            onClick={() => setActiveView('settings')}
+                                            className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                        >
+                                            Settings
+                                        </button>
+                                    )}
                                     <Link
                                         href="/telemetry"
                                         className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
@@ -2762,13 +2873,31 @@ export default function OfficialStrategistDashboard() {
                                     >
                                         Race Control
                                     </Link>
-                                    <Link
-                                        href="/superlicense"
-                                        className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                        style={{ backgroundColor: teamColor, borderColor: teamColor }}
-                                    >
-                                        Licença
-                                    </Link>
+                                    {isOwner ? (
+                                        <Link
+                                            href="/superlicense"
+                                            className="p-2.5 rounded text-center transition-all border font-black text-black"
+                                            style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                        >
+                                            Licença
+                                        </Link>
+                                    ) : user ? (
+                                        <Link
+                                            href={myTerminalHref}
+                                            className="p-2.5 rounded text-center transition-all border font-black text-black"
+                                            style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                        >
+                                            Meu Terminal
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            href="/superlicense"
+                                            className="p-2.5 rounded text-center transition-all border font-black text-black"
+                                            style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                        >
+                                            Entrar
+                                        </Link>
+                                    )}
                                     {isOwner && (
                                         <button
                                             onClick={handleLogout}
@@ -2846,7 +2975,7 @@ export default function OfficialStrategistDashboard() {
                                                 </div>
                                             );
                                             return item.s.slug && !isMe
-                                                ? <Link key={`${comp.title}-${item.s.id}`} href={`/${item.s.slug}`}>{row}</Link>
+                                                ? <Link key={`${comp.title}-${item.s.id}`} href={getDashboardPath(item.s.slug)}>{row}</Link>
                                                 : <div key={`${comp.title}-${item.s.id}`}>{row}</div>;
                                         })}
                                     </div>
@@ -2872,7 +3001,7 @@ export default function OfficialStrategistDashboard() {
                                             </div>
                                         );
                                         return r.s.slug && !isMe
-                                            ? <Link key={r.s.id} href={`/${r.s.slug}`}>{row}</Link>
+                                            ? <Link key={r.s.id} href={getDashboardPath(r.s.slug)}>{row}</Link>
                                             : <div key={r.s.id}>{row}</div>;
                                     })}
                                 </div>
