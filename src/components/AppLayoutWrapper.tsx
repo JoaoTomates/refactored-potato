@@ -73,11 +73,13 @@ export function isDashboardRoute(pathname: string | null): boolean {
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isDashboard = isDashboardRoute(pathname);
+    // O Dashboard /[driver_slug] renderiza o NasdaqTicker internamente logo abaixo do header BAEFF1
+    const isDriverSlugDashboard = Boolean(pathname) && !pathname!.startsWith('/nc/') && pathname !== '/pitwall' && isDashboard;
 
     return (
         <div className="flex flex-col min-h-screen w-full relative">
-            {/* Componente Nasdaq exibido EXCLUSIVAMENTE na página de Dashboard */}
-            {isDashboard && <NasdaqTicker />}
+            {/* Componente Nasdaq exibido apenas em rotas de dashboard que não possuem header interno próprio */}
+            {isDashboard && !isDriverSlugDashboard && <NasdaqTicker />}
             
             {/* Conteúdo Principal com navegação orgânica contextual interna */}
             <main className="flex-grow flex flex-col w-full">

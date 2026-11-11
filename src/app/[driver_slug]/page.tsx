@@ -17,6 +17,7 @@ import PitwallQuickDock from "@/components/pitwall-quick-dock";
 import SillySeason from "@/components/silly-season";
 import RaceWeekSchedule from "@/components/race-week-schedule";
 import PaddockRadioPlayer from "@/components/paddock-radio-player";
+import NasdaqTicker from "@/components/nasdaq-ticker";
 import CompetitionRankingsScreen, { CompetitionKey } from "@/components/competition-rankings-screen";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
@@ -1622,7 +1623,7 @@ export default function OfficialStrategistDashboard() {
     }
 
     return (
-        <main className={`w-full min-h-screen text-white font-mono relative overflow-x-hidden ${isStandardStyle ? 'bg-black' : 'bg-[#050401]'}`}>
+        <main className={`w-full min-h-screen text-white font-mono relative overflow-x-hidden ${isStandardStyle ? 'bg-black' : 'bg-[#020202]'}`}>
             <style>{`
                 @keyframes vg-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
                 .vg-marquee { animation: vg-marquee 45s linear infinite; }
@@ -1632,17 +1633,18 @@ export default function OfficialStrategistDashboard() {
             {/* Fundo com aura personalizada da equipe (ou preto predominante no modo Standard) */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div
-                    className={`absolute inset-0 transition-all duration-700 ${isStandardStyle ? 'opacity-[0.06]' : 'opacity-[0.14]'}`}
+                    className={`absolute inset-0 transition-all duration-700 ${isStandardStyle ? 'opacity-[0.025]' : 'opacity-[0.06]'}`}
                     style={{ background: `radial-gradient(circle at 50% 0%, ${mainAccent} 0%, transparent 60%)` }}
                 />
                 <div
-                    className={`absolute inset-0 ${isStandardStyle ? 'opacity-[0.03]' : 'opacity-[0.04]'}`}
+                    className={`absolute inset-0 ${isStandardStyle ? 'opacity-[0.015]' : 'opacity-[0.02]'}`}
                     style={{
                         backgroundImage: `linear-gradient(${isStandardStyle ? 'rgba(255,255,255,0.25)' : teamColor} 1px, transparent 1px), linear-gradient(90deg, ${isStandardStyle ? 'rgba(255,255,255,0.25)' : teamColor} 1px, transparent 1px)`,
                         backgroundSize: '48px 48px'
                     }}
                 />
-                <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)' }} />
+                <div className="absolute inset-0 opacity-45" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)' }} />
+                <div className="absolute inset-0 bg-black/45" />
             </div>
 
             <div className="relative z-10">
@@ -1704,6 +1706,8 @@ export default function OfficialStrategistDashboard() {
                     </div>
                 </header>
 
+                {/* Ticker Nasdaq dentro da página, logo abaixo do menu BAEFF1 // Terminal do Estrategista */}
+                <NasdaqTicker />
 
                 {isDemo ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
