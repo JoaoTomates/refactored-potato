@@ -9,6 +9,7 @@ import { INVITE_V2_DIALOGS } from '@/data/dialogues';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 import { DialogueBox, TypewriterLine, retroSound } from '@/components/dialogue-box';
 import { getSystemBoxStyle } from '@/components/system-modal';
+import { getDeviceSignalHash } from '@/lib/device-signal';
 
 export { retroSound, TypewriterLine };
 
@@ -236,72 +237,39 @@ export function InviteFlow() {
         setPhase('SUBMITTING_ENLIST');
 
         try {
-            let emailToUse = email.trim();
-            if (!emailToUse.includes('@')) {
-                emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@baeff1.com`;
-            }
-
-            const chosenPassword = password.trim() || ('Volt' + Math.random().toString(36).slice(-6) + '!');
-
             const rawFirst = nameParts[0];
             const rawLast = nameParts.slice(1).join(' ');
-
             const cleanFirstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
             const cleanLastName = rawLast.toUpperCase();
-            const generatedNumber = Math.floor(Math.random() * 99) + 1;
-            // Golden Rule (exibição): "L.GUSTAVO88" | Slug (URL/Banco): 100% minúsculo ("l.gustavo88")
-            const initial = cleanFirstName.charAt(0).toUpperCase().replace(/[^A-Z0-9]/g, '');
-            const lastName = cleanLastName.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            const slug = `${initial}.${lastName}${generatedNumber}`.toLowerCase();
+
+            const deviceSignal = await getDeviceSignalHash();
+
+            const response = await fetch('/api/auth/enlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: fullName.trim(),
+                    email: email.trim(),
+                    password: password.trim() || undefined,
+                    allianceId: selectedGroup,
+                    deviceSignal,
+                }),
+            });
+
+            const result = await response.json();
+            if (!response.ok || !result?.ok) {
+                throw new Error(result?.error || 'ERRO NA TRANSMISSÃO DA SUPERLICENÇA');
+            }
 
             localStorage.setItem('draft_name', `${cleanFirstName} ${cleanLastName}`);
-            localStorage.setItem('draft_email', emailToUse);
+            localStorage.setItem('draft_email', result.email || email.trim());
             if (selectedGroup) {
                 localStorage.setItem('draft_alliance', selectedGroup);
             }
 
-            // Desloga qualquer sessão prévia limpa antes de registrar e remove caches antigos
-            clearCachedStrategistSession();
-            try {
-                await supabase.auth.signOut();
-            } catch (_) { }
-
-            // Cadastro oficial via Supabase Auth com redirect para /headquarters
-            const redirectUrl = `${window.location.origin}/headquarters`;
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: emailToUse,
-                password: chosenPassword,
-                options: {
-                    emailRedirectTo: redirectUrl,
-                    data: {
-                        alliance_id: selectedGroup,
-                        first_name: cleanFirstName,
-                        last_name: cleanLastName,
-                        full_name: `${cleanFirstName} ${cleanLastName}`
-                    }
-                }
-            });
-
-            if (authError) throw authError;
-
-            // Se o usuário foi criado, inicializa o perfil básico com um Estrategista Sênior sorteado
-            if (authData.user) {
-                // Sorteia aleatoriamente um dos 24 Estrategistas Sêniores para acompanhar o novo usuário
-                const randomStrategist = SENIOR_STRATEGISTS[Math.floor(Math.random() * SENIOR_STRATEGISTS.length)];
-                setAssignedStrategist(randomStrategist);
-
-                await supabase.from('profiles').upsert({
-                    id: authData.user.id,
-                    email: emailToUse,
-                    first_name: cleanFirstName,
-                    last_name: cleanLastName,
-                    nationality: null,
-                    org_color: '#000000',
-                    setup_completed: false,
-                    slug: slug,
-                    senior_strategist_id: randomStrategist.id,
-                    mls_balance: 100
-                });
+            if (result.seniorStrategistId) {
+                const matched = SENIOR_STRATEGISTS.find((s) => s.id === result.seniorStrategistId) || SENIOR_STRATEGISTS[0];
+                setAssignedStrategist(matched);
             }
 
             // Transição para tela de aviso de e-mail enviado

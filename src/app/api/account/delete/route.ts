@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { canonicalizeEmail, hashSignal } from '@/lib/auth-anti-sybil';
 
 export async function POST(request: Request) {
     try {
@@ -34,6 +35,59 @@ export async function POST(request: Request) {
                 persistSession: false
             }
         });
+
+        // 2b. Registra hashes irreversíveis para cooldown anti-farming (LGPD compliant, zero PII em texto claro)
+        const { data: profileData } = await adminClient
+            .from('profiles')
+            .select('email, canonical_email, phone_hash')
+            .eq('id', userId)
+            .maybeSingle();
+
+        const { data: latestSignal } = await adminClient
+            .from('account_signals')
+            .select('device_hash')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        const cooldownUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const hashesToStore: {
+            identity_hash: string;
+            identity_type: 'email' | 'phone' | 'device';
+            season_year: number;
+            cooldown_until: string;
+        }[] = [];
+
+        const emailToHash = profileData?.canonical_email || (user.email ? canonicalizeEmail(user.email) : '');
+        if (emailToHash) {
+            hashesToStore.push({
+                identity_hash: hashSignal(emailToHash),
+                identity_type: 'email',
+                season_year: 2026,
+                cooldown_until: cooldownUntil,
+            });
+        }
+        if (profileData?.phone_hash) {
+            hashesToStore.push({
+                identity_hash: profileData.phone_hash,
+                identity_type: 'phone',
+                season_year: 2026,
+                cooldown_until: cooldownUntil,
+            });
+        }
+        if (latestSignal?.device_hash) {
+            hashesToStore.push({
+                identity_hash: latestSignal.device_hash,
+                identity_type: 'device',
+                season_year: 2026,
+                cooldown_until: cooldownUntil,
+            });
+        }
+
+        if (hashesToStore.length > 0) {
+            await adminClient.from('deleted_identity_hashes').insert(hashesToStore);
+        }
 
         // 3. Rescisão de contrato de equipe: libera o assento imediatamente para novos pilotos no Pitwall
         await adminClient.from('contracts').delete().eq('user_id', userId);

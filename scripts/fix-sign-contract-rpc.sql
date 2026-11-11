@@ -1,13 +1,16 @@
--- Fix sign_initial_contract: add mandatory WHERE clauses required by PostgreSQL safeupdate
+-- Fix sign_initial_contract: add mandatory WHERE clauses and isolate risk_cluster_id accounts into distinct groups
 CREATE OR REPLACE FUNCTION public.sign_initial_contract(p_team_id uuid)
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_user_id uuid;
   v_group_id int;
   v_spots_taken int;
+  v_cluster_conflict boolean;
+  v_risk_cluster_id uuid;
   v_team_color varchar;
   v_next_filling_id int;
 BEGIN
@@ -25,26 +28,41 @@ BEGIN
     RAISE EXCEPTION 'User has already completed setup';
   END IF;
 
+  SELECT risk_cluster_id INTO v_risk_cluster_id
+  FROM public.profiles
+  WHERE id = v_user_id;
+
   LOCK TABLE public.contracts IN EXCLUSIVE MODE;
 
-  -- 1. Encontra o grupo ativo atual (ou o primeiro com vagas na equipe)
+  -- 1. Encontra o grupo ativo atual (ou o primeiro com vagas na equipe e sem conflito de cluster)
   SELECT id INTO v_group_id FROM public.groups WHERE is_filling = true AND id > 0 ORDER BY id ASC LIMIT 1;
   
   IF v_group_id IS NULL THEN
     v_group_id := 1;
   END IF;
 
-  -- Verifica se a equipe escolhida ja esta cheia no grupo atual
-  SELECT count(*) INTO v_spots_taken FROM public.contracts WHERE group_id = v_group_id AND team_id = p_team_id;
-  
-  -- Se o grupo atual estiver lotado nesta equipe, avanca para o proximo grupo com vaga
-  WHILE v_spots_taken >= 2 LOOP
+  LOOP
+    SELECT count(*) INTO v_spots_taken FROM public.contracts WHERE group_id = v_group_id AND team_id = p_team_id;
+
+    v_cluster_conflict := false;
+    IF v_risk_cluster_id IS NOT NULL THEN
+      SELECT EXISTS (
+        SELECT 1
+        FROM public.contracts c
+        JOIN public.profiles p ON p.id = c.user_id
+        WHERE c.group_id = v_group_id
+          AND p.risk_cluster_id = v_risk_cluster_id
+          AND c.user_id <> v_user_id
+      ) INTO v_cluster_conflict;
+    END IF;
+
+    EXIT WHEN v_spots_taken < 2 AND NOT v_cluster_conflict;
+
     v_group_id := v_group_id + 1;
     IF NOT EXISTS (SELECT 1 FROM public.groups WHERE id = v_group_id) THEN
       INSERT INTO public.groups (id, name, tier, is_filling)
       VALUES (v_group_id, 'Group ' || v_group_id, 2, false);
     END IF;
-    SELECT count(*) INTO v_spots_taken FROM public.contracts WHERE group_id = v_group_id AND team_id = p_team_id;
   END LOOP;
 
   -- Insere o contrato no grupo disponivel
