@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { F1_DRIVERS, getDriverDetails, fetchNextEvent, F1Event } from '@/api/f1-data';
 import { MISC_QUESTIONS, DEFAULT_ACTIVE_MISC_IDS, resolveActiveMiscIds } from '@/lib/misc-questions';
@@ -163,6 +164,12 @@ export default function RaceControlView({ embedded = false }: RaceControlViewPro
                 >
                     Event Props (Misc)
                 </button>
+                <Link
+                    href="/crew-edit"
+                    className="text-xs md:text-sm font-bold uppercase tracking-widest px-4 py-2 border-b-2 border-transparent text-white/60 hover:text-[#fbaa19] transition-colors shrink-0 ml-auto"
+                >
+                    Crew Edit (Personagens) »
+                </Link>
             </nav>
 
             {activeView === 'resultados' && (

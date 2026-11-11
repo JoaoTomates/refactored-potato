@@ -9,10 +9,12 @@ import {
     TeamPrincipal, 
     CrewRelationshipState 
 } from '@/lib/paddock-crew';
-import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
+import { SENIOR_STRATEGISTS, SeniorStrategist, getSeniorStrategistById } from '@/lib/race-directors';
 import { ChevronRight, Clock, ShieldCheck, Radio, UserCheck, Flame } from 'lucide-react';
 import { DialogueBox } from '@/components/dialogue-box';
 import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
+import { supabase } from '@/utils/supabase';
+import { CrewRolesConfig, DEFAULT_CREW_ROLES_CONFIG, fetchCrewRolesConfig } from '@/lib/crew-config';
 
 export interface DaySchedule {
     dayId: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
@@ -50,6 +52,8 @@ export interface RaceWeekScheduleProps {
     event?: F1Event | null;
     compact?: boolean;
     teamCode?: string;
+    mentorId?: string | null;
+    mentor?: SeniorStrategist | null;
     accentColor?: string;
     className?: string;
     showNavigationLink?: boolean;
@@ -58,7 +62,9 @@ export interface RaceWeekScheduleProps {
 export default function RaceWeekSchedule({
     event: propEvent,
     compact = false,
-    teamCode = 'FER',
+    teamCode,
+    mentorId,
+    mentor: propMentor,
     accentColor = '#fbaa19',
     className = '',
     showNavigationLink = true,
@@ -67,6 +73,9 @@ export default function RaceWeekSchedule({
     const [selectedDay, setSelectedDay] = useState<string>('today');
     const [showHospitalityModal, setShowHospitalityModal] = useState(false);
     const [relationship, setRelationship] = useState<CrewRelationshipState | null>(null);
+    const [userMentorId, setUserMentorId] = useState<string | null>(mentorId || propMentor?.id || null);
+    const [userTeamCode, setUserTeamCode] = useState<string>(teamCode || 'FER');
+    const [crewConfig, setCrewConfig] = useState<CrewRolesConfig>(DEFAULT_CREW_ROLES_CONFIG);
 
     // Identifica o dia da semana atual no fuso local (0 = Domingo, 1 = Segunda ... 6 = Sábado)
     const todayIndex = new Date().getDay();
@@ -81,10 +90,84 @@ export default function RaceWeekSchedule({
     };
     const currentDayId = dayIndexToDayId[todayIndex] || 'fri';
 
-    // Recupera Chefe de Equipe e Mentor Sênior
-    const principal: TeamPrincipal = getTeamPrincipal(teamCode);
-    const mentor: SeniorStrategist = SENIOR_STRATEGISTS[0]; // M.AMON
-    const mentorAvatarUrl = (mentor as SeniorStrategist & { avatarUrl?: string }).avatarUrl;
+    useEffect(() => {
+        if (mentorId) setUserMentorId(mentorId);
+        else if (propMentor?.id) setUserMentorId(propMentor.id);
+    }, [mentorId, propMentor]);
+
+    useEffect(() => {
+        if (teamCode) setUserTeamCode(teamCode);
+    }, [teamCode]);
+
+    useEffect(() => {
+        fetchCrewRolesConfig().then((cfg) => setCrewConfig(cfg));
+
+        // Se o mentor ou equipe não foram passados via props (ex: rota /race-week), busca do usuário logado
+        if (!propMentor && !mentorId) {
+            let cancelled = false;
+            supabase.auth.getUser().then(async ({ data: authData }) => {
+                const uid = authData?.user?.id;
+                if (!uid || cancelled) return;
+
+                const { data: prof } = await supabase
+                    .from('profiles')
+                    .select('senior_strategist_id')
+                    .eq('id', uid)
+                    .maybeSingle();
+
+                if (!cancelled && prof?.senior_strategist_id) {
+                    setUserMentorId(prof.senior_strategist_id);
+                }
+
+                if (!teamCode) {
+                    const { data: contractData } = await supabase
+                        .from('contracts')
+                        .select('teams(code)')
+                        .eq('user_id', uid)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    const teamsField = (contractData as { teams?: { code?: string } | Array<{ code?: string }> } | null)?.teams;
+                    const resolvedCode = Array.isArray(teamsField) ? teamsField[0]?.code : teamsField?.code;
+                    if (!cancelled && resolvedCode) {
+                        setUserTeamCode(resolvedCode);
+                    }
+                }
+            }).catch(() => {});
+
+            return () => {
+                cancelled = true;
+            };
+        }
+    }, [propMentor, mentorId, teamCode]);
+
+    const effectiveTeamCode = teamCode || userTeamCode || 'FER';
+    const basePrincipal: TeamPrincipal = getTeamPrincipal(effectiveTeamCode);
+    const principalOverride = crewConfig.overrides[`tp-${basePrincipal.teamCode}`];
+    const principal: TeamPrincipal = principalOverride
+        ? {
+            ...basePrincipal,
+            title: principalOverride.role || basePrincipal.title,
+            briefingFocus: principalOverride.specialty || basePrincipal.briefingFocus,
+            hospitalityWelcome: principalOverride.bioOrQuote || basePrincipal.hospitalityWelcome,
+        }
+        : basePrincipal;
+
+    const baseMentor: SeniorStrategist =
+        propMentor ||
+        getSeniorStrategistById(userMentorId || crewConfig.slots.raceWeekFallbackMentorId) ||
+        SENIOR_STRATEGISTS[0];
+    const mentorOverride = crewConfig.overrides[baseMentor.id];
+    const mentor: SeniorStrategist = mentorOverride
+        ? {
+            ...baseMentor,
+            title: mentorOverride.role || baseMentor.title,
+        }
+        : baseMentor;
+    const mentorAvatarUrl =
+        (mentor as SeniorStrategist & { avatarUrl?: string }).avatarUrl ||
+        `/avatar/ex_drivers/avatar_driver_${parseInt(mentor.id.replace('strat-', ''), 10) || 1}.jpg`;
 
     useEffect(() => {
         if (!propEvent) {
@@ -94,8 +177,8 @@ export default function RaceWeekSchedule({
         } else {
             setEvent(propEvent);
         }
-        setRelationship(getCrewRelationship(teamCode));
-    }, [propEvent, teamCode]);
+        setRelationship(getCrewRelationship(effectiveTeamCode));
+    }, [propEvent, effectiveTeamCode]);
 
     const eventName = event?.name || 'MEXICO CITY GRAND PRIX';
     const circuitName = event?.circuit || 'AUTÓDROMO HERMANOS RODRÍGUEZ';

@@ -14,6 +14,7 @@ export function isDashboardRoute(pathname: string | null): boolean {
     // Rotas estáticas que explicitamente NÃO são o Dashboard
     const nonDashboardRoutes = new Set([
         '/crew',
+        '/crew-edit',
         '/f1',
         '/fantasy',
         '/fantasy2',

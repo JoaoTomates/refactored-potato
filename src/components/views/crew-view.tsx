@@ -3,13 +3,18 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, ArrowLeft, Shield, Award, Cpu, Users } from 'lucide-react';
-import { SENIOR_STRATEGISTS } from '@/lib/race-directors';
-import { CANONICAL_ENGINEERS_METADATA } from '@/lib/group-engineers';
-import { TEAM_PRINCIPALS } from '@/lib/paddock-crew';
+import { ChevronLeft, ChevronRight, ArrowLeft, Shield, Award, Cpu, Users, SlidersHorizontal } from 'lucide-react';
 import { getSystemBoxStyle } from '@/components/system-modal';
+import {
+    CrewCategory,
+    CrewRolesConfig,
+    DEFAULT_CREW_ROLES_CONFIG,
+    applyCharacterOverride,
+    fetchCrewRolesConfig,
+    getBaseCrewCatalog,
+} from '@/lib/crew-config';
 
-export type CrewCategory = 'senior' | 'tech' | 'chief';
+export type { CrewCategory };
 
 interface CrewProfileItem {
     id: string;
@@ -24,107 +29,6 @@ interface CrewProfileItem {
     characteristics: Array<{ label: string; value: string }>;
     bioOrQuote: string;
 }
-
-const ALLIANCE_CHIEFS_META = [
-    {
-        id: 'chief-chadwick',
-        code: 'D.CHADWICK',
-        fullName: 'Daniel Chadwick',
-        role: 'Engenheiro-Chefe de Calibração Térmica e Mapeamento de Potência',
-        subtitle: 'CONSÓRCIO DA ESTRELA // BLOCO A',
-        age: '48 anos',
-        nationality: 'Britânico',
-        profile: 'Formado na clássica escola de motorsport de Northamptonshire. Especialista em balancear curvas de entrega de potência e mapas de ignição agressivos sem ultrapassar as janelas de temperatura de câmara.',
-        keyAttribute: 'Otimização de tempo em voltas de qualificação (Quali Mode).',
-        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_a.jpg',
-        fallbackUrl: '/avatar/others/alianca_1_a.jpg',
-        accentColor: '#00d2be'
-    },
-    {
-        id: 'chief-schweiger',
-        code: 'K.SCHWEIGER',
-        fullName: 'Klaus Schweiger',
-        role: 'Especialista em Dinâmica de Turbocompressores & Fluxo de Gases',
-        subtitle: 'CONSÓRCIO DA ESTRELA // BLOCO A',
-        age: '54 anos',
-        nationality: 'Alemão',
-        profile: 'Engenharia de precisão com vasta experiência em bancos de teste de Stuttgart. Focado na eficiência termodinâmica da turbina e no aproveitamento máximo do fluxo de escape para eliminar o atraso de turbo.',
-        keyAttribute: 'Confiabilidade do compressor e resposta linear de aceleração.',
-        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_1_b.jpg',
-        fallbackUrl: '/avatar/others/alianca_1_b.jpg',
-        accentColor: '#00d2be'
-    },
-    {
-        id: 'chief-bellini',
-        code: 'M.BELLINI',
-        fullName: 'Matteo Bellini',
-        role: 'Engenheiro-Chefe & Mestre de Metalurgia e Resistência',
-        subtitle: 'DINASTIA DE MARANELLO // BLOCO B',
-        age: '61 anos',
-        nationality: 'Italiano',
-        profile: 'Veterano forjado nos bastidores de Maranello. Especialista em ligas ultraleves para pistões, bielas forjadas e válvulas de titânio preparadas para suportar regimes extremos de rotação contínua.',
-        keyAttribute: 'Redução de desgaste mecânico e fadiga de material em alta quilometragem.',
-        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_a.jpg',
-        fallbackUrl: '/avatar/others/alianca_2_a.jpg',
-        accentColor: '#e8002d'
-    },
-    {
-        id: 'chief-crawford',
-        code: 'A.CRAWFORD',
-        fullName: 'Alistair Crawford',
-        role: 'Engenheiro de Sistemas de Combustível & Injeção Direta',
-        subtitle: 'DINASTIA DE MARANELLO // BLOCO B',
-        age: '41 anos',
-        nationality: 'Britânico',
-        profile: 'Focado nas altas pressões das bombas de combustível e na atomização do spray nos cilindros. Trabalha no limite dos fluxômetros para extrair máxima queima de cada gota de combustível permitida pelo regulamento.',
-        keyAttribute: 'Economia de combustível em ritmo sustentado de corrida (Lift and Coast).',
-        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_2_b.jpg',
-        fallbackUrl: '/avatar/others/alianca_2_b.jpg',
-        accentColor: '#e8002d'
-    },
-    {
-        id: 'chief-zimmermann',
-        code: 'S.ZIMMERMANN',
-        fullName: 'Stefan Zimmermann',
-        role: 'Engenheiro-Chefe de Lubrificação, Pressão Hidráulica e Refrigeração',
-        subtitle: 'A VANGUARDA // BLOCO C',
-        age: '36 anos',
-        nationality: 'Alemão',
-        profile: 'Metódico e analítico, monitora o circuito de cárter seco, dissipação de calor nos radiadores e viscosidade de óleos sintéticos sob forças centrífugas elevadas em curvas de alta velocidade.',
-        keyAttribute: 'Prevenção de quebras críticas por superaquecimento ou perda de pressão de óleo.',
-        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_a.jpg',
-        fallbackUrl: '/avatar/others/alianca_3_a.jpg',
-        accentColor: '#38bdf8'
-    },
-    {
-        id: 'chief-marchetti',
-        code: 'G.MARCHETTI',
-        fullName: 'Giulio Marchetti',
-        role: 'Engenheiro de Integração Dinâmica & Análise Harmônica',
-        subtitle: 'A VANGUARDA // BLOCO C',
-        age: '49 anos',
-        nationality: 'Italiano',
-        profile: 'Especialista na interface entre o bloco do motor e o chassi de fibra de carbono. Analisa as frequências vibratórias do virabrequim para mitigar ressonâncias parasitas que afetam suportes estruturais e chicotes elétricos.',
-        keyAttribute: 'Estabilidade mecânica da unidade de potência acoplada ao monocoque.',
-        avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/others/alianca_3_b.jpg',
-        fallbackUrl: '/avatar/others/alianca_3_b.jpg',
-        accentColor: '#38bdf8'
-    }
-];
-
-const TEAM_COLORS_MAP: Record<string, { color: string; allianceImg: string }> = {
-    MER: { color: '#27F4D2', allianceImg: '/avatar/others/alianca_1_a.jpg' },
-    MCL: { color: '#FF8000', allianceImg: '/avatar/others/alianca_1_a.jpg' },
-    ALP: { color: '#0093CC', allianceImg: '/avatar/others/alianca_1_b.jpg' },
-    WIL: { color: '#64C4FF', allianceImg: '/avatar/others/alianca_1_b.jpg' },
-    FER: { color: '#E8002D', allianceImg: '/avatar/others/alianca_2_a.jpg' },
-    HAA: { color: '#B6BABD', allianceImg: '/avatar/others/alianca_2_b.jpg' },
-    CAD: { color: '#D4AF37', allianceImg: '/avatar/others/alianca_2_a.jpg' },
-    RBR: { color: '#3671C6', allianceImg: '/avatar/others/alianca_3_a.jpg' },
-    AST: { color: '#229971', allianceImg: '/avatar/others/alianca_3_b.jpg' },
-    RBA: { color: '#6692FF', allianceImg: '/avatar/others/alianca_3_a.jpg' },
-    AUD: { color: '#52E252', allianceImg: '/avatar/others/alianca_3_b.jpg' },
-};
 
 export interface CrewViewProps {
     embedded?: boolean;
@@ -142,101 +46,43 @@ export default function CrewView({
         ['senior', 'tech', 'chief'].includes(initialType) ? initialType : 'senior'
     );
     const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [crewConfig, setCrewConfig] = useState<CrewRolesConfig>(DEFAULT_CREW_ROLES_CONFIG);
+
+    useEffect(() => {
+        fetchCrewRolesConfig().then((cfg) => setCrewConfig(cfg));
+    }, []);
 
     const allItems = useMemo(() => {
-        const seniors: CrewProfileItem[] = SENIOR_STRATEGISTS.map((s) => {
-            const num = parseInt(s.id.replace('strat-', ''), 10) || 1;
-            const localImg = `/avatar/ex_drivers/avatar_driver_${num}.jpg`;
+        const mapped = getBaseCrewCatalog().map((raw) => {
+            const c = applyCharacterOverride(raw, crewConfig);
+            const characteristics = [
+                ...c.extraCharacteristics,
+                {
+                    label: c.subType === 'tech' ? 'ESPECIALIDADE TÁTICA' : c.subType === 'team_principal' ? 'DIRETRIZ DA MURETA' : 'ESPECIALIDADE',
+                    value: c.specialty,
+                },
+            ];
             return {
-                id: s.id,
-                category: 'senior',
-                code: s.code,
-                fullName: `${s.displayName} (${s.originalDriver})`,
-                role: s.title,
-                subtitle: `ESTRATEGISTA SÊNIOR // ERA ${s.decade}`,
-                avatarUrl: (s as any).avatarUrl || localImg,
-                fallbackUrl: localImg,
-                accentColor: '#fbaa19',
-                characteristics: [
-                    { label: 'NACIONALIDADE', value: s.nationality },
-                    { label: 'ESPECIALIDADE', value: s.specialty },
-                    { label: 'HISTÓRICO REAL', value: s.careerStat },
-                    { label: 'ASSERTIVIDADE', value: `${s.evaluation.accuracyRate}% (${s.evaluation.communityRating}/5.0)` },
-                ],
-                bioOrQuote: `${s.signatureQuote} — ${s.biography}`
-            };
-        });
-
-        const techs: CrewProfileItem[] = CANONICAL_ENGINEERS_METADATA.map((t, i) => {
-            const idx = i + 1;
-            const localFallback = idx === 23 ? '/avatar/eng/avatar_25b.jpg' : `/avatar/eng/avatar_${idx}.jpg`;
-            return {
-                id: `eng-${idx}`,
-                category: 'tech',
-                code: t.code,
-                fullName: t.fullName,
-                role: t.role,
-                subtitle: `ENGENHEIRO TÉCNICO // REGISTRO ENG #${idx}`,
-                avatarUrl: `https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/eng/avatar_${idx}.jpg`,
-                fallbackUrl: localFallback,
-                accentColor: '#38bdf8',
-                characteristics: [
-                    { label: 'NACIONALIDADE', value: t.nationality },
-                    { label: 'IDADE', value: `${t.age} anos` },
-                    { label: 'FUNÇÃO OFICIAL', value: t.role },
-                    { label: 'ESPECIALIDADE TÁTICA', value: t.specialty },
-                ],
-                bioOrQuote: `Operacional de telemetria e análise de garagem focado em ${t.specialty.toLowerCase()}.`
-            };
-        });
-
-        const allianceChiefs: CrewProfileItem[] = ALLIANCE_CHIEFS_META.map((c) => ({
-            id: c.id,
-            category: 'chief',
-            code: c.code,
-            fullName: c.fullName,
-            role: c.role,
-            subtitle: c.subtitle,
-            avatarUrl: c.avatarUrl,
-            fallbackUrl: c.fallbackUrl,
-            accentColor: c.accentColor,
-            characteristics: [
-                { label: 'NACIONALIDADE', value: c.nationality },
-                { label: 'IDADE', value: c.age },
-                { label: 'ATRIBUTO CHAVE', value: c.keyAttribute },
-                { label: 'PATENTE', value: 'ENGENHEIRO-CHEFE DE ALIANÇA' },
-            ],
-            bioOrQuote: c.profile
-        }));
-
-        const teamPrincipals: CrewProfileItem[] = Object.values(TEAM_PRINCIPALS).map((tp) => {
-            const meta = TEAM_COLORS_MAP[tp.teamCode] || { color: '#e8002d', allianceImg: '/avatar/others/alianca_1_a.jpg' };
-            return {
-                id: `tp-${tp.teamCode}`,
-                category: 'chief',
-                code: tp.code,
-                fullName: tp.fullName,
-                role: tp.title,
-                subtitle: `CHEFE DE EQUIPE // ${tp.teamName.toUpperCase()}`,
-                avatarUrl: meta.allianceImg,
-                fallbackUrl: meta.allianceImg,
-                accentColor: meta.color,
-                characteristics: [
-                    { label: 'ESCUDERIA', value: `${tp.teamName} (${tp.teamCode})` },
-                    { label: 'PERFIL DE COMANDO', value: tp.personality },
-                    { label: 'DIRETRIZ DA MURETA', value: tp.briefingFocus },
-                    { label: 'CARGO', value: 'TEAM PRINCIPAL' },
-                ],
-                bioOrQuote: tp.hospitalityWelcome
-            };
+                id: c.id,
+                category: c.category,
+                code: c.code,
+                fullName: c.fullName,
+                role: c.role,
+                subtitle: c.subtitle,
+                avatarUrl: c.avatarUrl,
+                fallbackUrl: c.fallbackUrl,
+                accentColor: c.accentColor,
+                characteristics,
+                bioOrQuote: c.bioOrQuote,
+            } satisfies CrewProfileItem;
         });
 
         return {
-            senior: seniors,
-            tech: techs,
-            chief: [...allianceChiefs, ...teamPrincipals]
+            senior: mapped.filter((m) => m.category === 'senior'),
+            tech: mapped.filter((m) => m.category === 'tech'),
+            chief: mapped.filter((m) => m.category === 'chief'),
         };
-    }, []);
+    }, [crewConfig]);
 
     const activeList = allItems[activeCategory];
 
@@ -297,8 +143,17 @@ export default function CrewView({
                     </div>
                 </div>
 
-                <div className="text-xs px-3 py-1.5 rounded-[3px] bg-[#030303] border border-white/15 font-bold tracking-widest text-white/80">
-                    {String(currentIndex + 1).padStart(2, '0')} / {String(activeList.length).padStart(2, '0')}
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/crew-edit"
+                        className="text-[10px] sm:text-xs px-3 py-1.5 rounded-[3px] bg-[#030303] border border-[#000000] hover:border-[#fbaa19] text-[#fbaa19] font-black tracking-widest uppercase flex items-center gap-1.5 transition-colors"
+                    >
+                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                        <span>EDITAR FUNÇÕES</span>
+                    </Link>
+                    <div className="text-xs px-3 py-1.5 rounded-[3px] bg-[#030303] border border-white/15 font-bold tracking-widest text-white/80">
+                        {String(currentIndex + 1).padStart(2, '0')} / {String(activeList.length).padStart(2, '0')}
+                    </div>
                 </div>
             </div>
 

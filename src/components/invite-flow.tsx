@@ -10,6 +10,12 @@ import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from 
 import { DialogueBox, TypewriterLine, retroSound } from '@/components/dialogue-box';
 import { getSystemBoxStyle } from '@/components/system-modal';
 import { getDeviceSignalHash } from '@/lib/device-signal';
+import {
+    CrewRolesConfig,
+    DEFAULT_CREW_ROLES_CONFIG,
+    fetchCrewRolesConfig,
+    resolveCrewCharacterById,
+} from '@/lib/crew-config';
 
 export { retroSound, TypewriterLine };
 
@@ -64,9 +70,40 @@ export function InviteFlow() {
     const [showPassword, setShowPassword] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [assignedStrategist, setAssignedStrategist] = useState<SeniorStrategist | null>(null);
+    const [crewConfig, setCrewConfig] = useState<CrewRolesConfig>(DEFAULT_CREW_ROLES_CONFIG);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const initialCheckDone = useRef(false);
+
+    useEffect(() => {
+        fetchCrewRolesConfig().then((cfg) => setCrewConfig(cfg));
+    }, []);
+
+    const resolvedDirector = resolveCrewCharacterById(crewConfig.slots.inviteDirectorId, crewConfig);
+    const directorAvatarUrl = resolvedDirector?.avatarUrl || DIRECTOR_AVATAR_URL;
+    const directorSpeaker = resolvedDirector?.code || 'DIRETOR';
+    const directorRole = resolvedDirector?.role || 'DIRETOR DE OPERAÇÕES';
+
+    const resolvedAllianceChiefs: Record<'A' | 'B' | 'C', { avatarUrl: string; chiefName: string; chiefRole: string; accentColor: string }> = {
+        A: (() => {
+            const c = resolveCrewCharacterById(crewConfig.slots.allianceChiefAId, crewConfig);
+            return c
+                ? { avatarUrl: c.avatarUrl, chiefName: c.code, chiefRole: c.role, accentColor: '#00d2be' }
+                : ALLIANCE_CHIEFS_AVATARS.A;
+        })(),
+        B: (() => {
+            const c = resolveCrewCharacterById(crewConfig.slots.allianceChiefBId, crewConfig);
+            return c
+                ? { avatarUrl: c.avatarUrl, chiefName: c.code, chiefRole: c.role, accentColor: '#e8002d' }
+                : ALLIANCE_CHIEFS_AVATARS.B;
+        })(),
+        C: (() => {
+            const c = resolveCrewCharacterById(crewConfig.slots.allianceChiefCId, crewConfig);
+            return c
+                ? { avatarUrl: c.avatarUrl, chiefName: c.code, chiefRole: c.role, accentColor: '#38bdf8' }
+                : ALLIANCE_CHIEFS_AVATARS.C;
+        })(),
+    };
 
     const clearAllTimers = () => {
         if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
@@ -328,9 +365,9 @@ export function InviteFlow() {
             {phase === 'INTRO' && (
                 <div className="absolute bottom-[20%] md:bottom-[25%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
                     <DialogueBox
-                        speaker="DIRETOR"
-                        speakerRole="DIRETOR DE OPERAÇÕES"
-                        avatarUrl={DIRECTOR_AVATAR_URL}
+                        speaker={directorSpeaker}
+                        speakerRole={directorRole}
+                        avatarUrl={directorAvatarUrl}
                         accentColor="#fbaa19"
                         text={customDialogs[0]}
                         startDelay={150}
@@ -349,8 +386,8 @@ export function InviteFlow() {
                         <>
                             {pageStep >= 1 && (
                                 <DialogueBox
-                                    speaker="DIRETOR"
-                                    avatarUrl={DIRECTOR_AVATAR_URL}
+                                    speaker={directorSpeaker}
+                                    avatarUrl={directorAvatarUrl}
                                     accentColor="#fbaa19"
                                     text={customDialogs[1]}
                                     startDelay={150}
@@ -364,8 +401,8 @@ export function InviteFlow() {
 
                             {pageStep >= 2 && (
                                 <DialogueBox
-                                    speaker="DIRETOR"
-                                    avatarUrl={DIRECTOR_AVATAR_URL}
+                                    speaker={directorSpeaker}
+                                    avatarUrl={directorAvatarUrl}
                                     accentColor="#fbaa19"
                                     text={customDialogs[2]}
                                     startDelay={150}
@@ -379,8 +416,8 @@ export function InviteFlow() {
 
                             {pageStep >= 3 && (
                                 <DialogueBox
-                                    speaker="DIRETOR"
-                                    avatarUrl={DIRECTOR_AVATAR_URL}
+                                    speaker={directorSpeaker}
+                                    avatarUrl={directorAvatarUrl}
                                     accentColor="#fbaa19"
                                     text={customDialogs[3]}
                                     startDelay={150}
@@ -419,8 +456,8 @@ export function InviteFlow() {
                         <>
                             {pageStep >= 1 && (
                                 <DialogueBox
-                                    speaker="DIRETOR"
-                                    avatarUrl={DIRECTOR_AVATAR_URL}
+                                    speaker={directorSpeaker}
+                                    avatarUrl={directorAvatarUrl}
                                     accentColor="#fbaa19"
                                     text={customDialogs[4]}
                                     startDelay={150}
@@ -434,8 +471,8 @@ export function InviteFlow() {
 
                             {pageStep >= 2 && (
                                 <DialogueBox
-                                    speaker="DIRETOR"
-                                    avatarUrl={DIRECTOR_AVATAR_URL}
+                                    speaker={directorSpeaker}
+                                    avatarUrl={directorAvatarUrl}
                                     accentColor="#fbaa19"
                                     text={customDialogs[5]}
                                     startDelay={150}
@@ -477,7 +514,7 @@ export function InviteFlow() {
                                 if (pageStep < stepNeeded) return null;
 
                                 const g = ENGINE_FACTIONS[groupId];
-                                const chief = ALLIANCE_CHIEFS_AVATARS[groupId];
+                                const chief = resolvedAllianceChiefs[groupId];
                                 const dossierLines = [
                                     g.sub,
                                     `EQUIPES: ${g.teamsString}`,
@@ -530,8 +567,8 @@ export function InviteFlow() {
                     }`}>
                     {/* Box do mesmo Diretor do início comentando a escolha da aliança */}
                     <DialogueBox
-                        speaker="DIRETOR"
-                        avatarUrl={DIRECTOR_AVATAR_URL}
+                        speaker={directorSpeaker}
+                        avatarUrl={directorAvatarUrl}
                         accentColor="#fbaa19"
                         italic
                         prefix={null}

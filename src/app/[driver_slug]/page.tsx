@@ -2446,7 +2446,13 @@ export default function OfficialStrategistDashboard() {
 
                             {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
                             {raceWeek && (
-                                <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={mainAccent} />
+                                <RaceWeekSchedule
+                                    compact={true}
+                                    teamCode={me?.teamCode || "FER"}
+                                    mentorId={assignedMentor?.id}
+                                    mentor={assignedMentor}
+                                    accentColor={mainAccent}
+                                />
                             )}
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}

@@ -9,6 +9,12 @@ import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from 
 import { DialogueBox, retroSound } from '@/components/dialogue-box';
 import { getSystemBoxStyle } from '@/components/system-modal';
 import { HEADQUARTERS_DIALOG_TEXT } from '@/data/dialogues';
+import {
+    CrewRolesConfig,
+    DEFAULT_CREW_ROLES_CONFIG,
+    fetchCrewRolesConfig,
+    resolveCrewCharacterById,
+} from '@/lib/crew-config';
 
 const AGENT_AVATAR_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg';
 
@@ -23,6 +29,11 @@ function HeadquartersFlow() {
     const [activeAllianceKey, setActiveAllianceKey] = useState<'A' | 'B' | 'C'>('B');
     const [activeGroupName, setActiveGroupName] = useState<string>("Grupo 1");
     const [offeredTeams, setOfferedTeams] = useState<TeamOffer[]>([]);
+    const [crewConfig, setCrewConfig] = useState<CrewRolesConfig>(DEFAULT_CREW_ROLES_CONFIG);
+
+    useEffect(() => {
+        fetchCrewRolesConfig().then((cfg) => setCrewConfig(cfg));
+    }, []);
 
     useEffect(() => {
         const initHQ = async () => {
@@ -307,6 +318,11 @@ function HeadquartersFlow() {
         ? HEADQUARTERS_DIALOG_TEXT.replace(/dentro do seu grupo/i, `dentro do ${activeGroupName}`)
         : fallbackSpeech;
 
+    const resolvedAgent = resolveCrewCharacterById(crewConfig.slots.headquartersAgentId, crewConfig);
+    const agentSpeaker = resolvedAgent?.code || 'AGENTE';
+    const agentAvatarUrl = resolvedAgent?.avatarUrl || AGENT_AVATAR_URL;
+    const agentRoleTag = resolvedAgent?.role || 'HEADQUARTERS // CONTRATOS';
+
     return (
         <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center pb-24">
             
@@ -327,10 +343,10 @@ function HeadquartersFlow() {
                 
                 {/* Header do Terminal: Discurso do Agente com as Instruções */}
                 <DialogueBox
-                    speaker="AGENTE"
+                    speaker={agentSpeaker}
                     badgeTitle={`[${faction.badge}] ${faction.title}`}
-                    categoryTag="HEADQUARTERS // CONTRATOS"
-                    avatarUrl={AGENT_AVATAR_URL}
+                    categoryTag={agentRoleTag}
+                    avatarUrl={agentAvatarUrl}
                     accentColor="#fbaa19"
                     text={agentSpeech}
                     startDelay={150}
