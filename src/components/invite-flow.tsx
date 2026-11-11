@@ -301,17 +301,16 @@ export function InviteFlow() {
         <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center">
 
             {/* Background Viewport Estável e Fixo - imune a scrollbars e crescimento dos textos */}
-            <div 
-                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden" 
+            <div
+                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden"
                 style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
             >
                 {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
                 <img
                     src="/pixel_invite_walk.jpg"
                     alt=""
-                    className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
-                        phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
-                    }`}
+                    className={`w-full h-full object-cover object-center transition-opacity duration-700 ${phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
+                        }`}
                     style={{ imageRendering: 'pixelated' }}
                 />
 
@@ -319,9 +318,8 @@ export function InviteFlow() {
                 <img
                     src="/pixel_invite_bg_v2.jpg"
                     alt=""
-                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
-                        phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
-                    }`}
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
+                        }`}
                     style={{ imageRendering: 'pixelated' }}
                 />
             </div>
@@ -528,9 +526,8 @@ export function InviteFlow() {
 
             {/* FASE ENLIST: Resposta do Diretor ("Sangue quente...") + Formulário de Cadastro */}
             {(phase === 'ENLIST' || phase === 'SUBMITTING_ENLIST') && selectedGroup && (
-                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${
-                    isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
-                }`}>
+                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                    }`}>
                     {/* Box do mesmo Diretor do início comentando a escolha da aliança */}
                     <DialogueBox
                         speaker="DIRETOR"
@@ -549,100 +546,99 @@ export function InviteFlow() {
                             style={getSystemBoxStyle('#fbaa19')}
                         >
                             {/* Formulário de Emissão da Superlicença */}
-                            <form 
-                                onSubmit={handleEnlistSubmit} 
+                            <form
+                                onSubmit={handleEnlistSubmit}
                                 className="flex flex-col gap-6 w-full"
                             >
-                            {errorMsg && (
-                                <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
-                                    [FALHA DE HOMOLOGAÇÃO] {errorMsg}
-                                </div>
-                            )}
+                                {errorMsg && (
+                                    <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
+                                        [FALHA DE HOMOLOGAÇÃO] {errorMsg}
+                                    </div>
+                                )}
 
-                            {phase === 'SUBMITTING_ENLIST' ? (
-                                <div className="flex flex-col items-center justify-center gap-6 py-8">
-                                    <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
-                                        &gt;_ TRANSMITINDO CREDENCIAIS & DISPARANDO LINK DE HOMOLOGAÇÃO...
-                                    </p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex flex-col md:flex-row gap-4 items-start">
-                                        <div className="flex flex-col w-full">
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder="NOME E SOBRENOME"
-                                                value={fullName}
-                                                onChange={e => setFullName(e.target.value)}
-                                                className={`w-full bg-[#030303] border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)] ${
-                                                    fullName.trim()
-                                                        ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
-                                                            ? "border-emerald-500/50 focus:border-emerald-500"
-                                                            : "border-amber-500/60 focus:border-amber-500"
-                                                        : "border-[#000000] focus:border-[#fbaa19]"
-                                                }`}
-                                            />
-                                            {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
-                                                <span className="text-[10px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
-                                                    <span>⚠</span> A Superlicença exige pelo menos dois nomes (Nome e Sobrenome válidos).
-                                                </span>
-                                            )}
+                                {phase === 'SUBMITTING_ENLIST' ? (
+                                    <div className="flex flex-col items-center justify-center gap-6 py-8">
+                                        <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
+                                            &gt;_ TRANSMITINDO CREDENCIAIS & DISPARANDO LINK DE HOMOLOGAÇÃO...
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="flex flex-col md:flex-row gap-4 items-start">
+                                            <div className="flex flex-col w-full">
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="NOME E SOBRENOME"
+                                                    value={fullName}
+                                                    onChange={e => setFullName(e.target.value)}
+                                                    className={`w-full bg-[#030303] border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)] ${fullName.trim()
+                                                            ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
+                                                                ? "border-emerald-500/50 focus:border-emerald-500"
+                                                                : "border-amber-500/60 focus:border-amber-500"
+                                                            : "border-[#000000] focus:border-[#fbaa19]"
+                                                        }`}
+                                                />
+                                                {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
+                                                    <span className="text-[10px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
+                                                        <span>⚠</span> A Superlicença exige pelo menos dois nomes (Nome e Sobrenome válidos).
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col w-full">
+                                                <input
+                                                    type="email"
+                                                    required
+                                                    placeholder="EMAIL"
+                                                    value={email}
+                                                    onChange={e => setEmail(e.target.value)}
+                                                    className="w-full bg-[#030303] border border-[#000000] text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)]"
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col w-full">
+
+                                        <div className="relative w-full">
                                             <input
-                                                type="email"
-                                                required
-                                                placeholder="EMAIL"
-                                                value={email}
-                                                onChange={e => setEmail(e.target.value)}
-                                                className="w-full bg-[#030303] border border-[#000000] text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)]"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="SENHA DE ACESSO (OPCIONAL — DEIXE EM BRANCO PARA AUTOMÁTICA)"
+                                                value={password}
+                                                onChange={e => setPassword(e.target.value)}
+                                                autoCapitalize="none"
+                                                autoCorrect="off"
+                                                spellCheck={false}
+                                                className="w-full bg-[#030303] border border-[#000000] text-white p-4 pr-24 font-mono font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)]"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/50 hover:text-[#fbaa19] font-mono tracking-widest uppercase transition-colors px-1.5 py-1 cursor-pointer"
+                                                title={showPassword ? "Ocultar senha" : "Ver senha em texto"}
+                                            >
+                                                {showPassword ? '[OCULTAR]' : '[VER]'}
+                                            </button>
                                         </div>
-                                    </div>
 
-                                    <div className="relative w-full">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="SENHA DE ACESSO (OPCIONAL — DEIXE EM BRANCO PARA AUTOMÁTICA)"
-                                            value={password}
-                                            onChange={e => setPassword(e.target.value)}
-                                            autoCapitalize="none"
-                                            autoCorrect="off"
-                                            spellCheck={false}
-                                            className="w-full bg-[#030303] border border-[#000000] text-white p-4 pr-24 font-mono font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)]"
-                                        />
                                         <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/50 hover:text-[#fbaa19] font-mono tracking-widest uppercase transition-colors px-1.5 py-1 cursor-pointer"
-                                            title={showPassword ? "Ocultar senha" : "Ver senha em texto"}
+                                            type="submit"
+                                            className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm"
                                         >
-                                            {showPassword ? '[OCULTAR]' : '[VER]'}
+                                            [ TRANSMITIR CREDENCIAIS & EMITIR SUPERLICENÇA ] »
                                         </button>
-                                    </div>
 
-                                    <button 
-                                        type="submit" 
-                                        className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm"
-                                    >
-                                        [ TRANSMITIR CREDENCIAIS & EMITIR SUPERLICENÇA ] »
-                                    </button>
-
-                                    {/* Botão VOLTAR: Limpa a tela e recomeça o diálogo de cima para baixo */}
-                                    <div className="flex justify-between items-center pt-2">
-                                        <button
-                                            type="button"
-                                            onClick={handleBackAndRestartDialogue}
-                                            className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
-                                            title="Zerar tela e recomeçar o diálogo"
-                                        >
-                                            « [ VOLTAR E REINICIAR DIÁLOGO ]
-                                        </button>
-                                    </div>
-                                </>
-                            )}
+                                        {/* Botão VOLTAR: Limpa a tela e recomeça o diálogo de cima para baixo */}
+                                        <div className="flex justify-between items-center pt-2">
+                                            <button
+                                                type="button"
+                                                onClick={handleBackAndRestartDialogue}
+                                                className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
+                                                title="Zerar tela e recomeçar o diálogo"
+                                            >
+                                                « [ VOLTAR E REINICIAR DIÁLOGO ]
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </form>
                         </div>
                     )}
@@ -651,20 +647,19 @@ export function InviteFlow() {
 
             {/* FASE EMAIL_SENT: Confirmação de Envio do E-mail e Próximos Passos */}
             {phase === 'EMAIL_SENT' && selectedGroup && (
-                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${
-                    isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
-                }`}>
+                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                    }`}>
                     <div
                         className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
                         style={getSystemBoxStyle('#fbaa19')}
                     >
-                        
+
                         <div className="border-l-2 border-[#fbaa19] pl-4 py-1 flex flex-col gap-2">
                             <h2 className="text-white text-xl md:text-2xl font-black uppercase tracking-wider">
                                 VERIFIQUE SEU CANAL DE TELEMETRIA
                             </h2>
                             <p className="text-gray-300 text-sm leading-relaxed">
-                                <TypewriterLine 
+                                <TypewriterLine
                                     text={`Um link de homologação seguro foi transmitido para ${email}.\nAbra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.`}
                                     startDelay={200}
                                 />
