@@ -66,7 +66,7 @@
   > *“O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.”*  
   *(Tom: Profissional, desafiador, definindo as quatro mecânicas do fantasy.)*
 - **Box 3 (O Teste de Nervos de Aço):**  
-  > *“Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
+  > *“Diga-me com franqueza: você tem frieza para cravar, 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?”*  
   *(Tom: Provocativo e visceral. Coloca o jogador sob teste psicológico de risco financeiro.)*  
   *(Transição: Contagem regressiva de 10s com botão `[ AVANÇAR ] »` disponível.)*
 
