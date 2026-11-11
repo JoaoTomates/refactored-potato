@@ -2,6 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { mockCalendar } from '@/api/f1-data';
+import { getSystemBoxStyle } from '@/components/system-modal';
 
 interface RaceRemoteControlProps {
     activeRound?: string;
@@ -58,18 +59,21 @@ export default function RaceRemoteControl({ activeRound, baseUrl = '/f1-results'
     }, [activeRound]);
 
     return (
-        <div className="relative w-full flex items-center bg-white dark:bg-[#1a1a1a] border border-black/20 dark:border-white/20 overflow-hidden">
+        <div
+            className="relative w-full flex items-center rounded-[3px] border border-[#000000] overflow-hidden font-mono"
+            style={getSystemBoxStyle('#fbaa19')}
+        >
             
             {/* LEFT ARROW & GRADIENT */}
             <div className={`absolute left-0 top-0 bottom-0 flex items-center transition-opacity duration-300 z-10 ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button 
                     onClick={() => scroll('left')}
-                    className="h-full px-2 bg-white/90 dark:bg-[#1a1a1a]/90 hover:bg-[#fbaa19] dark:hover:bg-[#fbaa19] text-black dark:text-white hover:text-black transition-colors flex items-center justify-center border-r border-black/10 dark:border-white/10"
+                    className="h-full px-2 bg-[#030303]/95 hover:bg-[#fbaa19] text-white hover:text-black transition-colors flex items-center justify-center border-r border-white/10 cursor-pointer"
                     aria-label="Scroll left"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="h-full w-12 bg-gradient-to-r from-white dark:from-[#1a1a1a] to-transparent pointer-events-none"></div>
+                <div className="h-full w-12 bg-gradient-to-r from-[#030303] to-transparent pointer-events-none"></div>
             </div>
 
             {/* SCROLL CONTAINER */}
@@ -93,14 +97,14 @@ export default function RaceRemoteControl({ activeRound, baseUrl = '/f1-results'
                                 }
                             }}
                             data-active={isActive}
-                            className={`flex flex-col items-center justify-center p-3 border-2 min-w-[80px] shrink-0 transition-colors ${
+                            className={`flex flex-col items-center justify-center p-3 border min-w-[80px] shrink-0 rounded-[3px] transition-colors ${
                                 isActive 
-                                ? 'border-[#fbaa19] bg-[#fbaa19]/10 text-black dark:text-white' 
-                                : 'border-black/10 dark:border-white/10 text-gray-400 hover:text-black dark:hover:text-white hover:border-[#fbaa19]'
+                                ? 'border-[#fbaa19] bg-[#fbaa19]/15 text-white' 
+                                : 'border-white/10 bg-[#030303] text-white/50 hover:text-white hover:border-[#fbaa19]/60'
                             }`}
                         >
                             <span className="text-[10px] font-bold tracking-widest">R{race.round}</span>
-                            <span className={`${isActive ? 'text-[#fbaa19]' : 'text-gray-500'} font-black text-sm uppercase`}>
+                            <span className={`${isActive ? 'text-[#fbaa19]' : 'text-white/60'} font-black text-sm uppercase`}>
                                 {code}
                             </span>
                         </Link>
@@ -110,10 +114,10 @@ export default function RaceRemoteControl({ activeRound, baseUrl = '/f1-results'
 
             {/* RIGHT ARROW & GRADIENT */}
             <div className={`absolute right-0 top-0 bottom-0 flex items-center transition-opacity duration-300 z-10 ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <div className="h-full w-12 bg-gradient-to-l from-white dark:from-[#1a1a1a] to-transparent pointer-events-none"></div>
+                <div className="h-full w-12 bg-gradient-to-l from-[#030303] to-transparent pointer-events-none"></div>
                 <button 
                     onClick={() => scroll('right')}
-                    className="h-full px-2 bg-white/90 dark:bg-[#1a1a1a]/90 hover:bg-[#fbaa19] dark:hover:bg-[#fbaa19] text-black dark:text-white hover:text-black transition-colors flex items-center justify-center border-l border-black/10 dark:border-white/10"
+                    className="h-full px-2 bg-[#030303]/95 hover:bg-[#fbaa19] text-white hover:text-black transition-colors flex items-center justify-center border-l border-white/10 cursor-pointer"
                     aria-label="Scroll right"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>

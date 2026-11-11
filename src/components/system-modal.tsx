@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { DIALOGUE_BOX_GRADIENT, getDialogueShadow } from '@/components/dialogue-box';
 
@@ -13,6 +14,7 @@ export interface SystemModalProps {
     accentColor?: string;
     maxWidthClass?: string;
     zIndexClass?: string;
+    alignTop?: boolean;
     closeDisabled?: boolean;
     closeLabel?: string;
     headerRight?: React.ReactNode;
@@ -36,6 +38,7 @@ export function SystemModal({
     accentColor = '#fbaa19',
     maxWidthClass = 'max-w-2xl',
     zIndexClass = 'z-50',
+    alignTop = false,
     closeDisabled = false,
     closeLabel,
     headerRight,
@@ -44,6 +47,12 @@ export function SystemModal({
     className = '',
     bodyClassName = 'p-4 sm:p-6',
 }: SystemModalProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     useEffect(() => {
         if (!isOpen || !onClose || closeDisabled) return;
         const onKeyDown = (e: KeyboardEvent) => {
@@ -53,20 +62,24 @@ export function SystemModal({
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [isOpen, onClose, closeDisabled]);
 
-    if (!isOpen) return null;
+    if (!isOpen || !mounted) return null;
 
     const shadow = getDialogueShadow('left', accentColor);
 
-    return (
+    return createPortal(
         <div
-            className={`fixed inset-0 ${zIndexClass} flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto font-mono`}
+            className={`fixed inset-0 ${zIndexClass} flex justify-center ${
+                alignTop ? 'items-start pt-4 sm:pt-8 pb-6 px-3 sm:px-5' : 'items-center p-3 sm:p-5'
+            } bg-black/85 backdrop-blur-md overflow-y-auto font-mono`}
             onClick={() => {
                 if (!closeDisabled && onClose) onClose();
             }}
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className={`w-full ${maxWidthClass} max-h-[90vh] rounded-[3px] border border-[#000000] flex flex-col overflow-hidden my-auto text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)] ${className}`}
+                className={`w-full ${maxWidthClass} max-h-[90vh] rounded-[3px] border border-[#000000] flex flex-col overflow-hidden animate-fade-in ${
+                    alignTop ? '' : 'my-auto'
+                } text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)] ${className}`}
                 style={{
                     background: DIALOGUE_BOX_GRADIENT,
                     boxShadow: shadow,
@@ -120,7 +133,8 @@ export function SystemModal({
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

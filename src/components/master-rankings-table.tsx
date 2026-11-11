@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Minus, ExternalLink } from 'lucide-react';
+import { getSystemBoxStyle } from '@/components/system-modal';
 
 export interface MasterStanding {
     rank: number;
@@ -273,7 +274,10 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                 {/* ============================================================ */}
                 {/* COLUNA ESQUERDA (8 COLS): TABELA RANKINGS (MASTER FANTASY)  */}
                 {/* ============================================================ */}
-                <div className="lg:col-span-8 bg-[#0a0c0f] border border-white/10 rounded-md p-5 sm:p-6 shadow-2xl flex flex-col justify-between">
+                <div
+                    className="lg:col-span-8 border border-[#000000] rounded-[3px] p-5 sm:p-6 flex flex-col justify-between font-mono"
+                    style={getSystemBoxStyle('#fbaa19')}
+                >
                     
                     {/* Header: RANKINGS + Link Regulamento */}
                     <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
@@ -281,7 +285,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                             <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white font-display">
                                 RANKINGS
                             </h2>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 uppercase font-mono">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-[3px] bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 uppercase font-mono">
                                 MASTER FINISH
                             </span>
                         </div>
@@ -296,10 +300,10 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                     </div>
 
                     {/* Tabela de Classificação dos Usuários no Padrão Globo.com */}
-                    <div className="w-full overflow-x-auto">
+                    <div className="w-full overflow-x-auto border border-white/10 rounded-[3px] bg-[#000000]">
                         <table className="w-full text-left border-collapse min-w-[620px]">
                             <thead>
-                                <tr className="border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                <tr className="bg-[#030303] border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                     <th className="py-2.5 px-3">CLASSIFICAÇÃO</th>
                                     <th className="py-2.5 px-2 text-center w-10">1o</th>
                                     <th className="py-2.5 px-2 text-center w-10">2o</th>
@@ -320,7 +324,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                                 ) : visibleRows.length === 0 ? (
                                     <tr>
                                         <td colSpan={8} className="py-12 text-center text-gray-500 uppercase tracking-widest text-xs">
-                                            Nenhum piloto registrado na liga Master.
+                                            Nenhum estrategista registrado na liga Master.
                                         </td>
                                     </tr>
                                 ) : (
@@ -448,7 +452,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                                 onClick={() => setShowAllRows(!showAllRows)}
                                 className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider py-1.5 px-4 rounded hover:bg-white/5 transition-colors cursor-pointer"
                             >
-                                {showAllRows ? '[-] Ocultar Pilotos Restantes' : `[+] Ver Tabela Completa (${standings.length} Pilotos)`}
+                                {showAllRows ? '[-] Ocultar Estrategistas Restantes' : `[+] Ver Tabela Completa (${standings.length} Estrategistas)`}
                             </button>
                         </div>
                     )}
@@ -457,7 +461,10 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                 {/* ============================================================ */}
                 {/* COLUNA DIREITA (4 COLS): ROUNDS & CONFRONTOS DE USUÁRIOS     */}
                 {/* ============================================================ */}
-                <div className="lg:col-span-4 bg-[#0a0c0f] border border-white/10 rounded-md p-5 sm:p-6 shadow-2xl flex flex-col justify-between">
+                <div
+                    className="lg:col-span-4 border border-[#000000] rounded-[3px] p-5 sm:p-6 flex flex-col justify-between font-mono"
+                    style={getSystemBoxStyle('#fbaa19', 'right')}
+                >
                     
                     {/* Header: ROUNDS */}
                     <div className="border-b border-white/10 pb-4 mb-4">
@@ -467,7 +474,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                     </div>
 
                     {/* Carrossel de Rodadas com Navegação (< EUA Grand Prix >) */}
-                    <div className="bg-black/50 border border-white/10 rounded-sm p-3 mb-4 flex items-center justify-between">
+                    <div className="bg-[#030303] border border-white/10 rounded-[3px] p-3 mb-4 flex items-center justify-between">
                         <button
                             type="button"
                             onClick={handlePrevRound}

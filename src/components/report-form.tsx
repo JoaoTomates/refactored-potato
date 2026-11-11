@@ -11,6 +11,7 @@ import {
     getF1TeamColor,
 } from '@/api/f1-data';
 import { DriverPixelPortrait } from '@/components/positions-hybrid-ui';
+import { getSystemBoxStyle } from '@/components/system-modal';
 import {
     CATEGORY_META,
     StewardReport,
@@ -95,7 +96,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onReportSubmitted, onBackToDash
     const [customTitle, setCustomTitle] = useState<string>('');
     const [details, setDetails] = useState<string>('');
 
-    const [reporterName, setReporterName] = useState<string>('PILOTO');
+    const [reporterName, setReporterName] = useState<string>('ESTRATEGISTA');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string>('');
     const [recentReports, setRecentReports] = useState<StewardReport[]>([]);
@@ -240,7 +241,10 @@ const ReportForm: React.FC<ReportFormProps> = ({ onReportSubmitted, onBackToDash
     return (
         <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 mt-2 font-mono">
             {/* Header do Terminal de Steward */}
-            <header className="border border-[#fbaa19]/40 rounded-lg p-5 sm:p-6 bg-black/90 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <header
+                className="border border-[#000000] rounded-[3px] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                style={getSystemBoxStyle('#fbaa19')}
+            >
                 <div>
                     <div className="flex items-center gap-2 text-[#fbaa19] text-[10px] font-black uppercase tracking-[0.2em] mb-1">
                         <ShieldAlert className="w-3.5 h-3.5" />
@@ -250,7 +254,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onReportSubmitted, onBackToDash
                         SUBMIT STEWARD REPORT
                     </h2>
                     <p className="text-white/55 text-xs mt-1">
-                        Informe trocas de pilotos, penalidades pós-corrida ou resultados oficiais. Todos os pilotos recebem alerta no dashboard para confirmar via Voting.
+                        Informe trocas de pilotos, penalidades pós-corrida ou resultados oficiais. Todos os estrategistas recebem alerta no dashboard para confirmar via Voting.
                     </p>
                 </div>
 
@@ -263,7 +267,10 @@ const ReportForm: React.FC<ReportFormProps> = ({ onReportSubmitted, onBackToDash
             </header>
 
             {/* Formulário Principal */}
-            <div className="bg-[#080a0e] border border-white/15 rounded-lg p-5 sm:p-6 shadow-2xl">
+            <div
+                className="border border-[#000000] rounded-[3px] p-5 sm:p-6"
+                style={getSystemBoxStyle('#fbaa19')}
+            >
                 {step === 1 && (
                     <div className="flex flex-col gap-5">
                         <div>

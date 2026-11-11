@@ -13,12 +13,23 @@ import SetupForm from "@/components/setup-form";
 import Calendar from "@/components/calendar";
 import ReportForm from "@/components/report-form";
 import { StewardAlertBanner, StewardVotingModal, useStewardVoting } from "@/components/steward-voting-panel";
-import PitwallQuickDock from "@/components/pitwall-quick-dock";
+import PitwallQuickDock, { DashboardSubView } from "@/components/pitwall-quick-dock";
 import SillySeason from "@/components/silly-season";
 import RaceWeekSchedule from "@/components/race-week-schedule";
 import PaddockRadioPlayer from "@/components/paddock-radio-player";
 import NasdaqTicker from "@/components/nasdaq-ticker";
 import CompetitionRankingsScreen, { CompetitionKey } from "@/components/competition-rankings-screen";
+import { DIALOGUE_BOX_GRADIENT, getDialogueShadow } from "@/components/dialogue-box";
+import { getSystemBoxStyle } from "@/components/system-modal";
+import F1HubView from "@/components/views/f1-hub-view";
+import F1ClassificationView from "@/components/views/f1-classification-view";
+import CrewView from "@/components/views/crew-view";
+import NewsFeedView from "@/components/views/news-feed-view";
+import TelemetryView from "@/components/views/telemetry-view";
+import PitwallView from "@/components/views/pitwall-view";
+import RaceControlView from "@/components/views/race-control-view";
+import NextRaceView from "@/components/views/next-race-view";
+import PositionsView from "@/components/views/positions-view";
 import { usePathname } from 'next/navigation';
 import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { formatMls, formatTimeAgo } from '@/lib/mls';
@@ -248,15 +259,18 @@ function Panel({
 
     return (
         <div
-            className={`relative bg-black/75 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300 ${className}`}
-            style={{ borderColor: `${accentColor}30` }}
+            className={`relative border border-[#000000] rounded-[3px] overflow-hidden animate-fade-in transition-all duration-300 ${className}`}
+            style={{
+                background: DIALOGUE_BOX_GRADIENT,
+                boxShadow: getDialogueShadow('left', accentColor),
+            }}
         >
             <div
                 onClick={collapsible ? () => setIsOpen(prev => !prev) : undefined}
                 className={`flex items-center justify-between gap-2 px-4 py-2.5 border-b transition-colors ${collapsible ? 'cursor-pointer select-none hover:bg-white/[0.04]' : ''}`}
                 style={{
-                    borderBottomColor: (!collapsible || isOpen) ? `${accentColor}20` : 'transparent',
-                    background: `linear-gradient(90deg, ${accentColor}0a, transparent)`
+                    borderBottomColor: (!collapsible || isOpen) ? `${accentColor}25` : 'transparent',
+                    background: `linear-gradient(90deg, ${accentColor}0d, transparent)`
                 }}
             >
                 <span
@@ -595,13 +609,13 @@ function CredentialCard({
                         {/* Título movido para baixo */}
                         <div className="flex items-center gap-1.5 mt-1">
                             <span className="text-[8px] sm:text-[8.5px] font-mono font-bold tracking-[0.22em] text-white/70 uppercase">
-                                ESTRATEGISTA PRINCIPAL
+                                ESTRATEGISTA TITULAR
                             </span>
                             {realDriver && (
                                 <>
                                     <span className="text-white/30 text-[8px]">·</span>
-                                    <span className="text-[7.5px] font-mono tracking-widest text-white/40 uppercase">
-                                        {realDriver.code} #{realDriver.number}
+                                    <span className="text-[7.5px] font-mono tracking-widest text-white/50 uppercase">
+                                        PILOTO: {realDriver.code} #{realDriver.number}
                                     </span>
                                 </>
                             )}
@@ -647,7 +661,7 @@ function CredentialCard({
                         )}
                         <div className="min-w-0">
                             <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-mono">
-                                ESTRATEGISTA PRINCIPAL
+                                ESTRATEGISTA TITULAR
                             </span>
                             <h2 className="text-base font-black tracking-wider leading-none text-white truncate font-mono">
                                 {me.name}
@@ -663,6 +677,30 @@ function CredentialCard({
                         </span>
                     </div>
                 </div>
+
+                {/* Piloto Designado sob comando direto do Estrategista */}
+                {realDriver && (
+                    <div className="bg-white/[0.03] border border-white/10 rounded p-2 flex items-center justify-between gap-2 font-mono">
+                        <div className="min-w-0">
+                            <span className="text-[7.5px] text-white/40 uppercase tracking-widest block">
+                                PILOTO SOB SEU COMANDO
+                            </span>
+                            <span className="text-xs font-black text-white uppercase tracking-wider truncate block">
+                                {realDriver.name}
+                            </span>
+                        </div>
+                        <span
+                            className="text-[10px] font-black px-2 py-0.5 rounded border shrink-0"
+                            style={{
+                                color: carBgColor,
+                                borderColor: `${carBgColor}50`,
+                                backgroundColor: `${carBgColor}15`,
+                            }}
+                        >
+                            {realDriver.code} #{realDriver.number}
+                        </span>
+                    </div>
+                )}
 
                 {/* Linha 1.5: Nacionality (Botão -> Setup apenas para o próprio usuário) */}
                 {(() => {
@@ -823,8 +861,14 @@ export default function OfficialStrategistDashboard() {
     // Tela / Modal do Ranking de Competições (Estilo Telemetria)
     const [rankingModalComp, setRankingModalComp] = useState<CompetitionKey | null>(null);
 
-    // Subtelas operacionais (Setup, Settings, Calendar, Report, Silly Season)
-    const [activeView, setActiveView] = useState<"menu" | "settings" | "setup" | "calendar" | "report" | "silly_season">("menu");
+    // Subtelas operacionais e páginas embarcadas no Dashboard
+    const [activeView, setActiveView] = useState<DashboardSubView>("menu");
+    const openSubView = (view: DashboardSubView) => {
+        setActiveView(view);
+        if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     const [rightCollapsed, setRightCollapsed] = useState(false);
     const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
@@ -1734,25 +1778,29 @@ export default function OfficialStrategistDashboard() {
                         pendingReports={stewardVoting.pendingReports}
                         unvotedCount={stewardVoting.unvotedPendingCount}
                         onOpenVoting={() => setIsVotingModalOpen(true)}
-                        onOpenReport={() => setActiveView("report")}
+                        onOpenReport={() => openSubView("report")}
                     />
                 )}
 
-                {/* SUB-TELA OPERACIONAL (SETUP, REPORT, SILLY SEASON, CALENDAR, SETTINGS) */}
+                {/* SUB-TELA OPERACIONAL EMBARCADA NO DASHBOARD */}
                 {activeView !== "menu" ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 py-6 animate-fade-in flex flex-col gap-6">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div
+                            className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-[3px] border border-[#000000]"
+                            style={getSystemBoxStyle(mainAccent)}
+                        >
                             <button
-                                onClick={() => setActiveView("menu")}
-                                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors cursor-pointer"
+                                type="button"
+                                onClick={() => openSubView("menu")}
+                                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/70 hover:text-white transition-colors cursor-pointer"
                             >
                                 <span style={{ color: mainAccent }}>«</span> [ VOLTAR AO TERMINAL DO ESTRATEGISTA ]
                             </button>
                             <span
-                                className="text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1 rounded border"
+                                className="text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1 rounded-[3px] border"
                                 style={{ borderColor: `${mainAccent}40`, color: mainAccent, backgroundColor: `${mainAccent}10` }}
                             >
-                                MÓDULO OPERACIONAL // {activeView.toUpperCase()}
+                                MÓDULO OPERACIONAL // {activeView.replace('_', ' ').toUpperCase()}
                             </span>
                         </div>
 
@@ -1764,12 +1812,52 @@ export default function OfficialStrategistDashboard() {
                                 <ReportForm
                                     onReportSubmitted={() => stewardVoting.refresh()}
                                     onBackToDashboard={() => {
-                                        setActiveView("menu");
+                                        openSubView("menu");
                                         setIsVotingModalOpen(true);
                                     }}
                                 />
                             )}
                             {activeView === "silly_season" && isOwner && <SillySeason />}
+                            {activeView === "f1" && <F1HubView embedded={true} />}
+                            {activeView === "classification" && (
+                                <F1ClassificationView
+                                    embedded={true}
+                                    onBackToF1={() => openSubView("f1")}
+                                />
+                            )}
+                            {activeView === "rankings" && (
+                                <CompetitionRankingsScreen
+                                    initialComp="poletime"
+                                    isModal={false}
+                                    embedded={true}
+                                    userSlug={me?.slug}
+                                    userTeamColor={mainAccent}
+                                />
+                            )}
+                            {activeView === "crew" && <CrewView embedded={true} />}
+                            {activeView === "news" && <NewsFeedView embedded={true} accentColor={mainAccent} />}
+                            {activeView === "telemetry" && (
+                                <TelemetryView
+                                    embedded={true}
+                                    onOpenPositions={() => openSubView("positions")}
+                                    onOpenPitwall={() => openSubView("pitwall")}
+                                    onOpenF1={() => openSubView("f1")}
+                                />
+                            )}
+                            {activeView === "pitwall" && <PitwallView embedded={true} />}
+                            {activeView === "race_control" && <RaceControlView embedded={true} />}
+                            {activeView === "next_race" && (
+                                <NextRaceView
+                                    embedded={true}
+                                    onOpenPositions={() => openSubView("positions")}
+                                />
+                            )}
+                            {activeView === "positions" && (
+                                <PositionsView
+                                    embedded={true}
+                                    onSaved={() => openSubView("telemetry")}
+                                />
+                            )}
                         </div>
                     </div>
                 ) : (
@@ -1876,7 +1964,7 @@ export default function OfficialStrategistDashboard() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <span className="text-[7.5px] text-white/40 uppercase tracking-widest block">
-                                                    2º PILOTO DA ESCUDERIA
+                                                    ESTRATEGISTA PARCEIRO DE BOX
                                                 </span>
                                                 <h3 className="font-black text-white text-sm tracking-wider truncate">
                                                     {teamPartner.name}
@@ -2298,7 +2386,7 @@ export default function OfficialStrategistDashboard() {
                                             {compStats?.milesimus.formatted || '000.100'} <span className="text-[9px] opacity-75">mls</span>
                                         </span>
                                         <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold" style={{ color: milesimusTheme.textColor }}>
-                                            <span>P{competitionTiers.meta.globalRank} DE {competitionTiers.meta.totalGlobal} PILOTOS</span>
+                                            <span>P{competitionTiers.meta.globalRank} DE {competitionTiers.meta.totalGlobal} ESTRATEGISTAS</span>
                                             <span>{compStats?.milesimus.tier}</span>
                                         </div>
                                     </div>
@@ -2350,6 +2438,8 @@ export default function OfficialStrategistDashboard() {
                                 pendingStewardCount={stewardVoting.pendingReports.length}
                                 teamColor={mainAccent}
                                 isOwner={isOwner}
+                                activeView={activeView}
+                                onSelectView={openSubView}
                                 onOpenVoting={() => setIsVotingModalOpen(true)}
                                 onJumpToBookTab={() => setActiveTab('book')}
                             />
@@ -2361,8 +2451,8 @@ export default function OfficialStrategistDashboard() {
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
                             <div
-                                className={`relative backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300 ${isStandardStyle ? 'bg-black' : 'bg-black/80'}`}
-                                style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.15)' : `${teamColor}35` }}
+                                className="relative border border-[#000000] rounded-[3px] overflow-hidden animate-fade-in transition-all duration-300"
+                                style={getSystemBoxStyle(isStandardStyle ? '#fbaa19' : teamColor)}
                             >
                                 {/* Navegador de Abas */}
                                 <div
@@ -2518,19 +2608,20 @@ export default function OfficialStrategistDashboard() {
                                                     </div>
 
                                                     {isOwner && (
-                                                        <Link
-                                                            href="/positions"
-                                                            className="mt-1 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openSubView('positions')}
+                                                            className="mt-1 w-full py-2.5 px-3 rounded-[3px] text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
                                                             style={{ borderColor: `${mainAccent}60`, backgroundColor: `${mainAccent}15`, color: mainAccent }}
                                                         >
                                                             <span>&gt;_ EDITAR / AJUSTAR POSIÇÕES NO TERMINAL</span>
                                                             <span>»</span>
-                                                        </Link>
+                                                        </button>
                                                     )}
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col gap-3">
-                                                    <div className={`p-4 rounded-lg border flex flex-col items-center justify-center text-center gap-2 py-6 ${isStandardStyle ? 'border-white/15 bg-black' : 'border-amber-500/20 bg-amber-500/5'}`}>
+                                                    <div className={`p-4 rounded-[3px] border flex flex-col items-center justify-center text-center gap-2 py-6 ${isStandardStyle ? 'border-white/15 bg-black' : 'border-amber-500/20 bg-amber-500/5'}`}>
                                                         <span className="text-xl">⚠️</span>
                                                         <h4 className="text-xs font-bold uppercase tracking-widest text-[#fbaa19]">
                                                             NENHUMA PREVISÃO REGISTRADA NA ETAPA ATUAL
@@ -2541,13 +2632,14 @@ export default function OfficialStrategistDashboard() {
                                                                 : 'Este estrategista ainda não registrou previsões para a etapa atual.'}
                                                         </p>
                                                         {isOwner && (
-                                                            <Link
-                                                                href="/positions"
-                                                                className="mt-2 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all hover:brightness-110"
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => openSubView('positions')}
+                                                                className="mt-2 px-4 py-2 rounded-[3px] text-[10px] font-black uppercase tracking-widest border transition-all hover:brightness-110 cursor-pointer"
                                                                 style={{ borderColor: mainAccent, backgroundColor: mainAccent, color: '#000' }}
                                                             >
                                                                 [ TOMAR POSIÇÕES AGORA » ]
-                                                            </Link>
+                                                            </button>
                                                         )}
                                                     </div>
 
@@ -2809,7 +2901,7 @@ export default function OfficialStrategistDashboard() {
                                                                 &gt;_ DIRETRIZ TÁTICA // TEAMWORK LEAGUE
                                                             </span>
                                                             <span className="text-[9px] text-white/40 uppercase">
-                                                                CAPACIDADE: ATÉ 20 PILOTOS
+                                                                CAPACIDADE: ATÉ 20 ESTRATEGISTAS
                                                             </span>
                                                         </div>
                                                         <p className="text-xs text-white/80 leading-relaxed">
@@ -2901,12 +2993,12 @@ export default function OfficialStrategistDashboard() {
 
                             {/* 3. BARRA DE COMANDOS / OPERAÇÕES DO DASHBOARD */}
                             <div
-                                className={`border rounded-lg p-3 md:p-4 shadow-xl ${isStandardStyle ? 'bg-black' : 'bg-black/75'}`}
-                                style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.15)' : `${teamColor}25` }}
+                                className="border border-[#000000] rounded-[3px] p-3 md:p-4"
+                                style={getSystemBoxStyle(isStandardStyle ? '#fbaa19' : mainAccent)}
                             >
                                 <div className="flex items-center justify-between mb-3 px-1">
                                     <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 flex items-center gap-1.5">
-                                        <span style={{ color: mainAccent }}>⚡</span> AÇÕES & FERRAMENTAS DO ESTRATEGISTA
+                                        <span style={{ color: mainAccent }}>⚡</span> AÇÕES &amp; FERRAMENTAS DO ESTRATEGISTA
                                     </span>
                                     <span className="text-[9px] text-white/30 uppercase tracking-widest">SISTEMA BAEFF1</span>
                                 </div>
@@ -2915,66 +3007,74 @@ export default function OfficialStrategistDashboard() {
                                     {isOwner && (
                                         <>
                                             <button
-                                                onClick={() => setActiveView('report')}
-                                                className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                                type="button"
+                                                onClick={() => openSubView('report')}
+                                                className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                             >
                                                 Report
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => setIsVotingModalOpen(true)}
-                                                className={`p-2.5 rounded text-center transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
+                                                className={`p-2.5 rounded-[3px] text-center transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
                                                     stewardVoting.pendingReports.length > 0
                                                         ? 'border-[#fbaa19]/60 bg-[#fbaa19]/15 text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black'
-                                                        : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+                                                        : 'border-white/10 bg-[#030303] hover:bg-white/10 text-white'
                                                 }`}
                                             >
                                                 <span>Voting</span>
                                                 {stewardVoting.pendingReports.length > 0 && (
-                                                    <span className="px-1.5 py-0.2 rounded bg-black/70 text-[#fbaa19] text-[9px] font-black">
+                                                    <span className="px-1.5 py-0.2 rounded-[2px] bg-black/70 text-[#fbaa19] text-[9px] font-black">
                                                         {stewardVoting.pendingReports.length}
                                                     </span>
                                                 )}
                                             </button>
                                             <button
-                                                onClick={() => setActiveView('silly_season')}
-                                                className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                                type="button"
+                                                onClick={() => openSubView('silly_season')}
+                                                className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                             >
                                                 Silly Season
                                             </button>
                                         </>
                                     )}
                                     <button
-                                        onClick={() => setActiveView('calendar')}
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                        type="button"
+                                        onClick={() => openSubView('calendar')}
+                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         F1 Calendar
                                     </button>
                                     {isOwner && (
                                         <button
-                                            onClick={() => setActiveView('settings')}
-                                            className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
+                                            type="button"
+                                            onClick={() => openSubView('settings')}
+                                            className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                         >
                                             Settings
                                         </button>
                                     )}
-                                    <Link
-                                        href="/telemetry"
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('telemetry')}
+                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Telemetry
-                                    </Link>
-                                    <Link
-                                        href="/pitwall"
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('pitwall')}
+                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Pitwall
-                                    </Link>
-                                    <Link
-                                        href="/race-control"
-                                        className="p-2.5 rounded text-center transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('race_control')}
+                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
                                     >
                                         Race Control
-                                    </Link>
+                                    </button>
                                     {isOwner ? (
                                         <Link
                                             href="/superlicense"
@@ -3160,7 +3260,7 @@ export default function OfficialStrategistDashboard() {
 
                             <Panel
                                 title={`Ranking · ${getChampionGroupName(me.groupId)}`}
-                                tag={`${groupRanking.length}/22 PILOTOS`}
+                                tag={`${groupRanking.length}/22 ESTRATEGISTAS`}
                                 bodyClass="p-0"
                                 className={isStandardStyle ? '!bg-black bg-black' : ''}
                                 accentColor={mainAccent}
@@ -3212,7 +3312,7 @@ export default function OfficialStrategistDashboard() {
                 voteError={stewardVoting.voteError}
                 isAuthenticated={stewardVoting.isAuthenticated}
                 onVote={(reportId, choice) => stewardVoting.castVote(reportId, choice)}
-                onOpenReport={() => setActiveView("report")}
+                onOpenReport={() => openSubView("report")}
             />
         </main>
     );

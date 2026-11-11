@@ -33,7 +33,7 @@ export function useStewardVoting() {
     const { user } = useSupabaseAuth();
     const [reports, setReports] = useState<StewardReport[]>([]);
     const [myVotes, setMyVotes] = useState<Record<string, StewardVoteChoice>>({});
-    const [voterName, setVoterName] = useState<string>('PILOTO');
+    const [voterName, setVoterName] = useState<string>('ESTRATEGISTA');
     const [loading, setLoading] = useState(true);
     const [votingReportId, setVotingReportId] = useState<string | null>(null);
     const [voteError, setVoteError] = useState<string>('');
@@ -255,6 +255,7 @@ export function StewardVotingModal({
             onClose={onClose}
             zIndexClass="z-[120]"
             maxWidthClass="max-w-3xl"
+            alignTop={true}
             accentColor="#fbaa19"
             icon={<ShieldAlert className="w-5 h-5 text-[#fbaa19]" />}
             title="STEWARD VOTING // CONFIRMAÇÃO DO GRID"

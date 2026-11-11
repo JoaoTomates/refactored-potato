@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { ArrowUp, ArrowDown, Search, X, ExternalLink, Trophy, Timer, Globe, Users, ChevronRight, Activity, Zap } from 'lucide-react';
@@ -35,7 +36,7 @@ const COMPETITIONS: CompetitionDef[] = [
         id: 'master',
         code: 'MASTER',
         title: 'MASTER LEAGUE',
-        subtitle: 'GRID FECHADO DE 22 PILOTOS // TOP 10 FIA',
+        subtitle: 'GRID FECHADO DE 22 ESTRATEGISTAS // TOP 10 FIA',
         badge: 'LIGA OFICIAL',
         accentColor: '#3874ff',
         icon: Trophy,
@@ -105,6 +106,7 @@ export interface UnifiedPilotRow {
 export interface CompetitionRankingsScreenProps {
     initialComp?: CompetitionKey;
     isModal?: boolean;
+    embedded?: boolean;
     onClose?: () => void;
     userSlug?: string | null;
     userTeamColor?: string;
@@ -113,6 +115,7 @@ export interface CompetitionRankingsScreenProps {
 export default function CompetitionRankingsScreen({
     initialComp = 'poletime',
     isModal = false,
+    embedded = false,
     onClose,
     userSlug = null,
     userTeamColor = '#fbaa19'
@@ -128,6 +131,11 @@ export default function CompetitionRankingsScreen({
     
     const [loading, setLoading] = useState(true);
     const [rows, setRows] = useState<UnifiedPilotRow[]>([]);
+    const [portalMounted, setPortalMounted] = useState(false);
+
+    useEffect(() => {
+        setPortalMounted(true);
+    }, []);
 
     useEffect(() => {
         if (initialComp) {
@@ -475,7 +483,7 @@ export default function CompetitionRankingsScreen({
                             <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             <input
                                 type="text"
-                                placeholder="Buscar piloto..."
+                                placeholder="Buscar estrategista..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full bg-black/80 border border-white/20 rounded-md pl-8 pr-2.5 py-1 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#e10600] font-mono"
@@ -558,10 +566,13 @@ export default function CompetitionRankingsScreen({
             <div className="relative z-10 w-full p-3 sm:p-5 md:p-6 flex flex-col lg:flex-row gap-6 items-start">
                 
                 {/* TIMING TOWER OFICIAL (ESTRUTURA BROADCAST TV DA IMAGEM ANEXA) */}
-                <div className="w-full sm:w-[380px] md:w-[420px] bg-black/90 backdrop-blur-md border border-white/20 rounded shadow-[0_0_30px_rgba(0,0,0,0.9)] overflow-hidden font-mono flex flex-col shrink-0 animate-fade-in">
+                <div
+                    className="w-full sm:w-[380px] md:w-[420px] border border-[#000000] rounded-[3px] overflow-hidden font-mono flex flex-col shrink-0 animate-fade-in"
+                    style={getSystemBoxStyle('#e10600')}
+                >
                     
                     {/* HEADER BROADCAST OFICIAL COM LOGO FIA F1 */}
-                    <div className="bg-[#121418] border-b border-white/15 p-2.5 flex items-center justify-between">
+                    <div className="bg-[#030303] border-b border-white/10 p-2.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             {/* Logo Estilizada Oficial da F1 */}
                             <div className="flex items-center gap-1.5">
@@ -603,15 +614,15 @@ export default function CompetitionRankingsScreen({
                                 <div
                                     key={pilot.id}
                                     className={`flex items-center justify-between h-9 px-2 hover:bg-white/10 transition-colors select-none ${
-                                        isCurrentUser ? 'bg-white/15 ring-1 ring-inset ring-[#e10600]' : 'bg-[#0a0c0f]/95'
+                                        isCurrentUser ? 'bg-white/15 ring-1 ring-inset ring-[#e10600]' : 'bg-[#030303]/95'
                                     }`}
                                 >
                                     {/* POSIÇÃO: P1 VERMELHO SÓLIDO, DEMAIS ESCURO */}
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <div className={`w-6 h-6 flex items-center justify-center font-black text-xs rounded-sm shrink-0 ${
+                                        <div className={`w-6 h-6 flex items-center justify-center font-black text-xs rounded-[3px] shrink-0 ${
                                             isP1 
                                                 ? 'bg-[#e10600] text-white shadow-[0_0_10px_rgba(225,6,0,0.8)]' 
-                                                : 'bg-[#181b20] text-white/90 border border-white/10'
+                                                : 'bg-[#080808] text-white/90 border border-white/10'
                                         }`}>
                                             {pos}
                                         </div>
@@ -710,10 +721,13 @@ export default function CompetitionRankingsScreen({
     // VISTA 2: TABELA TELEMETRY COMPLETA (MASTER, MILESIMUS, TEAMWORK)
     // ============================================================
     const renderTelemetryTable = () => (
-        <div className="w-full flex flex-col font-sans selection:bg-[#fbaa19] selection:text-black">
+        <div
+            className="w-full flex flex-col font-sans selection:bg-[#fbaa19] selection:text-black rounded-[3px] border border-[#000000] overflow-hidden"
+            style={getSystemBoxStyle(activeConfig.accentColor)}
+        >
             
             {/* CABEÇALHO DO CONSOLE COM TÍTULO, SUBTÍTULO E AÇÕES */}
-            <div className="bg-[#0a0c0f] border border-white/10 rounded-t-lg p-5 sm:p-6 shadow-2xl flex flex-col gap-4 border-b-0">
+            <div className="bg-transparent border-b border-white/10 p-5 sm:p-6 flex flex-col gap-4">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-3">
                         <span 
@@ -872,7 +886,7 @@ export default function CompetitionRankingsScreen({
             </div>
 
             {/* CONTAINER DA TABELA TELEMETRY */}
-            <div className="w-full overflow-x-auto relative custom-scrollbar bg-[#0a0c0f] border border-white/10 rounded-b-lg shadow-2xl">
+            <div className="w-full overflow-x-auto relative custom-scrollbar bg-[#000000]">
                 {loading ? (
                     <div className="p-20 text-center flex flex-col items-center justify-center">
                         <div className="w-10 h-10 rounded-full border-3 border-t-transparent animate-spin mb-3" style={{ borderColor: `${activeConfig.accentColor} transparent transparent transparent` }}></div>
@@ -882,15 +896,15 @@ export default function CompetitionRankingsScreen({
                     </div>
                 ) : filteredRows.length === 0 ? (
                     <div className="p-16 text-center text-gray-400 font-mono text-xs uppercase tracking-widest">
-                        Nenhum piloto encontrado para os critérios selecionados.
+                        Nenhum estrategista encontrado para os critérios selecionados.
                     </div>
                 ) : (
                     <table className="w-full text-left border-collapse min-w-[780px]">
-                        <thead className="bg-[#0e1217] border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-20">
+                        <thead className="bg-[#030303] border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-20">
                             <tr>
                                 <th className="py-3 px-3 w-16 text-center">POS</th>
                                 <th className="py-3 px-2 w-12 text-center">VAR</th>
-                                <th className="py-3 px-3">PILOTO & ESCUDERIA</th>
+                                <th className="py-3 px-3">ESTRATEGISTA &amp; ESCUDERIA</th>
 
                                 {activeComp === 'master' && (
                                     <>
@@ -1080,9 +1094,12 @@ export default function CompetitionRankingsScreen({
     );
 
     const renderMasterView = () => (
-        <div className="w-full flex flex-col font-sans selection:bg-[#fbaa19] selection:text-black">
+        <div
+            className="w-full flex flex-col font-sans selection:bg-[#fbaa19] selection:text-black rounded-[3px] border border-[#000000] overflow-hidden"
+            style={getSystemBoxStyle(activeConfig.accentColor)}
+        >
             {/* CABEÇALHO DO CONSOLE COM TÍTULO, SUBTÍTULO E ABAS DE COMPETIÇÃO */}
-            <div className="bg-[#0a0c0f] border border-white/10 rounded-t-lg p-5 sm:p-6 shadow-2xl flex flex-col gap-4 border-b-0">
+            <div className="bg-transparent border-b border-white/10 p-5 sm:p-6 flex flex-col gap-4">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-3">
                         <span 
@@ -1170,7 +1187,7 @@ export default function CompetitionRankingsScreen({
             </div>
 
             {/* TABELAS MASTER: RANKINGS (ESQUERDA) + DUELOS DE RODADAS (DIREITA) */}
-            <div className="bg-[#0a0c0f] border border-white/10 border-t-0 rounded-b-lg p-2 sm:p-4 shadow-2xl">
+            <div className="bg-[#000000] p-2 sm:p-4">
                 <MasterRankingsTable isModalView={true} />
             </div>
         </div>
@@ -1182,27 +1199,29 @@ export default function CompetitionRankingsScreen({
         ? renderMasterView() 
         : renderTelemetryTable();
 
-    // Se estiver em modo Modal, renderiza backdrop fixo responsivo no padrão definitivo
+    // Se estiver em modo Modal, renderiza em Portal sobre o body para escapar de transforms ancestrais
     if (isModal) {
-        return (
+        if (!portalMounted) return null;
+        return createPortal(
             <div
-                className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto font-mono"
+                className="fixed inset-0 z-50 flex items-start justify-center pt-4 sm:pt-8 pb-6 px-2 sm:px-4 md:px-6 bg-black/85 backdrop-blur-md overflow-y-auto font-mono"
                 onClick={onClose}
             >
                 <div
-                    className="w-full max-w-7xl my-auto rounded-[3px] border border-[#000000] overflow-hidden p-1.5 sm:p-2"
+                    className="w-full max-w-7xl rounded-[3px] border border-[#000000] overflow-hidden p-1.5 sm:p-2 animate-fade-in"
                     style={getSystemBoxStyle(activeConfig.accentColor)}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {content}
                 </div>
-            </div>
+            </div>,
+            document.body
         );
     }
 
-    // Se for página inteira
+    // Se for página inteira ou embarcado no Dashboard
     return (
-        <section className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-8 py-4 md:py-6">
+        <section className={embedded ? "w-full" : "w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-8 py-4 md:py-6"}>
             {content}
         </section>
     );
