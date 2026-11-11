@@ -501,18 +501,27 @@ export function InviteFlow() {
 
                                 const g = ENGINE_FACTIONS[groupId];
                                 const chief = ALLIANCE_CHIEFS_AVATARS[groupId];
+                                const dossierLines = [
+                                    g.sub,
+                                    `EQUIPES: ${g.teamsString}`,
+                                    `SPEC: ${g.engineSpec}`,
+                                    g.fantasyPerk ? `PERK: ${g.fantasyPerk}` : null,
+                                ].filter(Boolean).join('\n');
 
                                 return (
                                     <DialogueBox
                                         key={g.id}
-                                        speaker={chief.chiefName}
-                                        speakerRole={chief.chiefRole}
+                                        hideAvatar
+                                        inlinePortrait={{
+                                            avatarUrl: chief.avatarUrl,
+                                            name: chief.chiefName,
+                                        }}
                                         badgeTitle={`[${g.badge}] ${g.title}`}
-                                        avatarUrl={chief.avatarUrl}
+                                        categoryTag={chief.chiefRole}
                                         accentColor={chief.accentColor}
                                         prefix={null}
                                         minHeightClass="min-h-[80px]"
-                                        text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`}
+                                        text={dossierLines}
                                         startDelay={150}
                                         onReadyForNext={() => {
                                             if (stepNeeded < 3) {

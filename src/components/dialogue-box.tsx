@@ -208,6 +208,11 @@ export interface DialogueBoxProps {
     italic?: boolean;
     minHeightClass?: string;
     animateEntrance?: boolean;
+    hideAvatar?: boolean;
+    inlinePortrait?: {
+        avatarUrl?: string;
+        name?: string;
+    };
     className?: string;
 }
 
@@ -228,6 +233,98 @@ function getSpeakerInitials(speaker?: string): string {
         return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
     return clean.slice(0, 2).toUpperCase();
+}
+
+interface AvatarFrameProps {
+    avatarUrl?: string;
+    name?: string;
+    accentColor: string;
+    shadow: string;
+    sizeClass: string;
+    interactive?: boolean;
+    allowWideLabel?: boolean;
+}
+
+function AvatarFrame({
+    avatarUrl,
+    name,
+    accentColor,
+    shadow,
+    sizeClass,
+    interactive = false,
+    allowWideLabel = false,
+}: AvatarFrameProps) {
+    const [currentImg, setCurrentImg] = useState<string | undefined>(avatarUrl);
+    const [imgFailed, setImgFailed] = useState(false);
+
+    useEffect(() => {
+        setCurrentImg(avatarUrl);
+        setImgFailed(false);
+    }, [avatarUrl]);
+
+    const handleImgError = () => {
+        if (currentImg && currentImg.startsWith('http')) {
+            const parts = currentImg.split('/avatars/');
+            if (parts[1]) {
+                setCurrentImg(`/avatar/${parts[1]}`);
+                return;
+            }
+        }
+        setImgFailed(true);
+    };
+
+    const cleanName = name ? name.replace(/[\[\]]/g, '').trim() : '';
+
+    return (
+        <div className="flex flex-col items-center shrink-0 select-none">
+            <div
+                className={`${sizeClass} rounded-[3px] overflow-hidden border border-[#000000] p-0.5 flex items-center justify-center shrink-0 transition-transform ${
+                    interactive ? 'group-hover:scale-[1.03]' : ''
+                }`}
+                style={{
+                    background: BOX_GRADIENT,
+                    boxShadow: shadow,
+                }}
+            >
+                {currentImg && !imgFailed ? (
+                    <img
+                        src={currentImg}
+                        alt={cleanName || 'Personagem'}
+                        onError={handleImgError}
+                        className="w-full h-full object-cover rounded-[2px] filter contrast-105 transition-all"
+                    />
+                ) : (
+                    <div className="w-full h-full rounded-[2px] flex flex-col items-center justify-center bg-[#030303] text-center">
+                        {cleanName ? (
+                            <span
+                                className="text-xs sm:text-sm font-black tracking-widest uppercase"
+                                style={{ color: accentColor }}
+                            >
+                                {getSpeakerInitials(cleanName)}
+                            </span>
+                        ) : (
+                            <Radio className="w-5 h-5" style={{ color: accentColor }} />
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {cleanName && (
+                <span
+                    className={`text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center px-2 py-0.5 rounded-[3px] border border-[#000000] ${
+                        allowWideLabel ? 'whitespace-nowrap' : 'truncate max-w-[96px] sm:max-w-[116px]'
+                    }`}
+                    style={{
+                        color: accentColor,
+                        background: BOX_GRADIENT,
+                        boxShadow: shadow,
+                    }}
+                >
+                    [ {cleanName} ]
+                </span>
+            )}
+        </div>
+    );
 }
 
 /**
@@ -262,31 +359,13 @@ export function DialogueBox({
     italic = false,
     minHeightClass,
     animateEntrance = false,
+    hideAvatar = false,
+    inlinePortrait,
     className = '',
 }: DialogueBoxProps) {
-    const [currentImg, setCurrentImg] = useState<string | undefined>(avatarUrl);
-    const [imgFailed, setImgFailed] = useState(false);
-
-    useEffect(() => {
-        setCurrentImg(avatarUrl);
-        setImgFailed(false);
-    }, [avatarUrl]);
-
-    const handleImgError = () => {
-        if (currentImg && currentImg.startsWith('http')) {
-            const parts = currentImg.split('/avatars/');
-            if (parts[1]) {
-                setCurrentImg(`/avatar/${parts[1]}`);
-                return;
-            }
-        }
-        setImgFailed(true);
-    };
-
     const effectiveAccent = isFilled ? '#10b981' : accentColor;
     const isRight = direction === 'right';
     const directionalShadow = getDirectionalShadow(direction, effectiveAccent);
-    const cleanSpeaker = speaker ? speaker.replace(/[\[\]]/g, '').trim() : '';
 
     const hasHeader = Boolean(badgeTitle || speakerRole || categoryTag);
     const hasActionsRow = Boolean(isFilled || isSettled || (actions && actions.length > 0) || footerHint || footerNote);
@@ -318,54 +397,17 @@ export function DialogueBox({
                 isRight ? 'flex-row-reverse' : 'flex-row'
             } ${onClick ? 'cursor-pointer group' : ''} ${entranceAnim} ${className}`}
         >
-            {/* 1. AVATAR ENQUADRADO NO PADRÃO DEFINITIVO (#030303 -> #000000, border #000000, radius <= 3px, sombra spread direcional) */}
-            <div className="flex flex-col items-center shrink-0 select-none">
-                <div
-                    className={`${avatarSizeClass} rounded-[3px] overflow-hidden border border-[#000000] p-0.5 flex items-center justify-center shrink-0 transition-transform ${
-                        onClick ? 'group-hover:scale-[1.03]' : ''
-                    }`}
-                    style={{
-                        background: BOX_GRADIENT,
-                        boxShadow: directionalShadow,
-                    }}
-                >
-                    {currentImg && !imgFailed ? (
-                        <img
-                            src={currentImg}
-                            alt={cleanSpeaker || 'Personagem'}
-                            onError={handleImgError}
-                            className="w-full h-full object-cover rounded-[2px] filter contrast-105 transition-all"
-                        />
-                    ) : (
-                        <div className="w-full h-full rounded-[2px] flex flex-col items-center justify-center bg-[#030303] text-center">
-                            {speaker ? (
-                                <span
-                                    className="text-xs sm:text-sm font-black tracking-widest uppercase"
-                                    style={{ color: effectiveAccent }}
-                                >
-                                    {getSpeakerInitials(speaker)}
-                                </span>
-                            ) : (
-                                <Radio className="w-5 h-5" style={{ color: effectiveAccent }} />
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Plaqueta [ NOME ] ancorada abaixo do avatar */}
-                {cleanSpeaker && (
-                    <span
-                        className="text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center truncate max-w-[96px] sm:max-w-[116px] px-2 py-0.5 rounded-[3px] border border-[#000000]"
-                        style={{
-                            color: effectiveAccent,
-                            background: BOX_GRADIENT,
-                            boxShadow: directionalShadow,
-                        }}
-                    >
-                        [ {cleanSpeaker} ]
-                    </span>
-                )}
-            </div>
+            {/* 1. AVATAR EXTERNO (ocultado quando usado como dossiê/retrato interno) */}
+            {!hideAvatar && (
+                <AvatarFrame
+                    avatarUrl={avatarUrl}
+                    name={speaker}
+                    accentColor={effectiveAccent}
+                    shadow={directionalShadow}
+                    sizeClass={avatarSizeClass}
+                    interactive={Boolean(onClick)}
+                />
+            )}
 
             {/* 2. BOX CARD DO DIÁLOGO (#030303 -> #000000, border #000000, radius <= 3px, sombra spread direcional) */}
             <div
@@ -398,35 +440,53 @@ export function DialogueBox({
                     </div>
                 )}
 
-                {/* Texto da fala com fonte atual + 0.5px e min-height estável */}
+                {/* Texto da fala + retrato interno opcional à direita */}
                 <div
-                    className={`text-white font-bold tracking-wide leading-relaxed py-0.5 ${textMinHeight} flex items-start ${textSizeClass} ${
-                        isRight ? 'text-right justify-end' : 'text-left justify-start'
-                    } ${italic ? 'italic' : ''}`}
+                    className={`flex items-start justify-between gap-4 ${
+                        isRight ? 'flex-row-reverse' : 'flex-row'
+                    }`}
                 >
-                    <div className="w-full">
-                        {prefix && (
-                            <span
-                                className="opacity-70 mr-2 select-none font-black"
-                                style={{ color: effectiveAccent }}
-                            >
-                                {prefix}
-                            </span>
-                        )}
-                        {text !== undefined ? (
-                            <TypewriterLine
-                                text={text}
-                                startDelay={startDelay}
-                                speed={speed}
-                                instant={!typewriter}
-                                accentColor={effectiveAccent}
-                                onReadyForNext={onReadyForNext}
-                                onComplete={onComplete}
-                            />
-                        ) : (
-                            children
-                        )}
+                    <div
+                        className={`flex-1 min-w-0 text-white font-bold tracking-wide leading-relaxed py-0.5 ${textMinHeight} flex items-start ${textSizeClass} ${
+                            isRight ? 'text-right justify-end' : 'text-left justify-start'
+                        } ${italic ? 'italic' : ''}`}
+                    >
+                        <div className="w-full">
+                            {prefix && (
+                                <span
+                                    className="opacity-70 mr-2 select-none font-black"
+                                    style={{ color: effectiveAccent }}
+                                >
+                                    {prefix}
+                                </span>
+                            )}
+                            {text !== undefined ? (
+                                <TypewriterLine
+                                    text={text}
+                                    startDelay={startDelay}
+                                    speed={speed}
+                                    instant={!typewriter}
+                                    accentColor={effectiveAccent}
+                                    onReadyForNext={onReadyForNext}
+                                    onComplete={onComplete}
+                                />
+                            ) : (
+                                children
+                            )}
+                        </div>
                     </div>
+
+                    {inlinePortrait && (
+                        <AvatarFrame
+                            avatarUrl={inlinePortrait.avatarUrl}
+                            name={inlinePortrait.name}
+                            accentColor={effectiveAccent}
+                            shadow={getDirectionalShadow('right', effectiveAccent)}
+                            sizeClass={avatarSizeClass}
+                            interactive={Boolean(onClick)}
+                            allowWideLabel
+                        />
+                    )}
                 </div>
 
                 {/* Rodapé opcional: ações, status homologado, nota tática ou dica de avanço */}
