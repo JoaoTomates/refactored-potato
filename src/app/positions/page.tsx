@@ -10,7 +10,7 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/utils/supabase';
 import { F1_MATCHUPS, F1_DRIVERS, normalizeDriverName, fetchNextEvent, F1Event } from '@/api/f1-data';
 import {
-    HybridTop10Row,
+    HybridTop10Grid,
     EvoHybridCardGrid,
     H2HHelmetBattleGrid,
     PaddockPickerDrawer,
@@ -739,23 +739,24 @@ export default function PositionsPage() {
                                 </div>
                             </div>
 
-                            {/* Lista dos 10 Pilotos (Chips Híbridos com Helmet Overlay) */}
-                            <div className="flex flex-col gap-2.5 max-w-3xl w-full mx-auto relative">
-                                {top10.map((driverName, idx) => (
-                                    <HybridTop10Row
-                                        key={idx}
-                                        index={idx}
-                                        driverName={driverName}
-                                        ordinalLabel={getOrdinal(idx + 1)}
-                                        onOpenPicker={() => setOpenDropdown({ type: 'top10', index: idx })}
-                                        onClear={() => {
-                                            const next = [...top10];
-                                            next[idx] = '';
-                                            setTop10(next);
-                                        }}
-                                    />
-                                ))}
-                            </div>
+                            {/* Grid de Largada Escalonado dos 10 Pilotos (Pixel Art + Drag & Swap) */}
+                            <HybridTop10Grid
+                                top10={top10}
+                                getOrdinal={getOrdinal}
+                                onOpenPicker={(idx) => setOpenDropdown({ type: 'top10', index: idx })}
+                                onClearSlot={(idx) => {
+                                    const next = [...top10];
+                                    next[idx] = '';
+                                    setTop10(next);
+                                }}
+                                onSwapSlots={(fromIdx, toIdx) => {
+                                    const next = [...top10];
+                                    const temp = next[fromIdx];
+                                    next[fromIdx] = next[toIdx];
+                                    next[toIdx] = temp;
+                                    setTop10(next);
+                                }}
+                            />
                         </section>
                     )}
 

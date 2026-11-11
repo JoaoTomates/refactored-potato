@@ -9,7 +9,18 @@ import {
 } from '@/api/f1-data';
 import { PilotAvatar } from '@/components/pilot-avatar';
 import { getSystemBoxStyle } from '@/components/system-modal';
-import { Search, X, Check, ChevronRight, RotateCcw, Sparkles } from 'lucide-react';
+import {
+    Search,
+    X,
+    Check,
+    ChevronRight,
+    ChevronUp,
+    ChevronDown,
+    ArrowLeftRight,
+    GripVertical,
+    RotateCcw,
+    Sparkles,
+} from 'lucide-react';
 
 const TOP_TEAMS = new Set(['McLaren', 'Ferrari', 'Mercedes', 'Red Bull']);
 
@@ -138,36 +149,25 @@ export function HybridTop10Row({
                     ? 'bg-[#0b0d12]/95 border-[#fbaa19]/70 hover:border-[#fbaa19] shadow-[0_0_20px_rgba(251,170,25,0.08)]'
                     : 'bg-black/70 border-white/15 hover:border-[#fbaa19]/60 hover:bg-black/90'
             }`}
-            style={{ minHeight: '3.85rem' }}
+            style={{ minHeight: '4.25rem' }}
         >
-            {/* Posição Ordinal */}
             <div
                 className={`w-14 sm:w-16 flex items-center justify-center font-black uppercase text-sm sm:text-base border-r shrink-0 transition-colors ${podiumBadgeStyle}`}
             >
                 {ordinalLabel}
             </div>
 
-            {/* Conteúdo do Chip Híbrido (Helmet Overlay + Nome Canônico) */}
             <div className="flex-1 flex items-center justify-between gap-3 px-3 sm:px-4 py-2 min-w-0">
                 <div className="flex items-center gap-3 min-w-0">
                     {details ? (
-                        <PilotAvatar
-                            teamColor={details.teamColor}
-                            driverNumber={details.num}
-                            variant="neon"
-                            size="sm"
-                            showHUD={true}
-                            showBadge={true}
-                            showStatusBlip={false}
-                            className="shrink-0"
+                        <DriverPixelPortrait
+                            driverName={details.name}
+                            aspectClass="w-11 h-14 rounded-sm border shrink-0"
+                            showTeamTrim={true}
                         />
                     ) : (
-                        <div className="w-10 h-10 rounded-full border border-dashed border-white/25 group-hover:border-[#fbaa19]/70 flex items-center justify-center shrink-0 bg-white/[0.02] transition-colors">
-                            <img
-                                src="/avatar-overlay.svg"
-                                alt=""
-                                className="w-6 h-6 object-contain opacity-25 group-hover:opacity-55 transition-opacity"
-                            />
+                        <div className="w-11 h-14 rounded-sm border border-dashed border-white/25 group-hover:border-[#fbaa19]/70 flex items-center justify-center shrink-0 bg-white/[0.02] transition-colors text-white/30 text-xs font-black">
+                            +
                         </div>
                     )}
 
@@ -176,7 +176,7 @@ export function HybridTop10Row({
                             <div className="flex items-center gap-2 min-w-0">
                                 <span
                                     style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                    className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wide text-white truncate"
+                                    className="text-sm sm:text-base font-black uppercase tracking-wide text-white truncate"
                                 >
                                     {details.name}
                                 </span>
@@ -202,7 +202,7 @@ export function HybridTop10Row({
                         <div className="flex flex-col leading-tight">
                             <span
                                 style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                className="text-sm sm:text-base font-black uppercase tracking-wider text-white/40 group-hover:text-white/75 transition-colors"
+                                className="text-sm font-black uppercase tracking-wider text-white/40 group-hover:text-white/75 transition-colors"
                             >
                                 SELECIONAR PILOTO
                             </span>
@@ -213,7 +213,6 @@ export function HybridTop10Row({
                     )}
                 </div>
 
-                {/* Ações à direita */}
                 <div className="flex items-center gap-1.5 shrink-0">
                     {isPicked && (
                         <button
@@ -239,6 +238,307 @@ export function HybridTop10Row({
                         <ChevronRight className="w-4 h-4" />
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+export function HybridTop10Grid({
+    top10,
+    getOrdinal,
+    onOpenPicker,
+    onClearSlot,
+    onSwapSlots,
+}: {
+    top10: string[];
+    getOrdinal: (n: number) => string;
+    onOpenPicker: (index: number) => void;
+    onClearSlot: (index: number) => void;
+    onSwapSlots: (fromIndex: number, toIndex: number) => void;
+}) {
+    const [dragIndex, setDragIndex] = useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+    const [swapSourceIndex, setSwapSourceIndex] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (swapSourceIndex === null) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setSwapSourceIndex(null);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [swapSourceIndex]);
+
+    const handleCardClick = (idx: number) => {
+        if (swapSourceIndex !== null) {
+            if (swapSourceIndex !== idx) {
+                onSwapSlots(swapSourceIndex, idx);
+            }
+            setSwapSourceIndex(null);
+            return;
+        }
+        onOpenPicker(idx);
+    };
+
+    return (
+        <div className="w-full flex flex-col gap-3">
+            {/* Barra de Status / Instrução de Drag & Swap */}
+            {swapSourceIndex !== null ? (
+                <div className="px-3.5 py-2 rounded border border-[#fbaa19] bg-[#fbaa19]/15 flex items-center justify-between gap-2 text-[11px] font-mono animate-fade-in">
+                    <span className="text-[#fbaa19] font-black uppercase tracking-wider flex items-center gap-2">
+                        <ArrowLeftRight className="w-3.5 h-3.5 animate-pulse" />
+                        <span>
+                            SWAP ATIVO: CLIQUE EM OUTRA POSIÇÃO PARA TROCAR COM{' '}
+                            {getOrdinal(swapSourceIndex + 1)} ({top10[swapSourceIndex]})
+                        </span>
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => setSwapSourceIndex(null)}
+                        className="px-2 py-0.5 rounded bg-black/70 border border-[#fbaa19]/50 text-white hover:text-[#fbaa19] text-[10px] font-bold uppercase cursor-pointer shrink-0"
+                    >
+                        CANCELAR
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center justify-between text-[10px] font-mono text-white/40 uppercase tracking-wider px-1">
+                    <span>GRID DE LARGADA // 2 COLUNAS ESCALONADAS</span>
+                    <span className="hidden sm:inline">
+                        ARRASTE PARA TROCAR · OU USE ⇄ / ↑ ↓ SEM ABRIR O SELETOR
+                    </span>
+                </div>
+            )}
+
+            {/* Grid Escalonado Estilo Largada F1 (Ímpares à esquerda, Pares deslocados à direita) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3.5 md:pb-8">
+                {top10.map((driverName, idx) => {
+                    const isPicked = Boolean(driverName);
+                    const details = isPicked ? getDriverDetails(driverName) : null;
+                    const ordinalLabel = getOrdinal(idx + 1);
+                    const isEvenSlot = idx % 2 === 1;
+                    const isDraggingThis = dragIndex === idx;
+                    const isDragTarget = dragOverIndex === idx && dragIndex !== null && dragIndex !== idx;
+                    const isSwapSource = swapSourceIndex === idx;
+                    const isSwapTarget = swapSourceIndex !== null && swapSourceIndex !== idx;
+
+                    const podiumBadgeStyle =
+                        idx === 0
+                            ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
+                            : idx === 1
+                                ? 'bg-zinc-200 text-black border-zinc-200'
+                                : idx === 2
+                                    ? 'bg-amber-700 text-white border-amber-600'
+                                    : isPicked
+                                        ? 'bg-[#fbaa19]/90 text-black border-[#fbaa19]'
+                                        : 'bg-white/5 text-[#fbaa19] border-white/10';
+
+                    return (
+                        <div
+                            key={idx}
+                            draggable={isPicked}
+                            onDragStart={(e) => {
+                                if (!isPicked) return;
+                                setDragIndex(idx);
+                                setSwapSourceIndex(null);
+                                e.dataTransfer.effectAllowed = 'move';
+                                e.dataTransfer.setData('text/plain', String(idx));
+                            }}
+                            onDragOver={(e) => {
+                                if (dragIndex === null || dragIndex === idx) return;
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = 'move';
+                                if (dragOverIndex !== idx) setDragOverIndex(idx);
+                            }}
+                            onDragLeave={() => {
+                                if (dragOverIndex === idx) setDragOverIndex(null);
+                            }}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                const fromRaw = e.dataTransfer.getData('text/plain');
+                                const fromIdx = dragIndex !== null ? dragIndex : parseInt(fromRaw, 10);
+                                if (!Number.isNaN(fromIdx) && fromIdx !== idx) {
+                                    onSwapSlots(fromIdx, idx);
+                                }
+                                setDragIndex(null);
+                                setDragOverIndex(null);
+                            }}
+                            onDragEnd={() => {
+                                setDragIndex(null);
+                                setDragOverIndex(null);
+                            }}
+                            onClick={() => handleCardClick(idx)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleCardClick(idx);
+                                }
+                            }}
+                            className={`group relative w-full flex items-stretch rounded-md border transition-all duration-200 cursor-pointer overflow-hidden ${
+                                isEvenSlot ? 'md:translate-y-6' : ''
+                            } ${
+                                isSwapSource
+                                    ? 'bg-[#fbaa19]/20 border-[#fbaa19] ring-2 ring-[#fbaa19] shadow-[0_0_24px_rgba(251,170,25,0.3)]'
+                                    : isDragTarget
+                                        ? 'bg-[#fbaa19]/15 border-dashed border-[#fbaa19] ring-2 ring-[#fbaa19] scale-[1.01]'
+                                        : isSwapTarget
+                                            ? 'bg-[#0e1118] border-[#fbaa19]/60 hover:border-[#fbaa19] hover:bg-[#fbaa19]/10'
+                                            : isPicked
+                                                ? 'bg-[#0b0d12]/95 border-[#fbaa19]/70 hover:border-[#fbaa19] shadow-[0_0_20px_rgba(251,170,25,0.08)]'
+                                                : 'bg-black/70 border-white/15 hover:border-[#fbaa19]/60 hover:bg-black/90'
+                            } ${isDraggingThis ? 'opacity-45 scale-[0.98]' : ''}`}
+                            style={{ minHeight: '4.5rem' }}
+                        >
+                            {/* Posição Ordinal (1st..10th) + Grip */}
+                            <div
+                                className={`w-13 sm:w-15 flex flex-col items-center justify-center font-black uppercase border-r shrink-0 transition-colors select-none ${podiumBadgeStyle}`}
+                            >
+                                <span className="text-sm sm:text-base leading-none">{ordinalLabel}</span>
+                                {isPicked && (
+                                    <GripVertical className="w-3 h-3 opacity-45 mt-1 hidden sm:block" />
+                                )}
+                            </div>
+
+                            {/* Conteúdo do Slot (Retrato Pixel Art + Info + Swap Controls) */}
+                            <div className="flex-1 flex items-center justify-between gap-2 px-2.5 sm:px-3 py-1.5 min-w-0">
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                    {details ? (
+                                        <DriverPixelPortrait
+                                            driverName={details.name}
+                                            aspectClass="w-11 h-14 rounded-sm border shrink-0"
+                                            showTeamTrim={true}
+                                        />
+                                    ) : (
+                                        <div className="w-11 h-14 rounded-sm border border-dashed border-white/25 group-hover:border-[#fbaa19]/70 flex items-center justify-center shrink-0 bg-white/[0.02] transition-colors text-white/30 text-sm font-black">
+                                            +
+                                        </div>
+                                    )}
+
+                                    {details ? (
+                                        <div className="flex flex-col leading-tight min-w-0">
+                                            <div className="flex items-center gap-1.5 min-w-0">
+                                                <span
+                                                    style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                    className="text-sm sm:text-base font-black uppercase tracking-wide text-white truncate"
+                                                >
+                                                    {details.name}
+                                                </span>
+                                                <span
+                                                    className="text-[10px] font-black px-1.5 py-0.5 rounded shrink-0"
+                                                    style={{
+                                                        backgroundColor: `${details.teamColor}22`,
+                                                        color: details.teamColor,
+                                                        border: `1px solid ${details.teamColor}45`,
+                                                    }}
+                                                >
+                                                    #{details.num}
+                                                </span>
+                                            </div>
+                                            <span
+                                                className="text-[10px] font-bold uppercase tracking-widest mt-0.5 truncate"
+                                                style={{ color: details.teamColor }}
+                                            >
+                                                {details.team}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col leading-tight">
+                                            <span
+                                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                                                className="text-xs sm:text-sm font-black uppercase tracking-wider text-white/40 group-hover:text-white/75 transition-colors"
+                                            >
+                                                {isSwapTarget ? 'MOVER PARA CÁ' : 'SELECIONAR PILOTO'}
+                                            </span>
+                                            <span className="text-[9px] font-mono text-white/25 uppercase tracking-wider">
+                                                {isSwapTarget ? `Ocupar ${ordinalLabel}` : 'Abrir Paddock Picker'}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Ações Rápidas sem precisar abrir o seletor */}
+                                <div className="flex items-center gap-1 shrink-0">
+                                    {isDragTarget || isSwapTarget ? (
+                                        <span className="px-2 py-1 rounded bg-[#fbaa19] text-black font-black text-[9px] uppercase tracking-wider flex items-center gap-1">
+                                            <ArrowLeftRight className="w-3 h-3" />
+                                            <span>{isPicked ? 'TROCAR' : 'MOVER'}</span>
+                                        </span>
+                                    ) : isPicked ? (
+                                        <>
+                                            {/* Subir / Descer 1 posição */}
+                                            <div className="flex flex-col gap-0.5">
+                                                <button
+                                                    type="button"
+                                                    disabled={idx === 0}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (idx > 0) onSwapSlots(idx, idx - 1);
+                                                    }}
+                                                    title={`Subir para ${getOrdinal(idx)}`}
+                                                    aria-label={`Subir ${details?.name}`}
+                                                    className="w-5 h-4 rounded-xs border border-white/10 bg-white/5 hover:bg-[#fbaa19] hover:text-black text-white/60 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+                                                >
+                                                    <ChevronUp className="w-3 h-3" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={idx === top10.length - 1}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (idx < top10.length - 1) onSwapSlots(idx, idx + 1);
+                                                    }}
+                                                    title={`Descer para ${getOrdinal(idx + 2)}`}
+                                                    aria-label={`Descer ${details?.name}`}
+                                                    className="w-5 h-4 rounded-xs border border-white/10 bg-white/5 hover:bg-[#fbaa19] hover:text-black text-white/60 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+                                                >
+                                                    <ChevronDown className="w-3 h-3" />
+                                                </button>
+                                            </div>
+
+                                            {/* Botão de Swap Direto 1-Clique */}
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSwapSourceIndex((prev) => (prev === idx ? null : idx));
+                                                }}
+                                                title="Trocar de posição com outro piloto (Swap)"
+                                                aria-label={`Trocar ${details?.name} de posição`}
+                                                className={`w-7 h-7 rounded border flex items-center justify-center transition-colors cursor-pointer ${
+                                                    isSwapSource
+                                                        ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
+                                                        : 'border-white/15 bg-white/5 hover:border-[#fbaa19] hover:text-[#fbaa19] text-white/65'
+                                                }`}
+                                            >
+                                                <ArrowLeftRight className="w-3.5 h-3.5" />
+                                            </button>
+
+                                            {/* Limpar slot */}
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (swapSourceIndex === idx) setSwapSourceIndex(null);
+                                                    onClearSlot(idx);
+                                                }}
+                                                title="Limpar posição"
+                                                aria-label={`Limpar ${ordinalLabel}`}
+                                                className="w-6 h-7 rounded border border-white/10 bg-white/5 hover:bg-red-500/20 hover:border-red-500/50 text-white/45 hover:text-red-300 flex items-center justify-center transition-colors cursor-pointer"
+                                            >
+                                                <X className="w-3.5 h-3.5" />
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="w-7 h-7 rounded flex items-center justify-center text-white/35 group-hover:text-[#fbaa19] transition-colors">
+                                            <ChevronRight className="w-4 h-4" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
