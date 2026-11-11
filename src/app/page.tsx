@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import SuperlicenseView from '@/components/superlicense-view';
+import LandingHome from '@/components/landing-home';
 
 export default function Home() {
-    return <SuperlicenseView />;
+    return <LandingHome />;
 }
