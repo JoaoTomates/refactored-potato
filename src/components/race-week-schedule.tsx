@@ -84,6 +84,7 @@ export default function RaceWeekSchedule({
     // Recupera Chefe de Equipe e Mentor Sênior
     const principal: TeamPrincipal = getTeamPrincipal(teamCode);
     const mentor: SeniorStrategist = SENIOR_STRATEGISTS[0]; // M.AMON
+    const mentorAvatarUrl = (mentor as SeniorStrategist & { avatarUrl?: string }).avatarUrl;
 
     useEffect(() => {
         if (!propEvent) {
@@ -101,7 +102,7 @@ export default function RaceWeekSchedule({
     const isSprint = !!event?.isSprint;
 
     // Cronograma adaptado genericamente com base no evento e formato (Standard vs Sprint)
-    const raceWeekDays: DaySchedule[] = [
+    const baseRaceWeekDays: DaySchedule[] = [
         {
             dayId: 'mon',
             dayNumber: 1,
@@ -166,7 +167,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
-                avatarUrl: mentor.avatarUrl,
+                avatarUrl: mentorAvatarUrl,
                 message: `“O motor está no chassi. A fábrica está simulando janelas de degradação térmica para as retas de ${circuitName}. Acompanhe o clima previsto antes de definir os alvos de tempo.”`,
                 tacticalObjective: 'Estimular análise de clima e direção dos ventos para poletime e corrida.'
             },
@@ -206,7 +207,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
-                avatarUrl: mentor.avatarUrl,
+                avatarUrl: mentorAvatarUrl,
                 message: '“Caminhamos pelo asfalto esta manhã. As zebras externas exigem cuidado com assoalho. Ajuste sua estimativa de desgaste e paradas de box no terminal.”',
                 tacticalObjective: 'Fornecer dados técnicos de pista para refinar o Top 10 e Duelos H2H.'
             },
@@ -253,7 +254,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
-                avatarUrl: mentor.avatarUrl,
+                avatarUrl: mentorAvatarUrl,
                 message: `“Monopostos aprovados na balança sem infrações. O alvo de Poletime projetado pela nossa equipe fica na faixa de ${mentor.briefingTips.poletimeTarget}. Abra seu formulário e faça as primeiras marcações.”`,
                 tacticalObjective: 'Pressionar o apostador a registrar seu Poletime antes dos treinos decisivos.'
             },
@@ -314,7 +315,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
-                avatarUrl: mentor.avatarUrl,
+                avatarUrl: mentorAvatarUrl,
                 message: isSprint
                     ? `“Semana Sprint não perdoa hesitação: apenas 60 minutos de FP1 e entramos direto na disputa do grid Sprint. Olhe a velocidade máxima nos setores e crave seu palpite!”`
                     : `“A telemetria do FP2 confirmou o ritmo das equipes líderes nos stints médios. Observe quem conserva os pneus dianteiros em ${circuitName.split(' ')[0]} para definir o Top 10.”`,
@@ -444,7 +445,9 @@ export default function RaceWeekSchedule({
                 href: '/telemetry'
             }
         }
-    ].map((day) => {
+    ];
+
+    const raceWeekDays: DaySchedule[] = baseRaceWeekDays.map((day) => {
         const synced = RACE_WEEK_DIALOGS[day.dayId];
         if (!synced) return day;
         const chosenMsg = (isSprint && day.dayId === 'fri' && synced.sprintMessage)
