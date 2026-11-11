@@ -59,6 +59,8 @@ export function InviteFlow() {
 
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [assignedStrategist, setAssignedStrategist] = useState<SeniorStrategist | null>(null);
 
@@ -239,7 +241,7 @@ export function InviteFlow() {
                 emailToUse = `${emailToUse.replace(/[^0-9]/g, '')}@baeff1.com`;
             }
 
-            const autoPassword = 'Volt' + Math.random().toString(36).slice(-6) + '!';
+            const chosenPassword = password.trim() || ('Volt' + Math.random().toString(36).slice(-6) + '!');
 
             const rawFirst = nameParts[0];
             const rawLast = nameParts.slice(1).join(' ');
@@ -268,7 +270,7 @@ export function InviteFlow() {
             const redirectUrl = `${window.location.origin}/headquarters`;
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: emailToUse,
-                password: autoPassword,
+                password: chosenPassword,
                 options: {
                     emailRedirectTo: redirectUrl,
                     data: {
@@ -598,12 +600,12 @@ export function InviteFlow() {
                                                 placeholder="NOME E SOBRENOME"
                                                 value={fullName}
                                                 onChange={e => setFullName(e.target.value)}
-                                                className={`w-full bg-black/50 border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded placeholder-white/30 text-sm ${
+                                                className={`w-full bg-[#030303] border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)] ${
                                                     fullName.trim()
                                                         ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
                                                             ? "border-emerald-500/50 focus:border-emerald-500"
                                                             : "border-amber-500/60 focus:border-amber-500"
-                                                        : "border-white/20 focus:border-[#fbaa19]"
+                                                        : "border-[#000000] focus:border-[#fbaa19]"
                                                 }`}
                                             />
                                             {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
@@ -619,14 +621,35 @@ export function InviteFlow() {
                                                 placeholder="EMAIL"
                                                 value={email}
                                                 onChange={e => setEmail(e.target.value)}
-                                                className="w-full bg-black/50 border border-white/20 text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded placeholder-white/30 text-sm"
+                                                className="w-full bg-[#030303] border border-[#000000] text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)]"
                                             />
                                         </div>
                                     </div>
 
+                                    <div className="relative w-full">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="SENHA DE ACESSO (OPCIONAL — DEIXE EM BRANCO PARA AUTOMÁTICA)"
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
+                                            autoCapitalize="none"
+                                            autoCorrect="off"
+                                            spellCheck={false}
+                                            className="w-full bg-[#030303] border border-[#000000] text-white p-4 pr-24 font-mono font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)]"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/50 hover:text-[#fbaa19] font-mono tracking-widest uppercase transition-colors px-1.5 py-1 cursor-pointer"
+                                            title={showPassword ? "Ocultar senha" : "Ver senha em texto"}
+                                        >
+                                            {showPassword ? '[OCULTAR]' : '[VER]'}
+                                        </button>
+                                    </div>
+
                                     <button 
                                         type="submit" 
-                                        className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm"
+                                        className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm"
                                     >
                                         [ TRANSMITIR CREDENCIAIS & EMITIR SUPERLICENÇA ] »
                                     </button>
