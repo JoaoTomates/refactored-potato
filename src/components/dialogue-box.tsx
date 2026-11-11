@@ -213,6 +213,7 @@ export interface DialogueBoxProps {
         avatarUrl?: string;
         name?: string;
     };
+    dataStrategySource?: string;
     className?: string;
 }
 
@@ -225,6 +226,11 @@ export function getDialogueShadow(direction: 'left' | 'right', accentColor: stri
     return `${xPrimary} 6px 24px 2px rgba(0, 0, 0, 0.96), ${xAccent} 2px 16px 1px ${accentColor}30`;
 }
 const getDirectionalShadow = getDialogueShadow;
+
+export function getAvatarBlackShadow(direction: 'left' | 'right' = 'left'): string {
+    const xOffset = direction === 'left' ? '3px' : '-3px';
+    return `${xOffset} 4px 8px 1px rgba(0, 0, 0, 0.98), 0 1px 3px 0 rgba(0, 0, 0, 0.95)`;
+}
 
 function getSpeakerInitials(speaker?: string): string {
     if (!speaker) return 'HQ';
@@ -293,7 +299,7 @@ function AvatarFrame({
                         src={currentImg}
                         alt={cleanName || 'Personagem'}
                         onError={handleImgError}
-                        className="w-full h-full object-cover rounded-[2px] filter contrast-105 transition-all"
+                        className="w-full h-full object-cover rounded-[2px] filter contrast-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] transition-all"
                     />
                 ) : (
                     <div className="w-full h-full rounded-[2px] flex flex-col items-center justify-center bg-[#030303] text-center">
@@ -363,11 +369,13 @@ export function DialogueBox({
     animateEntrance = false,
     hideAvatar = false,
     inlinePortrait,
+    dataStrategySource,
     className = '',
 }: DialogueBoxProps) {
     const effectiveAccent = isFilled ? '#10b981' : accentColor;
     const isRight = direction === 'right';
     const directionalShadow = getDirectionalShadow(direction, effectiveAccent);
+    const avatarShadow = getAvatarBlackShadow(direction);
 
     const hasHeader = Boolean(badgeTitle || speakerRole || categoryTag);
     const hasActionsRow = Boolean(isFilled || isSettled || (actions && actions.length > 0) || footerHint || footerNote);
@@ -395,6 +403,7 @@ export function DialogueBox({
         <div
             onClick={onClick}
             title={title}
+            data-strategy-source={dataStrategySource}
             className={`w-full flex items-start gap-3 sm:gap-4 transition-all duration-300 py-1.5 font-mono ${
                 isRight ? 'flex-row-reverse' : 'flex-row'
             } ${onClick ? 'cursor-pointer group' : ''} ${entranceAnim} ${className}`}
@@ -405,7 +414,7 @@ export function DialogueBox({
                     avatarUrl={avatarUrl}
                     name={speaker}
                     accentColor={effectiveAccent}
-                    shadow={directionalShadow}
+                    shadow={avatarShadow}
                     sizeClass={avatarSizeClass}
                     interactive={Boolean(onClick)}
                 />
@@ -483,7 +492,7 @@ export function DialogueBox({
                             avatarUrl={inlinePortrait.avatarUrl}
                             name={inlinePortrait.name}
                             accentColor={effectiveAccent}
-                            shadow={getDirectionalShadow('right', effectiveAccent)}
+                            shadow={getAvatarBlackShadow('right')}
                             sizeClass={avatarSizeClass}
                             interactive={Boolean(onClick)}
                             allowWideLabel

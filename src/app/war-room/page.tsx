@@ -73,6 +73,7 @@ interface BoxCardProps {
     fillLabel?: string;
     copyLabel?: string;
     avatarUrl?: string;
+    strategySource?: string;
 }
 
 function BoxCard({
@@ -89,7 +90,8 @@ function BoxCard({
     onFill,
     fillLabel,
     copyLabel = 'COPY',
-    avatarUrl
+    avatarUrl,
+    strategySource
 }: BoxCardProps) {
     const actions: DialogueActionButton[] = [];
     if (!isSettled && onCopy) {
@@ -105,6 +107,7 @@ function BoxCard({
             speakerRole={speakerRole}
             categoryTag={categoryTag}
             avatarUrl={avatarUrl}
+            dataStrategySource={strategySource}
             text={text}
             accentColor={accentColor}
             direction={animationDirection}
@@ -508,6 +511,15 @@ export function WarRoomContent() {
 
     const seniorH2HDrivers = seniorStrategist.briefingTips.dominantH2HDrivers.slice(0, 2).join(' & ') || 'NOR & VER';
 
+    // Marcador tipográfico discreto para auditoria do administrador:
+    // "//" identifica quem traz referência histórica (API ano anterior)
+    // "•" identifica quem traz previsão pelo mercado de posições (Teamwork / Aliança / Geral)
+    const marketSourceTag = consensusData ? `market-${consensusData.source.toLowerCase()}` : 'market-general';
+    const seniorSourceId = isSeniorHistoricalRole ? 'historical-api' : marketSourceTag;
+    const techSourceId = isSeniorHistoricalRole ? marketSourceTag : 'historical-api';
+    const seniorSep = isSeniorHistoricalRole ? '//' : '•';
+    const techSep = isSeniorHistoricalRole ? '•' : '//';
+
     // Gravação em localStorage para integração perfeita com /positions
     const saveToLocalStorage = (updates: Partial<{ poletime: string; top10: string[]; evo: string[]; h2h: Record<string, string> }>) => {
         if (typeof window === 'undefined') return;
@@ -725,7 +737,8 @@ export function WarRoomContent() {
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
-                                categoryTag="1/4 • POLETIME Q3"
+                                categoryTag={`1/4 ${seniorSep} POLETIME Q3`}
+                                strategySource={seniorSourceId}
                                 text={
                                     isSeniorHistoricalRole
                                         ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo perfeito."`
@@ -749,7 +762,8 @@ export function WarRoomContent() {
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
-                                    categoryTag="TELEMETRIA"
+                                    categoryTag={`TELEMETRIA ${techSep} Q3`}
+                                    strategySource={techSourceId}
                                     text={
                                         isSeniorHistoricalRole
                                             ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
@@ -779,7 +793,8 @@ export function WarRoomContent() {
                                 speakerBadge={`[${seniorStrategist.code}]`}
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
-                                categoryTag="2/4 • TOP 10 FINISH"
+                                categoryTag={`2/4 ${seniorSep} TOP 10 FINISH`}
+                                strategySource={seniorSourceId}
                                 text={
                                     isSeniorHistoricalRole
                                         ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${seniorTop3}."`
@@ -803,7 +818,8 @@ export function WarRoomContent() {
                                     speakerBadge={`[${technicalStrategist.code}]`}
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
-                                    categoryTag="MONTE CARLO"
+                                    categoryTag={`MONTE CARLO ${techSep} SIM`}
+                                    strategySource={techSourceId}
                                     text={
                                         isSeniorHistoricalRole
                                             ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
