@@ -824,6 +824,8 @@ export default function OfficialStrategistDashboard() {
 
     // Subtelas operacionais (Setup, Settings, Calendar, Report, Silly Season)
     const [activeView, setActiveView] = useState<"menu" | "settings" | "setup" | "calendar" | "report" | "silly_season">("menu");
+    const [leftCollapsed, setLeftCollapsed] = useState(false);
+    const [rightCollapsed, setRightCollapsed] = useState(false);
     const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
     const stewardVoting = useStewardVoting();
 
@@ -1768,10 +1770,60 @@ export default function OfficialStrategistDashboard() {
                     </div>
                 ) : (
                     /* GRID PRINCIPAL DO DASHBOARD */
-                    <div className="max-w-[1500px] mx-auto px-3 md:px-6 py-4 md:py-6 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
+                    <div className="max-w-[1500px] mx-auto px-3 md:px-6 py-4 md:py-6 flex flex-col lg:flex-row items-start gap-4 md:gap-5">
 
                         {/* COLUNA ESQUERDA: Credencial + Briefing Oficial */}
-                        <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
+                        <section
+                            className={`flex flex-col gap-4 md:gap-5 transition-all duration-300 ${
+                                leftCollapsed
+                                    ? 'w-full lg:w-11 shrink-0'
+                                    : 'w-full lg:w-[25%] lg:min-w-[270px] shrink-0'
+                            }`}
+                        >
+                            {leftCollapsed ? (
+                                <button
+                                    type="button"
+                                    onClick={() => setLeftCollapsed(false)}
+                                    className="w-full px-3 py-2.5 lg:py-4 lg:px-1.5 rounded-lg border bg-black/85 hover:bg-white/[0.06] transition-all flex flex-row lg:flex-col items-center justify-between gap-3 lg:gap-4 cursor-pointer group lg:min-h-[240px]"
+                                    style={{ borderColor: `${teamColor}40` }}
+                                    title="Expandir painel esquerdo"
+                                    aria-label="Expandir painel esquerdo"
+                                >
+                                    <span className="text-xs font-black transition-transform group-hover:translate-x-0.5" style={{ color: teamColor }}>
+                                        <span className="lg:hidden">[+]</span>
+                                        <span className="hidden lg:inline">»</span>
+                                    </span>
+                                    <span
+                                        className="text-[10px] font-bold tracking-[0.25em] uppercase whitespace-nowrap lg:[writing-mode:vertical-rl] lg:rotate-180"
+                                        style={{ color: teamColor }}
+                                    >
+                                        {me.name} · {me.teamCode}
+                                    </span>
+                                    <span
+                                        className="w-2 h-2 rounded-full shrink-0"
+                                        style={{ backgroundColor: teamColor }}
+                                    />
+                                </button>
+                            ) : (
+                                <>
+                                    <div
+                                        className="flex items-center justify-between px-3 py-1.5 rounded-lg border bg-black/80 text-[10px] font-mono tracking-widest uppercase"
+                                        style={{ borderColor: `${teamColor}30` }}
+                                    >
+                                        <span className="font-bold flex items-center gap-1.5 truncate" style={{ color: teamColor }}>
+                                            <span className="opacity-60">&gt;_</span> PILOTO &amp; GARAGEM
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setLeftCollapsed(true)}
+                                            className="px-2 py-0.5 rounded border text-[10px] font-bold transition-colors cursor-pointer hover:bg-white/10 shrink-0"
+                                            style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}
+                                            title="Retrair painel esquerdo"
+                                            aria-label="Retrair painel esquerdo"
+                                        >
+                                            « RETRAIR
+                                        </button>
+                                    </div>
                             <CredentialCard
                                 me={me}
                                 number={String(targetProfile?.driver_number || '00')}
@@ -2101,10 +2153,12 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </Panel>
                             )}
+                                </>
+                            )}
                         </section>
 
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
-                        <section className="lg:col-span-6 flex flex-col gap-4 md:gap-5">
+                        <section className="w-full lg:flex-1 min-w-0 flex flex-col gap-4 md:gap-5 transition-all duration-300">
 
                             {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) — SOMENTE DONO DO TERMINAL */}
                             {isOwner && (
@@ -2956,7 +3010,57 @@ export default function OfficialStrategistDashboard() {
                         </section>
 
                         {/* COLUNA DIREITA: Índices das Alianças + Sanfonas das Competições (Master, Milesimus, Poletime) + Ranking do Grupo */}
-                        <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
+                        <section
+                            className={`flex flex-col gap-4 md:gap-5 transition-all duration-300 ${
+                                rightCollapsed
+                                    ? 'w-full lg:w-11 shrink-0'
+                                    : 'w-full lg:w-[25%] lg:min-w-[270px] shrink-0'
+                            }`}
+                        >
+                            {rightCollapsed ? (
+                                <button
+                                    type="button"
+                                    onClick={() => setRightCollapsed(false)}
+                                    className={`w-full px-3 py-2.5 lg:py-4 lg:px-1.5 rounded-lg border hover:bg-white/[0.06] transition-all flex flex-row lg:flex-col items-center justify-between gap-3 lg:gap-4 cursor-pointer group lg:min-h-[240px] ${isStandardStyle ? 'bg-black' : 'bg-black/85'}`}
+                                    style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.2)' : `${mainAccent}40` }}
+                                    title="Expandir painel direito"
+                                    aria-label="Expandir painel direito"
+                                >
+                                    <span className="text-xs font-black transition-transform group-hover:-translate-x-0.5" style={{ color: mainAccent }}>
+                                        <span className="lg:hidden">[+]</span>
+                                        <span className="hidden lg:inline">«</span>
+                                    </span>
+                                    <span
+                                        className="text-[10px] font-bold tracking-[0.25em] uppercase whitespace-nowrap lg:[writing-mode:vertical-rl]"
+                                        style={{ color: mainAccent }}
+                                    >
+                                        RANKINGS &amp; ALIANÇAS
+                                    </span>
+                                    <span
+                                        className="w-2 h-2 rounded-full shrink-0"
+                                        style={{ backgroundColor: mainAccent }}
+                                    />
+                                </button>
+                            ) : (
+                                <>
+                                    <div
+                                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg border text-[10px] font-mono tracking-widest uppercase ${isStandardStyle ? 'bg-black' : 'bg-black/80'}`}
+                                        style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.15)' : `${mainAccent}30` }}
+                                    >
+                                        <button
+                                            type="button"
+                                            onClick={() => setRightCollapsed(true)}
+                                            className="px-2 py-0.5 rounded border text-[10px] font-bold transition-colors cursor-pointer hover:bg-white/10 shrink-0"
+                                            style={{ borderColor: `${mainAccent}40`, color: mainAccent, backgroundColor: `${mainAccent}10` }}
+                                            title="Retrair painel direito"
+                                            aria-label="Retrair painel direito"
+                                        >
+                                            RETRAIR »
+                                        </button>
+                                        <span className="font-bold flex items-center gap-1.5 truncate" style={{ color: mainAccent }}>
+                                            <span className="opacity-60">&gt;_</span> RANKINGS &amp; LIGAS
+                                        </span>
+                                    </div>
                             <Panel
                                 title="Índices das Alianças"
                                 bodyClass="p-0"
@@ -3079,6 +3183,8 @@ export default function OfficialStrategistDashboard() {
                                     })}
                                 </div>
                             </Panel>
+                                </>
+                            )}
                         </section>
                     </div>
                 )}
