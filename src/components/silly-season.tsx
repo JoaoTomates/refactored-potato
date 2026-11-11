@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { supabase } from "@/utils/supabase";
+import { getSystemBoxStyle } from "@/components/system-modal";
+import { TEAM_COLORS } from "@/utils/alliance-data";
 
 type TeamAvailable = {
     f1_team_code: string;
@@ -193,16 +195,21 @@ export default function SillySeason() {
                         <span className="text-gray-500 text-xs font-normal">Caso não encontre, você será direcionado para a próxima vaga disponível no grid. Suas opções serão mantidas para futura realocação.</span>
                     </p>
 
-                    <div className="flex items-center gap-4 my-6 w-full justify-center">
+                    <div className="flex items-center gap-4 my-6 w-full justify-center font-mono">
                         {[1, 2, 3].map((slot) => {
                             const selectedCode = selectedTeams[slot - 1];
+                            const slotColor = selectedCode ? (TEAM_COLORS[selectedCode] || '#fbaa19') : '#fbaa19';
                             return (
-                                <div key={slot} className={`flex flex-col items-center justify-center w-24 h-24 border-2 transition-all ${selectedCode ? 'border-[#fbaa19] bg-[#fbaa19]/10' : 'border-gray-300 dark:border-[#333] bg-gray-50 dark:bg-[#111] opacity-50'}`}>
-                                    <span className="text-[10px] text-gray-500 uppercase font-bold mb-1">{slot}ª Opção</span>
+                                <div
+                                    key={slot}
+                                    className={`flex flex-col items-center justify-center w-24 h-24 border border-[#000000] rounded-[3px] transition-all ${selectedCode ? 'ring-1 ring-[#fbaa19]' : 'opacity-60'}`}
+                                    style={getSystemBoxStyle(slotColor)}
+                                >
+                                    <span className="text-[10px] text-gray-400 uppercase font-bold mb-1">{slot}ª Opção</span>
                                     {selectedCode ? (
                                         <span className="text-xl font-black text-[#fbaa19]">{selectedCode}</span>
                                     ) : (
-                                        <span className="text-2xl text-gray-300 dark:text-[#333]">-</span>
+                                        <span className="text-2xl text-white/30">-</span>
                                     )}
                                 </div>
                             );
@@ -210,33 +217,40 @@ export default function SillySeason() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 font-mono">
                     {(availableTeams.length > 0 ? availableTeams : Object.keys(TEAM_NAMES).map(c => ({ f1_team_code: c, spots: -1 }))).map((team) => {
                         const code = team.f1_team_code;
                         const isSelected = selectedTeams.includes(code);
                         const selectionIndex = selectedTeams.indexOf(code);
+                        const teamColor = TEAM_COLORS[code] || '#fbaa19';
                         
                         return (
                             <button
                                 key={code}
                                 onClick={() => handleSelectTeam(code)}
-                                className={`flex flex-col items-center justify-center p-4 border-2 transition-all relative overflow-hidden ${
+                                className={`flex flex-col items-center justify-center p-4 border border-[#000000] rounded-[3px] transition-all relative overflow-hidden cursor-pointer ${
                                     isSelected 
-                                    ? 'border-[#fbaa19] bg-[#fbaa19]/10 text-black dark:text-white' 
-                                    : 'border-black/10 dark:border-white/10 hover:border-[#fbaa19] hover:text-[#fbaa19] text-gray-500'
+                                    ? 'ring-1 ring-[#fbaa19] text-white' 
+                                    : 'text-white/80 hover:brightness-110'
                                 }`}
+                                style={getSystemBoxStyle(isSelected ? '#fbaa19' : teamColor)}
                             >
                                 {isSelected && (
-                                    <div className="absolute top-0 right-0 bg-[#fbaa19] text-black w-6 h-6 flex items-center justify-center text-xs font-black">
+                                    <div className="absolute top-0 right-0 bg-[#fbaa19] text-black w-6 h-6 flex items-center justify-center text-xs font-black rounded-bl-[3px]">
                                         {selectionIndex + 1}
                                     </div>
                                 )}
-                                <span className="text-xl font-black uppercase">{code}</span>
-                                <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-70">
+                                <span
+                                    className="text-[calc(1.25rem+0.5px)] font-black uppercase"
+                                    style={{ color: isSelected ? '#fbaa19' : '#ffffff' }}
+                                >
+                                    {code}
+                                </span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest mt-1 text-white/60">
                                     {TEAM_NAMES[code]}
                                 </span>
                                 {team.spots !== -1 && (
-                                    <span className={`text-[9px] mt-2 px-2 py-0.5 font-bold ${team.spots > 0 ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                                    <span className={`text-[9px] mt-2 px-2 py-0.5 font-bold rounded-[3px] border border-[#000000] bg-[#030303] ${team.spots > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                         {team.spots > 0 ? `${team.spots} Vagas` : 'Lotado'}
                                     </span>
                                 )}
@@ -249,10 +263,10 @@ export default function SillySeason() {
                     <button
                         onClick={handleSubmit}
                         disabled={selectedTeams.length !== 3 || isSubmitting}
-                        className={`px-12 py-4 font-black uppercase tracking-widest text-sm transition-all ${
+                        className={`px-12 py-4 font-black uppercase tracking-widest text-sm rounded-[3px] border border-[#000000] transition-all cursor-pointer ${
                             selectedTeams.length === 3
-                            ? 'bg-[#fbaa19] text-black hover:bg-white hover:text-black hover:scale-105'
-                            : 'bg-gray-200 dark:bg-[#222] text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                            ? 'bg-[#fbaa19] text-black hover:bg-white hover:text-black'
+                            : 'bg-[#030303] text-white/30 cursor-not-allowed'
                         }`}
                     >
                         {isSubmitting ? 'Assinando...' : 'Assinar Contrato'}

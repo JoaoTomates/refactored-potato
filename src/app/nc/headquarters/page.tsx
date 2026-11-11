@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
+import { getSystemBoxStyle } from '@/components/system-modal';
 import { LogOut, ArrowRight, ShieldCheck, Check } from 'lucide-react';
 
 function MinimalHeadquartersFlow() {
@@ -308,21 +309,21 @@ function MinimalHeadquartersFlow() {
                         return (
                             <div
                                 key={team.id}
-                                className="bg-white/[0.02] border border-white/10 hover:border-white/20 rounded p-6 flex flex-col justify-between gap-5 relative overflow-hidden transition-all"
+                                className={`border border-[#000000] rounded-[3px] p-6 flex flex-col justify-between gap-5 relative overflow-hidden transition-all font-mono ${
+                                    isSigning ? 'ring-1 ring-[#fbaa19]' : ''
+                                }`}
+                                style={getSystemBoxStyle(isSigning ? '#fbaa19' : team.color)}
                             >
-                                {/* Faixa da Cor da Equipe */}
-                                <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: team.color }} />
-
-                                <div className="flex items-center justify-between mt-1">
+                                <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div
-                                            className="w-10 h-10 rounded flex items-center justify-center font-black text-sm text-white"
+                                            className="w-10 h-10 rounded-[3px] border border-[#000000] flex items-center justify-center font-black text-sm text-white"
                                             style={{ backgroundColor: team.color }}
                                         >
                                             {team.code}
                                         </div>
                                         <div>
-                                            <h2 className="text-base font-black text-white uppercase tracking-wider">
+                                            <h2 className="text-[calc(1rem+0.5px)] font-black text-white uppercase tracking-wider">
                                                 {team.name}
                                             </h2>
                                             <span className="text-[10px] text-white/40 uppercase tracking-widest">
@@ -331,16 +332,16 @@ function MinimalHeadquartersFlow() {
                                         </div>
                                     </div>
 
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-[3px] bg-[#030303] text-emerald-400 border border-[#000000]">
                                         {openSeats} {openSeats === 1 ? 'VAGA ABERTA' : 'VAGAS ABERTAS'}
                                     </span>
                                 </div>
 
-                                <p className="text-xs text-white/60 italic leading-relaxed">
+                                <p className="text-[calc(0.75rem+0.5px)] text-white/75 italic leading-relaxed border-l-2 pl-3" style={{ borderColor: team.color }}>
                                     "{team.description}"
                                 </p>
 
-                                <div className="p-3 bg-black/40 border border-white/5 rounded text-[11px] flex flex-col gap-1.5">
+                                <div className="p-3 bg-[#030303] border border-[#000000] rounded-[3px] text-[11px] flex flex-col gap-1.5">
                                     <div className="flex justify-between text-white/50">
                                         <span>Motor / UP</span>
                                         <span className="text-white font-bold">{team.engineSpec}</span>
@@ -355,7 +356,7 @@ function MinimalHeadquartersFlow() {
                                     type="button"
                                     onClick={() => handleSignContract(team)}
                                     disabled={isSigning || openSeats <= 0}
-                                    className={`w-full py-3 px-4 rounded text-xs font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                                    className={`w-full py-3 px-4 rounded-[3px] border border-[#000000] text-xs font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 ${
                                         openSeats <= 0 
                                             ? 'bg-white/5 text-white/30 cursor-not-allowed'
                                             : isSigning

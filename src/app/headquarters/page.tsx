@@ -357,27 +357,24 @@ function HeadquartersFlow() {
                                 key={teamOffer.id}
                                 onClick={() => availableSpots > 0 && !isSigning && handleSignContract(teamOffer)}
                                 disabled={isSigning || availableSpots <= 0}
-                                className={`relative w-full text-left bg-[#0a0c10] hover:bg-[#101318] border border-white/20 rounded-lg p-3.5 sm:p-4 shadow-2xl transition-all cursor-pointer group flex flex-col justify-between gap-2.5 overflow-hidden ${
+                                className={`relative w-full text-left border border-[#000000] rounded-[3px] p-4 sm:p-5 transition-all cursor-pointer group flex flex-col justify-between gap-3 overflow-hidden font-mono ${
                                     isSigning 
-                                        ? 'ring-2 ring-[#fbaa19] scale-[1.01]' 
-                                        : 'hover:scale-[1.01] hover:shadow-[0_0_20px_rgba(251,170,25,0.2)]'
-                                }`}
-                                style={{ borderColor: `${teamOffer.color}80` }}
+                                        ? 'ring-1 ring-[#fbaa19]' 
+                                        : 'hover:brightness-110'
+                                } ${availableSpots <= 0 ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                style={getSystemBoxStyle(isSigning ? '#fbaa19' : teamOffer.color)}
                             >
-                                {/* Faixa superior de acento com a cor oficial da escuderia */}
-                                <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: teamOffer.color }} />
-
                                 {/* Topo: Emblema, Nome e Vagas */}
-                                <div className="flex items-center justify-between gap-2 mt-0.5">
+                                <div className="flex items-center justify-between gap-2">
                                     <div className="flex items-center gap-2.5 min-w-0">
                                         <div 
-                                            className="w-10 h-10 rounded flex items-center justify-center font-black text-sm shadow border border-white/20 text-white shrink-0"
+                                            className="w-10 h-10 rounded-[3px] flex items-center justify-center font-black text-sm border border-[#000000] text-white shrink-0"
                                             style={{ backgroundColor: teamOffer.color }}
                                         >
                                             {teamOffer.code}
                                         </div>
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-white text-sm font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors truncate">
+                                            <span className="text-white text-[calc(0.875rem+0.5px)] font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors truncate">
                                                 {teamOffer.name}
                                             </span>
                                             <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest truncate">
@@ -386,28 +383,27 @@ function HeadquartersFlow() {
                                         </div>
                                     </div>
 
-                                    <span className="text-[9px] text-emerald-400 font-mono font-bold bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded shrink-0">
+                                    <span className="text-[9px] text-emerald-400 font-mono font-bold bg-[#030303] border border-[#000000] px-2 py-0.5 rounded-[3px] shrink-0">
                                         {availableSpots} {availableSpots === 1 ? 'VAGA' : 'VAGAS'}
                                     </span>
                                 </div>
 
                                 {/* Dossiê tático da garagem resumido */}
-                                <p className="text-[11px] text-gray-300 italic border-l-2 pl-2 leading-snug line-clamp-2" style={{ borderColor: teamOffer.color }}>
+                                <p className="text-[calc(0.6875rem+0.5px)] text-gray-300 italic border-l-2 pl-2.5 leading-snug line-clamp-2" style={{ borderColor: teamOffer.color }}>
                                     "{teamOffer.description}"
                                 </p>
 
                                 {/* Unidade de Potência */}
-                                <div className="text-[10px] text-gray-400 font-mono flex items-center justify-between pt-1 border-t border-white/10">
+                                <div className="text-[10px] text-gray-400 font-mono flex items-center justify-between pt-2 border-t border-white/10">
                                     <span className="uppercase text-gray-500">UNIDADE DE POTÊNCIA:</span>
                                     <span className="text-amber-400 font-bold truncate max-w-[200px]">{teamOffer.engineSpec}</span>
                                 </div>
 
                                 {/* Barra de Confirmação Integrada ao Badge */}
                                 <div 
-                                    className="w-full py-2 px-3 rounded text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1.5 border mt-1"
+                                    className="w-full py-2.5 px-3 rounded-[3px] text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1.5 border border-[#000000] mt-0.5"
                                     style={{
                                         backgroundColor: isSigning ? '#fbaa19' : `${teamOffer.color}18`,
-                                        borderColor: isSigning ? '#fbaa19' : `${teamOffer.color}45`,
                                         color: isSigning ? '#000' : '#fff'
                                     }}
                                 >
