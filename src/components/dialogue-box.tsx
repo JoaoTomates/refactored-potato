@@ -216,13 +216,15 @@ export interface DialogueBoxProps {
     className?: string;
 }
 
-const BOX_GRADIENT = 'linear-gradient(160deg, #030303 0%, #000000 100%)';
+export const DIALOGUE_BOX_GRADIENT = 'linear-gradient(160deg, #030303 0%, #000000 100%)';
+const BOX_GRADIENT = DIALOGUE_BOX_GRADIENT;
 
-function getDirectionalShadow(direction: 'left' | 'right', accentColor: string): string {
+export function getDialogueShadow(direction: 'left' | 'right', accentColor: string): string {
     const xPrimary = direction === 'left' ? '8px' : '-8px';
     const xAccent = direction === 'left' ? '4px' : '-4px';
     return `${xPrimary} 6px 24px 2px rgba(0, 0, 0, 0.96), ${xAccent} 2px 16px 1px ${accentColor}30`;
 }
+const getDirectionalShadow = getDialogueShadow;
 
 function getSpeakerInitials(speaker?: string): string {
     if (!speaker) return 'HQ';

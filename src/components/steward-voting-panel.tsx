@@ -6,6 +6,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { getDriverDetails } from '@/api/f1-data';
 import { DriverPixelPortrait } from '@/components/positions-hybrid-ui';
+import { SystemModal } from '@/components/system-modal';
 import {
     CATEGORY_META,
     StewardReport,
@@ -249,48 +250,27 @@ export function StewardVotingModal({
     );
 
     return (
-        <div
-            className="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 font-mono"
-            onClick={onClose}
+        <SystemModal
+            isOpen={isOpen}
+            onClose={onClose}
+            zIndexClass="z-[120]"
+            maxWidthClass="max-w-3xl"
+            accentColor="#fbaa19"
+            icon={<ShieldAlert className="w-5 h-5 text-[#fbaa19]" />}
+            title="STEWARD VOTING // CONFIRMAÇÃO DO GRID"
+            subtitle="Confirme ou conteste alterações reportadas pela comunidade (quórum: 3 votos)"
+            bodyClassName="p-0 flex flex-col overflow-hidden"
         >
-            <div
-                className="w-full max-w-3xl max-h-[88vh] bg-[#07090d] border-2 border-[#fbaa19] rounded-lg shadow-2xl flex flex-col overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="px-4 sm:px-6 py-4 bg-black border-b border-white/15 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                        <ShieldAlert className="w-5 h-5 text-[#fbaa19] shrink-0" />
-                        <div className="min-w-0">
-                            <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-white truncate">
-                                STEWARD VOTING // CONFIRMAÇÃO DO GRID
-                            </h3>
-                            <p className="text-[10px] text-white/45 uppercase truncate">
-                                Confirme ou conteste alterações reportadas pela comunidade (quórum: 3 votos)
-                            </p>
-                        </div>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        aria-label="Fechar votação"
-                        className="w-8 h-8 rounded border border-white/15 bg-white/5 hover:border-[#fbaa19] hover:text-[#fbaa19] text-white/70 flex items-center justify-center cursor-pointer"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
-                </div>
-
                 {/* Tabs + CTA Report */}
-                <div className="px-4 sm:px-6 py-2.5 bg-black/60 border-b border-white/10 flex items-center justify-between gap-2">
+                <div className="px-4 sm:px-6 py-2.5 bg-black/60 border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
                             onClick={() => setTab('pending')}
-                            className={`px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-wider border cursor-pointer ${
+                            className={`px-3 py-1.5 rounded-[3px] text-[10px] font-black uppercase tracking-wider border cursor-pointer ${
                                 tab === 'pending'
-                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                    : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
+                                    ? 'bg-[#fbaa19] text-black border-[#000000]'
+                                    : 'bg-white/5 text-white/60 border-[#000000] hover:text-white'
                             }`}
                         >
                             Em Votação ({reports.filter((r) => r.status === 'pending').length})
@@ -298,10 +278,10 @@ export function StewardVotingModal({
                         <button
                             type="button"
                             onClick={() => setTab('history')}
-                            className={`px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-wider border cursor-pointer ${
+                            className={`px-3 py-1.5 rounded-[3px] text-[10px] font-black uppercase tracking-wider border cursor-pointer ${
                                 tab === 'history'
-                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                    : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
+                                    ? 'bg-[#fbaa19] text-black border-[#000000]'
+                                    : 'bg-white/5 text-white/60 border-[#000000] hover:text-white'
                             }`}
                         >
                             Resolvidos ({reports.filter((r) => r.status !== 'pending').length})
@@ -314,7 +294,7 @@ export function StewardVotingModal({
                             onClose();
                             onOpenReport();
                         }}
-                        className="px-3 py-1.5 rounded border border-[#fbaa19]/40 bg-[#fbaa19]/10 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-[3px] border border-[#000000] bg-[#fbaa19]/10 hover:bg-[#fbaa19] text-[#fbaa19] hover:text-black text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1"
                     >
                         <PlusCircle className="w-3.5 h-3.5" />
                         <span>Novo Report</span>
@@ -324,13 +304,13 @@ export function StewardVotingModal({
                 {/* Lista de Reports */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-4">
                     {!isAuthenticated && (
-                        <div className="p-3 rounded border border-[#fbaa19]/40 bg-[#fbaa19]/10 flex items-center justify-between gap-2 text-xs">
+                        <div className="p-3 rounded-[3px] border border-[#000000] bg-[#fbaa19]/10 flex items-center justify-between gap-2 text-xs">
                             <span className="text-[#fbaa19] font-bold">
                                 Faça login na sua Superlicença para registrar votos.
                             </span>
                             <Link
                                 href="/superlicense"
-                                className="px-3 py-1 rounded bg-[#fbaa19] text-black font-black text-[10px] uppercase"
+                                className="px-3 py-1 rounded-[3px] bg-[#fbaa19] text-black font-black text-[10px] uppercase border border-[#000000]"
                             >
                                 Entrar
                             </Link>
@@ -338,7 +318,7 @@ export function StewardVotingModal({
                     )}
 
                     {voteError && (
-                        <div className="p-3 rounded border border-red-500/50 bg-red-950/40 text-red-300 text-xs font-bold">
+                        <div className="p-3 rounded-[3px] border border-[#000000] bg-red-950/40 text-red-300 text-xs font-bold">
                             {voteError}
                         </div>
                     )}
@@ -362,7 +342,7 @@ export function StewardVotingModal({
                             return (
                                 <article
                                     key={rep.id}
-                                    className="rounded-lg border border-white/15 bg-black/70 p-4 flex flex-col gap-3.5"
+                                    className="rounded-[3px] border border-[#000000] bg-[#030303] p-4 flex flex-col gap-3.5"
                                 >
                                     <div className="flex items-start justify-between gap-2 flex-wrap">
                                         <div className="flex items-center gap-2 flex-wrap">
@@ -552,7 +532,6 @@ export function StewardVotingModal({
                         })
                     )}
                 </div>
-            </div>
-        </div>
+        </SystemModal>
     );
 }

@@ -8,6 +8,7 @@ import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
 import { INVITE_V2_DIALOGS } from '@/data/dialogues';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 import { DialogueBox, TypewriterLine, retroSound } from '@/components/dialogue-box';
+import { getSystemBoxStyle } from '@/components/system-modal';
 
 export { retroSound, TypewriterLine };
 
@@ -564,7 +565,10 @@ export function InviteFlow() {
                         onReadyForNext={() => setTypingComplete(true)}
                     />
 
-                    <div className="w-full bg-black/85 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-2xl shadow-2xl animate-fade-in flex flex-col gap-6">
+                    <div
+                        className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
+                        style={getSystemBoxStyle('#fbaa19')}
+                    >
                         {/* Formulário de Emissão da Superlicença */}
                         <form 
                             onSubmit={handleEnlistSubmit} 
@@ -653,7 +657,10 @@ export function InviteFlow() {
                 <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${
                     isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                 }`}>
-                    <div className="w-full bg-black/85 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-lg shadow-2xl animate-fade-in flex flex-col gap-6">
+                    <div
+                        className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
+                        style={getSystemBoxStyle('#fbaa19')}
+                    >
                         
                         <div className="border-l-2 border-[#fbaa19] pl-4 py-1 flex flex-col gap-2">
                             <h2 className="text-white text-xl md:text-2xl font-black uppercase tracking-wider">

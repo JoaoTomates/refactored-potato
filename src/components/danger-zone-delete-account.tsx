@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { SystemModal } from '@/components/system-modal';
 
 export default function DangerZoneDeleteAccount() {
     const { user } = useSupabaseAuth();
@@ -111,79 +112,68 @@ export default function DangerZoneDeleteAccount() {
             </div>
 
             {/* MODAL DE CONFIRMAÇÃO DE DESTRUIÇÃO DE DADOS */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-                    <div className="w-full max-w-md bg-[#090807] border-2 border-red-500/60 p-6 rounded shadow-[0_0_50px_rgba(239,68,68,0.3)] flex flex-col gap-5">
-                        {/* Topo do Modal */}
-                        <div className="flex items-center justify-between border-b border-red-500/30 pb-3">
-                            <span className="text-red-400 text-xs font-black uppercase tracking-[0.2em] flex items-center gap-1.5">
-                                <span>⚠</span> ATENÇÃO: AÇÃO IRREVERSÍVEL
-                            </span>
-                            <button
-                                type="button"
-                                disabled={isDeleting}
-                                onClick={() => setIsModalOpen(false)}
-                                className="text-white/40 hover:text-white text-xs font-bold transition-colors cursor-pointer"
-                            >
-                                [ FECHAR ]
-                            </button>
-                        </div>
+            <SystemModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                closeDisabled={isDeleting}
+                closeLabel="[ FECHAR ]"
+                accentColor="#ef4444"
+                maxWidthClass="max-w-md"
+                icon={<span className="text-red-400">⚠</span>}
+                title="ATENÇÃO: AÇÃO IRREVERSÍVEL"
+                footer={
+                    <>
+                        <button
+                            type="button"
+                            disabled={isDeleting}
+                            onClick={() => setIsModalOpen(false)}
+                            className="px-4 py-2 border border-[#000000] bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold uppercase tracking-widest rounded-[3px] transition-colors cursor-pointer"
+                        >
+                            CANCELAR
+                        </button>
+                        <button
+                            type="button"
+                            disabled={confirmationInput.trim().toUpperCase() !== CONFIRM_KEYWORD || isDeleting}
+                            onClick={handleDeleteAccount}
+                            className="px-5 py-2 border border-[#000000] bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-widest rounded-[3px] transition-colors cursor-pointer shadow-lg"
+                        >
+                            {isDeleting ? 'PURGANDO DADOS...' : 'CONFIRMAR EXCLUSÃO'}
+                        </button>
+                    </>
+                }
+            >
+                <div className="flex flex-col gap-3 text-[calc(0.75rem+0.5px)] leading-relaxed text-white/80">
+                    <p className="font-bold text-white uppercase">
+                        Você tem certeza de que deseja revogar sua Superlicença e destruir todos os seus dados?
+                    </p>
+                    <ul className="list-disc list-inside space-y-1.5 text-white/70 text-[calc(0.6875rem+0.5px)]">
+                        <li><strong className="text-white">Vaga no Grid:</strong> Seu contrato será rescindido e seu assento na equipe liberado no Pitwall para novos pilotos.</li>
+                        <li><strong className="text-white">Apostas Correntes:</strong> Suas ordens para o próximo GP serão canceladas imediatamente.</li>
+                        <li><strong className="text-white">Dados Pessoais & Login:</strong> Seu e-mail, senha e credenciais de acesso serão expurgados definitivamente.</li>
+                        <li><strong className="text-white">Integridade Histórica:</strong> Pontuações em etapas já encerradas permanecem anonimizadas no histórico de construtores.</li>
+                    </ul>
 
-                        {/* Corpo do Modal */}
-                        <div className="flex flex-col gap-3 text-xs leading-relaxed text-white/80">
-                            <p className="font-bold text-white uppercase">
-                                Você tem certeza de que deseja revogar sua Superlicença e destruir todos os seus dados?
-                            </p>
-                            <ul className="list-disc list-inside space-y-1.5 text-white/70 text-[11px]">
-                                <li><strong className="text-white">Vaga no Grid:</strong> Seu contrato será rescindido e seu assento na equipe liberado no Pitwall para novos pilotos.</li>
-                                <li><strong className="text-white">Apostas Correntes:</strong> Suas ordens para o próximo GP serão canceladas imediatamente.</li>
-                                <li><strong className="text-white">Dados Pessoais & Login:</strong> Seu e-mail, senha e credenciais de acesso serão expurgados definitivamente.</li>
-                                <li><strong className="text-white">Integridade Histórica:</strong> Pontuações em etapas já encerradas permanecem anonimizadas no histórico de construtores.</li>
-                            </ul>
-
-                            <div className="mt-3 p-3 bg-black/60 border border-white/10 rounded">
-                                <label className="block text-[10px] uppercase font-bold text-white/70 mb-1.5">
-                                    Para confirmar, digite <span className="text-red-400 font-mono font-black">{CONFIRM_KEYWORD}</span> abaixo:
-                                </label>
-                                <input
-                                    type="text"
-                                    value={confirmationInput}
-                                    onChange={(e) => setConfirmationInput(e.target.value)}
-                                    placeholder="DIGITE EXCLUIR"
-                                    disabled={isDeleting}
-                                    className="w-full bg-black/90 border border-red-500/40 text-white font-mono p-2.5 text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-red-500 rounded"
-                                />
-                            </div>
-
-                            {errorMessage && (
-                                <div className="p-2.5 bg-red-950/40 border border-red-500/50 text-red-400 text-[10px] font-bold uppercase">
-                                    [ERRO] {errorMessage}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Ações do Modal */}
-                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
-                            <button
-                                type="button"
-                                disabled={isDeleting}
-                                onClick={() => setIsModalOpen(false)}
-                                className="px-4 py-2 border border-white/20 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold uppercase tracking-widest rounded transition-colors cursor-pointer"
-                            >
-                                CANCELAR
-                            </button>
-                            <button
-                                type="button"
-                                disabled={confirmationInput.trim().toUpperCase() !== CONFIRM_KEYWORD || isDeleting}
-                                onClick={handleDeleteAccount}
-                                className="px-5 py-2 border border-red-500 bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-widest rounded transition-colors cursor-pointer shadow-lg"
-                            >
-                                {isDeleting ? 'PURGANDO DADOS...' : 'CONFIRMAR EXCLUSÃO'}
-                            </button>
-                        </div>
+                    <div className="mt-3 p-3 bg-[#030303] border border-[#000000] rounded-[3px]">
+                        <label className="block text-[10px] uppercase font-bold text-white/70 mb-1.5">
+                            Para confirmar, digite <span className="text-red-400 font-mono font-black">{CONFIRM_KEYWORD}</span> abaixo:
+                        </label>
+                        <input
+                            type="text"
+                            value={confirmationInput}
+                            onChange={(e) => setConfirmationInput(e.target.value)}
+                            placeholder="DIGITE EXCLUIR"
+                            disabled={isDeleting}
+                            className="w-full bg-black border border-[#000000] text-white font-mono p-2.5 text-[calc(0.75rem+0.5px)] font-bold uppercase tracking-widest focus:outline-none focus:ring-1 focus:ring-red-500 rounded-[3px]"
+                        />
                     </div>
+
+                    {errorMessage && (
+                        <div className="p-2.5 bg-red-950/40 border border-[#000000] rounded-[3px] text-red-400 text-[10px] font-bold uppercase">
+                            [ERRO] {errorMessage}
+                        </div>
+                    )}
                 </div>
-            )}
+            </SystemModal>
         </div>
     );
 }

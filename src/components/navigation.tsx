@@ -8,6 +8,7 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useSmartScroll } from '@/hooks/useSmartScroll';
 import { supabase } from '@/utils/supabase';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
+import { DIALOGUE_BOX_GRADIENT } from '@/components/dialogue-box';
 
 const Navigation = () => {
     const pathname = usePathname();
@@ -132,7 +133,10 @@ const Navigation = () => {
 
             {/* FULLSCREEN OVERLAY MENU (Original Links & Structure) */}
             {isMobileMenuOpen && (
-                <div className="fixed inset-0 bg-[#07090c]/98 backdrop-blur-2xl z-[9999] p-6 md:p-12 flex flex-col overflow-y-auto animate-fade-in">
+                <div
+                    className="fixed inset-0 z-[9999] p-6 md:p-12 flex flex-col overflow-y-auto animate-fade-in font-mono border border-[#000000]"
+                    style={{ background: DIALOGUE_BOX_GRADIENT }}
+                >
                     
                     <div className="flex items-center justify-between mb-12 max-w-5xl mx-auto w-full border-b border-white/10 pb-4">
                         <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { ArrowUp, ArrowDown, Search, X, ExternalLink, Trophy, Timer, Globe, Users, ChevronRight, Activity, Zap } from 'lucide-react';
 import MasterRankingsTable from '@/components/master-rankings-table';
+import { getSystemBoxStyle } from '@/components/system-modal';
 
 export type CompetitionKey = 'poletime' | 'master' | 'milesimus' | 'teamwork';
 
@@ -1181,11 +1182,18 @@ export default function CompetitionRankingsScreen({
         ? renderMasterView() 
         : renderTelemetryTable();
 
-    // Se estiver em modo Modal, renderiza backdrop fixo responsivo
+    // Se estiver em modo Modal, renderiza backdrop fixo responsivo no padrão definitivo
     if (isModal) {
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto">
-                <div className="w-full max-w-7xl my-auto">
+            <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto font-mono"
+                onClick={onClose}
+            >
+                <div
+                    className="w-full max-w-7xl my-auto rounded-[3px] border border-[#000000] overflow-hidden p-1.5 sm:p-2"
+                    style={getSystemBoxStyle(activeConfig.accentColor)}
+                    onClick={(e) => e.stopPropagation()}
+                >
                     {content}
                 </div>
             </div>

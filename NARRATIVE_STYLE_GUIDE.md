@@ -154,7 +154,7 @@ O grid do BAEFF1 é tratado conceitualmente como um **pregão financeiro de velo
 
 ### 7. Modelo Definitivo de Caixa de Diálogo Narrativa (`DialogueBox`)
 
-**Componente Canônico:** `src/components/dialogue-box.tsx` (`DialogueBox`, `TypewriterLine`, `pitWallSound`)
+**Componente Canônico:** `src/components/dialogue-box.tsx` (`DialogueBox`, `TypewriterLine`, `pitWallSound`) e `src/components/system-modal.tsx` (`SystemModal`, `getSystemBoxStyle` para todos os modais e tela de login)
 
 Toda fala de personagem, diretor, engenheiro ou mentor do paddock deve utilizar obrigatoriamente o componente `DialogueBox` seguindo as especificações definitivas abaixo:
 

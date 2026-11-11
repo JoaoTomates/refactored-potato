@@ -7,6 +7,7 @@ import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
 import { Check, ArrowRight, ShieldCheck } from 'lucide-react';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
 import { DialogueBox, retroSound } from '@/components/dialogue-box';
+import { getSystemBoxStyle } from '@/components/system-modal';
 import { HEADQUARTERS_DIALOG_TEXT } from '@/data/dialogues';
 
 const AGENT_AVATAR_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg';
@@ -236,9 +237,12 @@ function HeadquartersFlow() {
                         style={{ imageRendering: 'pixelated' }}
                     />
                 </div>
-                <div className="relative z-10 flex flex-col items-center gap-4 bg-black/80 p-8 border border-[#fbaa19]/30 rounded-lg">
+                <div
+                    className="relative z-10 flex flex-col items-center gap-4 p-8 border border-[#000000] rounded-[3px]"
+                    style={getSystemBoxStyle('#fbaa19')}
+                >
                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
+                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-[calc(0.75rem+0.5px)] animate-pulse">
                         &gt;_ SINCRONIZANDO TELEMETRIA COM A BASE DE DADOS DA BAEFF1...
                     </p>
                 </div>
@@ -260,30 +264,33 @@ function HeadquartersFlow() {
                         style={{ imageRendering: 'pixelated' }}
                     />
                 </div>
-                <div className="relative z-10 w-full max-w-xl bg-black/85 backdrop-blur-sm border border-red-500/40 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
+                <div
+                    className="relative z-10 w-full max-w-xl border border-[#000000] rounded-[3px] p-6 md:p-8 flex flex-col gap-6"
+                    style={getSystemBoxStyle('#ef4444')}
+                >
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
                         <span className="text-red-400 text-xs font-bold tracking-[0.2em] uppercase">
                             &gt;_ [ACESSO RESTRITO // CREDENCIAL NÃO VERIFICADA]
                         </span>
-                        <span className="text-red-500 text-[10px] font-bold tracking-widest uppercase border border-red-500/30 px-2 py-0.5 rounded bg-red-950/30">
+                        <span className="text-red-500 text-[10px] font-bold tracking-widest uppercase border border-[#000000] px-2 py-0.5 rounded-[3px] bg-red-950/30">
                             ● NÃO AUTORIZADO
                         </span>
                     </div>
 
-                    <p className="text-gray-300 text-sm leading-relaxed">
+                    <p className="text-gray-300 text-[calc(0.875rem+0.5px)] leading-relaxed">
                         Não detectamos uma sessão ativa de Superlicença. Para acessar as vagas exclusivas da sua aliança, realize o login com suas credenciais ou crie seu registro de primeiro dia.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 pt-2">
                         <button
                             onClick={() => window.location.href = '/'}
-                            className="flex-1 bg-[#fbaa19] text-black font-black uppercase tracking-widest text-xs p-3.5 rounded hover:bg-white transition-colors text-center cursor-pointer"
+                            className="flex-1 bg-[#fbaa19] text-black font-black uppercase tracking-widest text-xs p-3.5 rounded-[3px] border border-[#000000] hover:bg-white transition-colors text-center cursor-pointer"
                         >
                             [ RETORNAR AO INÍCIO ]
                         </button>
                         <button
                             onClick={() => window.location.href = '/superlicense'}
-                            className="flex-1 bg-white/10 text-white font-bold uppercase tracking-widest text-xs p-3.5 rounded hover:bg-white/20 border border-white/20 transition-colors text-center cursor-pointer"
+                            className="flex-1 bg-white/10 text-white font-bold uppercase tracking-widest text-xs p-3.5 rounded-[3px] hover:bg-white/20 border border-[#000000] transition-colors text-center cursor-pointer"
                         >
                             [ LOGIN / ENTRAR ]
                         </button>

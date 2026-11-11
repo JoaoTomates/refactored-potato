@@ -8,6 +8,7 @@ import {
     getF1TeamColor,
 } from '@/api/f1-data';
 import { PilotAvatar } from '@/components/pilot-avatar';
+import { getSystemBoxStyle } from '@/components/system-modal';
 import { Search, X, Check, ChevronRight, RotateCcw, Sparkles } from 'lucide-react';
 
 const TOP_TEAMS = new Set(['McLaren', 'Ferrari', 'Mercedes', 'Red Bull']);
@@ -588,17 +589,18 @@ export function PaddockPickerDrawer({
 
     return (
         <div
-            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4 animate-fade-in"
+            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4 animate-fade-in font-mono"
             onClick={onClose}
         >
             <div
-                className="w-full max-w-5xl max-h-[92vh] md:max-h-[86vh] bg-[#07090d] border-t-2 md:border-2 border-[#fbaa19] md:rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden"
+                className="w-full max-w-5xl max-h-[92vh] md:max-h-[86vh] border border-[#000000] rounded-[3px] flex flex-col overflow-hidden text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)]"
+                style={getSystemBoxStyle('#fbaa19')}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header do Drawer */}
-                <div className="px-4 sm:px-6 py-3.5 bg-black/95 border-b border-white/15 flex items-center justify-between gap-3">
+                <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                        <span className="px-2.5 py-1 rounded bg-[#fbaa19] text-black font-black text-xs uppercase tracking-wider shrink-0">
+                        <span className="px-2.5 py-1 rounded-[3px] bg-[#fbaa19] text-black font-black text-xs uppercase tracking-wider shrink-0 border border-[#000000]">
                             {mode === 'top10' ? ordinalLabel : `EVO ${slotIndex + 1}`}
                         </span>
                         <div className="flex flex-col min-w-0">
@@ -616,7 +618,7 @@ export function PaddockPickerDrawer({
                             <button
                                 type="button"
                                 onClick={onClearSlot}
-                                className="px-2.5 py-1.5 rounded border border-red-500/40 bg-red-950/30 hover:bg-red-500/20 text-red-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                                className="px-2.5 py-1.5 rounded-[3px] border border-[#000000] bg-red-950/30 hover:bg-red-500/20 text-red-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
                             >
                                 <RotateCcw className="w-3 h-3" />
                                 <span className="hidden sm:inline">Limpar Slot</span>
@@ -626,7 +628,7 @@ export function PaddockPickerDrawer({
                             type="button"
                             onClick={onClose}
                             aria-label="Fechar Paddock Picker"
-                            className="w-8 h-8 rounded border border-white/15 bg-white/5 hover:border-[#fbaa19] hover:text-[#fbaa19] text-white/70 flex items-center justify-center transition-colors cursor-pointer"
+                            className="w-8 h-8 rounded-[3px] border border-[#000000] bg-[#030303] hover:bg-white/10 hover:text-[#fbaa19] text-white/70 flex items-center justify-center transition-colors cursor-pointer"
                         >
                             <X className="w-4 h-4" />
                         </button>
