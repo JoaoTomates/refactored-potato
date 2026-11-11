@@ -565,19 +565,16 @@ export function InviteFlow() {
                         onReadyForNext={() => setTypingComplete(true)}
                     />
 
-                    <div
-                        className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
-                        style={getSystemBoxStyle('#fbaa19')}
-                    >
-                        {/* Formulário de Emissão da Superlicença */}
-                        <form 
-                            onSubmit={handleEnlistSubmit} 
-                            className={`flex flex-col gap-6 w-full transition-all duration-1000 ${
-                                typingComplete 
-                                    ? 'opacity-100 translate-y-0' 
-                                    : 'opacity-0 translate-y-2 pointer-events-none'
-                            }`}
+                    {(typingComplete || phase === 'SUBMITTING_ENLIST') && (
+                        <div
+                            className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
+                            style={getSystemBoxStyle('#fbaa19')}
                         >
+                            {/* Formulário de Emissão da Superlicença */}
+                            <form 
+                                onSubmit={handleEnlistSubmit} 
+                                className="flex flex-col gap-6 w-full"
+                            >
                             {errorMsg && (
                                 <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
                                     [FALHA DE HOMOLOGAÇÃO] {errorMsg}
@@ -647,8 +644,9 @@ export function InviteFlow() {
                                     </div>
                                 </>
                             )}
-                        </form>
-                    </div>
+                            </form>
+                        </div>
+                    )}
                 </div>
             )}
 
