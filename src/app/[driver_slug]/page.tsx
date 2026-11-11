@@ -34,6 +34,7 @@ import {
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getRealF1Driver, RealF1Driver, getTeamCarColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
 import { getTeamPrincipal, TeamPrincipal } from '@/lib/paddock-crew';
+import { useThemeStore } from '@/store/useThemeStore';
 
 
 /* ============================================================
@@ -1217,7 +1218,10 @@ export default function OfficialStrategistDashboard() {
         }
     };
     const allianceId = allianceForCode(me?.teamCode);
+    const dashboardStyle = useThemeStore(state => state.dashboardStyle);
+    const isStandardStyle = dashboardStyle === 'standard';
     const teamColor = me?.teamColor || '#fbaa19';
+    const mainAccent = isStandardStyle ? '#fbaa19' : teamColor;
     const series = me ? me.series.slice(-range) : [];
     const last = series.length > 0 ? series[series.length - 1] ?? 0 : 0;
     const prev = me && me.series.length >= 2 ? me.series[me.series.length - 2] ?? last : last;
@@ -1388,10 +1392,27 @@ export default function OfficialStrategistDashboard() {
         };
     }, [me, field, userPrediction, squad]);
 
-    const poleTheme = PERFORMANCE_THEMES[competitionTiers?.poletime || 'red'];
-    const masterTheme = PERFORMANCE_THEMES[competitionTiers?.master || 'red'];
-    const milesimusTheme = PERFORMANCE_THEMES[competitionTiers?.milesimus || 'yellow'];
-    const teamworkTheme = PERFORMANCE_THEMES[competitionTiers?.teamwork || 'yellow'];
+    const toStandardCard = (base: (typeof PERFORMANCE_THEMES)[PerformanceColor]) =>
+        isStandardStyle
+            ? {
+                  ...base,
+                  text: 'text-[#fbaa19]',
+                  textColor: 'rgba(255, 255, 255, 0.55)',
+                  border: 'rgba(255, 255, 255, 0.14)',
+                  borderActive: '#fbaa19',
+                  ring: 'ring-[#fbaa19]/60',
+                  bg: '#000000',
+                  bgActive: '#0a0a0a',
+                  shadow: '0 0 16px rgba(251, 170, 25, 0.18)',
+                  badge: 'bg-white/5 text-white/75 border-white/15',
+                  dot: 'bg-[#fbaa19]',
+              }
+            : base;
+
+    const poleTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.poletime || 'red']);
+    const masterTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.master || 'red']);
+    const milesimusTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.milesimus || 'yellow']);
+    const teamworkTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.teamwork || 'yellow']);
 
     // Histórico de atividades / telemetria de ordens baseado 100% em dados reais
     const activityHistory = useMemo(() => {
@@ -1599,29 +1620,44 @@ export default function OfficialStrategistDashboard() {
     }
 
     return (
-        <main className="w-full min-h-screen bg-[#050401] text-white font-mono relative overflow-x-hidden">
+        <main className={`w-full min-h-screen text-white font-mono relative overflow-x-hidden ${isStandardStyle ? 'bg-black' : 'bg-[#050401]'}`}>
             <style>{`
                 @keyframes vg-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
                 .vg-marquee { animation: vg-marquee 45s linear infinite; }
                 .vg-marquee:hover { animation-play-state: paused; }
             `}</style>
 
-            {/* Fundo com aura personalizada da equipe */}
+            {/* Fundo com aura personalizada da equipe (ou preto predominante no modo Standard) */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 opacity-[0.14] transition-all duration-700" style={{ background: `radial-gradient(circle at 50% 0%, ${teamColor} 0%, transparent 60%)` }} />
-                <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(${teamColor} 1px, transparent 1px), linear-gradient(90deg, ${teamColor} 1px, transparent 1px)`, backgroundSize: '48px 48px' }} />
+                <div
+                    className={`absolute inset-0 transition-all duration-700 ${isStandardStyle ? 'opacity-[0.06]' : 'opacity-[0.14]'}`}
+                    style={{ background: `radial-gradient(circle at 50% 0%, ${mainAccent} 0%, transparent 60%)` }}
+                />
+                <div
+                    className={`absolute inset-0 ${isStandardStyle ? 'opacity-[0.03]' : 'opacity-[0.04]'}`}
+                    style={{
+                        backgroundImage: `linear-gradient(${isStandardStyle ? 'rgba(255,255,255,0.25)' : teamColor} 1px, transparent 1px), linear-gradient(90deg, ${isStandardStyle ? 'rgba(255,255,255,0.25)' : teamColor} 1px, transparent 1px)`,
+                        backgroundSize: '48px 48px'
+                    }}
+                />
                 <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px)' }} />
             </div>
 
             <div className="relative z-10">
-                {/* Barra superior com acabamento da equipe */}
-                <header className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-black/80 backdrop-blur" style={{ borderBottomColor: `${teamColor}25` }}>
+                {/* Barra superior */}
+                <header
+                    className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-black/90 backdrop-blur"
+                    style={{ borderBottomColor: isStandardStyle ? 'rgba(255,255,255,0.12)' : `${teamColor}25` }}
+                >
                     <div className="flex items-center gap-3">
                         <Link href="/" className="text-lg md:text-xl font-black tracking-widest hover:opacity-80 transition-opacity">
-                            BAEFF<span style={{ color: teamColor }}>1</span>
+                            BAEFF<span style={{ color: mainAccent }}>1</span>
                         </Link>
                         <span className="hidden md:inline text-[10px] tracking-[0.3em] text-white/40">// TERMINAL DO ESTRATEGISTA</span>
-                        <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest hidden sm:inline border" style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}>
+                        <span
+                            className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest hidden sm:inline border"
+                            style={{ borderColor: `${mainAccent}40`, color: mainAccent, backgroundColor: `${mainAccent}10` }}
+                        >
                             {me.teamName}
                         </span>
                         {me.slug && (
@@ -1634,32 +1670,32 @@ export default function OfficialStrategistDashboard() {
                         {isOwner ? (
                             <Link
                                 href="/positions"
-                                className={`flex items-center gap-1.5 font-bold transition-all hover:opacity-80 ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}
+                                className={`flex items-center gap-1.5 font-bold transition-all hover:opacity-80 ${raceWeek ? 'text-[#fbaa19]' : isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}
                             >
-                                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
+                                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : isStandardStyle ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
                                 <span>{raceWeek ? 'PITLANE OPEN // PISTA DISPONÍVEL' : 'PITLANE OPEN'}</span>
                             </Link>
                         ) : (
-                            <span className={`flex items-center gap-1.5 font-bold ${raceWeek ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
+                            <span className={`flex items-center gap-1.5 font-bold ${raceWeek ? 'text-[#fbaa19]' : isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${raceWeek ? 'bg-[#fbaa19]' : isStandardStyle ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`} />
                                 <span>{raceWeek ? 'PITLANE OPEN // PISTA DISPONÍVEL' : 'PITLANE OPEN'}</span>
                             </span>
                         )}
-                        <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: raceWeek ? '#fbaa19' : teamColor }}>T-{countdown}</span></span>
+                        <span className="text-white/50">PRÓXIMO GP <span className="font-bold tabular-nums" style={{ color: raceWeek ? '#fbaa19' : mainAccent }}>T-{countdown}</span></span>
                         <span className="hidden sm:inline text-white/70 tabular-nums">{now ? now.toLocaleTimeString('pt-BR') : '--:--:--'}</span>
 
-                        <PaddockRadioPlayer teamColor={teamColor} />
+                        <PaddockRadioPlayer teamColor={mainAccent} />
                         {isOwner ? (
                             <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
                         ) : user ? (
                             <div className="flex items-center gap-3">
-                                <Link href={myTerminalHref} className="hover:text-white transition-colors" style={{ color: teamColor }}>
+                                <Link href={myTerminalHref} className="hover:text-white transition-colors" style={{ color: mainAccent }}>
                                     [ MEU TERMINAL ]
                                 </Link>
                                 <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors uppercase cursor-pointer">[ SAIR ]</button>
                             </div>
                         ) : (
-                            <Link href="/superlicense" className="hover:text-white transition-colors" style={{ color: teamColor }}>
+                            <Link href="/superlicense" className="hover:text-white transition-colors" style={{ color: mainAccent }}>
                                 [ ENTRAR ]
                             </Link>
                         )}
@@ -1669,7 +1705,7 @@ export default function OfficialStrategistDashboard() {
 
                 {isDemo ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
-                        <div className="border bg-black/40 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${teamColor}40`, color: teamColor }}>
+                        <div className="border bg-black/60 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${mainAccent}40`, color: mainAccent }}>
                             <span>[SISTEMA] VISUALIZANDO MODO PÚBLICO / DEMONSTRAÇÃO DO ESTRATEGISTA.</span>
                             <Link href={user ? myTerminalHref : "/superlicense"} className="font-bold hover:text-white transition-colors">
                                 {user ? 'IR PARA MEU TERMINAL »' : 'ACESSAR MINHA CONTA »'}
@@ -1678,7 +1714,7 @@ export default function OfficialStrategistDashboard() {
                     </div>
                 ) : !isOwner && targetProfile ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
-                        <div className="border bg-black/50 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${teamColor}40`, color: teamColor }}>
+                        <div className="border bg-black/60 rounded px-4 py-2.5 text-[10px] md:text-[11px] tracking-widest flex flex-wrap items-center justify-between gap-2" style={{ borderColor: `${mainAccent}40`, color: mainAccent }}>
                             <span>[VISUALIZAÇÃO PÚBLICA // SOMENTE LEITURA] TERMINAL DE {me.name} ({me.slug || targetSlug}).</span>
                             <Link href={user ? myTerminalHref : "/superlicense"} className="font-bold hover:text-white transition-colors">
                                 {user ? 'VOLTAR AO MEU TERMINAL »' : 'ENTRAR NA MINHA CONTA »'}
@@ -1704,11 +1740,11 @@ export default function OfficialStrategistDashboard() {
                                 onClick={() => setActiveView("menu")}
                                 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors cursor-pointer"
                             >
-                                <span style={{ color: teamColor }}>«</span> [ VOLTAR AO TERMINAL DO ESTRATEGISTA ]
+                                <span style={{ color: mainAccent }}>«</span> [ VOLTAR AO TERMINAL DO ESTRATEGISTA ]
                             </button>
                             <span
                                 className="text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1 rounded border"
-                                style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}
+                                style={{ borderColor: `${mainAccent}40`, color: mainAccent, backgroundColor: `${mainAccent}10` }}
                             >
                                 MÓDULO OPERACIONAL // {activeView.toUpperCase()}
                             </span>
@@ -2096,10 +2132,10 @@ export default function OfficialStrategistDashboard() {
                                     {/* BOTÃO SECUNDÁRIO: FORMULÁRIO RÁPIDO // POSITIONS */}
                                     <Link
                                         href="/positions"
-                                        className="sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer bg-white/5 hover:bg-white/10"
+                                        className={`sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer ${isStandardStyle ? 'bg-black hover:bg-white/10' : 'bg-white/5 hover:bg-white/10'}`}
                                         style={{
-                                            borderColor: `${teamColor}50`,
-                                            color: teamColor
+                                            borderColor: isStandardStyle ? 'rgba(255,255,255,0.2)' : `${teamColor}50`,
+                                            color: mainAccent
                                         }}
                                         title="Preenchimento direto de palpites sem o briefing da mesa"
                                     >
@@ -2242,7 +2278,7 @@ export default function OfficialStrategistDashboard() {
                                     initialComp={rankingModalComp}
                                     onClose={() => setRankingModalComp(null)}
                                     userSlug={me?.slug}
-                                    userTeamColor={teamColor}
+                                    userTeamColor={mainAccent}
                                 />
                             )}
 
@@ -2250,7 +2286,7 @@ export default function OfficialStrategistDashboard() {
                             <PitwallQuickDock
                                 userPrediction={userPrediction}
                                 pendingStewardCount={stewardVoting.pendingReports.length}
-                                teamColor={teamColor}
+                                teamColor={mainAccent}
                                 isOwner={isOwner}
                                 onOpenVoting={() => setIsVotingModalOpen(true)}
                                 onJumpToBookTab={() => setActiveTab('book')}
@@ -2258,55 +2294,55 @@ export default function OfficialStrategistDashboard() {
 
                             {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
                             {raceWeek && (
-                                <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={teamColor} />
+                                <RaceWeekSchedule compact={true} teamCode={me?.teamCode || "FER"} accentColor={mainAccent} />
                             )}
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
                             <div
-                                className="relative bg-black/80 backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300"
-                                style={{ borderColor: `${teamColor}35` }}
+                                className={`relative backdrop-blur-sm border rounded-lg shadow-2xl overflow-hidden animate-fade-in transition-all duration-300 ${isStandardStyle ? 'bg-black' : 'bg-black/80'}`}
+                                style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.15)' : `${teamColor}35` }}
                             >
                                 {/* Navegador de Abas */}
                                 <div
                                     className="flex items-center justify-between gap-1 px-2 py-2 border-b overflow-x-auto scrollbar-none"
                                     style={{
-                                        borderBottomColor: `${teamColor}20`,
-                                        background: `linear-gradient(90deg, ${teamColor}0c, transparent)`
+                                        borderBottomColor: isStandardStyle ? 'rgba(255,255,255,0.12)' : `${teamColor}20`,
+                                        background: isStandardStyle ? '#050505' : `linear-gradient(90deg, ${teamColor}0c, transparent)`
                                     }}
                                 >
                                     <div className="flex items-center gap-1">
                                         <button
                                             onClick={() => setActiveTab('quotes')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'quotes' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'quotes' ? teamColor : undefined }}
+                                            style={{ color: activeTab === 'quotes' ? mainAccent : undefined }}
                                         >
                                             <span>📈</span> COTAÇÃO
                                         </button>
                                         <button
                                             onClick={() => setActiveTab('book')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'book' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'book' ? teamColor : undefined }}
+                                            style={{ color: activeTab === 'book' ? mainAccent : undefined }}
                                         >
                                             <span>📊</span> BOOK DE PREVISÕES
                                         </button>
                                         <button
                                             onClick={() => setActiveTab('radio')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'radio' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'radio' ? teamColor : undefined }}
+                                            style={{ color: activeTab === 'radio' ? mainAccent : undefined }}
                                         >
                                             <span>📻</span> RÁDIO
                                         </button>
                                         <button
                                             onClick={() => setActiveTab('history')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'history' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'history' ? teamColor : undefined }}
+                                            style={{ color: activeTab === 'history' ? mainAccent : undefined }}
                                         >
                                             <span>⏱️</span> TELEMETRIA
                                         </button>
                                         <button
                                             onClick={() => setActiveTab('teamwork')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'teamwork' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'teamwork' ? teamColor : undefined }}
+                                            style={{ color: activeTab === 'teamwork' ? mainAccent : undefined }}
                                         >
                                             <span>👥</span> TEAMWORK
                                         </button>
@@ -2339,18 +2375,18 @@ export default function OfficialStrategistDashboard() {
                                                             {compStats?.milesimus.formatted || '000.100'}
                                                         </span>
                                                         <span className="text-xs text-white/40">MLS</span>
-                                                        <span className="text-xs text-emerald-400 font-bold">● BÔNUS INICIAL</span>
+                                                        <span className={`text-xs font-bold ${isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>● BÔNUS INICIAL</span>
                                                     </div>
                                                     <p className="text-[10px] tracking-widest text-white/40 mt-0.5">SALDO DISPONÍVEL NO MERCADO MILESIMUS</p>
                                                 </div>
                                                 <div className="flex items-center gap-4 text-[10px] tracking-widest">
                                                     <div><span className="text-white/40">MÁX:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.max(...series) : (me.mlsBalance ?? 100))}</span></div>
                                                     <div><span className="text-white/40">MÍN:</span> <span className="font-bold">{fmt(series.length > 0 ? Math.min(...series) : (me.mlsBalance ?? 100))}</span></div>
-                                                    <div><span className="text-white/40">STATUS:</span> <span className="font-bold text-emerald-400">ABERTURA (0,00%)</span></div>
+                                                    <div><span className="text-white/40">STATUS:</span> <span className={`font-bold ${isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>ABERTURA (0,00%)</span></div>
                                                 </div>
                                             </div>
 
-                                            <PriceChart data={series} startRound={25 - series.length} teamColor={teamColor} />
+                                            <PriceChart data={series} startRound={25 - series.length} teamColor={mainAccent} />
                                         </div>
                                     )}
 
@@ -2360,14 +2396,14 @@ export default function OfficialStrategistDashboard() {
                                             {userPrediction ? (
                                                 <div className="flex flex-col gap-4 animate-fade-in">
                                                     {/* Painel Poletime Real */}
-                                                    <div className="p-3.5 rounded-lg border bg-emerald-950/20 border-emerald-500/30 flex items-center justify-between">
+                                                    <div className={`p-3.5 rounded-lg border flex items-center justify-between ${isStandardStyle ? 'bg-black border-white/15' : 'bg-emerald-950/20 border-emerald-500/30'}`}>
                                                         <div>
-                                                            <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">POLETIME REGISTRADO</span>
+                                                            <span className={`text-[9px] font-bold uppercase tracking-widest ${isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>POLETIME REGISTRADO</span>
                                                             <p className="text-2xl font-black text-white font-mono mt-0.5">{userPrediction.poletime}</p>
                                                             <p className="text-[9px] text-white/40 mt-1">TELEMETRIA OFICIAL SINCRONIZADA</p>
                                                         </div>
                                                         <div className="text-right">
-                                                            <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                                            <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase border ${isStandardStyle ? 'bg-white/5 text-[#fbaa19] border-[#fbaa19]/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'}`}>
                                                                 HOMOLOGADO
                                                             </span>
                                                             <p className="text-[9px] text-white/40 mt-1 tabular-nums">
@@ -2381,7 +2417,7 @@ export default function OfficialStrategistDashboard() {
                                                         <div className="p-3 rounded-lg border border-white/10 bg-black/60 flex flex-col gap-2">
                                                             <div className="flex items-center justify-between text-[10px] font-bold text-white/60 uppercase">
                                                                 <span>TOP 10 PILOTOS // MASTER</span>
-                                                                <span style={{ color: teamColor }}>{userPrediction.top10.length}/10 REGISTRADOS</span>
+                                                                <span style={{ color: mainAccent }}>{userPrediction.top10.length}/10 REGISTRADOS</span>
                                                             </div>
                                                             <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-1">
                                                                 {userPrediction.top10.map((driver: string, idx: number) => (
@@ -2410,7 +2446,7 @@ export default function OfficialStrategistDashboard() {
                                                         )}
                                                         <div className="p-3 rounded-lg border border-white/10 bg-white/5 flex flex-col justify-between">
                                                             <div>
-                                                                <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">CONFRONTOS H2H</span>
+                                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isStandardStyle ? 'text-[#fbaa19]' : 'text-blue-400'}`}>CONFRONTOS H2H</span>
                                                                 <p className="text-xs font-bold text-white mt-1">
                                                                     {userPrediction.h2h ? Object.keys(userPrediction.h2h).length : 0} DUELOS HOMOLOGADOS
                                                                 </p>
@@ -2423,7 +2459,7 @@ export default function OfficialStrategistDashboard() {
                                                         <Link
                                                             href="/positions"
                                                             className="mt-1 w-full py-2.5 px-3 rounded text-center text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-md"
-                                                            style={{ borderColor: `${teamColor}60`, backgroundColor: `${teamColor}15`, color: teamColor }}
+                                                            style={{ borderColor: `${mainAccent}60`, backgroundColor: `${mainAccent}15`, color: mainAccent }}
                                                         >
                                                             <span>&gt;_ EDITAR / AJUSTAR POSIÇÕES NO TERMINAL</span>
                                                             <span>»</span>
@@ -2432,9 +2468,9 @@ export default function OfficialStrategistDashboard() {
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col gap-3">
-                                                    <div className="p-4 rounded-lg border border-amber-500/20 bg-amber-500/5 flex flex-col items-center justify-center text-center gap-2 py-6">
+                                                    <div className={`p-4 rounded-lg border flex flex-col items-center justify-center text-center gap-2 py-6 ${isStandardStyle ? 'border-white/15 bg-black' : 'border-amber-500/20 bg-amber-500/5'}`}>
                                                         <span className="text-xl">⚠️</span>
-                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-amber-300">
+                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-[#fbaa19]">
                                                             NENHUMA PREVISÃO REGISTRADA NA ETAPA ATUAL
                                                         </h4>
                                                         <p className="text-[10px] text-white/50 max-w-md">
@@ -2446,7 +2482,7 @@ export default function OfficialStrategistDashboard() {
                                                             <Link
                                                                 href="/positions"
                                                                 className="mt-2 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all hover:brightness-110"
-                                                                style={{ borderColor: teamColor, backgroundColor: teamColor, color: '#000' }}
+                                                                style={{ borderColor: mainAccent, backgroundColor: mainAccent, color: '#000' }}
                                                             >
                                                                 [ TOMAR POSIÇÕES AGORA » ]
                                                             </Link>
@@ -2470,7 +2506,7 @@ export default function OfficialStrategistDashboard() {
                                                                 </span>
                                                             </div>
                                                             <div className="text-right">
-                                                                <span className="font-bold tabular-nums text-emerald-400">{m.status}</span>
+                                                                <span className={`font-bold tabular-nums ${isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>{m.status}</span>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -2486,12 +2522,12 @@ export default function OfficialStrategistDashboard() {
                                             {assignedMentor && mentorVoice && (
                                                 <div
                                                     className="p-4 rounded-sm bg-black/90 border-2 flex flex-col gap-3 shadow-lg"
-                                                    style={{ borderColor: teamColor }}
+                                                    style={{ borderColor: mainAccent }}
                                                 >
                                                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
-                                                            <span className="font-black tracking-wider text-[11px]" style={{ color: teamColor }}>
+                                                            <span className={`w-2 h-2 rounded-full animate-ping inline-block ${isStandardStyle ? 'bg-[#fbaa19]' : 'bg-emerald-400'}`}></span>
+                                                            <span className="font-black tracking-wider text-[11px]" style={{ color: mainAccent }}>
                                                                 {mentorVoice.callsign}
                                                             </span>
                                                         </div>
@@ -2509,7 +2545,7 @@ export default function OfficialStrategistDashboard() {
                                                         <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">
                                                             &gt;_ {mentorVoice.toneTitle}:
                                                         </span>
-                                                        <p className="text-white/95 text-xs sm:text-sm leading-relaxed italic border-l-2 pl-3 py-1 bg-white/[0.02] rounded-r" style={{ borderLeftColor: teamColor }}>
+                                                        <p className="text-white/95 text-xs sm:text-sm leading-relaxed italic border-l-2 pl-3 py-1 bg-white/[0.02] rounded-r" style={{ borderLeftColor: mainAccent }}>
                                                             {mentorVoice.radioTransmission}
                                                         </p>
                                                     </div>
@@ -2517,7 +2553,7 @@ export default function OfficialStrategistDashboard() {
                                                     <div className="p-3 rounded bg-black/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
                                                         <div>
                                                             <span className="text-white/40 uppercase block text-[9px]">DIRETRIZ DE COMBATE:</span>
-                                                            <span className="font-black text-emerald-400">{mentorVoice.tacticalOrder}</span>
+                                                            <span className={`font-black ${isStandardStyle ? 'text-white' : 'text-emerald-400'}`}>{mentorVoice.tacticalOrder}</span>
                                                         </div>
                                                         <span className="text-[9px] text-[#fbaa19] uppercase font-bold shrink-0">
                                                             POLETIME: {assignedMentor.briefingTips.poletimeTarget}
@@ -2526,7 +2562,7 @@ export default function OfficialStrategistDashboard() {
 
                                                     <div className="flex flex-wrap items-center justify-between gap-2 text-[9px] text-white/40 uppercase pt-2 border-t border-white/5">
                                                         <span>HISTÓRICO REAL: {assignedMentor.careerStat}</span>
-                                                        <span className="text-emerald-400 font-bold">{assignedMentor.evaluation.accuracyRate}% ASSERTIVIDADE HOMOLOGADA</span>
+                                                        <span className={`font-bold ${isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>{assignedMentor.evaluation.accuracyRate}% ASSERTIVIDADE HOMOLOGADA</span>
                                                     </div>
                                                 </div>
                                             )}
@@ -2545,7 +2581,7 @@ export default function OfficialStrategistDashboard() {
                                             {/* Despacho Técnico da Garagem */}
                                             <div className="p-3 rounded bg-white/5 border border-white/5 flex flex-col gap-1.5">
                                                 <div className="flex items-center justify-between text-[9px] text-white/40">
-                                                    <span className="font-bold" style={{ color: teamColor }}>[DIRETOR TÉCNICO // {me.teamName.toUpperCase()}]</span>
+                                                    <span className="font-bold" style={{ color: mainAccent }}>[DIRETOR TÉCNICO // {me.teamName.toUpperCase()}]</span>
                                                     <span>TELEMETRIA DA GARAGEM</span>
                                                 </div>
                                                 <p className="text-white/80 text-[11px] italic">
@@ -2589,7 +2625,7 @@ export default function OfficialStrategistDashboard() {
                                                 /* VISUALIZAÇÃO DO ESQUADRÃO ATIVO */
                                                 <div className="flex flex-col gap-4">
                                                     {/* Header do Esquadrão */}
-                                                    <div className="p-4 rounded-lg border bg-black/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderColor: `${teamColor}50` }}>
+                                                    <div className="p-4 rounded-lg border bg-black/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderColor: `${mainAccent}50` }}>
                                                         <div className="flex flex-col gap-1">
                                                             <div className="flex items-center gap-2">
                                                                 <span className="text-[10px] uppercase font-bold tracking-widest text-[#fbaa19]">ESQUADRÃO TEAMWORK</span>
@@ -2730,7 +2766,7 @@ export default function OfficialStrategistDashboard() {
                                                                 className="p-4 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col justify-between gap-3"
                                                             >
                                                                 <div className="flex flex-col gap-1.5">
-                                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                                                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${isStandardStyle ? 'text-[#fbaa19]' : 'text-emerald-400'}`}>
                                                                         [ OPÇÃO 01 ] FUNDAR ESQUADRÃO
                                                                     </span>
                                                                     <p className="text-[11px] text-white/60">
@@ -2749,7 +2785,7 @@ export default function OfficialStrategistDashboard() {
                                                                     type="submit"
                                                                     disabled={squadActionLoading || !squadNameInput.trim()}
                                                                     className="w-full py-2.5 rounded font-black uppercase tracking-wider text-xs border transition-all cursor-pointer disabled:opacity-40"
-                                                                    style={{ borderColor: teamColor, backgroundColor: teamColor, color: '#000' }}
+                                                                    style={{ borderColor: mainAccent, backgroundColor: mainAccent, color: '#000' }}
                                                                 >
                                                                     {squadActionLoading ? 'FUNDANDO...' : '[ FUNDAR ESQUADRÃO (MÁX 20) » ]'}
                                                                 </button>
@@ -2761,7 +2797,7 @@ export default function OfficialStrategistDashboard() {
                                                                 className="p-4 rounded-lg border border-white/10 bg-white/[0.02] flex flex-col justify-between gap-3"
                                                             >
                                                                 <div className="flex flex-col gap-1.5">
-                                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">
+                                                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${isStandardStyle ? 'text-white/80' : 'text-blue-400'}`}>
                                                                         [ OPÇÃO 02 ] INGRESSAR COM CÓDIGO
                                                                     </span>
                                                                     <p className="text-[11px] text-white/60">
@@ -2773,13 +2809,17 @@ export default function OfficialStrategistDashboard() {
                                                                         value={inviteCodeInput}
                                                                         onChange={e => setInviteCodeInput(e.target.value)}
                                                                         maxLength={12}
-                                                                        className="mt-2 w-full bg-black/80 border border-white/20 p-2.5 rounded text-white text-xs font-mono uppercase focus:border-blue-400 outline-none"
+                                                                        className={`mt-2 w-full bg-black/80 border border-white/20 p-2.5 rounded text-white text-xs font-mono uppercase outline-none ${isStandardStyle ? 'focus:border-[#fbaa19]' : 'focus:border-blue-400'}`}
                                                                     />
                                                                 </div>
                                                                 <button
                                                                     type="submit"
                                                                     disabled={squadActionLoading || !inviteCodeInput.trim()}
-                                                                    className="w-full py-2.5 rounded font-black uppercase tracking-wider text-xs border border-blue-400 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-all cursor-pointer disabled:opacity-40"
+                                                                    className={`w-full py-2.5 rounded font-black uppercase tracking-wider text-xs border transition-all cursor-pointer disabled:opacity-40 ${
+                                                                        isStandardStyle
+                                                                            ? 'border-white/25 bg-white/10 text-white hover:border-[#fbaa19] hover:text-[#fbaa19]'
+                                                                            : 'border-blue-400 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'
+                                                                    }`}
                                                                 >
                                                                     {squadActionLoading ? 'CONECTANDO...' : '[ ENTRAR NO ESQUADRÃO » ]'}
                                                                 </button>
@@ -2799,12 +2839,12 @@ export default function OfficialStrategistDashboard() {
 
                             {/* 3. BARRA DE COMANDOS / OPERAÇÕES DO DASHBOARD */}
                             <div
-                                className="bg-black/75 border rounded-lg p-3 md:p-4 shadow-xl"
-                                style={{ borderColor: `${teamColor}25` }}
+                                className={`border rounded-lg p-3 md:p-4 shadow-xl ${isStandardStyle ? 'bg-black' : 'bg-black/75'}`}
+                                style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.15)' : `${teamColor}25` }}
                             >
                                 <div className="flex items-center justify-between mb-3 px-1">
                                     <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 flex items-center gap-1.5">
-                                        <span style={{ color: teamColor }}>⚡</span> AÇÕES & FERRAMENTAS DO ESTRATEGISTA
+                                        <span style={{ color: mainAccent }}>⚡</span> AÇÕES & FERRAMENTAS DO ESTRATEGISTA
                                     </span>
                                     <span className="text-[9px] text-white/30 uppercase tracking-widest">SISTEMA BAEFF1</span>
                                 </div>
@@ -2877,7 +2917,7 @@ export default function OfficialStrategistDashboard() {
                                         <Link
                                             href="/superlicense"
                                             className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                            style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                            style={{ backgroundColor: mainAccent, borderColor: mainAccent }}
                                         >
                                             Licença
                                         </Link>
@@ -2885,7 +2925,7 @@ export default function OfficialStrategistDashboard() {
                                         <Link
                                             href={myTerminalHref}
                                             className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                            style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                            style={{ backgroundColor: mainAccent, borderColor: mainAccent }}
                                         >
                                             Meu Terminal
                                         </Link>
@@ -2893,7 +2933,7 @@ export default function OfficialStrategistDashboard() {
                                         <Link
                                             href="/superlicense"
                                             className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                            style={{ backgroundColor: teamColor, borderColor: teamColor }}
+                                            style={{ backgroundColor: mainAccent, borderColor: mainAccent }}
                                         >
                                             Entrar
                                         </Link>
@@ -2901,7 +2941,11 @@ export default function OfficialStrategistDashboard() {
                                     {isOwner && (
                                         <button
                                             onClick={handleLogout}
-                                            className="p-2.5 rounded text-center transition-all border border-red-500/30 bg-red-950/20 text-red-400 hover:bg-red-900/40 cursor-pointer"
+                                            className={`p-2.5 rounded text-center transition-all border cursor-pointer ${
+                                                isStandardStyle
+                                                    ? 'border-white/15 bg-black text-white/60 hover:border-[#fbaa19] hover:text-[#fbaa19]'
+                                                    : 'border-red-500/30 bg-red-950/20 text-red-400 hover:bg-red-900/40'
+                                            }`}
                                         >
                                             Logout
                                         </button>
@@ -2913,16 +2957,32 @@ export default function OfficialStrategistDashboard() {
 
                         {/* COLUNA DIREITA: Índices das Alianças + Sanfonas das Competições (Master, Milesimus, Poletime) + Ranking do Grupo */}
                         <section className="lg:col-span-3 flex flex-col gap-4 md:gap-5">
-                            <Panel title="Índices das Alianças" bodyClass="p-0" accentColor={teamColor}>
+                            <Panel
+                                title="Índices das Alianças"
+                                bodyClass="p-0"
+                                className={isStandardStyle ? '!bg-black bg-black' : ''}
+                                accentColor={mainAccent}
+                            >
                                 {allianceIdx.map(a => (
-                                    <div key={a.k} className={`flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 last:border-0 ${a.k === allianceId ? 'border-l-2' : ''}`} style={{ backgroundColor: a.k === allianceId ? `${teamColor}12` : undefined, borderLeftColor: a.k === allianceId ? teamColor : undefined }}>
+                                    <div
+                                        key={a.k}
+                                        className={`flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 last:border-0 ${a.k === allianceId ? 'border-l-2' : ''}`}
+                                        style={{
+                                            backgroundColor: a.k === allianceId ? `${mainAccent}12` : undefined,
+                                            borderLeftColor: a.k === allianceId ? mainAccent : undefined
+                                        }}
+                                    >
                                         <div className="min-w-0">
                                             <p className="text-[10px] tracking-widest text-white/40">IDX.{a.k}</p>
-                                            <p className="text-[11px] font-bold tracking-widest truncate">{ALLIANCES[a.k].short}</p>
+                                            <p className="text-[11px] font-bold tracking-widest truncate text-white">{ALLIANCES[a.k].short}</p>
                                         </div>
-                                        <Sparkline data={a.s.slice(-12)} width={70} strokeColor={a.k === allianceId ? teamColor : undefined} />
+                                        <Sparkline
+                                            data={a.s.slice(-12)}
+                                            width={70}
+                                            strokeColor={a.k === allianceId ? mainAccent : (isStandardStyle ? 'rgba(255,255,255,0.35)' : undefined)}
+                                        />
                                         <div className="text-right">
-                                            <p className="text-[11px] font-bold tabular-nums">{fmt(a.v)}</p>
+                                            <p className="text-[11px] font-bold tabular-nums text-white">{fmt(a.v)}</p>
                                             <Delta value={a.c} className="text-[9px]" />
                                         </div>
                                     </div>
@@ -2931,15 +2991,16 @@ export default function OfficialStrategistDashboard() {
 
                             {/* SANFONAS DE RANKING GERAL (TOP 10): MASTER, MILESIMUS E POLETIME */}
                             {[
-                                { title: 'Master · Ranking Geral', accent: teamColor, list: masterTop10 },
-                                { title: 'Milesimus · Ranking Geral', accent: teamColor, list: milesimusTop10 },
-                                { title: 'Poletime · Ranking Geral', accent: teamColor, list: poletimeTop10 },
+                                { title: 'Master · Ranking Geral', accent: mainAccent, list: masterTop10 },
+                                { title: 'Milesimus · Ranking Geral', accent: mainAccent, list: milesimusTop10 },
+                                { title: 'Poletime · Ranking Geral', accent: mainAccent, list: poletimeTop10 },
                             ].map(comp => (
                                 <Panel
                                     key={comp.title}
                                     title={comp.title}
                                     tag="TOP 10"
                                     bodyClass="p-0"
+                                    className={isStandardStyle ? '!bg-black bg-black' : ''}
                                     accentColor={comp.accent}
                                     collapsible={true}
                                     defaultOpen={false}
@@ -2961,15 +3022,18 @@ export default function OfficialStrategistDashboard() {
                                                     >
                                                         {i + 1}
                                                     </span>
-                                                    <span className="w-1 h-6 rounded-sm shrink-0" style={{ background: item.s.teamColor }} />
+                                                    <span
+                                                        className="w-1 h-6 rounded-sm shrink-0"
+                                                        style={{ background: isStandardStyle ? (isMe ? '#fbaa19' : 'rgba(255,255,255,0.22)') : item.s.teamColor }}
+                                                    />
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="font-bold truncate" style={{ color: isMe ? comp.accent : undefined }}>
+                                                        <p className="font-bold truncate text-white" style={{ color: isMe ? comp.accent : undefined }}>
                                                             {item.s.name}
                                                         </p>
                                                         <p className="text-[9px] text-white/40">{item.s.teamCode}</p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="font-bold tabular-nums font-mono">{item.value}</p>
+                                                        <p className="font-bold tabular-nums font-mono text-white">{item.value}</p>
                                                         <span className="text-[9px] text-white/40">{item.sub}</span>
                                                     </div>
                                                 </div>
@@ -2982,20 +3046,29 @@ export default function OfficialStrategistDashboard() {
                                 </Panel>
                             ))}
 
-                            <Panel title={`Ranking · ${getChampionGroupName(me.groupId)}`} tag={`${groupRanking.length}/22 PILOTOS`} bodyClass="p-0" accentColor={teamColor}>
+                            <Panel
+                                title={`Ranking · ${getChampionGroupName(me.groupId)}`}
+                                tag={`${groupRanking.length}/22 PILOTOS`}
+                                bodyClass="p-0"
+                                className={isStandardStyle ? '!bg-black bg-black' : ''}
+                                accentColor={mainAccent}
+                            >
                                 <div className="max-h-[420px] overflow-y-auto">
                                     {groupRanking.map((r, i) => {
                                         const isMe = r.s.id === me.id;
                                         const row = (
-                                            <div className={`flex items-center gap-3 px-4 py-2.5 border-b border-white/5 text-[11px] tracking-widest transition-colors ${isMe ? 'border-l-2' : 'hover:bg-white/5'}`} style={{ backgroundColor: isMe ? `${teamColor}15` : undefined, borderLeftColor: isMe ? teamColor : undefined }}>
-                                                <span className={`w-5 text-right tabular-nums ${i < 3 ? 'font-black' : 'text-white/40'}`} style={{ color: i < 3 ? teamColor : undefined }}>{i + 1}</span>
-                                                <span className="w-1 h-6 rounded-sm shrink-0" style={{ background: r.s.teamColor }} />
+                                            <div className={`flex items-center gap-3 px-4 py-2.5 border-b border-white/5 text-[11px] tracking-widest transition-colors ${isMe ? 'border-l-2' : 'hover:bg-white/5'}`} style={{ backgroundColor: isMe ? `${mainAccent}15` : undefined, borderLeftColor: isMe ? mainAccent : undefined }}>
+                                                <span className={`w-5 text-right tabular-nums ${i < 3 ? 'font-black' : 'text-white/40'}`} style={{ color: i < 3 ? mainAccent : undefined }}>{i + 1}</span>
+                                                <span
+                                                    className="w-1 h-6 rounded-sm shrink-0"
+                                                    style={{ background: isStandardStyle ? (isMe ? '#fbaa19' : 'rgba(255,255,255,0.22)') : r.s.teamColor }}
+                                                />
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`font-bold truncate`} style={{ color: isMe ? teamColor : undefined }}>{r.s.name}{isMe && ' (ESTRATEGISTA)'}</p>
+                                                    <p className="font-bold truncate text-white" style={{ color: isMe ? mainAccent : undefined }}>{r.s.name}{isMe && ' (ESTRATEGISTA)'}</p>
                                                     <p className="text-[9px] text-white/40">{r.s.teamCode}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-bold tabular-nums font-mono">{formatMls(r.s.mlsBalance ?? 100)}</p>
+                                                    <p className="font-bold tabular-nums font-mono text-white">{formatMls(r.s.mlsBalance ?? 100)}</p>
                                                     <span className="text-[9px] text-white/40">MLS</span>
                                                 </div>
                                             </div>
