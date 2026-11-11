@@ -2256,13 +2256,13 @@ export default function OfficialStrategistDashboard() {
                             }`}
                         >
 
-                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) — SOMENTE DONO DO TERMINAL */}
+                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS FAST — SOMENTE DONO DO TERMINAL */}
                             {isOwner && (
                                 <div className="w-full flex flex-col sm:flex-row gap-2.5">
                                     {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
                                     <Link
                                         href={`/war-room?driver=${encodeURIComponent(me.slug || targetSlug || '')}&mentor=${encodeURIComponent(assignedMentor?.id || '')}`}
-                                        className="flex-1 py-3 px-4 rounded-lg border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
+                                        className="flex-1 py-3 px-4 rounded-[3px] border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
                                         style={{
                                             borderColor: '#fbaa19',
                                             backgroundColor: 'rgba(251, 170, 25, 0.18)',
@@ -2273,23 +2273,23 @@ export default function OfficialStrategistDashboard() {
                                             <span className="w-2.5 h-2.5 rounded-full bg-[#fbaa19] animate-ping inline-block" />
                                             <span className="group-hover:text-white transition-colors">&gt;_ REUNIÃO TÁTICA // WAR ROOM</span>
                                         </div>
-                                        <span className="text-[10px] font-black px-2 py-0.5 rounded bg-black/80 border border-[#fbaa19]/50 text-white flex items-center gap-1 group-hover:bg-[#fbaa19] group-hover:text-black transition-all">
+                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-[3px] bg-black/80 border border-[#fbaa19]/50 text-white flex items-center gap-1 group-hover:bg-[#fbaa19] group-hover:text-black transition-all">
                                             <span>ENTRAR NA MESA</span>
                                             <span>»</span>
                                         </span>
                                     </Link>
 
-                                    {/* BOTÃO SECUNDÁRIO: FORMULÁRIO RÁPIDO // POSITIONS */}
+                                    {/* BOTÃO SECUNDÁRIO: POSITIONS FAST */}
                                     <Link
                                         href="/positions"
-                                        className={`sm:w-auto py-3 px-4 rounded-lg border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer ${isStandardStyle ? 'bg-black hover:bg-white/10' : 'bg-white/5 hover:bg-white/10'}`}
+                                        className={`sm:w-auto py-3 px-4 rounded-[3px] border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer ${isStandardStyle ? 'bg-black hover:bg-white/10' : 'bg-[#030303] hover:bg-white/10'}`}
                                         style={{
                                             borderColor: isStandardStyle ? 'rgba(255,255,255,0.2)' : `${teamColor}50`,
                                             color: mainAccent
                                         }}
-                                        title="Preenchimento direto de palpites sem o briefing da mesa"
+                                        title="Entrada direta no terminal de posições (sem briefing da mesa)"
                                     >
-                                        <span>FORMULÁRIO RÁPIDO</span>
+                                        <span>POSITIONS FAST</span>
                                         <span className="text-[10px] opacity-70">»</span>
                                     </Link>
                                 </div>
