@@ -37,6 +37,9 @@ const Footer = () => {
                                 <span className="cursor-not-allowed opacity-50">Assets</span>
                             </li>
                             <li>
+                                <Link href="/partners" className="hover:text-[#fbaa19] transition-colors">Partners</Link>
+                            </li>
+                            <li>
                                 <Link href="/terms-conditions" className="hover:text-[#fbaa19] transition-colors">Terms</Link>
                             </li>
                             <li>

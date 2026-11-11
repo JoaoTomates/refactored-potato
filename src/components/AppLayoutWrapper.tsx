@@ -23,6 +23,7 @@ export function isDashboardRoute(pathname: string | null): boolean {
         '/lore',
         '/news',
         '/next-race',
+        '/partners',
         '/playground',
         '/poletime',
         '/positions',

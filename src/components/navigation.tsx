@@ -197,6 +197,14 @@ const Navigation = () => {
                             >
                                 Race Week
                             </Link>
+                            <span className="text-white/20 text-xl hidden sm:block">/</span>
+                            <Link 
+                                href="/partners"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="text-white text-xl md:text-3xl font-black uppercase tracking-widest hover:text-[#fbaa19] transition-colors"
+                            >
+                                Partners
+                            </Link>
                         </div>
 
                         {/* FANTASY LINK */}
