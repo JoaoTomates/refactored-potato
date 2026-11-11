@@ -2158,7 +2158,11 @@ export default function OfficialStrategistDashboard() {
                         </section>
 
                         {/* COLUNA CENTRAL: 4 Competições no Topo + Painel Multifuncional + Botões Operacionais */}
-                        <section className="w-full lg:flex-1 min-w-0 flex flex-col gap-4 md:gap-5 transition-all duration-300">
+                        <section
+                            className={`w-full lg:flex-1 min-w-0 flex flex-col gap-4 md:gap-5 transition-all duration-300 ${
+                                leftCollapsed && rightCollapsed ? 'lg:max-w-[768px] lg:mx-auto' : ''
+                            }`}
+                        >
 
                             {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS (FORMULÁRIO RÁPIDO) — SOMENTE DONO DO TERMINAL */}
                             {isOwner && (
