@@ -35,9 +35,20 @@ export interface DialogueScene {
     rawBoxes: DialogueBox[];
 }
 
+export interface RaceWeekDayDialog {
+    message: string;
+    sprintMessage?: string;
+    tacticalObjective?: string;
+}
+
 export interface MasterScriptData {
     scenes: Record<string, DialogueScene>;
     inviteV2Dialogs: string[];
+    allianceDispatch: Record<'A' | 'B' | 'C', string>;
+    headquartersSpeech: string;
+    teamPrincipalWelcomes: Record<string, string>;
+    teamPrincipalReactions: Record<string, Partial<Record<'victory' | 'average' | 'poor', string>>>;
+    raceWeekDialogs: Record<string, RaceWeekDayDialog>;
 }
 
 export const MASTER_DIALOGUES_DATA: MasterScriptData = {
@@ -52,6 +63,11 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
       "id": "1_onboarding_o_chamado_confidencial",
       "title": "1. Onboarding & O Chamado Confidencial",
       "phases": [
+        {
+          "id": "1_1_vers_o_1_0_cl_ssica_roteiro_original_do_onboarding_",
+          "title": "1.1 Versão 1.0 (Clássica / Roteiro Original do Onboarding)",
+          "boxes": []
+        },
         {
           "id": "sequ_ncia_do_di_logo_",
           "title": "Sequência do Diálogo:",
@@ -143,7 +159,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "boxNumber": 3,
               "title": "Box 3 (O Teste de Nervos de Aço)",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
+              "text": "Diga-me com franqueza: você tem frieza para cravar, 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
               "actions": [
                 {
                   "label": "AVANÇAR",
@@ -255,37 +271,810 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
     "2_guerra_fria_dos_motores_2026_manifesto_dos_blocos": {
       "id": "2_guerra_fria_dos_motores_2026_manifesto_dos_blocos",
       "title": "2. Guerra Fria dos Motores 2026: Manifesto dos Blocos",
-      "phases": [],
+      "phases": [
+        {
+          "id": "_bloco_a_cons_rcio_da_estrela",
+          "title": "[BLOCO A] CONSÓRCIO DA ESTRELA",
+          "boxes": [
+            {
+              "id": "motores",
+              "title": "Motores",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Mercedes-AMG Power Unit",
+              "actions": []
+            },
+            {
+              "id": "garagens",
+              "title": "Garagens",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Mercedes, McLaren, Alpine, Williams",
+              "actions": []
+            },
+            {
+              "id": "lema_t_tico",
+              "title": "Lema Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Confiabilidade de Aço & Domínio de Frota",
+              "actions": []
+            },
+            {
+              "id": "doutrina",
+              "title": "Doutrina",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Quatro garagens trocando telemetria de alta densidade em tempo real. Cobrança por precisão germânica, consistência matemática e erro delta zero.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "_bloco_b_a_dinastia_de_maranello",
+          "title": "[BLOCO B] A DINASTIA DE MARANELLO",
+          "boxes": [
+            {
+              "id": "motores",
+              "title": "Motores",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Ferrari 067/3 Hybrid E-Turbo",
+              "actions": []
+            },
+            {
+              "id": "garagens",
+              "title": "Garagens",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Ferrari, Haas, Cadillac",
+              "actions": []
+            },
+            {
+              "id": "lema_t_tico",
+              "title": "Lema Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Potência de Pico & A Frente Americana",
+              "actions": []
+            },
+            {
+              "id": "doutrina",
+              "title": "Doutrina",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "A mística passional italiana aliada à agressividade do novo consórcio americano. Tolerância zero com o segundo lugar; vitória ou crise sob os olhos da imprensa global.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "_bloco_c_a_vanguarda",
+          "title": "[BLOCO C] A VANGUARDA",
+          "boxes": [
+            {
+              "id": "motores",
+              "title": "Motores",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Red Bull Powertrains-Ford, Honda HRC, Audi Turbo Hybrid",
+              "actions": []
+            },
+            {
+              "id": "garagens",
+              "title": "Garagens",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Red Bull Racing, Racing Bulls, Aston Martin, Audi",
+              "actions": []
+            },
+            {
+              "id": "lema_t_tico",
+              "title": "Lema Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Ambição Extrema e Risco Tecnológico",
+              "actions": []
+            },
+            {
+              "id": "doutrina",
+              "title": "Doutrina",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Fabricantes pioneiras e motores inéditos. O risco de falha mecânica é alto, mas quem domina o caos dita as regras do campeonato.",
+              "actions": []
+            }
+          ]
+        }
+      ],
       "rawBoxes": []
     },
     "3_despacho_dos_chefes_de_cons_rcio": {
       "id": "3_despacho_dos_chefes_de_cons_rcio",
       "title": "3. Despacho dos Chefes de Consórcio",
       "phases": [],
-      "rawBoxes": []
+      "rawBoxes": [
+        {
+          "id": "chefe_do_cons_rcio_da_estrela_bloco_a_",
+          "title": "Chefe do Consórcio da Estrela (Bloco A)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.",
+          "actions": []
+        },
+        {
+          "id": "chefe_da_dinastia_de_maranello_bloco_b_",
+          "title": "Chefe da Dinastia de Maranello (Bloco B)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a torcida te destrói.",
+          "actions": []
+        },
+        {
+          "id": "chefe_da_vanguarda_bloco_c_",
+          "title": "Chefe da Vanguarda (Bloco C)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.",
+          "actions": []
+        }
+      ]
     },
     "4_homologa_o_no_quartel_general_headquarters_": {
       "id": "4_homologa_o_no_quartel_general_headquarters_",
       "title": "4. Homologação no Quartel-General (`/headquarters`)",
       "phases": [],
-      "rawBoxes": []
+      "rawBoxes": [
+        {
+          "id": "mensagem_de_abertura",
+          "title": "Mensagem de Abertura",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Identificação confirmada. Seus canal de e-mail foi homologado na BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.",
+          "actions": []
+        },
+        {
+          "id": "exig_ncias_da_diretoria_para_a_temporada",
+          "title": "Exigências da Diretoria para a Temporada",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Antes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP fará diferença na sua trajetória;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILESIMUS: Faça o máximo de pontos possíveis nos finais de semana de Grand Prix e traga MLS para a equipe;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Colocar nossa aliança técnica no topo do campeonato.",
+          "actions": []
+        },
+        {
+          "id": "despacho_das_ofertas",
+          "title": "Despacho das Ofertas",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Duas propostas caíram na sua mesa. Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.",
+          "actions": []
+        }
+      ]
     },
     "5_hospitalidade_oficial_os_11_chefes_de_equipe": {
       "id": "5_hospitalidade_oficial_os_11_chefes_de_equipe",
       "title": "5. Hospitalidade Oficial: Os 11 Chefes de Equipe",
-      "phases": [],
+      "phases": [
+        {
+          "id": "1_mercedes_amg_f1_toto_wolff_t_wolff_",
+          "title": "1. Mercedes-AMG F1 — Toto Wolff (`T.WOLFF`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chefe de Equipe & Diretor Executivo",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Cirúrgico, calculista, intransigente com falhas operacionais.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Bem-vindo à nossa garagem. Aqui em Brackley nós não toleramos desculpas, toleramos dados. Se a sua telemetria for precisa, você terá o pit wall mais respeitado do grid.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Máxima precisão de ritmo de corrida e consistência matemática de paradas.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "2_scuderia_ferrari_fr_d_ric_vasseur_f_vasseur_",
+          "title": "2. Scuderia Ferrari — Frédéric Vasseur (`F.VASSEUR`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Diretor Geral & Chefe de Equipe",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Pragmático, direto e com nervos de aço sob a pressão histórica de Maranello.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Benvenuto a Maranello. Você agora representa a paixão de milhões de tifosi. Não procure inventar estratégias mirabolantes: faça o simples com perfeição cirúrgica.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Evitar armadilhas de tráfego e acertar o momento exato do pit stop.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "3_mclaren_f1_team_andrea_stella_a_stella_",
+          "title": "3. McLaren F1 Team — Andrea Stella (`A.STELLA`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chefe de Equipe & Líder Técnico",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Científico, humilde, focado na cultura de evolução contínua e velocidade bruta.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Seja bem-vindo a Woking. Nosso monoposto é rápido, mas quem transforma aerodinâmica em troféu é o estrategista no pit wall. Confie na telemetria.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Gestão agressiva de pneus macios e extração da volta mais rápida.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "4_red_bull_racing_christian_horner_c_horner_",
+          "title": "4. Red Bull Racing — Christian Horner (`C.HORNER`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chief Executive & Team Principal",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Combativo, agressivo nas apostas de pit stop e obstinado pela liderança mundial.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Você está na garagem que não teme arriscar. Se tivermos que fazer três paradas para vencer, faremos. Seja ousado na mureta.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Undercuts rápidos e domínio absoluto dos duelos roda a roda.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "5_williams_racing_james_vowles_j_vowles_",
+          "title": "5. Williams Racing — James Vowles (`J.VOWLES`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chefe de Equipe & Estrategista Executivo",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Estrategista nato, pedagógico e mestre em extrair resultados com orçamentos enxutos.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "A Williams tem alma e história. Cada ponto conquistado aqui vale o dobro. Analise os gaps de pista com frieza e colheremos os frutos.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Apostas inteligentes de azarão e aproveitamento de falhas dos gigantes.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "6_aston_martin_f1_mike_krack_m_krack_",
+          "title": "6. Aston Martin F1 — Mike Krack (`M.KRACK`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Team Principal",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Metódico, sereno e pressionado por resultados imediatos da diretoria verde.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Nossa infraestrutura em Silverstone é de ponta. Esperamos de você uma leitura refinada de corrida para honrar esse investimento.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Equilíbrio térmico e ultrapassagens estratégicas no pelotão intermediário.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "7_alpine_f1_team_oliver_oakes_o_oakes_",
+          "title": "7. Alpine F1 Team — Oliver Oakes (`O.OAKES`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Team Principal",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Jovem, direto, avesso a desculpas corporativas e exigente com resultados rápidos.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Esqueça a política, foque na pista. Quero ver você comandando a mureta com atitude e decisões firmes no rádio.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Overcuts oportunos e agressividade em pistas de alta aderência.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "8_haas_f1_team_ayao_komatsu_a_komatsu_",
+          "title": "8. Haas F1 Team — Ayao Komatsu (`A.KOMATSU`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Team Principal",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Engenheiro puro-sangue, avesso a politicagem e focado em ritmo puro sem drama.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Sem dramas aqui. Menos conversa e mais telemetria limpa. Se os números fizerem sentido, você terá todo o meu apoio.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Sobrevivência de pneus e aproveitar qualquer incidente na pista.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "9_audi_f1_project_mattia_binotto_m_binotto_",
+          "title": "9. Audi F1 Project — Mattia Binotto (`M.BINOTTO`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chief Operating & Chief Technical Officer",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Engenheiro cerebral, focado em processos alemães e precisão estrutural de longo prazo.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Bem-vindo ao projeto mais ambicioso do automobilismo. A Audi exige padrões de precisão absoluta em cada setor.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Telemetria de trem de força e consistência volta a volta.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "10_cadillac_f1_team_michael_andretti_m_andretti_",
+          "title": "10. Cadillac F1 Team — Michael Andretti (`M.ANDRETTI`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Team Principal & Racing Icon",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Voz icônica de corridas americanas, sangue nos olhos e vontade imensa de vencer na F1.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Entramos nessa categoria para brigar com os melhores do planeta. Mostre que o nosso pit wall tem coragem de vencer.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Agressividade na relargada e arrojo nas paradas com pneus novos.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "11_racing_bulls_rb_laurent_mekies_l_mekies_",
+          "title": "11. Racing Bulls (RB) — Laurent Mekies (`L.MEKIES`)",
+          "boxes": [
+            {
+              "id": "cargo",
+              "title": "Cargo",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Team Principal",
+              "actions": []
+            },
+            {
+              "id": "perfil",
+              "title": "Perfil",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Ágil, comunicativo e focado em formar e testar talentos no limite do grid.",
+              "actions": []
+            },
+            {
+              "id": "hospitality_welcome",
+              "title": "Hospitality Welcome",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Nossa equipe é dinâmica e não tem medo de testar novidades. Se você tiver uma leitura diferente do pelotão, fale no rádio.",
+              "actions": []
+            },
+            {
+              "id": "foco_do_briefing",
+              "title": "Foco do Briefing",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Velocidade de reação a bandeiras amarelas e duelos com equipes de ponta.",
+              "actions": []
+            }
+          ]
+        }
+      ],
       "rawBoxes": []
     },
     "6_o_ciclo_de_7_dias_da_race_week": {
       "id": "6_o_ciclo_de_7_dias_da_race_week",
       "title": "6. O Ciclo de 7 Dias da Race Week",
-      "phases": [],
+      "phases": [
+        {
+          "id": "dia_1_segunda_feira_log_stica_desembarque_",
+          "title": "Dia 1 — Segunda-feira (Logística & Desembarque)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chefe de Equipe",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock",
+              "title": "Diálogo de Paddock",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Nossas cargas tocaram o solo do autódromo. A garagem está sendo montada. Comece alinhando os parâmetros do Grande Prêmio. A semana de GP é curta e cada erro de telemetria custa caro.",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Alinhamento com o Chefe de Equipe e introdução das características de downforce do traçado.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B101-INIT` — Sincronização de satélites e servidores locais. Abertura do Book de Mercados em modo pre-race.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "dia_2_ter_a_feira_pit_wall_mec_nica_",
+          "title": "Dia 2 — Terça-feira (Pit Wall & Mecânica)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Estrategista Sênior (Mentor)",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock",
+              "title": "Diálogo de Paddock",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "O motor está no chassi. A fábrica está simulando janelas de degradação térmica para as retas do circuito. Acompanhe o clima previsto antes de definir os alvos de tempo.",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Estimular análise de clima e direção dos ventos para poletime e corrida.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B102-INFRA` — Validação de frequências de rádio e cotações MLS base.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "dia_3_quarta_feira_track_walk_pneus_pirelli_",
+          "title": "Dia 3 — Quarta-feira (Track Walk & Pneus Pirelli)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Estrategista Sênior (Mentor)",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock",
+              "title": "Diálogo de Paddock",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Caminhamos pelo asfalto esta manhã. As zebras externas exigem cuidado com assoalho. Ajuste sua estimativa de desgaste e paradas de box no terminal.",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Fornecer dados técnicos de pista para refinar o Top 10 e Duelos H2H.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B103-COMPOUNDS` — Divulgação oficial dos compostos C1-C5 e zonas de DRS. Abertura das previsões de Poletime.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "dia_4_quinta_feira_media_day_escrut_nio_t_cnico_",
+          "title": "Dia 4 — Quinta-feira (Media Day & Escrutínio Técnico)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Estrategista Sênior (Mentor)",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock",
+              "title": "Diálogo de Paddock",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Monopostos aprovados na balança sem infrações. O alvo de Poletime projetado pela nossa equipe fica na faixa recomendada. Abra seu formulário e faça as primeiras marcações.",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Pressionar o estrategista a registrar seu Poletime antes dos treinos decisivos.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B104-SCRUTINEER` — Homologação dos monopostos. Contagem regressiva oficial.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "dia_5_sexta_feira_treinos_livres_sprint_shootout_",
+          "title": "Dia 5 — Sexta-feira (Treinos Livres / Sprint Shootout)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Estrategista Sênior (Mentor)",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock_fim_de_semana_normal_",
+              "title": "Diálogo de Paddock (Fim de semana Normal)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "A telemetria do FP2 confirmou o ritmo das equipes líderes nos stints médios. Observe quem conserva os pneus dianteiros para definir o Top 10.",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock_fim_de_semana_sprint_",
+              "title": "Diálogo de Paddock (Fim de semana Sprint)",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Semana Sprint não perdoa hesitação: apenas 60 minutos de FP1 e entramos direto na disputa do grid Sprint. Olhe a velocidade máxima nos setores e crave seu palpite!",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Entregar o insider de ritmo real para guiar a seleção de Top 10 e Duelos H2H.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B105-PRACTICE` — Relatório de telemetria pós-treinos liberado. Alerta: Janela Poletime fecha no início do Q1.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "dia_6_s_bado_classifica_o_oficial_parque_fechado_",
+          "title": "Dia 6 — Sábado (Classificação Oficial & Parque Fechado)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chefe de Equipe",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock",
+              "title": "Diálogo de Paddock",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "O grid de largada está homologado e os carros entram em regime de Parque Fechado. A diretoria espera precisão total na montagem do Top 10 e nas apostas de duelo. Mostre seu valor no pit wall.",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Conectar resultado da classificação com o Poletime e preparar as previsões de domingo.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B106-GRID` — Fechamento definitivo do Poletime e abertura de Duelos e Volta Rápida.",
+              "actions": []
+            }
+          ]
+        },
+        {
+          "id": "dia_7_domingo_dia_do_gp_p_s_bandeirada_",
+          "title": "Dia 7 — Domingo (Dia do GP & Pós-Bandeirada)",
+          "boxes": [
+            {
+              "id": "voz",
+              "title": "Voz",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Chefe de Equipe",
+              "actions": []
+            },
+            {
+              "id": "di_logo_de_paddock",
+              "title": "Diálogo de Paddock",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Bandeirada quadriculada no Grande Prêmio! As decisões de pit stop definiram o resultado. Acesse o extrato de Milesimus (MLS) no seu painel: os dividendos das posições homologadas já estão disponíveis.",
+              "actions": []
+            },
+            {
+              "id": "alvo_t_tico",
+              "title": "Alvo Tático",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "Debriefing da rodada, cálculo de dividendos MLS e atualização do ranking Master.",
+              "actions": []
+            },
+            {
+              "id": "boletim_baeff1",
+              "title": "Boletim BAEFF1",
+              "speaker": "DIRETOR DE OPERAÇÕES",
+              "text": "`BAEFF1-SYS // B107-RESULTS` — Auditoria das apostas, liquidação de dividendos MLS e atualização do ranking geral.",
+              "actions": []
+            }
+          ]
+        }
+      ],
       "rawBoxes": []
     },
     "7_monitor_de_rela_es_rea_es_din_micas_p_s_resultado": {
       "id": "7_monitor_de_rela_es_rea_es_din_micas_p_s_resultado",
       "title": "7. Monitor de Relações: Reações Dinâmicas Pós-Resultado",
       "phases": [
+        {
+          "id": "rea_es_dos_chefes_por_cen_rio_",
+          "title": "Reações dos Chefes por Cenário:",
+          "boxes": []
+        },
         {
           "id": "a_vit_ria_p_dio_acerto_cravado_no_poletime_moral_alta_",
           "title": "A. Vitória / Pódio / Acerto Cravado no Poletime (Moral Alta ▲)",
@@ -395,26 +1184,154 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
       "id": "8_sabedoria_t_tica_dos_estrategistas_s_niores",
       "title": "8. Sabedoria Tática dos Estrategistas Sêniores",
       "phases": [],
-      "rawBoxes": []
+      "rawBoxes": [
+        {
+          "id": "m_amon_m_amon_96_gps_11_p_dios_5_poles_",
+          "title": "M. Amon (`M.AMON` — 96 GPs, 11 Pódios, 5 Poles)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Eu liderei Grandes Prêmios com 30 segundos de vantagem até o motor explodir a três voltas do fim. Conheço cada armadilha invisível deste asfalto. Ouça a telemetria antes de apostar.",
+          "actions": []
+        },
+        {
+          "id": "t_warwick_t_warwick_146_gps_4_p_dios_2_voltas_r_pidas_",
+          "title": "T. Warwick (`T.WARWICK` — 146 GPs, 4 Pódios, 2 Voltas Rápidas)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Bati roda contra os maiores campeões da era turbo com carros que quebravam todo domingo. Sei exatamente quem vai arriscar ultrapassagem quando os pneus começarem a escorregar.",
+          "actions": []
+        },
+        {
+          "id": "a_de_cesaris_a_decesaris_208_gps_5_p_dios_1_pole_",
+          "title": "A. de Cesaris (`A.DECESARIS` — 208 GPs, 5 Pódios, 1 Pole)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Agressividade é tudo, mas agressividade cega destrói sua suspensão na primeira zebra alta. Olhe o delta dos setores antes de cravar seu piloto no Top 3.",
+          "actions": []
+        }
+      ]
     },
     "9_transmiss_es_ao_vivo_de_r_dio_no_pit_wall": {
       "id": "9_transmiss_es_ao_vivo_de_r_dio_no_pit_wall",
       "title": "9. Transmissões ao Vivo de Rádio no Pit Wall",
       "phases": [],
-      "rawBoxes": []
+      "rawBoxes": [
+        {
+          "id": "engenheiro_de_pista_alerta_de_chuva_janela_de_box_",
+          "title": "Engenheiro de Pista (Alerta de Chuva / Janela de Box)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Box, box! A previsão do delta indicou chuva em 3 voltas. Entrando agora estamos com ar limpo.",
+          "actions": []
+        },
+        {
+          "id": "engenheiro_de_telemetria_setor_roxo_no_poletime_",
+          "title": "Engenheiro de Telemetria (Setor Roxo no Poletime)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Confirmação da FIA: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!",
+          "actions": []
+        },
+        {
+          "id": "estrategista_de_tr_fego_undercut_confirmado_",
+          "title": "Estrategista de Tráfego (Undercut Confirmado)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Ele saiu dos boxes atrás de você! O undercut funcionou perfeitamente. Posição ganha na pista!",
+          "actions": []
+        },
+        {
+          "id": "conselheiro_de_paddock_final_de_semana_sprint_",
+          "title": "Conselheiro de Paddock (Final de Semana Sprint)",
+          "speaker": "DIRETOR DE OPERAÇÕES",
+          "text": "Parque Fechado trancado até amanhã de manhã. O acerto que você escolheu agora vai ter que aguentar a Sprint inteira. Sem choro na mureta.",
+          "actions": []
+        }
+      ]
     }
   },
   "inviteV2Dialogs": [
     "Entre e feche a porta.",
     "Os relatórios da sua telemetria caíram na minha mesa e os números são impressionantes. Você lê o traçado antes das luzes apagarem.",
     "O mercado procura estrategistas capazes de cravar o tempo da pole position, prever a linha de chegada, os principais escaladores do grid e antecipar quem é o piloto dominante nos duelos internos.",
-    "Diga-me com franqueza: você tem frieza para apostar, em 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
+    "Diga-me com franqueza: você tem frieza para cravar, 'SIM ou NÃO', até 50% do seu orçamento, se M.VERSTAPPEN fará a volta mais rápida da corrida?",
     "Mas o novo regulamento de motores da Fórmula 1 deflagrou uma verdadeira guerra fria nos bastidores. Três grandes alianças dividiram o grid, compartilham dados estratégicos e exigem lealdade absoluta.",
     "Chegou o momento. Escolha sua aliança, requisite sua vaga no pitwall e assuma o controle das operações."
-  ]
+  ],
+  "allianceDispatch": {
+    "A": "Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.",
+    "B": "Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a torcida te destrói.",
+    "C": "Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias."
+  },
+  "headquartersSpeech": "Identificação confirmada. Seus canal de e-mail foi homologado na BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP fará diferença na sua trajetória;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILESIMUS: Faça o máximo de pontos possíveis nos finais de semana de Grand Prix e traga MLS para a equipe;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Colocar nossa aliança técnica no topo do campeonato.\n\nDuas propostas caíram na sua mesa. Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.",
+  "teamPrincipalWelcomes": {
+    "T.WOLFF": "Bem-vindo à nossa garagem. Aqui em Brackley nós não toleramos desculpas, toleramos dados. Se a sua telemetria for precisa, você terá o pit wall mais respeitado do grid.",
+    "F.VASSEUR": "Benvenuto a Maranello. Você agora representa a paixão de milhões de tifosi. Não procure inventar estratégias mirabolantes: faça o simples com perfeição cirúrgica.",
+    "A.STELLA": "Seja bem-vindo a Woking. Nosso monoposto é rápido, mas quem transforma aerodinâmica em troféu é o estrategista no pit wall. Confie na telemetria.",
+    "C.HORNER": "Você está na garagem que não teme arriscar. Se tivermos que fazer três paradas para vencer, faremos. Seja ousado na mureta.",
+    "J.VOWLES": "A Williams tem alma e história. Cada ponto conquistado aqui vale o dobro. Analise os gaps de pista com frieza e colheremos os frutos.",
+    "M.KRACK": "Nossa infraestrutura em Silverstone é de ponta. Esperamos de você uma leitura refinada de corrida para honrar esse investimento.",
+    "O.OAKES": "Esqueça a política, foque na pista. Quero ver você comandando a mureta com atitude e decisões firmes no rádio.",
+    "A.KOMATSU": "Sem dramas aqui. Menos conversa e mais telemetria limpa. Se os números fizerem sentido, você terá todo o meu apoio.",
+    "M.BINOTTO": "Bem-vindo ao projeto mais ambicioso do automobilismo. A Audi exige padrões de precisão absoluta em cada setor.",
+    "M.ANDRETTI": "Entramos nessa categoria para brigar com os melhores do planeta. Mostre que o nosso pit wall tem coragem de vencer.",
+    "L.MEKIES": "Nossa equipe é dinâmica e não tem medo de testar novidades. Se você tiver uma leitura diferente do pelotão, fale no rádio."
+  },
+  "teamPrincipalReactions": {
+    "MER": {
+      "victory": "Brilhante leitura de corrida! Seus números nos deram a vantagem exata que precisávamos. O consórcio da estrela reconhece seu valor.",
+      "average": "Pontos importantes para o campeonato, mas deixamos tempo valioso no segundo stint. Quero ver os dados de degradação térmica antes do debriefing.",
+      "poor": "Inaceitável. Nossa aliança técnica não constrói um motor deste calibre para perdermos posições por hesitação tática. Espero uma reação imediata no próximo GP."
+    },
+    "FER": {
+      "victory": "Mamma mia! Essa é a Ferrari que o mundo quer ver! A mureta dos boxes esteve impecável hoje. Desfrute do pódio, você mereceu.",
+      "average": "Um resultado razoável, mas a diretoria em Maranello quer troféus, não apenas estatísticas seguras. Vamos analisar as janelas de undercut perdidas.",
+      "poor": "A pressão dos tifosi vai ser impiedosa esta semana, e com razão. Nós erramos na leitura da pista. Não há espaço para outra corrida assim."
+    },
+    "MCL": {
+      "victory": "Ritmo espetacular! A correlação entre os seus cálculos e a pista foi perfeita. Essa vitória é sua tanto quanto dos nossos pilotos.",
+      "average": "Coletamos bons dados, mas nossa telemetria indicava que o segundo lugar era possível. Vamos revisar a tomada de decisão no rádio.",
+      "poor": "Ficamos presos no tráfego e queimamos borracha sem necessidade. Precisamos de respostas claras para a próxima rodada."
+    },
+    "RBR": {
+      "victory": "Simplesmente implacável! Você leu a janela de Safety Car com maestria. A Vanguarda está no topo onde pertence!",
+      "average": "Não entramos na F1 para ser figurantes no pelotão intermediário. Ajuste os cálculos de desgaste para a próxima etapa.",
+      "poor": "Um desastre estratégico. A diretoria austríaca já está pedindo explicações. Recupere esses pontos no próximo final de semana."
+    }
+  },
+  "raceWeekDialogs": {
+    "mon": {
+      "message": "Nossas cargas tocaram o solo do autódromo. A garagem está sendo montada. Comece alinhando os parâmetros do Grande Prêmio. A semana de GP é curta e cada erro de telemetria custa caro.",
+      "tacticalObjective": "Alinhamento com o Chefe de Equipe e introdução das características de downforce do traçado."
+    },
+    "tue": {
+      "message": "O motor está no chassi. A fábrica está simulando janelas de degradação térmica para as retas do circuito. Acompanhe o clima previsto antes de definir os alvos de tempo.",
+      "tacticalObjective": "Estimular análise de clima e direção dos ventos para poletime e corrida."
+    },
+    "wed": {
+      "message": "Caminhamos pelo asfalto esta manhã. As zebras externas exigem cuidado com assoalho. Ajuste sua estimativa de desgaste e paradas de box no terminal.",
+      "tacticalObjective": "Fornecer dados técnicos de pista para refinar o Top 10 e Duelos H2H."
+    },
+    "thu": {
+      "message": "Monopostos aprovados na balança sem infrações. O alvo de Poletime projetado pela nossa equipe fica na faixa recomendada. Abra seu formulário e faça as primeiras marcações.",
+      "tacticalObjective": "Pressionar o estrategista a registrar seu Poletime antes dos treinos decisivos."
+    },
+    "fri": {
+      "message": "A telemetria do FP2 confirmou o ritmo das equipes líderes nos stints médios. Observe quem conserva os pneus dianteiros para definir o Top 10.",
+      "sprintMessage": "Semana Sprint não perdoa hesitação: apenas 60 minutos de FP1 e entramos direto na disputa do grid Sprint. Olhe a velocidade máxima nos setores e crave seu palpite!",
+      "tacticalObjective": "Entregar o insider de ritmo real para guiar a seleção de Top 10 e Duelos H2H."
+    },
+    "sat": {
+      "message": "O grid de largada está homologado e os carros entram em regime de Parque Fechado. A diretoria espera precisão total na montagem do Top 10 e nas apostas de duelo. Mostre seu valor no pit wall.",
+      "tacticalObjective": "Conectar resultado da classificação com o Poletime e preparar as previsões de domingo."
+    },
+    "sun": {
+      "message": "Bandeirada quadriculada no Grande Prêmio! As decisões de pit stop definiram o resultado. Acesse o extrato de Milesimus (MLS) no seu painel: os dividendos das posições homologadas já estão disponíveis.",
+      "tacticalObjective": "Debriefing da rodada, cálculo de dividendos MLS e atualização do ranking Master."
+    }
+  }
 };
 
 export const INVITE_V2_DIALOGS: string[] = MASTER_DIALOGUES_DATA.inviteV2Dialogs;
+export const ALLIANCE_DISPATCH_DIALOGS: Record<'A' | 'B' | 'C', string> = MASTER_DIALOGUES_DATA.allianceDispatch;
+export const HEADQUARTERS_DIALOG_TEXT: string = MASTER_DIALOGUES_DATA.headquartersSpeech;
+export const TEAM_PRINCIPAL_WELCOMES: Record<string, string> = MASTER_DIALOGUES_DATA.teamPrincipalWelcomes;
+export const TEAM_PRINCIPAL_REACTIONS: Record<string, Partial<Record<'victory' | 'average' | 'poor', string>>> = MASTER_DIALOGUES_DATA.teamPrincipalReactions;
+export const RACE_WEEK_DIALOGS: Record<string, RaceWeekDayDialog> = MASTER_DIALOGUES_DATA.raceWeekDialogs;
 
 export function getDialogueScene(sceneId: string): DialogueScene | undefined {
     return MASTER_DIALOGUES_DATA.scenes[sceneId];

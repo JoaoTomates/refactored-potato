@@ -21,6 +21,8 @@ import {
     ArrowUp,
     ArrowDown
 } from 'lucide-react';
+import { DialogueBox } from '@/components/dialogue-box';
+import { MASTER_DIALOGUES_DATA } from '@/data/dialogues';
 
 interface NarrativeLine {
     id: string;
@@ -38,153 +40,74 @@ interface NarrativeChapter {
     lines: NarrativeLine[];
 }
 
-const DEFAULT_CHAPTERS: NarrativeChapter[] = [
-    {
-        id: 'invite-intro',
-        title: '01. O Chamado Confidencial',
-        category: 'INVITE ONBOARDING',
-        summary: 'Diálogo introdutório do Diretor quando o estrategista entra na sala de operações.',
-        lines: [
-            {
-                id: 'line-1',
-                speaker: 'DIRETOR DE OPERAÇÕES',
-                text: 'Puxe uma cadeira e feche a porta.',
-                tone: 'Sério, seco, confidencial',
-                notes: 'Primeira impressão. O silêncio da sala deve ser sentido.'
-            },
-            {
-                id: 'line-2',
-                speaker: 'DIRETOR DE OPERAÇÕES',
-                text: 'Os relatórios da sua telemetria caíram na minha mesa e seus números são impressionantes.',
-                tone: 'Reconhecimento contido',
-                notes: 'Estabelece que o jogador tem talento nato acima da média.'
-            },
-            {
-                id: 'line-3',
-                speaker: 'DIRETOR DE OPERAÇÕES',
-                text: 'Você lê o traçado antes das luzes apagarem.',
-                tone: 'Perspicaz',
-                notes: 'Alude à mecânica principal de prever resultados antes da largada.'
-            },
-            {
-                id: 'line-4',
-                speaker: 'DIRETOR DE OPERAÇÕES',
-                text: 'Mas você sabe que o novo regulamento de motores deflagrou uma verdadeira guerra fria nos bastidores. As fronteiras foram desenhadas e três grandes alianças se formaram no grid.',
-                tone: 'Tenso, geopolítico',
-                notes: 'Apresenta a Era Regulamentar de 2026 e a divisão de forças.'
-            },
-            {
-                id: 'line-5',
-                speaker: 'DIRETOR DE OPERAÇÕES',
-                text: 'Chegou a hora de escolher o seu lado e buscar uma vaga no pitwall entre os melhores.',
-                tone: 'Desafiador, decisivo',
-                notes: 'Gatilho para abrir a seleção de alianças dos motores.'
-            }
-        ]
-    },
-    {
-        id: 'alliances-lore',
-        title: '02. Guerra dos Motores 2026',
-        category: 'ALIANÇAS & SINDICATOS',
-        summary: 'Manifestos e posicionamento dos três blocos de motoristas do grid.',
-        lines: [
-            {
-                id: 'line-a',
-                speaker: 'BLOCO A (MERCEDES)',
-                text: '"Confiabilidade de Aço & Domínio de Frota"',
-                tone: 'Alemão, metódico, frio',
-                notes: 'Quatro garagens trocando telemetria de alta precisão.'
-            },
-            {
-                id: 'line-b',
-                speaker: 'BLOCO B (FERRARI)',
-                text: '"Potência de Pico & A Frente Americana"',
-                tone: 'Passional, agressivo, ousado',
-                notes: 'A mística de Maranello combinada com a nova força da Cadillac.'
-            },
-            {
-                id: 'line-c',
-                speaker: 'BLOCO C (A VANGUARDA)',
-                text: '"Ambição e Risco Tecnológico"',
-                tone: 'Rebelde, pioneiro, disruptivo',
-                notes: 'Red Bull-Ford, Honda e Audi desafiando o establishment.'
-            }
-        ]
-    },
-    {
-        id: 'directors-responses',
-        title: '03. Despacho dos Chefes de Equipe',
-        category: 'RESPOSTAS DE CONTRATO',
-        summary: 'Reação imediata do chefe do consórcio quando o jogador firma sua escolha de aliança.',
-        lines: [
-            {
-                id: 'dir-a',
-                speaker: 'CHEFIA CONSÓRCIO DA ESTRELA',
-                text: '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”',
-                tone: 'Exigência germânica',
-                notes: 'Cobrança por previsões com delta mínimo de erro.'
-            },
-            {
-                id: 'dir-b',
-                speaker: 'CHEFIA DINASTIA DE MARANELLO',
-                text: '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a imprensa italiana te destrói.”',
-                tone: 'Fogo nos olhos, dramático',
-                notes: 'Tolerância zero para previsões covardes.'
-            },
-            {
-                id: 'dir-c',
-                speaker: 'CHEFIA A VANGUARDA',
-                text: '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”',
-                tone: 'Audacioso, entusiasmado',
-                notes: 'Incentiva apostas contra o favoritismo.'
-            }
-        ]
-    },
-    {
-        id: 'headquarters-briefing',
-        title: '04. Quartel-General & Ofertas',
-        category: 'SALA DE CONTRATOS',
-        summary: 'Transmissão do staff ao receber as 2 ofertas de equipe exclusivas.',
-        lines: [
-            {
-                id: 'hq-1',
-                speaker: 'AGENTE DE CARREIRA',
-                text: 'Duas propostas caíram na sua mesa cifrada. Ambas monitoraram suas simulações de treino.',
-                tone: 'Negociador de bastidores',
-                notes: 'Mostra o peso do jogador no mercado de estrategistas.'
-            },
-            {
-                id: 'hq-2',
-                speaker: 'AGENTE DE CARREIRA',
-                text: 'Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.',
-                tone: 'Urgência controlada',
-                notes: 'Pressão pelo preenchimento das vagas limitadas.'
-            }
-        ]
-    },
-    {
-        id: 'pitwall-radio',
-        title: '05. Transmissões de Rádio do GP',
-        category: 'RÁDIO AO VIVO',
-        summary: 'Falas rápidas do estrategista chefe e engenheiro de pista durante o domingo.',
-        lines: [
-            {
-                id: 'rad-1',
-                speaker: 'ENGENHEIRO DE PISTA',
-                text: '“Box, box! A previsão do delta indicou chuva em 3 voltas. Entrando agora estamos com ar limpo.”',
-                tone: 'Respiração acelerada, rádio distorcido',
-                notes: 'Quando o jogador acerta uma aposta de clima ou safety car.'
-            },
-            {
-                id: 'rad-2',
-                speaker: 'ENGENHEIRO DE TELEMETRIA',
-                text: '“Confirmação da FIA: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!”',
-                tone: 'Comemoração no headset',
-                notes: 'Gatilho para acertos de Poletime.'
-            }
-        ]
-    }
-];
+function buildMasterChapters(): NarrativeChapter[] {
+    const inviteLines: NarrativeLine[] = MASTER_DIALOGUES_DATA.inviteV2Dialogs.map((text, idx) => ({
+        id: `invite-v2-${idx}`,
+        speaker: 'DIRETOR DE OPERAÇÕES',
+        text,
+        tone: idx === 0 ? 'Sério, seco, confidencial' : 'Briefing tático oficial',
+    }));
+
+    const dispatch = MASTER_DIALOGUES_DATA.allianceDispatch;
+    const allianceDispatchLines: NarrativeLine[] = [
+        { id: 'dir-a', speaker: 'CHEFIA CONSÓRCIO DA ESTRELA', text: dispatch.A, tone: 'Exigência germânica' },
+        { id: 'dir-b', speaker: 'CHEFIA DINASTIA DE MARANELLO', text: dispatch.B, tone: 'Fogo nos olhos, dramático' },
+        { id: 'dir-c', speaker: 'CHEFIA A VANGUARDA', text: dispatch.C, tone: 'Audacioso, entusiasmado' },
+    ].filter((l) => Boolean(l.text));
+
+    const hqBoxes = MASTER_DIALOGUES_DATA.scenes['4_homologa_o_no_quartel_general_headquarters_']?.rawBoxes || [];
+    const hqLines: NarrativeLine[] = hqBoxes
+        .filter((b) => Boolean(b.text))
+        .map((b, i) => ({
+            id: b.id || `hq-${i}`,
+            speaker: 'AGENTE DE CARREIRA',
+            text: b.text,
+            tone: b.title,
+        }));
+
+    const radioBoxes = MASTER_DIALOGUES_DATA.scenes['9_transmiss_es_ao_vivo_de_r_dio_no_pit_wall']?.rawBoxes || [];
+    const radioLines: NarrativeLine[] = radioBoxes
+        .filter((b) => Boolean(b.text))
+        .map((b, i) => ({
+            id: b.id || `rad-${i}`,
+            speaker: (b.title || 'RÁDIO DE PITWALL').toUpperCase(),
+            text: b.text,
+            tone: b.tone,
+        }));
+
+    return [
+        {
+            id: 'invite-intro',
+            title: '01. O Chamado Confidencial (V2)',
+            category: 'INVITE ONBOARDING',
+            summary: 'Sincronizado automaticamente de DIALOGUES_SCRIPT_MASTER.md (Seção 1.2).',
+            lines: inviteLines,
+        },
+        {
+            id: 'directors-responses',
+            title: '02. Despacho dos Chefes de Consórcio',
+            category: 'RESPOSTAS DE CONTRATO',
+            summary: 'Sincronizado automaticamente de DIALOGUES_SCRIPT_MASTER.md (Seção 3).',
+            lines: allianceDispatchLines,
+        },
+        {
+            id: 'headquarters-briefing',
+            title: '03. Quartel-General & Ofertas',
+            category: 'SALA DE CONTRATOS',
+            summary: 'Sincronizado automaticamente de DIALOGUES_SCRIPT_MASTER.md (Seção 4).',
+            lines: hqLines,
+        },
+        {
+            id: 'pitwall-radio',
+            title: '04. Transmissões de Rádio do GP',
+            category: 'RÁDIO AO VIVO',
+            summary: 'Sincronizado automaticamente de DIALOGUES_SCRIPT_MASTER.md (Seção 9).',
+            lines: radioLines,
+        },
+    ];
+}
+
+const DEFAULT_CHAPTERS: NarrativeChapter[] = buildMasterChapters();
 
 export default function LoreStudioPage() {
     const [chapters, setChapters] = useState<NarrativeChapter[]>(DEFAULT_CHAPTERS);
@@ -207,9 +130,9 @@ export default function LoreStudioPage() {
     const [isSimulating, setIsSimulating] = useState(false);
     const [simIndex, setSimIndex] = useState(0);
 
-    // Load from localStorage on mount
+    // Load custom edits from localStorage on mount (versioned so stale cache never hides Markdown updates)
     useEffect(() => {
-        const saved = localStorage.getItem('baeff1_lore_chapters') || localStorage.getItem('voltgrid_lore_chapters');
+        const saved = localStorage.getItem('baeff1_lore_chapters_v2');
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
@@ -225,7 +148,7 @@ export default function LoreStudioPage() {
     // Save to localStorage on change
     const saveChapters = (updated: NarrativeChapter[]) => {
         setChapters(updated);
-        localStorage.setItem('baeff1_lore_chapters', JSON.stringify(updated));
+        localStorage.setItem('baeff1_lore_chapters_v2', JSON.stringify(updated));
     };
 
     const currentChapter = chapters.find(c => c.id === selectedChapterId) || chapters[0];
@@ -546,19 +469,21 @@ export default function LoreStudioPage() {
                             </div>
 
                             {currentChapter.lines.length > 0 && currentChapter.lines[simIndex] ? (
-                                <div className="py-4">
-                                    <span className="text-[11px] font-mono text-[#fbaa19] uppercase font-bold tracking-widest block mb-2">
-                                        // {currentChapter.lines[simIndex].speaker}
-                                    </span>
-                                    <p className="text-lg md:text-xl font-bold tracking-widest text-white leading-relaxed border-l-4 border-[#fbaa19] pl-4 py-1">
-                                        {currentChapter.lines[simIndex].text}
-                                    </p>
-                                    {currentChapter.lines[simIndex].tone && (
-                                        <p className="text-xs text-gray-400 italic mt-3 font-mono">
-                                            Tom de fala: {currentChapter.lines[simIndex].tone}
-                                        </p>
-                                    )}
-                                </div>
+                                <DialogueBox
+                                    key={currentChapter.lines[simIndex].id}
+                                    speaker={currentChapter.lines[simIndex].speaker}
+                                    speakerRole={currentChapter.title}
+                                    categoryTag={`LINHA ${simIndex + 1} DE ${currentChapter.lines.length}`}
+                                    text={currentChapter.lines[simIndex].text}
+                                    accentColor="#fbaa19"
+                                    footerNote={
+                                        currentChapter.lines[simIndex].tone ? (
+                                            <span className="text-xs text-gray-400 italic font-mono">
+                                                Tom de fala: {currentChapter.lines[simIndex].tone}
+                                            </span>
+                                        ) : undefined
+                                    }
+                                />
                             ) : (
                                 <p className="text-gray-500 text-xs py-4 font-mono">Sem diálogos cadastrados para simulação.</p>
                             )}
@@ -606,67 +531,56 @@ export default function LoreStudioPage() {
                         ) : (
                             <div className="flex flex-col gap-3">
                                 {currentChapter.lines.map((line, idx) => (
-                                    <div
+                                    <DialogueBox
                                         key={line.id}
-                                        className="p-4 md:p-5 rounded-lg border border-white/10 bg-black/80 hover:border-[#fbaa19]/60 hover:bg-black/95 transition-all shadow-lg flex flex-col gap-2 group relative"
-                                    >
-                                        {/* Header da linha */}
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
-                                                    #{String(idx + 1).padStart(2, '0')}
-                                                </span>
-                                                <span className="text-xs font-mono font-bold tracking-widest text-[#fbaa19] uppercase">
-                                                    {line.speaker}
-                                                </span>
-                                                {line.tone && (
-                                                    <span className="text-[10px] text-gray-400 font-mono italic">
-                                                        ({line.tone})
-                                                    </span>
+                                        compact
+                                        typewriter={false}
+                                        speaker={line.speaker}
+                                        badgeTitle={`#${String(idx + 1).padStart(2, '0')} // ${line.speaker}`}
+                                        categoryTag={line.tone ? `(${line.tone})` : undefined}
+                                        text={line.text}
+                                        accentColor="#fbaa19"
+                                        footerNote={
+                                            <div className="flex items-center justify-between gap-3 flex-wrap w-full">
+                                                {line.notes ? (
+                                                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400 font-mono">
+                                                        <span className="text-gray-500">NOTA:</span>
+                                                        <span>{line.notes}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span />
                                                 )}
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        type="button"
+                                                        disabled={idx === 0}
+                                                        onClick={() => handleMoveLine(idx, 'up')}
+                                                        className="p-1 rounded-[3px] hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 cursor-pointer"
+                                                        title="Mover para cima"
+                                                    >
+                                                        <ArrowUp className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        disabled={idx === currentChapter.lines.length - 1}
+                                                        onClick={() => handleMoveLine(idx, 'down')}
+                                                        className="p-1 rounded-[3px] hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 cursor-pointer"
+                                                        title="Mover para baixo"
+                                                    >
+                                                        <ArrowDown className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteLine(line.id)}
+                                                        className="p-1 rounded-[3px] hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-colors ml-1 cursor-pointer"
+                                                        title="Excluir fala"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
                                             </div>
-
-                                            {/* Controles de ordem e exclusão */}
-                                            <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    disabled={idx === 0}
-                                                    onClick={() => handleMoveLine(idx, 'up')}
-                                                    className="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20"
-                                                    title="Mover para cima"
-                                                >
-                                                    <ArrowUp className="w-3.5 h-3.5" />
-                                                </button>
-                                                <button
-                                                    disabled={idx === currentChapter.lines.length - 1}
-                                                    onClick={() => handleMoveLine(idx, 'down')}
-                                                    className="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20"
-                                                    title="Mover para baixo"
-                                                >
-                                                    <ArrowDown className="w-3.5 h-3.5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteLine(line.id)}
-                                                    className="p-1 rounded hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-colors ml-1"
-                                                    title="Excluir fala"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* Texto da fala */}
-                                        <p className="text-sm md:text-base font-bold text-white tracking-widest leading-relaxed">
-                                            {line.text}
-                                        </p>
-
-                                        {/* Anotações de bastidores / Contexto */}
-                                        {line.notes && (
-                                            <div className="pt-2 border-t border-white/5 flex items-center gap-1.5 text-[11px] text-gray-400 font-mono">
-                                                <span className="text-gray-500">NOTA:</span>
-                                                <span>{line.notes}</span>
-                                            </div>
-                                        )}
-                                    </div>
+                                        }
+                                    />
                                 ))}
                             </div>
                         )}

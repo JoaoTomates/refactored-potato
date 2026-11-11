@@ -14,133 +14,8 @@ import {
 import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getStrategistSquad } from '@/lib/teamwork';
 import { getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/slug';
-import { ChevronLeft, ArrowRight, Check } from 'lucide-react';
-
-// --- PitWall Sound Engine (Cliques táteis da sala de estratégia) ---
-class PitWallSoundEngine {
-    ctx: AudioContext | null = null;
-    enabled: boolean = true;
-
-    init() {
-        if (typeof window === 'undefined') return;
-        if (!this.ctx) {
-            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-            if (AudioCtx) this.ctx = new AudioCtx();
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    }
-
-    playKeyClick(char = 'a') {
-        if (!this.enabled || !this.ctx) return;
-        try {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            const code = char.charCodeAt(0) || 65;
-            const freq = 380 + (code % 28) * 14;
-
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.028);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start();
-            osc.stop(this.ctx.currentTime + 0.03);
-        } catch (_) { }
-    }
-}
-
-const soundEngine = new PitWallSoundEngine();
-
-function TypewriterLine({ 
-    text, 
-    onComplete, 
-    startDelay = 60, 
-    speed = 14 
-}: { 
-    text: string; 
-    onComplete?: () => void; 
-    startDelay?: number; 
-    speed?: number; 
-}) {
-    const [displayed, setDisplayed] = useState("");
-    const [isTyping, setIsTyping] = useState(true);
-    const callbackRef = useRef(onComplete);
-
-    useEffect(() => {
-        callbackRef.current = onComplete;
-    }, [onComplete]);
-
-    const finishImmediately = useRef(() => {
-        setIsTyping(false);
-        setDisplayed(text);
-        if (callbackRef.current) callbackRef.current();
-    });
-
-    useEffect(() => {
-        let i = 0;
-        let timeoutId: NodeJS.Timeout;
-        let isCancelled = false;
-
-        finishImmediately.current = () => {
-            if (isCancelled) return;
-            isCancelled = true;
-            clearTimeout(timeoutId);
-            setIsTyping(false);
-            setDisplayed(text);
-            if (callbackRef.current) callbackRef.current();
-        };
-
-        setDisplayed("");
-        setIsTyping(true);
-
-        const typeNext = () => {
-            if (isCancelled) return;
-            if (i < text.length) {
-                setDisplayed(text.slice(0, i + 1));
-                const char = text.charAt(i);
-
-                if (char !== ' ' && char !== '\n') {
-                    soundEngine.playKeyClick(char);
-                }
-
-                i++;
-
-                let delay = speed;
-                if (char === '.' || char === '!' || char === '?') delay = speed * 6;
-                else if (char === ',' || char === '\n' || char === ':') delay = speed * 3;
-
-                timeoutId = setTimeout(typeNext, delay);
-            } else {
-                setIsTyping(false);
-                if (callbackRef.current) callbackRef.current();
-            }
-        };
-
-        timeoutId = setTimeout(typeNext, startDelay);
-
-        return () => {
-            isCancelled = true;
-            clearTimeout(timeoutId);
-        };
-    }, [text, startDelay, speed]);
-
-    return (
-        <span 
-            onClick={() => {
-                if (isTyping) finishImmediately.current();
-            }}
-            className="leading-relaxed relative whitespace-pre-wrap cursor-pointer select-none"
-            title={isTyping ? "Clique para exibir tudo" : undefined}
-        >
-            {displayed}
-            {isTyping && <span className="text-[#fbaa19] animate-pulse ml-1 inline-block">■</span>}
-        </span>
-    );
-}
+import { ChevronLeft, ArrowRight } from 'lucide-react';
+import { DialogueBox, DialogueActionButton, pitWallSound as soundEngine } from '@/components/dialogue-box';
 
 // --- Definição das 3 Cores por Aliança ---
 // Cor 1: Sênior (#fbaa19 - Amarelo Frank Miller Noir)
@@ -200,16 +75,12 @@ interface BoxCardProps {
     avatarUrl?: string;
 }
 
-// Componente individual de Box Text DESACOPLADO (Círculo fixo + Retângulo de Diálogo)
-// Se a conversa vier da esquerda (Sênior): Círculo na ponta esquerda, retângulo à direita
-// Se a conversa vier da direita (Técnico): Círculo na ponta direita, retângulo à esquerda
 function BoxCard({
     speakerBadge,
     speakerRole,
     categoryTag,
     text,
     accentColor,
-    accentGlow,
     animationDirection,
     isSettled = false,
     settledLabel,
@@ -220,128 +91,32 @@ function BoxCard({
     copyLabel = 'COPY',
     avatarUrl
 }: BoxCardProps) {
-    const cardColor = isFilled ? '#10b981' : accentColor;
-    const cardGlow = isFilled ? 'rgba(16, 185, 129, 0.4)' : (accentGlow || `${accentColor}40`);
-
-    const [currentImg, setCurrentImg] = useState(avatarUrl);
-    useEffect(() => {
-        setCurrentImg(avatarUrl);
-    }, [avatarUrl]);
-
-    const handleImgError = () => {
-        if (currentImg && currentImg.startsWith('http')) {
-            const parts = currentImg.split('/avatars/');
-            if (parts[1]) {
-                setCurrentImg(`/avatar/${parts[1]}`);
-            }
-        }
-    };
-
-    // Extrai o nome limpo para exibição no formato [ NOME ]
-    const cleanBadge = (speakerBadge || '').replace(/[\[\]]/g, '').trim();
-    const isRight = animationDirection === 'right';
+    const actions: DialogueActionButton[] = [];
+    if (!isSettled && onCopy) {
+        actions.push({ label: `[ ${copyLabel} ]`, onClick: onCopy, variant: 'secondary' });
+    }
+    if (onFill && fillLabel) {
+        actions.push({ label: fillLabel, onClick: onFill, variant: 'primary' });
+    }
 
     return (
-        <div 
-            className={`w-full flex items-center gap-3 sm:gap-4 transition-all duration-300 py-1.5 ${
-                isRight ? 'flex-row-reverse' : 'flex-row'
-            } ${
-                animationDirection === 'left' ? 'animate-fade-in-left' : 'animate-fade-in-right'
-            }`}
-        >
-            {/* 1. CÍRCULO DO AVATAR COM SOMBRA ESCURA INTENSA PARA CONTRASTE COM O BACKGROUND */}
-            <div className="flex flex-col items-center shrink-0 select-none filter drop-shadow-[0_12px_28px_rgba(0,0,0,0.98)]">
-                <div 
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center bg-black shrink-0 transition-transform"
-                    style={{ 
-                        borderColor: cardColor,
-                        boxShadow: `0 12px 35px rgba(0, 0, 0, 0.98), 0 0 28px rgba(0, 0, 0, 0.95), 0 0 20px ${cardGlow}, inset 0 0 12px rgba(0,0,0,0.85)` 
-                    }}
-                >
-                    <img 
-                        src={currentImg} 
-                        alt={cleanBadge} 
-                        onError={handleImgError}
-                        className="w-full h-full object-cover rounded-full"
-                    />
-                </div>
-                {/* Plaqueta de nome ancorada logo abaixo do círculo */}
-                <span 
-                    className="text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center truncate max-w-[90px] sm:max-w-[106px] bg-black/85 px-2 py-0.5 rounded border border-white/10 shadow-[0_6px_16px_rgba(0,0,0,0.98)]"
-                    style={{ color: cardColor }}
-                >
-                    [ {cleanBadge} ]
-                </span>
-            </div>
-
-            {/* 2. RETÂNGULO DO DIÁLOGO TOTALMENTE DESACOPLADO E ESTÁVEL */}
-            <div 
-                className="flex-1 rounded-2xl p-4 sm:p-5 transition-all duration-300 shadow-2xl border flex flex-col justify-between min-h-[92px] sm:min-h-[98px] backdrop-blur-md"
-                style={{
-                    backgroundColor: isFilled ? 'rgba(5, 14, 10, 0.97)' : 'rgba(7, 7, 9, 0.97)',
-                    borderColor: isFilled ? 'rgba(16, 185, 129, 0.45)' : `${cardColor}40`,
-                    boxShadow: `0 14px 36px rgba(0,0,0,0.92), 0 10px 30px -10px ${cardGlow}, 0 0 1px 1px ${cardColor}20`
-                }}
-            >
-                {/* Fala do personagem com min-height estável para evitar qualquer expansão durante a digitação */}
-                <div className={`text-white text-xs sm:text-sm font-semibold tracking-wide leading-relaxed py-0.5 min-h-[44px] flex items-center ${
-                    isRight ? 'text-right justify-end' : 'text-left justify-start'
-                }`}>
-                    <TypewriterLine text={text} startDelay={60} />
-                </div>
-
-                {/* Divisória e Ações */}
-                <div className={`mt-2 pt-2 border-t border-white/10 flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono flex-wrap ${
-                    isRight ? 'justify-start' : 'justify-end'
-                }`}>
-                    {isFilled ? (
-                        <div 
-                            className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold font-mono"
-                            style={{ 
-                                color: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                                border: '1px solid rgba(16, 185, 129, 0.4)'
-                            }}
-                        >
-                            <Check className="w-3.5 h-3.5 stroke-[3]" />
-                            <span>{settledLabel || 'HOMOLOGADO'}</span>
-                        </div>
-                    ) : (
-                        <>
-                            {isSettled && (
-                                <span className="px-2.5 py-1 rounded text-[10px] font-mono text-white/50 bg-white/5 border border-white/10">
-                                    {settledLabel || 'COPY'}
-                                </span>
-                            )}
-
-                            {!isSettled && onCopy && (
-                                <button
-                                    type="button"
-                                    onClick={onCopy}
-                                    className="px-4 py-1.5 rounded text-white/80 hover:text-white bg-black/80 hover:bg-white/10 border border-white/20 transition-all font-mono text-xs font-bold cursor-pointer"
-                                >
-                                    [ {copyLabel} ]
-                                </button>
-                            )}
-
-                            {onFill && fillLabel && (
-                                <button
-                                    type="button"
-                                    onClick={onFill}
-                                    className="px-4 py-1.5 rounded font-mono font-black text-xs text-black hover:brightness-110 transition-all uppercase tracking-wider shadow cursor-pointer flex items-center gap-1"
-                                    style={{
-                                        backgroundColor: cardColor,
-                                        boxShadow: `0 0 16px ${cardColor}40`
-                                    }}
-                                >
-                                    <span>{fillLabel}</span>
-                                </button>
-                            )}
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
+        <DialogueBox
+            speaker={speakerBadge}
+            speakerRole={speakerRole}
+            categoryTag={categoryTag}
+            avatarUrl={avatarUrl}
+            text={text}
+            accentColor={accentColor}
+            direction={animationDirection}
+            prefix={null}
+            startDelay={60}
+            speed={14}
+            isSettled={isSettled}
+            settledLabel={settledLabel}
+            isFilled={isFilled}
+            actions={actions}
+            animateEntrance
+        />
     );
 }
 
@@ -910,8 +685,8 @@ export function WarRoomContent() {
 
             {/* BACKGROUND IMERSIVO FRANK MILLER NOIR TRAVADO NA VIEWPORT (ESTILO INVITE) */}
             <div 
-                className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden" 
-                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden" 
+                style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
             >
                 <img
                     src="/war_room_bg.jpg"

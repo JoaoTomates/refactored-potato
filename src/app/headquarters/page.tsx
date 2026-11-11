@@ -6,101 +6,10 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
 import { Check, ArrowRight, ShieldCheck } from 'lucide-react';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
+import { DialogueBox, retroSound } from '@/components/dialogue-box';
+import { HEADQUARTERS_DIALOG_TEXT } from '@/data/dialogues';
 
-// --- PitWall Sound Engine ---
-class PitWallSoundEngine {
-    ctx: AudioContext | null = null;
-    enabled: boolean = true;
-
-    init() {
-        if (typeof window === 'undefined') return;
-        if (!this.ctx) {
-            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-            if (AudioCtx) this.ctx = new AudioCtx();
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    }
-
-    playKeyClick(char = 'a') {
-        if (!this.enabled || !this.ctx) return;
-        try {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            const code = char.charCodeAt(0) || 65;
-            const freq = 380 + (code % 28) * 14;
-
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.028);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start();
-            osc.stop(this.ctx.currentTime + 0.03);
-        } catch (_) { }
-    }
-}
-
-const retroSound = new PitWallSoundEngine();
-
-function TypewriterLine({ text, onComplete, onReadyForNext, startDelay = 150 }: { text: string, onComplete?: () => void, onReadyForNext?: () => void, startDelay?: number }) {
-    const [displayed, setDisplayed] = useState("");
-    const [isTyping, setIsTyping] = useState(true);
-    const callbacksRef = useRef({ onComplete, onReadyForNext });
-
-    useEffect(() => {
-        callbacksRef.current = { onComplete, onReadyForNext };
-    }, [onComplete, onReadyForNext]);
-
-    useEffect(() => {
-        let i = 0;
-        let timeoutId: NodeJS.Timeout;
-        let isCancelled = false;
-
-        const typeNext = () => {
-            if (isCancelled) return;
-            if (i < text.length) {
-                setDisplayed(text.slice(0, i + 1));
-                const char = text.charAt(i);
-
-                if (char !== ' ' && char !== '\n') {
-                    retroSound.playKeyClick(char);
-                }
-
-                i++;
-
-                let delay = (25 + Math.random() * 15);
-                if (char === '.' || char === '!' || char === '?') delay = 280;
-                else if (char === ',' || char === '\n' || char === ':') delay = 140;
-
-                timeoutId = setTimeout(typeNext, delay);
-            } else {
-                setIsTyping(false);
-                if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
-                if (callbacksRef.current.onComplete) {
-                    setTimeout(callbacksRef.current.onComplete, 600);
-                }
-            }
-        };
-
-        timeoutId = setTimeout(typeNext, startDelay);
-
-        return () => {
-            isCancelled = true;
-            clearTimeout(timeoutId);
-        };
-    }, [text, startDelay]);
-
-    return (
-        <span className="opacity-90 leading-relaxed relative whitespace-pre-wrap">
-            {displayed}
-            {isTyping && <span className="text-[#fbaa19] animate-pulse ml-1 inline-block translate-y-[2px]">■</span>}
-        </span>
-    );
-}
+const AGENT_AVATAR_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg';
 
 function HeadquartersFlow() {
     const { user, isLoading: authLoading } = useSupabaseAuth();
@@ -317,8 +226,8 @@ function HeadquartersFlow() {
         return (
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono relative">
                 <div 
-                    className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden"
-                    style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+                    className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden"
+                    style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
                 >
                     <img
                         src="/pixel_invite_bg_v2.jpg"
@@ -341,8 +250,8 @@ function HeadquartersFlow() {
         return (
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono relative p-4">
                 <div 
-                    className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden"
-                    style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+                    className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden"
+                    style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
                 >
                     <img
                         src="/pixel_invite_bg_v2.jpg"
@@ -386,13 +295,19 @@ function HeadquartersFlow() {
 
     const faction = ENGINE_FACTIONS[activeAllianceKey] || ENGINE_FACTIONS['B'];
 
-    const agentSpeech = `Identificação confirmada. Seus canais estão criptografados e homologados na base da BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do ${activeGroupName}.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILÉSIMUS: Cravar a volta mais rápida da Pole Position nos treinos classificatórios até a casa dos milésimos de segundo;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato mundial de construtores.\n\nAnalise as propostas oficiais abaixo com vagas disponíveis e assine seu contrato de pitwall.`;
+    const fallbackSpeech = `Identificação confirmada. Seus canais estão criptografados e homologados na base da BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do ${activeGroupName}.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILÉSIMUS: Cravar a volta mais rápida da Pole Position nos treinos classificatórios até a casa dos milésimos de segundo;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato mundial de construtores.\n\nAnalise as propostas oficiais abaixo com vagas disponíveis e assine seu contrato de pitwall.`;
+    const agentSpeech = HEADQUARTERS_DIALOG_TEXT
+        ? HEADQUARTERS_DIALOG_TEXT.replace(/dentro do seu grupo/i, `dentro do ${activeGroupName}`)
+        : fallbackSpeech;
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center pb-24">
+        <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center pb-24">
             
             {/* Background com arte em pixel art do Quartel-General - Viewport Estável sem expansão */}
-            <div className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden">
+            <div
+                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden"
+                style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
+            >
                 <img
                     src="/pixel_invite_bg_v2.jpg"
                     alt=""
@@ -404,26 +319,19 @@ function HeadquartersFlow() {
             <div className="relative z-10 w-full max-w-4xl flex flex-col gap-6 mt-8 md:mt-12 px-4">
                 
                 {/* Header do Terminal: Discurso do Agente com as Instruções */}
-                <div className="bg-[#0a0c10] border border-[#fbaa19]/40 rounded-lg p-5 md:p-6 shadow-2xl flex flex-col gap-4 animate-fade-in">
-                    
-                    <div className="flex items-center gap-3">
-                        <span className="text-xs font-black tracking-widest px-2.5 py-1 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/40 uppercase">
-                            [{faction.badge}]
-                        </span>
-                        <h1 className="text-white text-xl md:text-2xl font-black uppercase tracking-wider">
-                            {faction.title}
-                        </h1>
-                    </div>
-
-                    {/* Discurso do Agente com Altura Mínima Estável para evitar expansão da tela */}
-                    <div className="border-l-2 border-[#fbaa19] pl-4 py-1 text-sm md:text-base text-gray-200 leading-relaxed font-mono min-h-[220px] md:min-h-[190px]">
-                        <TypewriterLine 
-                            text={agentSpeech} 
-                            startDelay={150} 
-                            onReadyForNext={() => setTypingDone(true)} 
-                        />
-                    </div>
-                </div>
+                <DialogueBox
+                    speaker="AGENTE"
+                    badgeTitle={`[${faction.badge}] ${faction.title}`}
+                    categoryTag="HEADQUARTERS // CONTRATOS"
+                    avatarUrl={AGENT_AVATAR_URL}
+                    accentColor="#fbaa19"
+                    text={agentSpeech}
+                    startDelay={150}
+                    speed={25}
+                    minHeightClass="min-h-[220px] md:min-h-[190px]"
+                    onReadyForNext={() => setTypingDone(true)}
+                    animateEntrance
+                />
 
                 {errorMsg && (
                     <div className="bg-red-900/40 border border-red-500/50 p-4 rounded text-red-500 font-bold uppercase tracking-widest text-xs animate-fade-in">

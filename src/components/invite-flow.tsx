@@ -7,134 +7,9 @@ import { ENGINE_FACTIONS, ALLIANCE_KEYS, FactionData } from '@/utils/alliance-da
 import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
 import { INVITE_V2_DIALOGS } from '@/data/dialogues';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
+import { DialogueBox, TypewriterLine, retroSound } from '@/components/dialogue-box';
 
-// --- PitWall Sound Engine ---
-class PitWallSoundEngine {
-    ctx: AudioContext | null = null;
-    enabled: boolean = true;
-
-    init() {
-        if (typeof window === 'undefined') return;
-        if (!this.ctx) {
-            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-            if (AudioCtx) this.ctx = new AudioCtx();
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    }
-
-    playKeyClick(char = 'a') {
-        if (!this.enabled || !this.ctx) return;
-        try {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            const code = char.charCodeAt(0) || 65;
-            const freq = 380 + (code % 28) * 14;
-
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.028);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start();
-            osc.stop(this.ctx.currentTime + 0.03);
-        } catch (_) { }
-    }
-}
-
-export const retroSound = new PitWallSoundEngine();
-
-export function TypewriterLine({ 
-    text, 
-    onComplete, 
-    onReadyForNext, 
-    startDelay = 150 
-}: { 
-    text: string, 
-    onComplete?: () => void, 
-    onReadyForNext?: () => void, 
-    startDelay?: number 
-}) {
-    const [displayed, setDisplayed] = useState("");
-    const [isTyping, setIsTyping] = useState(true);
-    const callbacksRef = useRef({ onComplete, onReadyForNext });
-
-    useEffect(() => {
-        callbacksRef.current = { onComplete, onReadyForNext };
-    }, [onComplete, onReadyForNext]);
-
-    const finishImmediately = useRef(() => {
-        setIsTyping(false);
-        setDisplayed(text);
-        if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
-        if (callbacksRef.current.onComplete) callbacksRef.current.onComplete();
-    });
-
-    useEffect(() => {
-        let i = 0;
-        let timeoutId: NodeJS.Timeout;
-        let isCancelled = false;
-
-        finishImmediately.current = () => {
-            if (isCancelled) return;
-            isCancelled = true;
-            clearTimeout(timeoutId);
-            setIsTyping(false);
-            setDisplayed(text);
-            if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
-            if (callbacksRef.current.onComplete) callbacksRef.current.onComplete();
-        };
-
-        const typeNext = () => {
-            if (isCancelled) return;
-            if (i < text.length) {
-                setDisplayed(text.slice(0, i + 1));
-                const char = text.charAt(i);
-
-                if (char !== ' ' && char !== '\n') {
-                    retroSound.playKeyClick(char);
-                }
-
-                i++;
-
-                let delay = (35 + Math.random() * 25);
-                if (char === '.' || char === '!' || char === '?') delay = 350;
-                else if (char === ',' || char === '\n' || char === ':') delay = 180;
-
-                timeoutId = setTimeout(typeNext, delay);
-            } else {
-                setIsTyping(false);
-                if (callbacksRef.current.onReadyForNext) callbacksRef.current.onReadyForNext();
-                if (callbacksRef.current.onComplete) {
-                    setTimeout(callbacksRef.current.onComplete, 800);
-                }
-            }
-        };
-
-        timeoutId = setTimeout(typeNext, startDelay);
-
-        return () => {
-            isCancelled = true;
-            clearTimeout(timeoutId);
-        };
-    }, [text, startDelay]);
-
-    return (
-        <span 
-            onClick={() => {
-                if (isTyping) finishImmediately.current();
-            }}
-            className="opacity-90 leading-relaxed relative whitespace-pre-wrap cursor-pointer"
-            title={isTyping ? "Clique para exibir o texto completo imediatamente" : undefined}
-        >
-            {displayed}
-            {isTyping && <span className="text-[#fbaa19] animate-pulse ml-1 inline-block translate-y-[2px]">■</span>}
-        </span>
-    );
-}
+export { retroSound, TypewriterLine };
 
 type Phase = 'LOADING' | 'INTRO' | 'AUTO_DIALOG' | 'ENLIST' | 'EMAIL_SENT' | 'SUBMITTING_ENLIST';
 
@@ -162,106 +37,6 @@ const ALLIANCE_CHIEFS_AVATARS: Record<'A' | 'B' | 'C', { avatarUrl: string; chie
         accentColor: '#38bdf8'
     }
 };
-
-interface InviteBoxCardProps {
-    avatarUrl: string;
-    badgeTitle?: string;
-    accentColor?: string;
-    onClick?: () => void;
-    title?: string;
-    footerHint?: string;
-    direction?: 'left' | 'right';
-    children: React.ReactNode;
-}
-
-function InviteBoxCard({
-    avatarUrl,
-    badgeTitle,
-    accentColor = '#fbaa19',
-    onClick,
-    title,
-    footerHint,
-    direction = 'left',
-    children
-}: InviteBoxCardProps) {
-    const [currentSrc, setCurrentSrc] = useState(avatarUrl);
-
-    useEffect(() => {
-        setCurrentSrc(avatarUrl);
-    }, [avatarUrl]);
-
-    const handleImgError = () => {
-        if (currentSrc.startsWith('http')) {
-            const parts = currentSrc.split('/avatars/');
-            if (parts[1]) {
-                setCurrentSrc(`/avatar/${parts[1]}`);
-            }
-        }
-    };
-
-    const isRight = direction === 'right';
-
-    return (
-        <div 
-            onClick={onClick}
-            title={title}
-            className={`w-full flex items-center gap-3 sm:gap-4 transition-all duration-300 py-1.5 cursor-pointer group hover:scale-[1.008] ${
-                isRight ? 'flex-row-reverse' : 'flex-row'
-            }`}
-        >
-            {/* 1. CÍRCULO DO AVATAR TOTALMENTE DESACOPLADO E COM TAMANHO FIXO */}
-            <div className="flex flex-col items-center shrink-0 select-none">
-                <div 
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 p-0.5 flex items-center justify-center shadow-2xl bg-black shrink-0 transition-transform group-hover:scale-105"
-                    style={{ 
-                        borderColor: accentColor,
-                        boxShadow: `0 0 22px ${accentColor}40, inset 0 0 10px rgba(0,0,0,0.8)` 
-                    }}
-                >
-                    <img 
-                        src={currentSrc} 
-                        alt="Personagem" 
-                        onError={handleImgError}
-                        className="w-full h-full object-cover rounded-full filter contrast-105 group-hover:contrast-115 transition-all"
-                    />
-                </div>
-            </div>
-
-            {/* 2. RETÂNGULO DO DIÁLOGO TOTALMENTE DESACOPLADO E ESTÁVEL */}
-            <div 
-                className="flex-1 rounded-2xl p-4 sm:p-5 transition-all duration-300 shadow-2xl border flex flex-col justify-between min-h-[92px] sm:min-h-[98px] backdrop-blur-md"
-                style={{
-                    backgroundColor: 'rgba(7, 7, 9, 0.97)',
-                    borderColor: `${accentColor}40`,
-                    boxShadow: `0 10px 30px -10px ${accentColor}35, 0 0 1px 1px ${accentColor}20`
-                }}
-            >
-                {badgeTitle && (
-                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-0.5">
-                        <span 
-                            className="text-xs sm:text-sm font-black uppercase tracking-wider"
-                            style={{ color: accentColor }}
-                        >
-                            {badgeTitle}
-                        </span>
-                    </div>
-                )}
-
-                {/* Texto da fala como num balão/box de HQ com min-height estável */}
-                <div className="text-white text-xs sm:text-sm md:text-base font-bold tracking-wide leading-relaxed py-0.5 text-left min-h-[44px] flex items-center">
-                    {children}
-                </div>
-
-                {/* Rodapé / Dica de Clique quando houver */}
-                {footerHint && (
-                    <div className="text-[10px] text-white/40 font-mono tracking-widest text-right uppercase pt-0.5">
-                        {footerHint}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
 
 export function InviteFlow() {
     const { user, isLoading: authLoading } = useSupabaseAuth();
@@ -348,7 +123,7 @@ export function InviteFlow() {
 
     useEffect(() => {
         if (messagesEndRef.current && phase === 'AUTO_DIALOG') {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }, [dialogPage, pageStep, phase]);
 
@@ -544,12 +319,12 @@ export function InviteFlow() {
     };
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center">
+        <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center">
 
-            {/* Background Viewport Estável e Fixo - 100vw e 100vh bloqueados - Imune a expansões de scroll ou digitação */}
+            {/* Background Viewport Estável e Fixo - imune a scrollbars e crescimento dos textos */}
             <div 
-                className="fixed inset-0 w-screen h-screen pointer-events-none z-0 overflow-hidden" 
-                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}
+                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden" 
+                style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
             >
                 {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
                 <img
@@ -575,15 +350,17 @@ export function InviteFlow() {
             {/* FASE INTRO: Puxe uma cadeira e feche a porta */}
             {phase === 'INTRO' && (
                 <div className="absolute bottom-[20%] md:bottom-[25%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
-                    <InviteBoxCard
+                    <DialogueBox
+                        speaker="DIRETOR"
+                        speakerRole="DIRETOR DE OPERAÇÕES"
                         avatarUrl={DIRECTOR_AVATAR_URL}
                         accentColor="#fbaa19"
+                        text={customDialogs[0]}
+                        startDelay={150}
+                        onReadyForNext={() => setIntroReady(true)}
                         onClick={startAutoDialog}
                         footerHint="[ Continuar ] »"
-                    >
-                        <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
-                        <TypewriterLine text={customDialogs[0]} startDelay={150} onReadyForNext={() => setIntroReady(true)} />
-                    </InviteBoxCard>
+                    />
                 </div>
             )}
 
@@ -594,61 +371,49 @@ export function InviteFlow() {
                     {dialogPage === 1 && (
                         <>
                             {pageStep >= 1 && (
-                                <InviteBoxCard
+                                <DialogueBox
+                                    speaker="DIRETOR"
                                     avatarUrl={DIRECTOR_AVATAR_URL}
                                     accentColor="#fbaa19"
+                                    text={customDialogs[1]}
+                                    startDelay={150}
+                                    onReadyForNext={() => {
+                                        setTimeout(() => setPageStep(2), 300);
+                                    }}
                                     onClick={() => setPageStep(2)}
                                     title="Clique para avançar para a próxima fala"
-                                    footerHint="[ Avançar ] »"
-                                >
-                                    <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine
-                                        text={customDialogs[1]}
-                                        startDelay={150}
-                                        onReadyForNext={() => {
-                                            setTimeout(() => setPageStep(2), 300);
-                                        }}
-                                    />
-                                </InviteBoxCard>
+                                />
                             )}
 
                             {pageStep >= 2 && (
-                                <InviteBoxCard
+                                <DialogueBox
+                                    speaker="DIRETOR"
                                     avatarUrl={DIRECTOR_AVATAR_URL}
                                     accentColor="#fbaa19"
+                                    text={customDialogs[2]}
+                                    startDelay={150}
+                                    onReadyForNext={() => {
+                                        setTimeout(() => setPageStep(3), 300);
+                                    }}
                                     onClick={() => setPageStep(3)}
                                     title="Clique para avançar para a próxima fala"
-                                    footerHint="[ Avançar ] »"
-                                >
-                                    <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine
-                                        text={customDialogs[2]}
-                                        startDelay={150}
-                                        onReadyForNext={() => {
-                                            setTimeout(() => setPageStep(3), 300);
-                                        }}
-                                    />
-                                </InviteBoxCard>
+                                />
                             )}
 
                             {pageStep >= 3 && (
-                                <InviteBoxCard
+                                <DialogueBox
+                                    speaker="DIRETOR"
                                     avatarUrl={DIRECTOR_AVATAR_URL}
                                     accentColor="#fbaa19"
+                                    text={customDialogs[3]}
+                                    startDelay={150}
+                                    onReadyForNext={() => {
+                                        // Pausa de 10 segundos antes de mudar automaticamente
+                                        start10SecondAutoAdvance(2);
+                                    }}
                                     onClick={() => changeToPage(2)}
                                     title="Clique para avançar imediatamente para a próxima página"
-                                    footerHint="[ Próxima Página ] »"
-                                >
-                                    <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine
-                                        text={customDialogs[3]}
-                                        startDelay={150}
-                                        onReadyForNext={() => {
-                                            // Pausa de 10 segundos antes de mudar automaticamente
-                                            start10SecondAutoAdvance(2);
-                                        }}
-                                    />
-                                </InviteBoxCard>
+                                />
                             )}
 
                             {/* Botão de avanço imediato sempre acessível */}
@@ -676,42 +441,34 @@ export function InviteFlow() {
                     {dialogPage === 2 && (
                         <>
                             {pageStep >= 1 && (
-                                <InviteBoxCard
+                                <DialogueBox
+                                    speaker="DIRETOR"
                                     avatarUrl={DIRECTOR_AVATAR_URL}
                                     accentColor="#fbaa19"
+                                    text={customDialogs[4]}
+                                    startDelay={150}
+                                    onReadyForNext={() => {
+                                        setTimeout(() => setPageStep(2), 300);
+                                    }}
                                     onClick={() => setPageStep(2)}
                                     title="Clique para avançar para a próxima fala"
-                                    footerHint="[ Avançar ] »"
-                                >
-                                    <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine
-                                        text={customDialogs[4]}
-                                        startDelay={150}
-                                        onReadyForNext={() => {
-                                            setTimeout(() => setPageStep(2), 300);
-                                        }}
-                                    />
-                                </InviteBoxCard>
+                                />
                             )}
 
                             {pageStep >= 2 && (
-                                <InviteBoxCard
+                                <DialogueBox
+                                    speaker="DIRETOR"
                                     avatarUrl={DIRECTOR_AVATAR_URL}
                                     accentColor="#fbaa19"
+                                    text={customDialogs[5]}
+                                    startDelay={150}
+                                    onReadyForNext={() => {
+                                        // Pausa de 10 segundos antes de mudar automaticamente para as alianças
+                                        start10SecondAutoAdvance(3);
+                                    }}
                                     onClick={() => changeToPage(3)}
                                     title="Clique para avançar imediatamente para as propostas"
-                                    footerHint="[ Ver Alianças ] »"
-                                >
-                                    <span className="opacity-50 mr-2 text-[#fbaa19]">&gt;_</span>
-                                    <TypewriterLine
-                                        text={customDialogs[5]}
-                                        startDelay={150}
-                                        onReadyForNext={() => {
-                                            // Pausa de 10 segundos antes de mudar automaticamente para as alianças
-                                            start10SecondAutoAdvance(3);
-                                        }}
-                                    />
-                                </InviteBoxCard>
+                                />
                             )}
 
                             {/* Botão de avanço imediato sempre acessível */}
@@ -746,27 +503,26 @@ export function InviteFlow() {
                                 const chief = ALLIANCE_CHIEFS_AVATARS[groupId];
 
                                 return (
-                                    <InviteBoxCard
+                                    <DialogueBox
                                         key={g.id}
-                                        avatarUrl={chief.avatarUrl}
+                                        speaker={chief.chiefName}
+                                        speakerRole={chief.chiefRole}
                                         badgeTitle={`[${g.badge}] ${g.title}`}
+                                        avatarUrl={chief.avatarUrl}
                                         accentColor={chief.accentColor}
+                                        prefix={null}
+                                        minHeightClass="min-h-[80px]"
+                                        text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`}
+                                        startDelay={150}
+                                        onReadyForNext={() => {
+                                            if (stepNeeded < 3) {
+                                                setTimeout(() => setPageStep(stepNeeded + 1), 400);
+                                            }
+                                        }}
                                         onClick={() => handleSelectAlliance(groupId)}
                                         title={`Escolher ${g.badge}`}
                                         footerHint={`[ ESCOLHER ${g.badge} ] »`}
-                                    >
-                                        <div className="text-white/90 text-xs md:text-sm font-normal leading-relaxed min-h-[80px]">
-                                            <TypewriterLine
-                                                text={`${g.sub}\nEQUIPES: ${g.teamsString}\nSPEC: ${g.engineSpec}\nPERK: ${g.fantasyPerk}`}
-                                                startDelay={150}
-                                                onReadyForNext={() => {
-                                                    if (stepNeeded < 3) {
-                                                        setTimeout(() => setPageStep(stepNeeded + 1), 400);
-                                                    }
-                                                }}
-                                            />
-                                        </div>
-                                    </InviteBoxCard>
+                                    />
                                 );
                             })}
                         </>
@@ -788,18 +544,16 @@ export function InviteFlow() {
                     isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                 }`}>
                     {/* Box do mesmo Diretor do início comentando a escolha da aliança */}
-                    <InviteBoxCard
+                    <DialogueBox
+                        speaker="DIRETOR"
                         avatarUrl={DIRECTOR_AVATAR_URL}
                         accentColor="#fbaa19"
-                    >
-                        <div className="italic">
-                            <TypewriterLine 
-                                text={ENGINE_FACTIONS[selectedGroup].directorResponse} 
-                                startDelay={200} 
-                                onReadyForNext={() => setTypingComplete(true)} 
-                            />
-                        </div>
-                    </InviteBoxCard>
+                        italic
+                        prefix={null}
+                        text={ENGINE_FACTIONS[selectedGroup].directorResponse}
+                        startDelay={200}
+                        onReadyForNext={() => setTypingComplete(true)}
+                    />
 
                     <div className="w-full bg-black/85 p-6 md:p-8 backdrop-blur-sm border border-[#fbaa19]/30 rounded-2xl shadow-2xl animate-fade-in flex flex-col gap-6">
                         {/* Formulário de Emissão da Superlicença */}

@@ -17,6 +17,10 @@
   --font-ibm: var(--font-ibm);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   @apply bg-gray-100 dark:bg-[#0a0a0a] text-black dark:text-white transition-colors duration-300;
 }

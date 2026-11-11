@@ -1,3 +1,5 @@
+import { ALLIANCE_DISPATCH_DIALOGS } from '@/data/dialogues';
+
 export interface TeamOffer {
     id: string;
     name: string;
@@ -112,7 +114,7 @@ export const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', FactionData> = {
             { code: 'WIL', name: 'Williams', color: '#005AFF' }
         ],
         //fantasyPerk: '+15% de rendimento em previsões de consistência cirúrgica.',
-        directorResponse: '“Decisão metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens compartilhando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
+        directorResponse: ALLIANCE_DISPATCH_DIALOGS.A || '“Escolha metódica. Você optou pela maior frota de motores da Alemanha. Quatro garagens trocando dados e confiabilidade de aço. Aqui a cobrança é por perfeição matemática nas previsões. Não me desaponte.”'
     },
     B: {
         id: 'B',
@@ -128,7 +130,7 @@ export const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', FactionData> = {
             { code: 'CAD', name: 'Cadillac', color: '#FFC80C' }
         ],
         //fantasyPerk: 'Bônus dobrado (2x) em apostas arriscadas de Pole Position.',
-        directorResponse: '“Sangue quente. Você escolheu a mística de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou sua telemetria nos coloca na frente, ou a imprensa italiana te destrói.”'
+        directorResponse: ALLIANCE_DISPATCH_DIALOGS.B || '“Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a torcida te destrói.”'
     },
     C: {
         id: 'C',
@@ -145,7 +147,7 @@ export const ENGINE_FACTIONS: Record<'A' | 'B' | 'C', FactionData> = {
             { code: 'AUD', name: 'Audi', color: '#F50537' }
         ],
         //fantasyPerk: '+25% de rendimento ao antecipar cenários de caos no traçado.',
-        directorResponse: '“Aprecio a ousadia. Você marchou direto para o terreno hostil de motores inéditos. Risco brutal, mas é exatamente no caos que os estrategistas lendários constroem dinastias.”'
+        directorResponse: ALLIANCE_DISPATCH_DIALOGS.C || '“Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias.”'
     }
 };
 

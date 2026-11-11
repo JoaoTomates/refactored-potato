@@ -151,4 +151,27 @@ O grid do BAEFF1 é tratado conceitualmente como um **pregão financeiro de velo
 ```
 
 ---
+
+### 7. Modelo Definitivo de Caixa de Diálogo Narrativa (`DialogueBox`)
+
+**Componente Canônico:** `src/components/dialogue-box.tsx` (`DialogueBox`, `TypewriterLine`, `pitWallSound`)
+
+Toda fala de personagem, diretor, engenheiro ou mentor do paddock deve utilizar obrigatoriamente o componente `DialogueBox` seguindo as especificações definitivas abaixo:
+
+1. **Superfície & Borda (Box Card e Avatar):**
+   - **Background:** `#030303` com degradê suave para `#000000` (`linear-gradient(160deg, #030303 0%, #000000 100%)`).
+   - **Borda:** `1px solid #000000` (`border border-[#000000]`).
+   - **Border Radius:** Máximo de `3px` (`rounded-[3px]`) tanto no retângulo de diálogo quanto na moldura do avatar e na plaqueta de identificação.
+2. **Sombra Spread Direcional (Box Card e Avatar):**
+   - Sombra preta profunda de elevação combinada com spread sutil na `accentColor` do falante (ou `#fbaa19` padrão), projetada **na direção oposta ao avatar**:
+     - `direction="left"` (avatar à esquerda): offset horizontal positivo (`8px 6px 24px 2px rgba(0,0,0,0.96), 4px 2px 16px 1px ${accentColor}30`).
+     - `direction="right"` (avatar à direita): offset horizontal negativo (`-8px 6px 24px 2px rgba(0,0,0,0.96), -4px 2px 16px 1px ${accentColor}30`).
+3. **Identificação do Falante:**
+   - **Plaqueta `[ NOME ]`** ancorada abaixo do avatar com o mesmo padrão `#030303 -> #000000`, borda `#000000`, `rounded-[3px]` e sombra direcional.
+   - **Cabeçalho Interno Opcional:** exibido apenas quando houver `speakerRole`, `badgeTitle` ou `categoryTag`.
+4. **Tipografia & Interação:**
+   - Fonte `font-mono` com incremento de **+0.5px** sobre a escala base (`calc(0.75rem + 0.5px)` / `calc(0.875rem + 0.5px)` / `calc(1rem + 0.5px)`).
+   - Efeito `TypewriterLine` + áudio mecânico `PitWallSoundEngine` ativo por padrão em cenas ao vivo (com clique para completar imediatamente) e desativável via `typewriter={false}` em listas e históricos (ex.: Race Week, Lore).
+
+---
 *BAEFF1 Technical Telemetry & Market Protocol — Strictly Confidential*

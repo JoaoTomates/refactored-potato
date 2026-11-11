@@ -11,6 +11,8 @@ import {
 } from '@/lib/paddock-crew';
 import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
 import { ChevronRight, Clock, ShieldCheck, Radio, UserCheck, Flame } from 'lucide-react';
+import { DialogueBox } from '@/components/dialogue-box';
+import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
 
 export interface DaySchedule {
     dayId: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
@@ -28,6 +30,7 @@ export interface DaySchedule {
     mentorDialogue: {
         speaker: string;
         role: string;
+        avatarUrl?: string;
         message: string;
         tacticalObjective: string;
     };
@@ -163,6 +166,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
+                avatarUrl: mentor.avatarUrl,
                 message: `“O motor está no chassi. A fábrica está simulando janelas de degradação térmica para as retas de ${circuitName}. Acompanhe o clima previsto antes de definir os alvos de tempo.”`,
                 tacticalObjective: 'Estimular análise de clima e direção dos ventos para poletime e corrida.'
             },
@@ -202,6 +206,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
+                avatarUrl: mentor.avatarUrl,
                 message: '“Caminhamos pelo asfalto esta manhã. As zebras externas exigem cuidado com assoalho. Ajuste sua estimativa de desgaste e paradas de box no terminal.”',
                 tacticalObjective: 'Fornecer dados técnicos de pista para refinar o Top 10 e Duelos H2H.'
             },
@@ -248,6 +253,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
+                avatarUrl: mentor.avatarUrl,
                 message: `“Monopostos aprovados na balança sem infrações. O alvo de Poletime projetado pela nossa equipe fica na faixa de ${mentor.briefingTips.poletimeTarget}. Abra seu formulário e faça as primeiras marcações.”`,
                 tacticalObjective: 'Pressionar o apostador a registrar seu Poletime antes dos treinos decisivos.'
             },
@@ -308,6 +314,7 @@ export default function RaceWeekSchedule({
             mentorDialogue: {
                 speaker: mentor.code,
                 role: mentor.title,
+                avatarUrl: mentor.avatarUrl,
                 message: isSprint
                     ? `“Semana Sprint não perdoa hesitação: apenas 60 minutos de FP1 e entramos direto na disputa do grid Sprint. Olhe a velocidade máxima nos setores e crave seu palpite!”`
                     : `“A telemetria do FP2 confirmou o ritmo das equipes líderes nos stints médios. Observe quem conserva os pneus dianteiros em ${circuitName.split(' ')[0]} para definir o Top 10.”`,
@@ -437,7 +444,21 @@ export default function RaceWeekSchedule({
                 href: '/telemetry'
             }
         }
-    ];
+    ].map((day) => {
+        const synced = RACE_WEEK_DIALOGS[day.dayId];
+        if (!synced) return day;
+        const chosenMsg = (isSprint && day.dayId === 'fri' && synced.sprintMessage)
+            ? synced.sprintMessage
+            : synced.message;
+        return {
+            ...day,
+            mentorDialogue: {
+                ...day.mentorDialogue,
+                message: chosenMsg ? `“${chosenMsg}”` : day.mentorDialogue.message,
+                tacticalObjective: synced.tacticalObjective || day.mentorDialogue.tacticalObjective,
+            },
+        };
+    });
 
     // Dia ativo selecionado para exibição
     const activeDayData = selectedDay === 'today'
@@ -516,37 +537,29 @@ export default function RaceWeekSchedule({
 
                 {/* MODAL / BOX CLEAN DE REUNIÃO DE HOSPITALIDADE */}
                 {showHospitalityModal && (
-                    <div className="bg-black border-2 border-[#fbaa19] p-4 rounded-xs text-white flex flex-col gap-3 my-1">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                            <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-[#fbaa19]" />
-                                <span className="text-xs font-black uppercase tracking-widest text-[#fbaa19]">
-                                    HOSPITALITY // {principal.fullName.toUpperCase()} ({principal.title})
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setShowHospitalityModal(false)}
-                                className="text-white/60 hover:text-white text-xs cursor-pointer px-1 font-bold"
-                            >
-                                [FECHAR]
-                            </button>
-                        </div>
-
-                        {/* Diálogo com fundo preto e texto branco entre aspas */}
-                        <div className="bg-black p-3.5 border border-white/10 rounded-xs">
-                            <p className="text-xs sm:text-sm text-white font-sans italic leading-relaxed">
-                                {principal.hospitalityWelcome}
-                            </p>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px] text-white/50 pt-1">
-                            <span>
-                                <strong className="text-white">Perfil da Chefia:</strong> {principal.personality}
-                            </span>
-                            <span>
-                                <strong className="text-[#fbaa19]">Foco do Briefing:</strong> {principal.briefingFocus}
-                            </span>
-                        </div>
+                    <div className="my-1 flex flex-col gap-2">
+                        <DialogueBox
+                            compact
+                            typewriter={false}
+                            speaker={principal.code}
+                            badgeTitle={`HOSPITALITY // ${principal.fullName.toUpperCase()} (${principal.title})`}
+                            text={principal.hospitalityWelcome}
+                            accentColor={accentColor}
+                            italic
+                            actions={[
+                                { label: '[FECHAR]', onClick: () => setShowHospitalityModal(false), variant: 'secondary' }
+                            ]}
+                            footerNote={
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-[10px] text-white/50">
+                                    <span>
+                                        <strong className="text-white">Perfil da Chefia:</strong> {principal.personality}
+                                    </span>
+                                    <span>
+                                        <strong className="text-[#fbaa19]">Foco do Briefing:</strong> {principal.briefingFocus}
+                                    </span>
+                                </div>
+                            }
+                        />
                     </div>
                 )}
 
@@ -653,23 +666,22 @@ export default function RaceWeekSchedule({
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 relative z-10">
                                 
                                 {/* DISPARO DO ESTRATEGISTA SÊNIOR / CHEFE DE EQUIPE */}
-                                <div className="bg-black border border-white/15 p-3.5 rounded-xs flex flex-col gap-2">
-                                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-                                        <div className="flex items-center gap-2">
-                                            <Radio className="w-3.5 h-3.5 text-[#fbaa19]" />
-                                            <span className="text-[9px] font-black tracking-widest uppercase text-[#fbaa19]">
-                                                {day.mentorDialogue.speaker} // {day.mentorDialogue.role}
-                                            </span>
-                                        </div>
-                                        <span className="text-[8px] text-white/40 uppercase">RÁDIO DE PITWALL</span>
-                                    </div>
-                                    <p className="text-xs text-white font-sans italic leading-relaxed">
-                                        {day.mentorDialogue.message}
-                                    </p>
-                                    <div className="mt-auto pt-1 text-[9px] text-white/40">
-                                        <strong className="text-white/70">Alvo Tático:</strong> {day.mentorDialogue.tacticalObjective}
-                                    </div>
-                                </div>
+                                <DialogueBox
+                                    compact
+                                    typewriter={false}
+                                    speaker={day.mentorDialogue.speaker}
+                                    speakerRole={day.mentorDialogue.role}
+                                    categoryTag="RÁDIO DE PITWALL"
+                                    avatarUrl={day.mentorDialogue.avatarUrl}
+                                    text={day.mentorDialogue.message}
+                                    accentColor="#fbaa19"
+                                    italic
+                                    footerNote={
+                                        <>
+                                            <strong className="text-white/70">Alvo Tático:</strong> {day.mentorDialogue.tacticalObjective}
+                                        </>
+                                    }
+                                />
 
                                 {/* BOLETIM NORMATIVO BAEFF1 */}
                                 <div className="bg-black border border-white/15 p-3.5 rounded-xs flex flex-col gap-2">

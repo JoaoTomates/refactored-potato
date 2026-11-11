@@ -7,6 +7,8 @@
  * 3. Monitor de Relações & Reações - Variação de diálogos conforme o histórico de resultados.
  */
 
+import { TEAM_PRINCIPAL_WELCOMES, TEAM_PRINCIPAL_REACTIONS } from '@/data/dialogues';
+
 export interface TeamPrincipal {
     code: string;               // Padrão BAEFF1: "T.WOLFF", "F.VASSEUR"
     fullName: string;
@@ -207,7 +209,21 @@ export const TEAM_PRINCIPALS: Record<string, TeamPrincipal> = {
  */
 export function getTeamPrincipal(teamCode?: string): TeamPrincipal {
     const clean = (teamCode || 'FER').toUpperCase().trim();
-    return TEAM_PRINCIPALS[clean] || TEAM_PRINCIPALS['FER'];
+    const base = TEAM_PRINCIPALS[clean] || TEAM_PRINCIPALS['FER'];
+    const syncedWelcome = TEAM_PRINCIPAL_WELCOMES[base.code];
+    const syncedReactions = TEAM_PRINCIPAL_REACTIONS[base.teamCode];
+
+    return {
+        ...base,
+        hospitalityWelcome: syncedWelcome ? `“${syncedWelcome}”` : base.hospitalityWelcome,
+        reactions: syncedReactions
+            ? {
+                victory: syncedReactions.victory ? `“${syncedReactions.victory}”` : base.reactions.victory,
+                average: syncedReactions.average ? `“${syncedReactions.average}”` : base.reactions.average,
+                poor: syncedReactions.poor ? `“${syncedReactions.poor}”` : base.reactions.poor,
+            }
+            : base.reactions,
+    };
 }
 
 /**
