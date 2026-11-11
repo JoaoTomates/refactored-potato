@@ -199,7 +199,7 @@ const PredictionTabs = () => {
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-black text-white text-sm md:text-base uppercase tracking-wider">
-                                    {pilot?.name || 'PILOTO OFICIAL'}
+                                    {pilot?.name || 'ESTRATEGISTA TITULAR'}
                                 </span>
                                 {pilot?.driverNumber && (
                                     <span className="bg-[#fbaa19] text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow">

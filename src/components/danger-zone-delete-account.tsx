@@ -53,7 +53,7 @@ export default function DangerZoneDeleteAccount() {
                 await supabase.from('contracts').delete().eq('user_id', user.id);
                 await supabase.from('predictions').delete().eq('user_id', user.id).eq('round', 'current');
                 await supabase.from('profiles').update({
-                    first_name: 'PILOTO',
+                    first_name: 'ESTRATEGISTA',
                     last_name: 'DESLIGADO',
                     slug: `@desligado_${Math.floor(1000 + Math.random() * 9000)}`,
                     avatar_url: null,
@@ -93,7 +93,7 @@ export default function DangerZoneDeleteAccount() {
                             Revogar Superlicença & Excluir Conta
                         </h3>
                         <p className="text-white/60 text-xs max-w-xl leading-relaxed">
-                            A exclusão da conta é permanente e irreversível. Todas as suas previsões, contratos com alianças, histórico de telemetria e o identificador do seu piloto serão purgados dos bancos de dados oficiais do BAEFF1.
+                            A exclusão da conta é permanente e irreversível. Todas as suas previsões, contratos com alianças, histórico de telemetria e sua credencial de estrategista serão purgados dos bancos de dados oficiais do BAEFF1.
                         </p>
                     </div>
 
@@ -147,7 +147,7 @@ export default function DangerZoneDeleteAccount() {
                         Você tem certeza de que deseja revogar sua Superlicença e destruir todos os seus dados?
                     </p>
                     <ul className="list-disc list-inside space-y-1.5 text-white/70 text-[calc(0.6875rem+0.5px)]">
-                        <li><strong className="text-white">Vaga no Grid:</strong> Seu contrato será rescindido e seu assento na equipe liberado no Pitwall para novos pilotos.</li>
+                        <li><strong className="text-white">Vaga no Grid:</strong> Seu contrato será rescindido e seu assento na equipe liberado no Pitwall para novos estrategistas.</li>
                         <li><strong className="text-white">Apostas Correntes:</strong> Suas ordens para o próximo GP serão canceladas imediatamente.</li>
                         <li><strong className="text-white">Dados Pessoais & Login:</strong> Seu e-mail, senha e credenciais de acesso serão expurgados definitivamente.</li>
                         <li><strong className="text-white">Integridade Histórica:</strong> Pontuações em etapas já encerradas permanecem anonimizadas no histórico de construtores.</li>

@@ -284,7 +284,7 @@ export default function PassoZeroBriefing({
                                 {voice.callsign}
                             </span>
                             <span className="text-white/40">
-                                AUDIÇÃO PRIVADA DE {pilot?.name || 'PILOTO'} · ASSERTIVIDADE: {strategist.evaluation.accuracyRate}%
+                                AUDIÇÃO PRIVADA DE {pilot?.name || 'ESTRATEGISTA'} · ASSERTIVIDADE: {strategist.evaluation.accuracyRate}%
                             </span>
                         </div>
 

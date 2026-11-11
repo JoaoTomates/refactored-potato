@@ -717,7 +717,7 @@ export default function PlaygroundPage() {
                                     href={`/${meProfile?.slug || ''}`}
                                     className="flex items-center justify-between p-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[11px] font-bold"
                                 >
-                                    <span>SUPERLICENÇA PILOTO</span>
+                                    <span>TERMINAL DO ESTRATEGISTA</span>
                                     <span style={{ color: teamColor }}>{meProfile?.slug || 'PERFIL'} »</span>
                                 </Link>
                                 <Link 

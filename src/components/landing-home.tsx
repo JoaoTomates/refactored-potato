@@ -119,7 +119,7 @@ function LandingHomeContent() {
         try {
             const resolvedEmail = await resolveLoginEmail(identifier);
             if (!resolvedEmail || !resolvedEmail.includes('@')) {
-                throw new Error('Não foi possível identificar o e-mail para este piloto/slug.');
+                throw new Error('Não foi possível identificar o e-mail para este estrategista/slug.');
             }
             const { error } = await supabase.auth.signInWithOtp({
                 email: resolvedEmail,

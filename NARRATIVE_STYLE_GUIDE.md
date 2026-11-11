@@ -29,10 +29,11 @@ Este documento é a diretriz canônica e definitiva de tom de voz, redação, di
   - **Bloco C (A Vanguarda — Ford / Honda / Audi PU):** Ousadia, agressividade tecnológica, o caos como vetor de oportunidade, inovação radical.
 
 #### IV. Imersão em Primeira Pessoa (*In Media Res*)
+- **Quem é o usuário:** O jogador é sempre tratado como um **Estrategista Titular** contratado por uma escuderia (e não como o piloto do carro). Ele é o responsável direto pelo sucesso do seu **piloto designado** (ex.: `C.LECLERC`) e da sua **equipe** (ex.: `Ferrari`) dentro do seu grupo e nas competições globais (`Poletime`, `Master`, `Milesimus` e `Teamwork`).
 - O usuário é jogado imediatamente dentro da ação e da tensão do paddock. Toda ação operacional possui significado dramático:
   - Cadastro vira **Emissão da Superlicença**.
   - Escolha de equipe vira **Homologação de Contrato no Grid**.
-  - Apostas viram **Telemetria de Pole Position (Poletime)** e **Duelos Táticos da Liga Master**.
+  - Apostas viram **Telemetria de Pole Position (Poletime)** e **Ordens Táticas da Liga Master**.
 
 ---
 

@@ -230,9 +230,9 @@ export default function SetupForm() {
     return (
         <div className="w-full max-w-2xl bg-white dark:bg-black border border-black/20 dark:border-[#ffffff3d] shadow-2xl animate-fade-in">
             <header className="bg-black text-[#fbaa19] border-b-4 border-[#fbaa19] p-6">
-                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest font-display">Driver Setup</h2>
+                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-widest font-display">Strategist Setup</h2>
                 <p className="text-sm md:text-base text-gray-400 mt-2 font-medium tracking-wide">
-                    Configure your official driver details. These will be used by our AI to generate your provisional avatar.
+                    Configure your official strategist credentials for your team and assigned F1 driver.
                 </p>
             </header>
 
