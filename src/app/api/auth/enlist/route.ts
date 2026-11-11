@@ -291,6 +291,12 @@ export async function POST(request: Request) {
             seniorStrategistId: randomStrategist.id,
             eligibleInitialBonus,
             testMode,
+            session: authData.session
+                ? {
+                    access_token: authData.session.access_token,
+                    refresh_token: authData.session.refresh_token,
+                }
+                : null,
         });
     } catch (err) {
         const message = err instanceof Error ? err.message : 'ERRO NA TRANSMISSÃO DA SUPERLICENÇA';

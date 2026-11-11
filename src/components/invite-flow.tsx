@@ -261,6 +261,14 @@ export function InviteFlow() {
                 throw new Error(result?.error || 'ERRO NA TRANSMISSÃO DA SUPERLICENÇA');
             }
 
+            clearCachedStrategistSession();
+            if (result.session?.access_token && result.session?.refresh_token) {
+                await supabase.auth.setSession({
+                    access_token: result.session.access_token,
+                    refresh_token: result.session.refresh_token,
+                });
+            }
+
             localStorage.setItem('draft_name', `${cleanFirstName} ${cleanLastName}`);
             localStorage.setItem('draft_email', result.email || email.trim());
             if (selectedGroup) {
