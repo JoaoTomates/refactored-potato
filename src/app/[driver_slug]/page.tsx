@@ -2931,9 +2931,9 @@ export default function OfficialStrategistDashboard() {
 
                             {/* SANFONAS DE RANKING GERAL (TOP 10): MASTER, MILESIMUS E POLETIME */}
                             {[
-                                { title: 'Master · Ranking Geral', accent: '#3874ff', list: masterTop10 },
-                                { title: 'Milesimus · Ranking Geral', accent: '#fbaa19', list: milesimusTop10 },
-                                { title: 'Poletime · Ranking Geral', accent: '#e10600', list: poletimeTop10 },
+                                { title: 'Master · Ranking Geral', accent: teamColor, list: masterTop10 },
+                                { title: 'Milesimus · Ranking Geral', accent: teamColor, list: milesimusTop10 },
+                                { title: 'Poletime · Ranking Geral', accent: teamColor, list: poletimeTop10 },
                             ].map(comp => (
                                 <Panel
                                     key={comp.title}
