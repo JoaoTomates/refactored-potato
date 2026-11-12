@@ -4,7 +4,7 @@ import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import DangerZoneDeleteAccount from '@/components/danger-zone-delete-account';
 import { SENIOR_STRATEGISTS } from '@/lib/race-directors';
-import { useThemeStore, FontTheme, DashboardStyle } from '@/store/useThemeStore';
+import { useThemeStore, FontTheme, DashboardStyle, StandardAccentColor, STANDARD_ACCENT_OPTIONS } from '@/store/useThemeStore';
 
 const DASHBOARD_STYLE_OPTIONS: {
     id: DashboardStyle;
@@ -49,6 +49,8 @@ export default function SetupForm() {
     const toggleMode = useThemeStore(state => state.toggleMode);
     const dashboardStyle = useThemeStore(state => state.dashboardStyle);
     const setDashboardStyle = useThemeStore(state => state.setDashboardStyle);
+    const standardAccent = useThemeStore(state => state.standardAccent);
+    const setStandardAccent = useThemeStore(state => state.setStandardAccent);
 
     // Prevent hydration mismatch for client-only theme storage
     const [mounted, setMounted] = useState(false);
@@ -643,6 +645,71 @@ export default function SetupForm() {
                                             )}
                                         </div>
                                     </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+
+                    {/* SELETOR DE COR STANDARD DO PROJETO (CYAN, PLATINA, VERDE MENTA, ÂMBAR) */}
+                    <section className="my-6 pt-4 border-t border-black/10 dark:border-[#ffffff1a]">
+                        <div className="mb-3">
+                            <p className="text-[#fbaa19] text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 font-display">
+                                Standard Accent Color
+                            </p>
+                            <h3 className="text-black dark:text-white text-lg font-black uppercase tracking-wider font-display">
+                                Cor Standard do Terminal
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">
+                                Escolha a cor principal utilizada na navegação, bordas, tabelas e modo Standard do dashboard.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {Object.values(STANDARD_ACCENT_OPTIONS).map((accentOpt) => {
+                                const isSelected = mounted && standardAccent === accentOpt.id;
+                                return (
+                                    <button
+                                        key={accentOpt.id}
+                                        type="button"
+                                        onClick={() => setStandardAccent(accentOpt.id)}
+                                        className={`p-3.5 rounded-[3px] border-2 text-left transition-all cursor-pointer flex flex-col gap-2 relative bg-gray-50 dark:bg-[#0a0a0a] ${
+                                            isSelected
+                                                ? 'shadow-lg'
+                                                : 'border-black/10 dark:border-white/10 hover:border-gray-500'
+                                        }`}
+                                        style={{
+                                            borderColor: isSelected ? accentOpt.hex : undefined,
+                                            boxShadow: isSelected ? `0 0 16px ${accentOpt.hex}30` : undefined
+                                        }}
+                                    >
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <span
+                                                    className="w-3.5 h-3.5 rounded-full shrink-0 border border-white/20"
+                                                    style={{ backgroundColor: accentOpt.hex }}
+                                                />
+                                                <span
+                                                    className="font-bold text-xs uppercase tracking-wider text-black dark:text-white"
+                                                    style={{ color: isSelected ? accentOpt.hex : undefined }}
+                                                >
+                                                    {accentOpt.name}
+                                                </span>
+                                            </div>
+                                            <span
+                                                className="text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase"
+                                                style={{
+                                                    borderColor: `${accentOpt.hex}50`,
+                                                    color: accentOpt.hex,
+                                                    backgroundColor: `${accentOpt.hex}15`
+                                                }}
+                                            >
+                                                {accentOpt.hex}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug">
+                                            {accentOpt.description}
+                                        </p>
+                                    </button>
                                 );
                             })}
                         </div>

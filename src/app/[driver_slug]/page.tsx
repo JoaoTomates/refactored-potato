@@ -46,7 +46,7 @@ import {
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getRealF1Driver, RealF1Driver, getTeamCarColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
 import { getTeamPrincipal, TeamPrincipal } from '@/lib/paddock-crew';
-import { useThemeStore } from '@/store/useThemeStore';
+import { useThemeStore, STANDARD_ACCENT_OPTIONS } from '@/store/useThemeStore';
 
 
 /* ============================================================
@@ -1325,9 +1325,11 @@ export default function OfficialStrategistDashboard() {
     };
     const allianceId = allianceForCode(me?.teamCode);
     const dashboardStyle = useThemeStore(state => state.dashboardStyle);
+    const standardAccent = useThemeStore(state => state.standardAccent);
     const isStandardStyle = dashboardStyle === 'standard';
     const teamColor = me?.teamColor || '#fbaa19';
-    const mainAccent = isStandardStyle ? '#fbaa19' : teamColor;
+    const standardAccentHex = (STANDARD_ACCENT_OPTIONS[standardAccent] || STANDARD_ACCENT_OPTIONS.cyan).hex;
+    const mainAccent = isStandardStyle ? standardAccentHex : teamColor;
     const series = me ? me.series.slice(-range) : [];
     const last = series.length > 0 ? series[series.length - 1] ?? 0 : 0;
     const prev = me && me.series.length >= 2 ? me.series[me.series.length - 2] ?? last : last;
