@@ -16,6 +16,8 @@ import {
     Newspaper,
     X,
     ArrowUpRight,
+    Calendar,
+    Radio,
 } from 'lucide-react';
 
 export type DashboardSubView =
@@ -44,6 +46,10 @@ export interface PitwallQuickDockProps {
     teamColor: string;
     isOwner?: boolean;
     activeView?: DashboardSubView;
+    isRaceWeekActive?: boolean;
+    onToggleRaceWeek?: () => void;
+    isRaceWeekOpen?: boolean;
+    onJumpToTeam?: () => void;
     onSelectView?: (view: DashboardSubView) => void;
     onOpenVoting: () => void;
     onJumpToBookTab: () => void;
@@ -55,6 +61,10 @@ export default function PitwallQuickDock({
     teamColor,
     isOwner = true,
     activeView = 'menu',
+    isRaceWeekActive = false,
+    onToggleRaceWeek,
+    isRaceWeekOpen = false,
+    onJumpToTeam,
     onSelectView,
     onOpenVoting,
     onJumpToBookTab,
@@ -120,9 +130,32 @@ export default function PitwallQuickDock({
 
     return (
         <div className="w-full flex flex-col gap-2.5 font-mono">
-            {/* 8 BOTÕES TÁTICOS PITWALL */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {/* 1. TRACK INTEL */}
+            {/* 10 BOTÕES TÁTICOS PITWALL (RACE WEEK + 8 TÁTICOS + TEAM) */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {/* 1. RACE WEEK (Primeira posição, ativo se for semana de corrida) */}
+                <button
+                    type="button"
+                    onClick={onToggleRaceWeek}
+                    disabled={!isRaceWeekActive}
+                    title={isRaceWeekActive ? (isRaceWeekOpen ? 'Ocultar Race Week' : 'Exibir Race Week') : 'Race Week inativo (fora de semana de GP)'}
+                    className={`${btnBase} ${
+                        isRaceWeekActive
+                            ? isRaceWeekOpen
+                                ? 'bg-[#fbaa19] text-black border-[#fbaa19] font-black shadow-[0_0_12px_rgba(251,170,25,0.35)]'
+                                : 'bg-[#030303] text-amber-400 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-400'
+                            : 'opacity-40 cursor-not-allowed bg-black/40 text-white/40 border-white/5'
+                    }`}
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Calendar className={`w-3.5 h-3.5 shrink-0 ${isRaceWeekActive ? 'text-inherit' : 'text-white/40'}`} />
+                        <span className="truncate">RACE WEEK</span>
+                    </span>
+                    {isRaceWeekActive && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    )}
+                </button>
+
+                {/* 2. TRACK INTEL */}
                 <button
                     type="button"
                     onClick={() =>
@@ -139,7 +172,7 @@ export default function PitwallQuickDock({
                     </span>
                 </button>
 
-                {/* 2. OPEN ORDERS */}
+                {/* 3. OPEN ORDERS */}
                 <button
                     type="button"
                     onClick={() =>
@@ -156,13 +189,13 @@ export default function PitwallQuickDock({
                     </span>
                 </button>
 
-                {/* 3. F1 GRID */}
+                {/* 4. F1 GRID */}
                 {renderNavButton('f1', '/f1', 'F1 GRID', Users)}
 
-                {/* 4. CLASSIFICATION */}
+                {/* 5. CLASSIFICATION */}
                 {renderNavButton('classification', '/f1-results/01', 'CLASSIFICATION', Flag)}
 
-                {/* 5. STEWARDS (Modal de Voting Inline) */}
+                {/* 6. STEWARDS (Modal de Voting Inline) */}
                 <button
                     type="button"
                     onClick={onOpenVoting}
@@ -185,14 +218,28 @@ export default function PitwallQuickDock({
                     )}
                 </button>
 
-                {/* 6. STANDINGS */}
+                {/* 7. STANDINGS */}
                 {renderNavButton('rankings', '/rankings', 'STANDINGS', Trophy)}
 
-                {/* 7. GARAGE CREW */}
+                {/* 8. GARAGE CREW */}
                 {renderNavButton('crew', '/crew', 'GARAGE CREW', Wrench)}
 
-                {/* 8. PADDOCK WIRE */}
+                {/* 9. PADDOCK WIRE */}
                 {renderNavButton('news', '/news', 'PADDOCK WIRE', Newspaper)}
+
+                {/* 10. TEAM (Final da segunda coluna / grid) */}
+                <button
+                    type="button"
+                    onClick={onJumpToTeam}
+                    className={`${btnBase} ${btnInactive} hover:border-[#00e5ff]/50`}
+                    title="Acessar Esquadrão e Estatísticas de Equipe"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Users className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">TEAM</span>
+                    </span>
+                    <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
+                </button>
             </div>
 
             {/* DRAWER INLINE: TRACK INTEL */}

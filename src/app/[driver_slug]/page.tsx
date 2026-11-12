@@ -925,6 +925,7 @@ export default function OfficialStrategistDashboard() {
 
     // Subtelas operacionais e páginas embarcadas no Dashboard
     const [activeView, setActiveView] = useState<DashboardSubView>("menu");
+    const [isRaceWeekVisible, setIsRaceWeekVisible] = useState(true);
     const openSubView = (view: DashboardSubView) => {
         setActiveView(view);
         if (typeof window !== 'undefined') {
@@ -2270,18 +2271,27 @@ export default function OfficialStrategistDashboard() {
                                         href={`/war-room?driver=${encodeURIComponent(me.slug || targetSlug || '')}&mentor=${encodeURIComponent(assignedMentor?.id || '')}`}
                                         className="flex-1 py-3 px-4 rounded-[3px] border font-black uppercase tracking-widest text-xs flex items-center justify-between transition-all hover:brightness-110 shadow-xl cursor-pointer group"
                                         style={{
-                                            borderColor: '#fbaa19',
-                                            backgroundColor: 'rgba(251, 170, 25, 0.18)',
-                                            color: '#fbaa19'
+                                            borderColor: `${mainAccent}55`,
+                                            backgroundColor: `${mainAccent}18`,
+                                            color: mainAccent
                                         }}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <span className="w-2.5 h-2.5 rounded-full bg-[#fbaa19] animate-ping inline-block" />
+                                            <span
+                                                className="w-2.5 h-2.5 rounded-full animate-ping inline-block"
+                                                style={{ backgroundColor: mainAccent }}
+                                            />
                                             <span className="group-hover:text-white transition-colors">&gt;_ REUNIÃO TÁTICA // WAR ROOM</span>
                                         </div>
-                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-[3px] bg-black/80 border border-[#fbaa19]/50 text-white flex items-center gap-1 group-hover:bg-[#fbaa19] group-hover:text-black transition-all">
+                                        <span
+                                            className="text-[10px] font-black px-2 py-0.5 rounded-[3px] bg-black/80 border text-white flex items-center gap-1 transition-all"
+                                            style={{
+                                                borderColor: `${mainAccent}50`,
+                                                color: '#FFFFFF'
+                                            }}
+                                        >
                                             <span>ENTRAR NA MESA</span>
-                                            <span>»</span>
+                                            <span style={{ color: mainAccent }}>»</span>
                                         </span>
                                     </Link>
 
@@ -2439,20 +2449,30 @@ export default function OfficialStrategistDashboard() {
                                 />
                             )}
 
-                            {/* 8 BOTÕES TÁTICOS PITWALL (ABAIXO DOS CARDS DE COMPETIÇÃO E ANTES DA RACE WEEK) */}
+                            {/* BOTÕES TÁTICOS PITWALL (RACE WEEK + 8 TÁTICOS + TEAM) */}
                             <PitwallQuickDock
                                 userPrediction={userPrediction}
                                 pendingStewardCount={stewardVoting.pendingReports.length}
                                 teamColor={mainAccent}
                                 isOwner={isOwner}
                                 activeView={activeView}
+                                isRaceWeekActive={Boolean(raceWeek)}
+                                isRaceWeekOpen={Boolean(raceWeek && isRaceWeekVisible)}
+                                onToggleRaceWeek={() => setIsRaceWeekVisible(prev => !prev)}
+                                onJumpToTeam={() => {
+                                    setActiveTab('teamwork');
+                                    const panelEl = document.getElementById('multifunctional-panel');
+                                    if (panelEl) {
+                                        panelEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }
+                                }}
                                 onSelectView={openSubView}
                                 onOpenVoting={() => setIsVotingModalOpen(true)}
                                 onJumpToBookTab={() => setActiveTab('book')}
                             />
 
-                            {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO EM SEMANA DE CORRIDA) */}
-                            {raceWeek && (
+                            {/* CRONOGRAMA OFICIAL DE RACE WEEK (RENDERIZADO SE FOR SEMANA DE CORRIDA E ATIVO PELO USUÁRIO) */}
+                            {raceWeek && isRaceWeekVisible && (
                                 <RaceWeekSchedule
                                     compact={true}
                                     teamCode={me?.teamCode || "FER"}
@@ -2464,6 +2484,7 @@ export default function OfficialStrategistDashboard() {
 
                             {/* 2. PAINEL MULTIFUNCIONAL */}
                             <div
+                                id="multifunctional-panel"
                                 className="relative border border-[#000000] rounded-[3px] overflow-hidden animate-fade-in transition-all duration-300"
                                 style={getSystemBoxStyle(isStandardStyle ? '#fbaa19' : teamColor)}
                             >
@@ -3189,9 +3210,9 @@ export default function OfficialStrategistDashboard() {
 
                             {/* SANFONAS DE RANKING GERAL (TOP 10): MASTER, MILESIMUS E POLETIME */}
                             {[
-                                { title: 'Master · Ranking Geral', accent: mainAccent, list: masterTop10 },
-                                { title: 'Milesimus · Ranking Geral', accent: mainAccent, list: milesimusTop10 },
-                                { title: 'Poletime · Ranking Geral', accent: mainAccent, list: poletimeTop10 },
+                                { title: 'Master · Ranking Geral', accent: mainAccent, list: masterTop10, defaultOpen: true },
+                                { title: 'Milesimus · Ranking Geral', accent: mainAccent, list: milesimusTop10, defaultOpen: false },
+                                { title: 'Poletime · Ranking Geral', accent: mainAccent, list: poletimeTop10, defaultOpen: false },
                             ].map(comp => (
                                 <Panel
                                     key={comp.title}
@@ -3201,7 +3222,7 @@ export default function OfficialStrategistDashboard() {
                                     className={isStandardStyle ? '!bg-black bg-black' : ''}
                                     accentColor={comp.accent}
                                     collapsible={true}
-                                    defaultOpen={false}
+                                    defaultOpen={comp.defaultOpen}
                                 >
                                     <div className="max-h-[380px] overflow-y-auto">
                                         {comp.list.map((item, i) => {
