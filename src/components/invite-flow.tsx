@@ -7,7 +7,14 @@ import { ENGINE_FACTIONS, ALLIANCE_KEYS, FactionData } from '@/utils/alliance-da
 import { SENIOR_STRATEGISTS, SeniorStrategist } from '@/lib/race-directors';
 import { INVITE_V2_DIALOGS } from '@/data/dialogues';
 import { clearCachedStrategistSession, getDashboardPath, normalizeAtSlug } from '@/lib/slug';
-import { DialogueBox, TypewriterLine, retroSound } from '@/components/dialogue-box';
+import {
+    DialogueBox,
+    DIALOGUE_BOX_GRADIENT,
+    TypewriterLine,
+    getAvatarBlackShadow,
+    getDialogueShadow,
+    retroSound,
+} from '@/components/dialogue-box';
 import { getSystemBoxStyle } from '@/components/system-modal';
 import { getDeviceSignalHash } from '@/lib/device-signal';
 import {
@@ -334,19 +341,24 @@ export function InviteFlow() {
         }
     };
 
-    return (
-        <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center">
+    const resolvedStrategistChar = assignedStrategist
+        ? resolveCrewCharacterById(assignedStrategist.id, crewConfig)
+        : undefined;
+    const assignedStrategistAvatar =
+        resolvedStrategistChar?.avatarUrl ||
+        (assignedStrategist as (SeniorStrategist & { avatarUrl?: string }) | null)?.avatarUrl ||
+        directorAvatarUrl;
 
-            {/* Background Viewport Estável e Fixo - imune a scrollbars e crescimento dos textos */}
-            <div
-                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden"
-                style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
-            >
+    return (
+        <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center">
+
+            {/* Background Viewport Estável e Fixo - cobre 100% da viewport sem h-lvh/transform que causam corte embaixo */}
+            <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#050401]">
                 {/* Background 1: Momento anterior (Homem caminhando para o Motorhome na fase INTRO) */}
                 <img
                     src="/pixel_invite_walk.jpg"
                     alt=""
-                    className={`w-full h-full object-cover object-center transition-opacity duration-700 ${phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${phase === 'INTRO' ? 'opacity-65 md:opacity-85' : 'opacity-0'
                         }`}
                     style={{ imageRendering: 'pixelated' }}
                 />
@@ -355,10 +367,13 @@ export function InviteFlow() {
                 <img
                     src="/pixel_invite_bg_v2.jpg"
                     alt=""
-                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${phase !== 'INTRO' ? 'opacity-60 md:opacity-80' : 'opacity-0'
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${phase !== 'INTRO' ? 'opacity-55 md:opacity-75' : 'opacity-0'
                         }`}
                     style={{ imageRendering: 'pixelated' }}
                 />
+
+                {/* Gradiente sutil de profundidade para contraste dos cards sem revelar bordas */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/20 to-[#050401]/80" />
             </div>
 
             {/* FASE INTRO: Puxe uma cadeira e feche a porta */}
@@ -379,7 +394,7 @@ export function InviteFlow() {
             )}
 
             {phase === 'AUTO_DIALOG' && (
-                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-4 mt-12 md:mt-16 mb-24 px-4 transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                <div className={`relative z-10 w-full ${dialogPage === 3 ? 'max-w-5xl' : 'max-w-3xl'} flex flex-col gap-3.5 my-auto py-5 sm:py-8 px-4 transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
                     {/* PÁGINA 1: Reconhecimento, Mérito e Telemetria (Boxes 1, 2 e 3) */}
                     {dialogPage === 1 && (
@@ -506,49 +521,133 @@ export function InviteFlow() {
                         </>
                     )}
 
-                    {/* PÁGINA 3: Propostas das Alianças (Transcritas de cima para baixo) */}
+                    {/* PÁGINA 3: Propostas das Alianças em Grid Horizontal Moderno (zero estouro vertical no desktop) */}
                     {dialogPage === 3 && (
-                        <>
-                            {ALLIANCE_KEYS.map((groupId, aIdx) => {
-                                const stepNeeded = aIdx + 1;
-                                if (pageStep < stepNeeded) return null;
+                        <div className="flex flex-col gap-4 w-full">
+                            <DialogueBox
+                                speaker={directorSpeaker}
+                                speakerRole={directorRole}
+                                badgeTitle="CONVOCAÇÃO OFICIAL // ESCOLHA DE ALIANÇA"
+                                categoryTag="3 CONSÓRCIOS DISPONÍVEIS"
+                                avatarUrl={directorAvatarUrl}
+                                accentColor="#fbaa19"
+                                compact
+                                typewriter={false}
+                                text="Analise as três alianças técnicas do campeonato mundial de motores e selecione qual bloco você vai defender nesta temporada."
+                            />
 
-                                const g = ENGINE_FACTIONS[groupId];
-                                const chief = resolvedAllianceChiefs[groupId];
-                                const dossierLines = [
-                                    g.sub,
-                                    `EQUIPES: ${g.teamsString}`,
-                                    `SPEC: ${g.engineSpec}`,
-                                    g.fantasyPerk ? `PERK: ${g.fantasyPerk}` : null,
-                                ].filter(Boolean).join('\n');
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 w-full items-stretch">
+                                {ALLIANCE_KEYS.map((groupId, aIdx) => {
+                                    const g = ENGINE_FACTIONS[groupId];
+                                    const chief = resolvedAllianceChiefs[groupId];
+                                    const cardShadow = getDialogueShadow('left', chief.accentColor);
+                                    const portraitShadow = getAvatarBlackShadow('right');
 
-                                return (
-                                    <DialogueBox
-                                        key={g.id}
-                                        hideAvatar
-                                        inlinePortrait={{
-                                            avatarUrl: chief.avatarUrl,
-                                            name: chief.chiefName,
-                                        }}
-                                        badgeTitle={`[${g.badge}] ${g.title}`}
-                                        categoryTag={chief.chiefRole}
-                                        accentColor={chief.accentColor}
-                                        prefix={null}
-                                        minHeightClass="min-h-[80px]"
-                                        text={dossierLines}
-                                        startDelay={150}
-                                        onReadyForNext={() => {
-                                            if (stepNeeded < 3) {
-                                                setTimeout(() => setPageStep(stepNeeded + 1), 400);
-                                            }
-                                        }}
-                                        onClick={() => handleSelectAlliance(groupId)}
-                                        title={`Escolher ${g.badge}`}
-                                        footerHint={`[ ESCOLHER ${g.badge} ] »`}
-                                    />
-                                );
-                            })}
-                        </>
+                                    return (
+                                        <button
+                                            key={g.id}
+                                            type="button"
+                                            onClick={() => handleSelectAlliance(groupId)}
+                                            title={`Escolher ${g.badge} — ${g.title}`}
+                                            style={{
+                                                background: DIALOGUE_BOX_GRADIENT,
+                                                boxShadow: cardShadow,
+                                                animationDelay: `${aIdx * 90}ms`,
+                                            }}
+                                            className="group text-left w-full border border-[#000000] rounded-[3px] p-4 flex flex-col justify-between gap-3 transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 cursor-pointer relative overflow-hidden animate-fade-in"
+                                        >
+                                            {/* Faixa superior na cor da aliança */}
+                                            <div
+                                                className="absolute top-0 inset-x-0 h-[2px]"
+                                                style={{ backgroundColor: chief.accentColor }}
+                                            />
+
+                                            <div className="flex flex-col gap-2.5">
+                                                {/* Cabeçalho do Bloco */}
+                                                <div className="flex items-start justify-between gap-2.5 border-b border-white/10 pb-2.5">
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span
+                                                            className="text-[10px] font-black uppercase tracking-[0.2em]"
+                                                            style={{ color: chief.accentColor }}
+                                                        >
+                                                            [{g.badge}]
+                                                        </span>
+                                                        <h3 className="text-sm font-black uppercase tracking-wider text-white leading-snug mt-0.5">
+                                                            {g.title}
+                                                        </h3>
+                                                        <span className="text-[9px] text-white/45 uppercase tracking-wider mt-1 line-clamp-2">
+                                                            {chief.chiefRole}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Retrato do Chefe da Aliança */}
+                                                    <div className="flex flex-col items-center shrink-0">
+                                                        <div
+                                                            className="w-12 h-12 rounded-[3px] overflow-hidden border border-[#000000] p-0.5 bg-[#030303] group-hover:scale-105 transition-transform"
+                                                            style={{ boxShadow: portraitShadow }}
+                                                        >
+                                                            <img
+                                                                src={chief.avatarUrl}
+                                                                alt={chief.chiefName}
+                                                                className="w-full h-full object-cover rounded-[2px]"
+                                                            />
+                                                        </div>
+                                                        <span
+                                                            className="text-[9px] font-mono font-black uppercase tracking-wider mt-1 px-1.5 py-0.5 rounded-[2px] border border-[#000000] bg-[#030303]"
+                                                            style={{ color: chief.accentColor }}
+                                                        >
+                                                            [{chief.chiefName}]
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Lema da Aliança */}
+                                                <p
+                                                    className="text-[calc(0.75rem+0.5px)] text-white/85 italic border-l-2 pl-2.5 leading-snug"
+                                                    style={{ borderColor: chief.accentColor }}
+                                                >
+                                                    {g.sub}
+                                                </p>
+
+                                                {/* Equipes do Bloco em tags compactas */}
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {g.teamDetails.map((t) => (
+                                                        <span
+                                                            key={t.code}
+                                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[3px] bg-[#030303] border border-white/10 text-[10px] font-bold text-white/90"
+                                                        >
+                                                            <span
+                                                                className="w-1.5 h-1.5 rounded-full shrink-0"
+                                                                style={{ backgroundColor: t.color }}
+                                                            />
+                                                            {t.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+
+                                                {/* Especificação de Motor */}
+                                                <div className="text-[10px] text-white/55 font-mono leading-snug bg-black/50 border border-white/5 rounded-[3px] px-2.5 py-1.5">
+                                                    <span className="text-white/35 uppercase block text-[9px] tracking-widest">UNIDADE DE POTÊNCIA</span>
+                                                    <span className="text-white/85 font-bold">{g.engineSpec}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Rodapé CTA */}
+                                            <div
+                                                className="w-full py-2 px-3 rounded-[3px] border border-[#000000] text-[10px] font-black uppercase tracking-[0.18em] flex items-center justify-between transition-all mt-1 group-hover:brightness-125"
+                                                style={{
+                                                    backgroundColor: `${chief.accentColor}18`,
+                                                    color: chief.accentColor,
+                                                }}
+                                            >
+                                                <span>[ ESCOLHER {g.badge} ]</span>
+                                                <span className="group-hover:translate-x-0.5 transition-transform">»</span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     )}
 
                     {errorMsg && (
@@ -563,7 +662,7 @@ export function InviteFlow() {
 
             {/* FASE ENLIST: Resposta do Diretor ("Sangue quente...") + Formulário de Cadastro */}
             {(phase === 'ENLIST' || phase === 'SUBMITTING_ENLIST') && selectedGroup && (
-                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-4 my-auto py-5 sm:py-8 px-4 font-mono transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
                     {/* Box do mesmo Diretor do início comentando a escolha da aliança */}
                     <DialogueBox
@@ -682,109 +781,116 @@ export function InviteFlow() {
                 </div>
             )}
 
-            {/* FASE EMAIL_SENT: Confirmação de Envio do E-mail e Próximos Passos */}
+            {/* FASE EMAIL_SENT: Confirmação de Envio do E-mail com DialogueBox + Cards Modernos (compacto, zero estouro) */}
             {phase === 'EMAIL_SENT' && selectedGroup && (
-                <div className={`relative z-10 w-full max-w-3xl flex flex-col gap-6 mt-12 md:mt-16 mb-24 px-4 font-mono transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+                <div className={`relative z-10 w-full max-w-4xl flex flex-col gap-3.5 my-auto py-4 sm:py-6 px-4 font-mono transition-all duration-300 ${isPageClearing ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
-                    <div
-                        className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
-                        style={getSystemBoxStyle('#fbaa19')}
-                    >
+                    {/* 1. DialogueBox Oficial do Diretor: Confirmação do Disparo de Telemetria */}
+                    <DialogueBox
+                        speaker={directorSpeaker}
+                        speakerRole={directorRole}
+                        badgeTitle="VERIFIQUE SEU CANAL DE TELEMETRIA"
+                        categoryTag="HOMOLOGAÇÃO ENVIADA"
+                        avatarUrl={directorAvatarUrl}
+                        accentColor="#fbaa19"
+                        direction="left"
+                        compact
+                        animateEntrance
+                        startDelay={100}
+                        speed={18}
+                        text={`Link de homologação transmitido para ${email}. Confirme seu e-mail para validar sua Superlicença e desbloquear as garagens da sua aliança no pitwall.`}
+                    />
 
-                        <div className="border-l-2 border-[#fbaa19] pl-4 py-1 flex flex-col gap-2">
-                            <h2 className="text-white text-xl md:text-2xl font-black uppercase tracking-wider">
-                                VERIFIQUE SEU CANAL DE TELEMETRIA
-                            </h2>
-                            <p className="text-gray-300 text-sm leading-relaxed">
-                                <TypewriterLine
-                                    text={`Um link de homologação seguro foi transmitido para ${email}.\nAbra o seu e-mail e clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.`}
-                                    startDelay={200}
-                                />
-                            </p>
-                        </div>
-
-                        {/* Estrategista Sênior Sorteado para Acompanhar o Novo Estrategista */}
+                    {/* 2. Grade Moderna 2 Colunas: Conselheiro Sênior Sorteado + Dossiê Bloomberg da Convocação */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
+                        {/* Coluna Esquerda: Conselheiro Sênior em DialogueBox com Retrato Oficial */}
                         {assignedStrategist && (
-                            <div className="border border-[#fbaa19]/40 bg-[#fbaa19]/10 p-4 sm:p-5 rounded-lg flex flex-col gap-3 shadow-[0_0_20px_rgba(251,170,25,0.1)]">
-                                <div className="flex items-center justify-between text-[10px] text-[#fbaa19] font-bold uppercase tracking-widest border-b border-[#fbaa19]/20 pb-2">
-                                    <span className="flex items-center gap-1.5">
-                                        <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-ping inline-block"></span>
-                                        <span>CONSELHEIRO SÊNIOR DESIGNADO AO SEU PITWALL</span>
-                                    </span>
-                                    <span className="border border-[#fbaa19]/40 px-2 py-0.5 rounded bg-black/60 font-mono text-white">
-                                        {assignedStrategist.code}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                                    <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">
-                                        {assignedStrategist.displayName}
-                                        <span className="text-white/40 text-xs font-normal ml-2">({assignedStrategist.originalDriver})</span>
-                                    </h3>
-                                    <span className="text-[10px] text-[#fbaa19] uppercase tracking-wider font-bold">
-                                        ERA: {assignedStrategist.decade} // {assignedStrategist.nationality}
-                                    </span>
-                                </div>
-                                <p className="text-xs text-white/90 leading-relaxed italic font-mono bg-black/40 p-3 rounded border border-white/5">
-                                    {assignedStrategist.signatureQuote}
-                                </p>
-                                <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/50 uppercase pt-2 border-t border-white/10">
-                                    <span>HISTÓRICO: {assignedStrategist.careerStat}</span>
-                                    <span className="text-emerald-400 font-bold">{assignedStrategist.evaluation.accuracyRate}% Assertividade Homologada</span>
-                                </div>
+                            <div className="lg:col-span-7 flex">
+                                <DialogueBox
+                                    speaker={assignedStrategist.code}
+                                    badgeTitle={`CONSELHEIRO DESIGNADO // ${assignedStrategist.displayName}`}
+                                    categoryTag={`${assignedStrategist.decade} • ${assignedStrategist.nationality}`}
+                                    avatarUrl={assignedStrategistAvatar}
+                                    accentColor="#fbaa19"
+                                    direction="left"
+                                    compact
+                                    italic
+                                    typewriter={false}
+                                    animateEntrance
+                                    prefix={null}
+                                    text={assignedStrategist.signatureQuote}
+                                    footerNote={
+                                        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px]">
+                                            <span className="text-white/55">{assignedStrategist.careerStat}</span>
+                                            <span className="text-emerald-400 font-bold">
+                                                • {assignedStrategist.evaluation.accuracyRate}% Assertividade
+                                            </span>
+                                        </span>
+                                    }
+                                    className="!py-0 h-full"
+                                />
                             </div>
                         )}
 
-                        {/* Tabela Bloomberg de Status da Convocação */}
-                        <div className="border border-white/10 rounded overflow-hidden text-xs font-mono bg-black/40">
-                            <div className="flex justify-between items-center p-3 bg-white/[0.03] border-b border-white/5">
-                                <span className="text-gray-400 uppercase tracking-widest text-[10px]">CANAL INFORMADO</span>
-                                <span className="text-white font-bold tracking-widest text-[11px]">{email}</span>
-                            </div>
-                            <div className="flex justify-between items-center p-3 border-b border-white/5">
-                                <span className="text-gray-400 uppercase tracking-widest text-[10px]">ALIANÇA ESCOLHIDA</span>
-                                <span className="text-[#fbaa19] font-bold text-[11px]">
-                                    [{ENGINE_FACTIONS[selectedGroup].badge}] {ENGINE_FACTIONS[selectedGroup].title}
+                        {/* Coluna Direita: Card Moderno de Status do Protocolo */}
+                        <div
+                            className={`${assignedStrategist ? 'lg:col-span-5' : 'lg:col-span-12'} p-4 border border-[#000000] rounded-[3px] flex flex-col justify-between gap-2.5 animate-fade-in`}
+                            style={getSystemBoxStyle('#10b981')}
+                        >
+                            <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                                    DOSSIÊ DA CONVOCAÇÃO
+                                </span>
+                                <span className="text-[9px] font-mono text-amber-400 font-bold uppercase tracking-widest animate-pulse">
+                                    PENDENTE
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center p-3 border-b border-white/5">
-                                <span className="text-gray-400 uppercase tracking-widest text-[10px]">BÔNUS INICIAL (MILESIMUS)</span>
-                                <span className="text-emerald-400 font-bold tracking-widest text-[11px] font-mono">
-                                    +000.100 mls (creditados)
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center p-3 border-b border-white/5">
-                                <span className="text-gray-400 uppercase tracking-widest text-[10px]">ESTADO DO PROTOCOLO</span>
-                                <span className="text-amber-400 font-bold tracking-widest text-[11px] animate-pulse">
-                                    AGUARDANDO CLIQUE NO LINK DO E-MAIL
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center p-3">
-                                <span className="text-gray-400 uppercase tracking-widest text-[10px]">PRÓXIMA ETAPA</span>
-                                <span className="text-emerald-400 font-bold tracking-widest text-[11px]">
-                                    CENTRAL DE OPERAÇÕES // ESCOLHA DE EQUIPE
-                                </span>
+
+                            <div className="flex flex-col divide-y divide-white/5 text-[11px]">
+                                <div className="flex justify-between items-center py-1.5 gap-2">
+                                    <span className="text-white/45 uppercase tracking-wider text-[10px] shrink-0">CANAL</span>
+                                    <span className="text-white font-bold truncate">{email}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-1.5 gap-2">
+                                    <span className="text-white/45 uppercase tracking-wider text-[10px] shrink-0">ALIANÇA</span>
+                                    <span className="text-[#fbaa19] font-bold truncate text-right">
+                                        [{ENGINE_FACTIONS[selectedGroup].badge}] {ENGINE_FACTIONS[selectedGroup].title}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-1.5 gap-2">
+                                    <span className="text-white/45 uppercase tracking-wider text-[10px] shrink-0">BÔNUS INICIAL</span>
+                                    <span className="text-emerald-400 font-bold">+000.100 mls</span>
+                                </div>
+                                <div className="flex justify-between items-center py-1.5 gap-2">
+                                    <span className="text-white/45 uppercase tracking-wider text-[10px] shrink-0">PRÓXIMA ETAPA</span>
+                                    <span className="text-emerald-400 font-bold uppercase text-[10px]">HEADQUARTERS</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Botão de continuação caso o usuário já tenha verificado ou esteja em modo de auto-login */}
-                        <div className="flex flex-col gap-3 pt-2">
-                            <button
-                                onClick={() => {
-                                    window.location.href = '/headquarters';
-                                }}
-                                className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm text-center"
-                            >
-                                [ JÁ CONFIRMEI O LINK / AVANÇAR PARA A ESCOLHA DE EQUIPE ] »
-                            </button>
+                    {/* 3. Barra de Ação Compacta (alinhada ao modelo padronizado) */}
+                    <div
+                        className="w-full p-3.5 border border-[#000000] rounded-[3px] flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in"
+                        style={getSystemBoxStyle('#fbaa19')}
+                    >
+                        <button
+                            type="button"
+                            onClick={handleBackAndRestartDialogue}
+                            className="text-white/55 hover:text-white text-[11px] font-bold uppercase tracking-widest transition-colors cursor-pointer shrink-0 order-2 sm:order-1"
+                        >
+                            « Escolher outra aliança
+                        </button>
 
-                            <button
-                                type="button"
-                                onClick={handleBackAndRestartDialogue}
-                                className="text-gray-500 hover:text-gray-300 text-[11px] uppercase tracking-widest transition-colors text-center cursor-pointer"
-                            >
-                                « Deseja escolher outra aliança? Clique aqui para reiniciar o diálogo
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                window.location.href = '/headquarters';
+                            }}
+                            className="w-full sm:w-auto flex-1 sm:max-w-md bg-[#fbaa19] text-black font-black uppercase tracking-[0.16em] py-3 px-5 hover:bg-white transition-colors rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.35)] cursor-pointer text-xs text-center order-1 sm:order-2"
+                        >
+                            [ JÁ CONFIRMEI O LINK / AVANÇAR PARA A ESCOLHA DE EQUIPE ] »
+                        </button>
                     </div>
                 </div>
             )}
