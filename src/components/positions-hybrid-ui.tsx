@@ -726,7 +726,7 @@ export function H2HHelmetBattleGrid({
                             </span>
                         </div>
 
-                        {/* Confronto dos 2 Capacetes frente a frente */}
+                        {/* Confronto dos 2 Pilotos frente a frente */}
                         <div className="relative grid grid-cols-2 divide-x divide-white/10">
                             {[match.d1, match.d2].map((driver, sideIdx) => {
                                 const isPicked = picked === driver.num;
@@ -738,7 +738,7 @@ export function H2HHelmetBattleGrid({
                                         key={driver.num}
                                         type="button"
                                         onClick={() => onSelectDriver(match.id, driver.num)}
-                                        className={`group relative flex flex-col items-center justify-center gap-2 px-3 py-3.5 transition-all cursor-pointer ${
+                                        className={`group relative flex flex-col items-center justify-center gap-2.5 px-3 pt-7 pb-3.5 transition-all cursor-pointer ${
                                             isPicked
                                                 ? 'bg-[#fbaa19]/15 shadow-[inset_0_0_25px_rgba(251,170,25,0.16)]'
                                                 : hasOtherPicked
@@ -766,24 +766,24 @@ export function H2HHelmetBattleGrid({
                                         </span>
 
                                         {isPicked && (
-                                            <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#fbaa19] text-black flex items-center justify-center shadow">
+                                            <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#fbaa19] text-black flex items-center justify-center shadow z-10">
                                                 <Check className="w-3 h-3 stroke-[3]" />
                                             </span>
                                         )}
 
-                                        <PilotAvatar
-                                            teamColor={teamColor}
-                                            driverNumber={driver.num}
-                                            variant={isPicked ? 'team' : 'neon'}
-                                            size="md"
-                                            flipped={isRightSide}
-                                            showHUD={true}
-                                            showBadge={true}
-                                            showStatusBlip={false}
-                                            className={`transition-transform duration-200 ${
-                                                isPicked ? 'scale-105' : 'group-hover:scale-105'
+                                        <div
+                                            className={`relative rounded-md overflow-hidden border transition-transform duration-200 ${
+                                                isPicked
+                                                    ? 'scale-105 border-[#fbaa19] shadow-[0_0_16px_rgba(251,170,25,0.28)]'
+                                                    : 'border-white/15 group-hover:scale-105 group-hover:border-[#fbaa19]/60'
                                             }`}
-                                        />
+                                        >
+                                            <DriverPixelPortrait
+                                                driverName={driver.name}
+                                                aspectClass="w-20 h-24 sm:w-24 sm:h-28"
+                                                showTeamTrim={true}
+                                            />
+                                        </div>
 
                                         <div className="flex flex-col items-center leading-tight text-center mt-0.5">
                                             <span

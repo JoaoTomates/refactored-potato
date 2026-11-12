@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
+import { getDashboardPath } from '@/lib/slug';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
 import { useTeamworkAuto } from '@/hooks/useTeamworkAuto';
@@ -104,6 +106,7 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
     const { user, isLoading: authLoading } = useSupabaseAuth();
     const [activeTab, setActiveTab] = useState<string>('all');
     const [pilot, setPilot] = useState<PilotProfile | null>(null);
+    const [cachedSlug, setCachedSlug] = useState<string | null>(null);
     const [hasSyncedFromDb, setHasSyncedFromDb] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<{ type: 'top10' | 'evo', index: number } | null>(null);
     const [eventData, setEventData] = useState<F1Event | null>(null);
@@ -129,6 +132,9 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
     }, [eventData]);
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setCachedSlug(localStorage.getItem('vg_user_slug'));
+        }
         fetchNextEvent().then((ev) => {
             if (ev) setEventData(ev);
         });
@@ -504,6 +510,18 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
 
             {/* CONTAINER PRINCIPAL */}
             <div className={embedded ? "relative z-10 w-full flex flex-col gap-6" : "relative z-10 w-full max-w-5xl px-4 md:px-8 mt-6 flex flex-col gap-6"}>
+
+                {!embedded && (
+                    <div className="w-full flex items-center justify-between">
+                        <Link
+                            href={getDashboardPath(pilot?.slug || cachedSlug, '/headquarters')}
+                            className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
+                        >
+                            <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />
+                            <span>[ « SAIR ]</span>
+                        </Link>
+                    </div>
+                )}
 
                 {/* CONTROLE DE ABAS (PITWALL CONSOLE) */}
                 <nav aria-label="Abas de Posições" className="w-full bg-black/80 backdrop-blur-md border border-white/15 rounded-lg p-1.5 flex flex-wrap md:flex-nowrap gap-1.5 shadow-xl">
