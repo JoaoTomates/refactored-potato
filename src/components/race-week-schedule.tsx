@@ -10,7 +10,7 @@ import {
     CrewRelationshipState 
 } from '@/lib/paddock-crew';
 import { SENIOR_STRATEGISTS, SeniorStrategist, getSeniorStrategistById } from '@/lib/race-directors';
-import { ChevronRight, Clock, ShieldCheck, Radio, UserCheck, Flame } from 'lucide-react';
+import { ChevronRight, Clock, Radio, UserCheck, Flame } from 'lucide-react';
 import { DialogueBox } from '@/components/dialogue-box';
 import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
 import { supabase } from '@/utils/supabase';
@@ -749,7 +749,7 @@ export default function RaceWeekSchedule({
                             </div>
 
                             {/* DIÁLOGOS DE PADDOCK COM FUNDO PRETO E TEXTO BRANCO ENTRE ASPAS */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 relative z-10">
+                            <div className="grid grid-cols-1 gap-3 relative z-10">
                                 
                                 {/* DISPARO DO ESTRATEGISTA SÊNIOR / CHEFE DE EQUIPE */}
                                 <DialogueBox
@@ -768,28 +768,6 @@ export default function RaceWeekSchedule({
                                         </>
                                     }
                                 />
-
-                                {/* BOLETIM NORMATIVO BAEFF1 */}
-                                <div className="bg-black border border-white/15 p-3.5 rounded-xs flex flex-col gap-2">
-                                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-                                        <div className="flex items-center gap-2">
-                                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                                            <span className="text-[9px] font-black tracking-widest uppercase text-emerald-400">
-                                                BOLETIM NORMATIVO BAEFF1
-                                            </span>
-                                        </div>
-                                        <span className="text-[8px] text-white/40 font-mono">{day.baeff1Broadcast.code}</span>
-                                    </div>
-                                    <h4 className="text-xs font-bold text-white tracking-wide uppercase">
-                                        {day.baeff1Broadcast.title}
-                                    </h4>
-                                    <p className="text-[11px] text-white/60 leading-relaxed font-sans">
-                                        {day.baeff1Broadcast.systemAction}
-                                    </p>
-                                    <div className="mt-auto pt-1 text-[9px] text-[#fbaa19] font-bold font-mono">
-                                        {day.baeff1Broadcast.marketStatus}
-                                    </div>
-                                </div>
 
                             </div>
 
