@@ -180,12 +180,12 @@ const PERFORMANCE_THEMES = {
         name: 'Top 1/3 (Verde)',
         text: 'text-emerald-400',
         textColor: '#34d399',
-        border: 'rgba(16, 185, 129, 0.45)',
-        borderActive: 'rgba(52, 211, 153, 0.85)',
+        border: 'rgba(16, 185, 129, 0.55)',
+        borderActive: '#10b981',
         ring: 'ring-emerald-500/50',
-        bg: 'rgba(16, 185, 129, 0.14)',
-        bgActive: 'rgba(16, 185, 129, 0.26)',
-        shadow: '0 0 16px rgba(16, 185, 129, 0.25)',
+        bg: 'linear-gradient(160deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 46, 22, 0.35) 45%, #000000 100%)',
+        bgActive: 'linear-gradient(160deg, rgba(16, 185, 129, 0.32) 0%, rgba(5, 46, 22, 0.50) 45%, #000000 100%)',
+        shadow: '0 0 22px rgba(16, 185, 129, 0.30)',
         badge: 'bg-emerald-500/25 text-emerald-300 border-emerald-500/40',
         dot: 'bg-emerald-400',
         tag: 'TOP 1/3',
@@ -195,12 +195,12 @@ const PERFORMANCE_THEMES = {
         name: 'Meio do Grid (Amarela)',
         text: 'text-amber-400',
         textColor: '#fbbf24',
-        border: 'rgba(234, 179, 8, 0.45)',
-        borderActive: 'rgba(251, 191, 36, 0.85)',
+        border: 'rgba(245, 158, 11, 0.55)',
+        borderActive: '#f59e0b',
         ring: 'ring-amber-500/50',
-        bg: 'rgba(234, 179, 8, 0.14)',
-        bgActive: 'rgba(234, 179, 8, 0.26)',
-        shadow: '0 0 16px rgba(234, 179, 8, 0.25)',
+        bg: 'linear-gradient(160deg, rgba(245, 158, 11, 0.20) 0%, rgba(69, 26, 3, 0.35) 45%, #000000 100%)',
+        bgActive: 'linear-gradient(160deg, rgba(245, 158, 11, 0.30) 0%, rgba(69, 26, 3, 0.50) 45%, #000000 100%)',
+        shadow: '0 0 22px rgba(245, 158, 11, 0.30)',
         badge: 'bg-amber-500/25 text-amber-300 border-amber-500/40',
         dot: 'bg-amber-400',
         tag: 'MEIO DO GRID',
@@ -210,12 +210,12 @@ const PERFORMANCE_THEMES = {
         name: '1/3 Inferior (Vermelha)',
         text: 'text-red-400',
         textColor: '#f87171',
-        border: 'rgba(239, 68, 68, 0.45)',
-        borderActive: 'rgba(248, 113, 113, 0.85)',
+        border: 'rgba(239, 68, 68, 0.55)',
+        borderActive: '#ef4444',
         ring: 'ring-red-500/50',
-        bg: 'rgba(239, 68, 68, 0.14)',
-        bgActive: 'rgba(239, 68, 68, 0.26)',
-        shadow: '0 0 16px rgba(239, 68, 68, 0.25)',
+        bg: 'linear-gradient(160deg, rgba(239, 68, 68, 0.20) 0%, rgba(69, 10, 10, 0.35) 45%, #000000 100%)',
+        bgActive: 'linear-gradient(160deg, rgba(239, 68, 68, 0.30) 0%, rgba(69, 10, 10, 0.50) 45%, #000000 100%)',
+        shadow: '0 0 22px rgba(239, 68, 68, 0.30)',
         badge: 'bg-red-500/25 text-red-300 border-red-500/40',
         dot: 'bg-red-400',
         tag: '1/3 INFERIOR',
@@ -1500,27 +1500,10 @@ export default function OfficialStrategistDashboard() {
         };
     }, [me, field, userPrediction, squad]);
 
-    const toStandardCard = (base: (typeof PERFORMANCE_THEMES)[PerformanceColor]) =>
-        isStandardStyle
-            ? {
-                  ...base,
-                  text: 'text-[#fbaa19]',
-                  textColor: 'rgba(255, 255, 255, 0.55)',
-                  border: 'rgba(255, 255, 255, 0.14)',
-                  borderActive: '#fbaa19',
-                  ring: 'ring-[#fbaa19]/60',
-                  bg: '#000000',
-                  bgActive: '#0a0a0a',
-                  shadow: '0 0 16px rgba(251, 170, 25, 0.18)',
-                  badge: 'bg-white/5 text-white/75 border-white/15',
-                  dot: 'bg-[#fbaa19]',
-              }
-            : base;
-
-    const poleTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.poletime || 'red']);
-    const masterTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.master || 'red']);
-    const milesimusTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.milesimus || 'yellow']);
-    const teamworkTheme = toStandardCard(PERFORMANCE_THEMES[competitionTiers?.teamwork || 'yellow']);
+    const poleTheme = PERFORMANCE_THEMES[competitionTiers?.poletime || 'red'];
+    const masterTheme = PERFORMANCE_THEMES[competitionTiers?.master || 'red'];
+    const milesimusTheme = PERFORMANCE_THEMES[competitionTiers?.milesimus || 'yellow'];
+    const teamworkTheme = PERFORMANCE_THEMES[competitionTiers?.teamwork || 'yellow'];
 
     // Histórico de atividades / telemetria de ordens baseado 100% em dados reais
     const activityHistory = useMemo(() => {
@@ -2325,7 +2308,7 @@ export default function OfficialStrategistDashboard() {
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'book' ? `${poleTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{
                                         borderColor: activeTab === 'book' ? poleTheme.borderActive : poleTheme.border,
-                                        backgroundColor: activeTab === 'book' ? poleTheme.bgActive : poleTheme.bg,
+                                        background: activeTab === 'book' ? poleTheme.bgActive : poleTheme.bg,
                                         boxShadow: activeTab === 'book' ? poleTheme.shadow : undefined
                                     }}
                                 >
@@ -2359,7 +2342,7 @@ export default function OfficialStrategistDashboard() {
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'quotes' ? `${masterTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{
                                         borderColor: activeTab === 'quotes' ? masterTheme.borderActive : masterTheme.border,
-                                        backgroundColor: activeTab === 'quotes' ? masterTheme.bgActive : masterTheme.bg,
+                                        background: activeTab === 'quotes' ? masterTheme.bgActive : masterTheme.bg,
                                         boxShadow: activeTab === 'quotes' ? masterTheme.shadow : undefined
                                     }}
                                 >
@@ -2392,7 +2375,7 @@ export default function OfficialStrategistDashboard() {
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'history' ? `${milesimusTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{
                                         borderColor: activeTab === 'history' ? milesimusTheme.borderActive : milesimusTheme.border,
-                                        backgroundColor: activeTab === 'history' ? milesimusTheme.bgActive : milesimusTheme.bg,
+                                        background: activeTab === 'history' ? milesimusTheme.bgActive : milesimusTheme.bg,
                                         boxShadow: activeTab === 'history' ? milesimusTheme.shadow : undefined
                                     }}
                                 >
@@ -2420,7 +2403,7 @@ export default function OfficialStrategistDashboard() {
                                     className={`text-left border p-3 rounded-lg flex flex-col justify-between transition-all cursor-pointer backdrop-blur-sm ${activeTab === 'teamwork' ? `${teamworkTheme.ring} ring-2 scale-[1.02]` : 'hover:scale-[1.02] hover:brightness-110'}`}
                                     style={{
                                         borderColor: activeTab === 'teamwork' ? teamworkTheme.borderActive : teamworkTheme.border,
-                                        backgroundColor: activeTab === 'teamwork' ? teamworkTheme.bgActive : teamworkTheme.bg,
+                                        background: activeTab === 'teamwork' ? teamworkTheme.bgActive : teamworkTheme.bg,
                                         boxShadow: activeTab === 'teamwork' ? teamworkTheme.shadow : undefined
                                     }}
                                 >
