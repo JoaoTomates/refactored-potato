@@ -1519,17 +1519,6 @@ export default function OfficialStrategistDashboard() {
         }));
     }, [field, me]);
 
-    const groupRanking = useMemo(() => {
-        if (!me) return [];
-        const pool = field.filter(s => s.groupId === me.groupId && s.id !== me.id);
-        return [...pool, me]
-            .map(s => {
-                const bal = s.mlsBalance ?? 100;
-                return { s, v: bal, c: 0 };
-            })
-            .sort((a, b) => b.v - a.v);
-    }, [field, me]);
-
     // Top 10 do Ranking Geral por Competição (Master, Milesimus, Poletime)
     const { masterTop10, milesimusTop10, poletimeTop10 } = useMemo(() => {
         const allPool = field.length > 0 ? field : (me ? [me] : []);
@@ -3250,40 +3239,6 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </Panel>
                             ))}
-
-                            <Panel
-                                title={`Ranking · ${getChampionGroupName(me.groupId)}`}
-                                tag={`${groupRanking.length}/22 ESTRATEGISTAS`}
-                                bodyClass="p-0"
-                                className={isStandardStyle ? '!bg-black bg-black' : ''}
-                                accentColor={mainAccent}
-                            >
-                                <div className="max-h-[420px] overflow-y-auto">
-                                    {groupRanking.map((r, i) => {
-                                        const isMe = r.s.id === me.id;
-                                        const row = (
-                                            <div className={`flex items-center gap-3 px-4 py-2.5 border-b border-white/5 text-[11px] tracking-widest transition-colors ${isMe ? 'border-l-2' : 'hover:bg-white/5'}`} style={{ backgroundColor: isMe ? `${mainAccent}15` : undefined, borderLeftColor: isMe ? mainAccent : undefined }}>
-                                                <span className={`w-5 text-right tabular-nums ${i < 3 ? 'font-black' : 'text-white/40'}`} style={{ color: i < 3 ? mainAccent : undefined }}>{i + 1}</span>
-                                                <span
-                                                    className="w-1 h-6 rounded-sm shrink-0"
-                                                    style={{ background: isStandardStyle ? (isMe ? '#fbaa19' : 'rgba(255,255,255,0.22)') : r.s.teamColor }}
-                                                />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-bold truncate text-white" style={{ color: isMe ? mainAccent : undefined }}>{r.s.name}{isMe && ' (ESTRATEGISTA)'}</p>
-                                                    <p className="text-[9px] text-white/40">{r.s.teamCode}</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-bold tabular-nums font-mono text-white">{formatMls(r.s.mlsBalance ?? 100)}</p>
-                                                    <span className="text-[9px] text-white/40">MLS</span>
-                                                </div>
-                                            </div>
-                                        );
-                                        return r.s.slug && !isMe
-                                            ? <Link key={r.s.id} href={getDashboardPath(r.s.slug)}>{row}</Link>
-                                            : <div key={r.s.id}>{row}</div>;
-                                    })}
-                                </div>
-                            </Panel>
                                 </>
                             )}
                         </section>
