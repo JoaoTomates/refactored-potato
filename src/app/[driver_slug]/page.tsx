@@ -495,7 +495,7 @@ function CredentialCard({
                                     background: `radial-gradient(circle at 50% 48%, ${carBgColor} 0%, ${carBgColor} 72%, rgba(0,0,0,0.95) 90%, #000000 98%)`,
                                 }}
                             >
-                                {/* LETRAS DO PILOTO REAL (LEC) DESLOCADAS PARA A ESQUERDA COM LEVE CURVATURA DE ADESIVO NO CAPACETE */}
+                                {/* LETRAS DO PILOTO REAL (LEC) CENTRALIZADAS VERTICALMENTE E DESLOCADAS PARA A ESQUERDA, SEM CURVA */}
                                 <svg
                                     viewBox="0 0 300 300"
                                     className="w-full h-full select-none pointer-events-none"
@@ -504,30 +504,22 @@ function CredentialCard({
                                         <filter id={`driver-code-shadow-${badgeUid}`} x="-30%" y="-30%" width="160%" height="160%">
                                             <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.65)" />
                                         </filter>
-                                        <path
-                                            id={`driver-code-arc-${badgeUid}`}
-                                            d="M 24 176 Q 124 134 224 172"
-                                            fill="none"
-                                        />
                                     </defs>
                                     <text
+                                        x="128"
+                                        y="150"
+                                        textAnchor="middle"
                                         dominantBaseline="central"
                                         fill={carTextColor}
                                         filter={carTextColor === '#000000' ? undefined : `url(#driver-code-shadow-${badgeUid})`}
                                         style={{
                                             fontFamily: 'var(--font-montserrat), sans-serif',
                                             fontWeight: 900,
-                                            fontSize: '66px',
+                                            fontSize: '61px',
                                             letterSpacing: '2px',
                                         }}
                                     >
-                                        <textPath
-                                            href={`#driver-code-arc-${badgeUid}`}
-                                            startOffset="50%"
-                                            textAnchor="middle"
-                                        >
-                                            {realDriver?.code || 'LEC'}
-                                        </textPath>
+                                        {realDriver?.code || 'LEC'}
                                     </text>
                                 </svg>
                             </div>
