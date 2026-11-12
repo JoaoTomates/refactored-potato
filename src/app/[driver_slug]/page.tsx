@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
@@ -440,6 +440,7 @@ function CredentialCard({
     isOwner?: boolean;
     onOpenSetup?: () => void;
 }) {
+    const badgeUid = useId().replace(/[^a-zA-Z0-9_-]/g, '_');
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
     const rating = ratingFor(last);
     const cleanNationality = nationality?.trim() || '';
@@ -494,31 +495,39 @@ function CredentialCard({
                                     background: `radial-gradient(circle at 50% 48%, ${carBgColor} 0%, ${carBgColor} 72%, rgba(0,0,0,0.95) 90%, #000000 98%)`,
                                 }}
                             >
-                                {/* LETRAS DO PILOTO REAL (LEC) CENTRALIZADAS VERTICALMENTE E ALINHADAS À DIREITA, SEM CURVA */}
+                                {/* LETRAS DO PILOTO REAL (LEC) DESLOCADAS PARA A ESQUERDA COM LEVE CURVATURA DE ADESIVO NO CAPACETE */}
                                 <svg
                                     viewBox="0 0 300 300"
                                     className="w-full h-full select-none pointer-events-none"
                                 >
                                     <defs>
-                                        <filter id="driver-code-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                                        <filter id={`driver-code-shadow-${badgeUid}`} x="-30%" y="-30%" width="160%" height="160%">
                                             <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.65)" />
                                         </filter>
+                                        <path
+                                            id={`driver-code-arc-${badgeUid}`}
+                                            d="M 24 176 Q 124 134 224 172"
+                                            fill="none"
+                                        />
                                     </defs>
                                     <text
-                                        x="274"
-                                        y="150"
-                                        textAnchor="end"
                                         dominantBaseline="central"
                                         fill={carTextColor}
-                                        filter={carTextColor === '#000000' ? undefined : 'url(#driver-code-shadow)'}
+                                        filter={carTextColor === '#000000' ? undefined : `url(#driver-code-shadow-${badgeUid})`}
                                         style={{
                                             fontFamily: 'var(--font-montserrat), sans-serif',
                                             fontWeight: 900,
-                                            fontSize: '70px',
-                                            letterSpacing: '3px',
+                                            fontSize: '66px',
+                                            letterSpacing: '2px',
                                         }}
                                     >
-                                        {realDriver?.code || 'LEC'}
+                                        <textPath
+                                            href={`#driver-code-arc-${badgeUid}`}
+                                            startOffset="50%"
+                                            textAnchor="middle"
+                                        >
+                                            {realDriver?.code || 'LEC'}
+                                        </textPath>
                                     </text>
                                 </svg>
                             </div>
