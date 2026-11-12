@@ -489,58 +489,43 @@ function CredentialCard({
                         {/* Preenchimento colorido restrito à área do capacete (sem vazar nas bordas laterais ou topo) */}
                         <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center pointer-events-none pt-3">
                             <div
-                                className="w-[92%] aspect-square rounded-full"
+                                className="relative w-[calc(92%-5px)] aspect-square rounded-full flex items-center justify-center"
                                 style={{
                                     background: `radial-gradient(circle at 50% 48%, ${carBgColor} 0%, ${carBgColor} 72%, rgba(0,0,0,0.95) 90%, #000000 98%)`,
                                 }}
-                            />
+                            >
+                                {/* LETRAS DO PILOTO REAL (LEC) CENTRALIZADAS VERTICALMENTE E ALINHADAS À DIREITA, SEM CURVA */}
+                                <svg
+                                    viewBox="0 0 300 300"
+                                    className="w-full h-full select-none pointer-events-none"
+                                >
+                                    <defs>
+                                        <filter id="driver-code-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.65)" />
+                                        </filter>
+                                    </defs>
+                                    <text
+                                        x="274"
+                                        y="150"
+                                        textAnchor="end"
+                                        dominantBaseline="central"
+                                        fill={carTextColor}
+                                        filter={carTextColor === '#000000' ? undefined : 'url(#driver-code-shadow)'}
+                                        style={{
+                                            fontFamily: 'var(--font-montserrat), sans-serif',
+                                            fontWeight: 900,
+                                            fontSize: '70px',
+                                            letterSpacing: '3px',
+                                        }}
+                                    >
+                                        {realDriver?.code || 'LEC'}
+                                    </text>
+                                </svg>
+                            </div>
                         </div>
 
                         {/* Divisória sutil na transição dos 2/3 para o terço final preto */}
                         <div className="absolute top-[66%] left-0 right-0 h-[1px] bg-white/15" />
-
-                        {/* LETRAS DO PILOTO REAL (LEC) NO CENTRO DO TERÇO SUPERIOR (10PX MAIS PARA CIMA) */}
-                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center px-2 -translate-y-[18px]">
-                            <svg
-                                viewBox="0 0 320 160"
-                                className="w-full max-w-[310px] overflow-visible select-none pointer-events-none"
-                                style={{
-                                    transform: 'rotate(-28deg)',
-                                    transformOrigin: 'center center'
-                                }}
-                            >
-                                <defs>
-                                    {/* Trajetória em curva arqueada: faz o L subir e o E emergir na área aberta da cúpula do capacete */}
-                                    <path
-                                        id="driver-code-arc"
-                                        d="M 25 108 Q 160 62 295 108"
-                                        fill="none"
-                                    />
-                                    <filter id="driver-code-shadow" x="-30%" y="-30%" width="160%" height="160%">
-                                        <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.65)" />
-                                    </filter>
-                                </defs>
-                                <text
-                                    fill={carTextColor}
-                                    filter={carTextColor === '#000000' ? undefined : 'url(#driver-code-shadow)'}
-                                    style={{
-                                        fontFamily: 'var(--font-montserrat), sans-serif',
-                                        fontWeight: 900,
-                                        fontSize: '74px',
-                                        letterSpacing: '3px',
-                                    }}
-                                >
-                                    <textPath
-                                        href="#driver-code-arc"
-                                        xlinkHref="#driver-code-arc"
-                                        startOffset="50%"
-                                        textAnchor="middle"
-                                    >
-                                        {realDriver?.code || 'LEC'}
-                                    </textPath>
-                                </text>
-                            </svg>
-                        </div>
                     </div>
 
                     {/* CAPACETE OFICIAL F1 COM PADDING SUPERIOR EM RELAÇÃO AO TOPO */}
@@ -2256,7 +2241,7 @@ export default function OfficialStrategistDashboard() {
                             }`}
                         >
 
-                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITIONS FAST — SOMENTE DONO DO TERMINAL */}
+                            {/* NAVEGAÇÃO DUPLA DE COMANDO: WAR ROOM (REUNIÃO TÁTICA) + POSITION — SOMENTE DONO DO TERMINAL */}
                             {isOwner && (
                                 <div className="w-full flex flex-col sm:flex-row gap-2.5">
                                     {/* BOTÃO PRINCIPAL: REUNIÃO TÁTICA // WAR ROOM */}
@@ -2279,18 +2264,19 @@ export default function OfficialStrategistDashboard() {
                                         </span>
                                     </Link>
 
-                                    {/* BOTÃO SECUNDÁRIO: POSITIONS FAST */}
+                                    {/* BOTÃO SECUNDÁRIO: POSITION */}
                                     <Link
                                         href="/positions"
-                                        className={`sm:w-auto py-3 px-4 rounded-[3px] border font-bold uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-md cursor-pointer ${isStandardStyle ? 'bg-black hover:bg-white/10' : 'bg-[#030303] hover:bg-white/10'}`}
+                                        className="sm:w-auto py-3 px-4 rounded-[3px] border font-black uppercase tracking-widest text-xs flex items-center justify-between sm:justify-center gap-2 transition-all hover:brightness-110 shadow-xl cursor-pointer group"
                                         style={{
-                                            borderColor: isStandardStyle ? 'rgba(255,255,255,0.2)' : `${teamColor}50`,
-                                            color: mainAccent
+                                            borderColor: '#fbaa19',
+                                            backgroundColor: 'rgba(251, 170, 25, 0.18)',
+                                            color: '#fbaa19'
                                         }}
                                         title="Entrada direta no terminal de posições (sem briefing da mesa)"
                                     >
-                                        <span>POSITIONS FAST</span>
-                                        <span className="text-[10px] opacity-70">»</span>
+                                        <span className="group-hover:text-white transition-colors">POSITION</span>
+                                        <span className="text-[10px] opacity-80 group-hover:text-white transition-colors">»</span>
                                     </Link>
                                 </div>
                             )}
