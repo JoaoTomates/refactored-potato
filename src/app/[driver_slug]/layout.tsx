@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{ driver_slug: string }> | { driver_slug: string } }): Promise<Metadata> {
-    // Next 15 requires params to be awaited if we use standard types, but Next 13/14 uses direct object.
-    // Handling carefully:
-    const slug = (await params).driver_slug;
+    const raw = params && typeof (params as any).then === 'function' ? (await params).driver_slug : (params as any)?.driver_slug;
+    const slug = raw ? String(raw) : '';
+    if (!slug || /\.(ico|png|jpg|jpeg|gif|svg|webp|txt|xml|json|map|js|css|woff2?|ttf|eot)$/i.test(slug) || slug.startsWith('_')) {
+        return { title: 'BAEFF1' };
+    }
     return {
         title: `@${slug.toUpperCase()}`,
     };

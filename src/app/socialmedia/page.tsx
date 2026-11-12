@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Social Media' };
-﻿import React from 'react';
+import React from 'react';
 
 import Link from 'next/link';
 import NewsInteractions from '@/components/news-interactions';
@@ -35,8 +35,14 @@ async function fetchSocialFeed(): Promise<SocialItem[]> {
 
     await Promise.allSettled(
         FEEDS.map(async (feed) => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
             try {
-                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`, {
+                    next: { revalidate: 900 },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 if (response.ok) {
                     const data = await response.json();
                     if (data.items) {
@@ -49,6 +55,7 @@ async function fetchSocialFeed(): Promise<SocialItem[]> {
                     }
                 }
             } catch (error) {
+                clearTimeout(timeoutId);
                 console.error(`Error fetching social feed from ${feed.name}:`, error);
             }
         })

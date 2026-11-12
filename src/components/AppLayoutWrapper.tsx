@@ -11,6 +11,17 @@ import NasdaqTicker from './nasdaq-ticker';
 export function isDashboardRoute(pathname: string | null): boolean {
     if (!pathname || pathname === '/') return false;
 
+    // Static assets, favicon, robots, sitemaps etc. are never dashboard routes
+    if (
+        pathname === '/favicon.ico' ||
+        pathname === '/robots.txt' ||
+        pathname === '/sitemap.xml' ||
+        pathname.startsWith('/icon') ||
+        /\.(ico|png|jpg|jpeg|gif|svg|webp|txt|xml|json|map|js|css|woff2?|ttf|eot)$/i.test(pathname)
+    ) {
+        return false;
+    }
+
     // Rotas estáticas que explicitamente NÃO são o Dashboard
     const nonDashboardRoutes = new Set([
         '/crew',

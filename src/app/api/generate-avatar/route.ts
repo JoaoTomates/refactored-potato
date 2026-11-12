@@ -25,15 +25,26 @@ export async function POST(request: Request) {
         // We request the image from pollinations. It returns the image buffer directly.
         const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}`;
 
-        // Fetch to ensure it generates before responding, and to catch errors
-        const response = await fetch(imageUrl);
+        // Fetch to ensure it generates before responding, with a 6-second timeout to prevent serverless hang
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-        if (!response.ok) {
-            console.error("Free AI Error:", response.statusText);
-            return NextResponse.json(
-                { error: `Free AI API Error: ${response.statusText}` },
-                { status: 500 }
-            );
+        try {
+            const response = await fetch(imageUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                console.error("Free AI Error:", response.statusText);
+                return NextResponse.json(
+                    { error: `Free AI API Error: ${response.statusText}` },
+                    { status: 502 }
+                );
+            }
+        } catch (fetchErr: any) {
+            clearTimeout(timeoutId);
+            console.warn("Avatar generator timeout/abort, returning fallback:", fetchErr?.message);
+            // Return direct URL so client browser can attempt to load it directly
+            return NextResponse.json({ imageUrl, fallback: true });
         }
 
         // Return the direct URL to the client

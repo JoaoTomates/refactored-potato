@@ -222,7 +222,15 @@ export interface F1Event {
 
 export const fetchNextEvent = async (): Promise<F1Event> => {
     try {
-        const response = await fetch('https://api.jolpi.ca/ergast/f1/current/next.json', { cache: 'no-store' });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        const response = await fetch('https://api.jolpi.ca/ergast/f1/current/next.json', { 
+            next: { revalidate: 300 },
+            signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+
         const data = await response.json();
         const races = data.MRData?.RaceTable?.Races;
         if (races && races.length > 0) {

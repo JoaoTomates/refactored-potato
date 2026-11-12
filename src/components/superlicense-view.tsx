@@ -26,7 +26,7 @@ function SuperlicenseAuthContent() {
     const [showPassword, setShowPassword] = useState(false);
     
     const rawRedirect = searchParams?.get('redirect');
-    const safeRedirect = rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+    const safeRedirect = rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') && !rawRedirect.startsWith('/superlicense')
         ? rawRedirect
         : null;
     const isTransmitRedirect = searchParams?.get('reason') === 'transmit';

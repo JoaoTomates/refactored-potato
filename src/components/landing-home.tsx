@@ -27,7 +27,7 @@ function LandingHomeContent() {
 
     const rawRedirect = searchParams?.get('redirect');
     const safeRedirect =
-        rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+        rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') && rawRedirect !== '/' && !rawRedirect.startsWith('/?')
             ? rawRedirect
             : null;
 

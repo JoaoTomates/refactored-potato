@@ -2,7 +2,7 @@
 
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, notFound } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { F1_TEAMS } from '@/lib/teams';
@@ -890,6 +890,9 @@ export default function OfficialStrategistDashboard() {
 
 
     const rawSlug = (params?.driver_slug as string) || '';
+    if (rawSlug && (/\.(ico|png|jpg|jpeg|gif|svg|webp|txt|xml|json|map|js|css|woff2?|ttf|eot)$/i.test(rawSlug) || rawSlug.startsWith('_'))) {
+        notFound();
+    }
     const decodedSlug = rawSlug ? decodeURIComponent(rawSlug) : '';
     const targetSlug = decodedSlug.startsWith('@') ? decodedSlug : (decodedSlug ? `@${decodedSlug}` : '');
 
@@ -1140,10 +1143,9 @@ export default function OfficialStrategistDashboard() {
                         const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
                         if (count > 2) {
                             console.warn('[BAEFF1 Guard] Loop detectado em driver_slug. Redirecionamento interrompido.');
-                            sessionStorage.removeItem(redirectKey);
                         } else {
                             sessionStorage.setItem(redirectKey, String(count + 1));
-                            window.location.replace('/headquarters');
+                            router.replace('/headquarters');
                             return;
                         }
                     } else {

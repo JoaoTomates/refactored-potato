@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, TEAM_SPECS, TeamOffer } from '@/utils/alliance-data';
@@ -19,6 +20,7 @@ import {
 const AGENT_AVATAR_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_1.jpg';
 
 function HeadquartersFlow() {
+    const router = useRouter();
     const { user, isLoading: authLoading } = useSupabaseAuth();
     
     const [loadingData, setLoadingData] = useState(true);
@@ -67,11 +69,10 @@ function HeadquartersFlow() {
                         const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
                         if (count > 2) {
                             console.warn('[BAEFF1 Guard] Loop detectado em headquarters. Redirecionamento interrompido.');
-                            sessionStorage.removeItem(redirectKey);
                         } else {
                             sessionStorage.setItem(redirectKey, String(count + 1));
                             const target = (profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`).toLowerCase();
-                            window.location.replace(`/${target}`);
+                            router.replace(`/${target}`);
                             return;
                         }
                     } else {
@@ -217,7 +218,7 @@ function HeadquartersFlow() {
                 if (normalizedSlug) localStorage.setItem('vg_user_slug', normalizedSlug);
                 else localStorage.removeItem('vg_user_slug');
             }
-            window.location.replace(getDashboardPath(normalizedSlug, '/headquarters'));
+            router.replace(getDashboardPath(normalizedSlug, '/headquarters'));
 
         } catch (err: any) {
             console.error(err);
