@@ -25,21 +25,21 @@ interface ContractRow {
 interface BlockPalette {
     bg: string;
     text: string;
-    accent: string;
+    divider: string;
 }
 
 const TEAM_BLOCK_PALETTE: Record<string, BlockPalette> = {
-    FER: { bg: '#E8002D', text: '#FFFFFF', accent: '#E8002D' },
-    RBR: { bg: '#0600EF', text: '#FFFFFF', accent: '#3671C6' },
-    MCL: { bg: '#FF8000', text: '#080A0D', accent: '#FF8000' },
-    MER: { bg: '#D1D5DB', text: '#005F56', accent: '#00D2BE' },
-    WIL: { bg: '#FFFFFF', text: '#080A0D', accent: '#005AFF' },
-    AST: { bg: '#007A33', text: '#FFFFFF', accent: '#229971' },
-    ALP: { bg: '#0090FF', text: '#FFFFFF', accent: '#0090FF' },
-    RBA: { bg: '#162E52', text: '#7CC4FF', accent: '#6692FF' },
-    HAA: { bg: '#F3F4F6', text: '#D90429', accent: '#D90429' },
-    AUD: { bg: '#262A30', text: '#FF3B30', accent: '#F50537' },
-    CAD: { bg: '#0B0D10', text: '#FFE600', accent: '#FBAA19' },
+    FER: { bg: '#E8002D', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
+    RBR: { bg: '#0600EF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
+    MCL: { bg: '#FF8000', text: '#080A0D', divider: 'rgba(8,10,13,0.18)' },
+    MER: { bg: '#00D2BE', text: '#080A0D', divider: 'rgba(8,10,13,0.18)' },
+    WIL: { bg: '#FFFFFF', text: '#080A0D', divider: 'rgba(8,10,13,0.14)' },
+    AST: { bg: '#007A33', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
+    ALP: { bg: '#0090FF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
+    RBA: { bg: '#162E52', text: '#7CC4FF', divider: 'rgba(124,196,255,0.2)' },
+    HAA: { bg: '#F3F4F6', text: '#D90429', divider: 'rgba(217,4,41,0.18)' },
+    AUD: { bg: '#262A30', text: '#FF3B30', divider: 'rgba(255,59,48,0.22)' },
+    CAD: { bg: '#0B0D10', text: '#FFE600', divider: 'rgba(255,230,0,0.2)' },
 };
 
 function unwrapProfile(raw: ContractRow['profiles']): ProfileRow | null {
@@ -140,13 +140,13 @@ export default function PitwallPage() {
             </div>
 
             {/* Blocos Coloridos 2 Rows x 3 Columns */}
-            <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-8 py-8 sm:py-12 min-h-screen flex items-center">
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12 min-h-screen flex items-center">
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 lg:gap-x-8 gap-y-4 sm:gap-y-5">
                     {orderedTeams.map((team: TeamData) => {
                         const palette = TEAM_BLOCK_PALETTE[team.logo] || {
                             bg: team.color,
                             text: '#FFFFFF',
-                            accent: team.color,
+                            divider: 'rgba(255,255,255,0.2)',
                         };
 
                         const driver1 = getRealF1Driver(team.name, 1);
@@ -182,28 +182,35 @@ export default function PitwallPage() {
                                 key={team.id}
                                 className={`w-full overflow-hidden border transition-transform duration-150 ${
                                     isUsersTeam
-                                        ? 'border-[#fbaa19] shadow-[0_0_18px_rgba(251,170,25,0.3)]'
-                                        : 'border-black/90 shadow-[0_6px_18px_rgba(0,0,0,0.65)]'
+                                        ? 'border-[#fbaa19] ring-2 ring-[#fbaa19]/60 shadow-[0_0_24px_rgba(251,170,25,0.35)]'
+                                        : 'border-black/80 shadow-[0_8px_22px_rgba(0,0,0,0.65)]'
                                 }`}
+                                style={{
+                                    backgroundColor: palette.bg,
+                                    color: palette.text,
+                                }}
                             >
-                                {/* ROW 1: Nome da Equipe | Piloto 1 (ex: LEC) | Estrategista Principal (Usuário) */}
+                                {/* ROW 1: Nome da Equipe (destaque) | Piloto 1 (ex: LEC) | Estrategista Principal (Usuário) */}
                                 <div
-                                    className="grid grid-cols-[1.2fr_0.5fr_1.3fr] items-center bg-[#080a0d]/95 text-white px-3 py-1.5 text-[11px] sm:text-xs font-black tracking-wider uppercase border-l-4"
-                                    style={{ borderLeftColor: palette.accent }}
+                                    className="grid grid-cols-[1.45fr_0.45fr_1.1fr] items-center px-4 sm:px-5 py-3 sm:py-3.5 border-b"
+                                    style={{ borderBottomColor: palette.divider }}
                                 >
-                                    <span className="text-left truncate pr-2">
+                                    <span
+                                        className="text-left text-base sm:text-lg lg:text-xl font-black uppercase tracking-tight leading-none truncate pr-2"
+                                        style={{ fontFamily: 'var(--font-montserrat)' }}
+                                    >
                                         {team.name}
                                     </span>
-                                    <span className="text-center text-[#fbaa19] tracking-[0.18em]">
+                                    <span className="text-center text-sm sm:text-base font-black tracking-[0.18em] uppercase">
                                         {driver1.code}
                                     </span>
-                                    <span className="text-right truncate pl-2">
+                                    <span className="text-right text-xs sm:text-sm font-black tracking-wider uppercase truncate pl-2">
                                         {primarySlug ? (
-                                            <Link href={`/${primarySlug}`} className="hover:text-[#fbaa19] transition-colors">
+                                            <Link href={`/${primarySlug}`} className="hover:underline">
                                                 {primaryName}
                                             </Link>
                                         ) : (
-                                            <span className={primaryContract ? 'text-white' : 'text-white/40'}>
+                                            <span className={primaryContract ? '' : 'opacity-60'}>
                                                 {primaryName}
                                             </span>
                                         )}
@@ -211,25 +218,18 @@ export default function PitwallPage() {
                                 </div>
 
                                 {/* ROW 2: (vazio) | Piloto 2 (ex: HAM) | Colega de Box */}
-                                <div
-                                    className="grid grid-cols-[1.2fr_0.5fr_1.3fr] items-center px-3 py-1.5 text-[11px] sm:text-xs font-black tracking-wider uppercase border-l-4"
-                                    style={{
-                                        backgroundColor: palette.bg,
-                                        color: palette.text,
-                                        borderLeftColor: palette.accent,
-                                    }}
-                                >
+                                <div className="grid grid-cols-[1.45fr_0.45fr_1.1fr] items-center px-4 sm:px-5 py-3 sm:py-3.5">
                                     <span aria-hidden="true" />
-                                    <span className="text-center tracking-[0.18em]">
+                                    <span className="text-center text-sm sm:text-base font-black tracking-[0.18em] uppercase">
                                         {driver2.code}
                                     </span>
-                                    <span className="text-right truncate pl-2">
+                                    <span className="text-right text-xs sm:text-sm font-black tracking-wider uppercase truncate pl-2">
                                         {teammateSlug ? (
                                             <Link href={`/${teammateSlug}`} className="hover:underline">
                                                 {teammateName}
                                             </Link>
                                         ) : (
-                                            <span className={teammateContract ? '' : 'opacity-65'}>
+                                            <span className={teammateContract ? '' : 'opacity-60'}>
                                                 {teammateName}
                                             </span>
                                         )}
