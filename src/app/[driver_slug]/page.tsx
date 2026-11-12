@@ -631,10 +631,10 @@ function CredentialCard({
                         </div>
                     </div>
 
-                    {/* TERÇO FINAL (PRETO): TÍTULO, NOME DO ESTRATEGISTA, EQUIPE E GRUPO */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[34%] z-20 flex flex-col items-center justify-between px-4 py-2.5 select-none">
+                    {/* TERÇO FINAL (PRETO): TÍTULO, NOME CENTRALIZADO, EQUIPE/GRUPO ABAIXO E SUPERLICENÇA NO BOTTOM */}
+                    <div className="absolute bottom-0 left-0 right-0 h-[34%] z-20 flex flex-col items-center justify-between px-4 pt-2 pb-3.5 select-none">
                         {/* Título no topo do rodapé com linhas laterais sutis */}
-                        <div className="w-full flex items-center gap-2 pt-0.5">
+                        <div className="w-full flex items-center gap-2 shrink-0">
                             <span className="h-px flex-1 bg-white/12" />
                             <span className="text-[8px] font-mono font-bold tracking-[0.28em] text-white/60 uppercase whitespace-nowrap">
                                 ESTRATEGISTA TITULAR
@@ -642,46 +642,49 @@ function CredentialCard({
                             <span className="h-px flex-1 bg-white/12" />
                         </div>
 
-                        {/* Nome do Estrategista em destaque central */}
-                        <h3
-                            className="font-black uppercase tracking-[0.08em] text-center leading-none truncate max-w-full font-mono my-auto"
-                            style={{
-                                fontFamily: 'var(--font-montserrat), sans-serif',
-                                fontWeight: 900,
-                                color: '#FFFFFF',
-                                fontSize: 'clamp(1.35rem, 4.5vw, 2rem)',
-                                textShadow: `0 0 20px ${carBgColor}80, 0 2px 10px rgba(0,0,0,0.9)`
-                            }}
-                        >
-                            {me.name}
-                        </h3>
-
-                        {/* Equipe e Grupo organizados em badges na base */}
-                        <div className="w-full flex items-center justify-center gap-2 pt-1.5 border-t border-white/10 min-w-0">
-                            <span
-                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] border text-[8.5px] sm:text-[9px] font-mono font-black tracking-[0.18em] uppercase truncate"
+                        {/* Bloco Centralizado: Nome do Estrategista + Equipe e Grupo logo abaixo */}
+                        <div className="flex-1 w-full flex flex-col items-center justify-center gap-1.5 min-w-0">
+                            <h3
+                                className="font-black uppercase tracking-[0.08em] text-center leading-none truncate max-w-full font-mono"
                                 style={{
-                                    borderColor: `${carBgColor}45`,
-                                    backgroundColor: `${carBgColor}14`,
-                                    color: carBgColor,
+                                    fontFamily: 'var(--font-montserrat), sans-serif',
+                                    fontWeight: 900,
+                                    color: '#FFFFFF',
+                                    fontSize: 'clamp(1.25rem, 4.2vw, 1.85rem)',
+                                    textShadow: `0 0 20px ${carBgColor}80, 0 2px 10px rgba(0,0,0,0.9)`
                                 }}
                             >
-                                <span
-                                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                                    style={{ backgroundColor: carBgColor }}
-                                />
-                                {me.teamName}
-                            </span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-[3px] border border-white/15 bg-white/[0.04] text-[8.5px] sm:text-[9px] font-mono font-bold tracking-[0.16em] text-white/80 uppercase truncate">
-                                {getChampionGroupName(me.groupId)}
-                            </span>
-                        </div>
-                    </div>
+                                {me.name}
+                            </h3>
 
-                    {/* Badge Flutuante no Topo: Status da Superlicença */}
-                    <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400 shadow">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span>SUPERLICENÇA ATIVA</span>
+                            <div className="w-full flex items-center justify-center gap-2 min-w-0">
+                                <span
+                                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] border text-[8.5px] sm:text-[9px] font-mono font-black tracking-[0.18em] uppercase truncate"
+                                    style={{
+                                        borderColor: `${carBgColor}45`,
+                                        backgroundColor: `${carBgColor}14`,
+                                        color: carBgColor,
+                                    }}
+                                >
+                                    <span
+                                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                                        style={{ backgroundColor: carBgColor }}
+                                    />
+                                    {me.teamName}
+                                </span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-[3px] border border-white/15 bg-white/[0.04] text-[8.5px] sm:text-[9px] font-mono font-bold tracking-[0.16em] text-white/80 uppercase truncate">
+                                    {getChampionGroupName(me.groupId)}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Status da Superlicença no bottom */}
+                        <div className="w-full flex items-center justify-center pt-1.5 border-t border-white/10 shrink-0">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-black/85 border border-white/15 text-[8px] font-mono tracking-widest text-emerald-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                <span>SUPERLICENÇA ATIVA</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
