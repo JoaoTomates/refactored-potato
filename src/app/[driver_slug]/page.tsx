@@ -3025,38 +3025,13 @@ export default function OfficialStrategistDashboard() {
 
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
                                     {isOwner && (
-                                        <>
-                                            <button
-                                                type="button"
-                                                onClick={() => openSubView('report')}
-                                                className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                            >
-                                                Report
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsVotingModalOpen(true)}
-                                                className={`p-2.5 rounded-[3px] text-center transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
-                                                    stewardVoting.pendingReports.length > 0
-                                                        ? 'border-[#fbaa19]/60 bg-[#fbaa19]/15 text-[#fbaa19] hover:bg-[#fbaa19] hover:text-black'
-                                                        : 'border-white/10 bg-[#030303] hover:bg-white/10 text-white'
-                                                }`}
-                                            >
-                                                <span>Voting</span>
-                                                {stewardVoting.pendingReports.length > 0 && (
-                                                    <span className="px-1.5 py-0.2 rounded-[2px] bg-black/70 text-[#fbaa19] text-[9px] font-black">
-                                                        {stewardVoting.pendingReports.length}
-                                                    </span>
-                                                )}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => openSubView('silly_season')}
-                                                className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                            >
-                                                Silly Season
-                                            </button>
-                                        </>
+                                        <button
+                                            type="button"
+                                            onClick={() => openSubView('silly_season')}
+                                            className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
+                                        >
+                                            Silly Season
+                                        </button>
                                     )}
                                     <button
                                         type="button"
