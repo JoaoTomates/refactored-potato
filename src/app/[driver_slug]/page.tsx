@@ -317,6 +317,69 @@ function Delta({ value, className = '' }: { value: number; className?: string })
     );
 }
 
+/** Arrow-only sidebar toggle bar shared by left and right columns in both collapsed and expanded states. */
+function SidebarToggleButton({
+    side,
+    collapsed,
+    accentColor,
+    isStandardStyle = false,
+    onClick,
+}: {
+    side: 'left' | 'right';
+    collapsed: boolean;
+    accentColor: string;
+    isStandardStyle?: boolean;
+    onClick: () => void;
+}) {
+    const pointsRight = (side === 'left' && collapsed) || (side === 'right' && !collapsed);
+    const label = `${collapsed ? 'Expandir' : 'Retrair'} painel ${side === 'left' ? 'esquerdo' : 'direito'}`;
+    const bgClass = isStandardStyle ? 'bg-black' : collapsed ? 'bg-black/85' : 'bg-black/80';
+    const borderColor = isStandardStyle
+        ? collapsed ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.15)'
+        : `${accentColor}${collapsed ? '40' : '30'}`;
+
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`w-full rounded-lg border ${bgClass} hover:bg-white/[0.06] transition-all flex items-center cursor-pointer group ${
+                collapsed
+                    ? 'px-3 py-2.5 lg:py-4 lg:px-1.5 justify-center lg:min-h-[120px]'
+                    : `px-3 py-1.5 ${side === 'left' ? 'justify-end' : 'justify-start'}`
+            }`}
+            style={{ borderColor }}
+            title={label}
+            aria-label={label}
+        >
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`w-4 h-4 transition-transform ${
+                    pointsRight ? 'group-hover:translate-x-0.5' : 'group-hover:-translate-x-0.5'
+                }`}
+                style={{ color: accentColor }}
+                aria-hidden="true"
+            >
+                {pointsRight ? (
+                    <>
+                        <path d="M6 17l5-5-5-5" />
+                        <path d="M13 17l5-5-5-5" />
+                    </>
+                ) : (
+                    <>
+                        <path d="M11 17l-5-5 5-5" />
+                        <path d="M18 17l-5-5 5-5" />
+                    </>
+                )}
+            </svg>
+        </button>
+    );
+}
+
 function Sparkline({ data, width = 90, height = 26, strokeColor }: { data: number[]; width?: number; height?: number; strokeColor?: string }) {
     if (!data || data.length < 2) {
         return <div style={{ width, height }} />;
@@ -568,43 +631,50 @@ function CredentialCard({
                         </div>
                     </div>
 
-                    {/* TERÇO FINAL (PRETO): EQUIPE, GRUPO, NOME E TÍTULO REORGANIZADOS */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[34%] z-20 flex flex-col items-center justify-center px-3 select-none">
-                        {/* No lugar de Estrategista Principal: Nome da Equipe e Grupo */}
-                        <span
-                            className="text-[8.5px] sm:text-[9.5px] font-mono font-black tracking-[0.22em] uppercase mb-1"
-                            style={{ color: carBgColor }}
-                        >
-                            {me.teamName} · {getChampionGroupName(me.groupId)}
-                        </span>
+                    {/* TERÇO FINAL (PRETO): TÍTULO, NOME DO ESTRATEGISTA, EQUIPE E GRUPO */}
+                    <div className="absolute bottom-0 left-0 right-0 h-[34%] z-20 flex flex-col items-center justify-between px-4 py-2.5 select-none">
+                        {/* Título no topo do rodapé com linhas laterais sutis */}
+                        <div className="w-full flex items-center gap-2 pt-0.5">
+                            <span className="h-px flex-1 bg-white/12" />
+                            <span className="text-[8px] font-mono font-bold tracking-[0.28em] text-white/60 uppercase whitespace-nowrap">
+                                ESTRATEGISTA TITULAR
+                            </span>
+                            <span className="h-px flex-1 bg-white/12" />
+                        </div>
 
-                        {/* Nome do Estrategista */}
+                        {/* Nome do Estrategista em destaque central */}
                         <h3
-                            className="font-black uppercase tracking-wider text-center leading-tight truncate max-w-full font-mono"
+                            className="font-black uppercase tracking-[0.08em] text-center leading-none truncate max-w-full font-mono my-auto"
                             style={{
                                 fontFamily: 'var(--font-montserrat), sans-serif',
                                 fontWeight: 900,
                                 color: '#FFFFFF',
-                                fontSize: 'clamp(1.4rem, 5vw, 2.1rem)',
+                                fontSize: 'clamp(1.35rem, 4.5vw, 2rem)',
                                 textShadow: `0 0 20px ${carBgColor}80, 0 2px 10px rgba(0,0,0,0.9)`
                             }}
                         >
                             {me.name}
                         </h3>
 
-                        {/* Título movido para baixo */}
-                        <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[8px] sm:text-[8.5px] font-mono font-bold tracking-[0.22em] text-white/70 uppercase">
-                                ESTRATEGISTA TITULAR
+                        {/* Equipe e Grupo organizados em badges na base */}
+                        <div className="w-full flex items-center justify-center gap-2 pt-1.5 border-t border-white/10 min-w-0">
+                            <span
+                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] border text-[8.5px] sm:text-[9px] font-mono font-black tracking-[0.18em] uppercase truncate"
+                                style={{
+                                    borderColor: `${carBgColor}45`,
+                                    backgroundColor: `${carBgColor}14`,
+                                    color: carBgColor,
+                                }}
+                            >
+                                <span
+                                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                                    style={{ backgroundColor: carBgColor }}
+                                />
+                                {me.teamName}
                             </span>
-                            {realDriver && (
-                                <>
-                                    <span className="text-white/30 text-[8px]">·</span>
-                                    <span className="text-[7.5px] font-mono tracking-widest text-white/50 uppercase">
-                                        PILOTO: {realDriver.code} #{realDriver.number}
-                                    </span>
-                                </>
-                            )}
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-[3px] border border-white/15 bg-white/[0.04] text-[8.5px] sm:text-[9px] font-mono font-bold tracking-[0.16em] text-white/80 uppercase truncate">
+                                {getChampionGroupName(me.groupId)}
+                            </span>
                         </div>
                     </div>
 
@@ -1848,49 +1918,20 @@ export default function OfficialStrategistDashboard() {
                             }`}
                         >
                             {leftCollapsed ? (
-                                <button
-                                    type="button"
+                                <SidebarToggleButton
+                                    side="left"
+                                    collapsed={true}
+                                    accentColor={teamColor}
                                     onClick={() => setLeftCollapsed(false)}
-                                    className="w-full px-3 py-2.5 lg:py-4 lg:px-1.5 rounded-lg border bg-black/85 hover:bg-white/[0.06] transition-all flex flex-row lg:flex-col items-center justify-between gap-3 lg:gap-4 cursor-pointer group lg:min-h-[240px]"
-                                    style={{ borderColor: `${teamColor}40` }}
-                                    title="Expandir painel esquerdo"
-                                    aria-label="Expandir painel esquerdo"
-                                >
-                                    <span className="text-xs font-black transition-transform group-hover:translate-x-0.5" style={{ color: teamColor }}>
-                                        <span className="lg:hidden">[+]</span>
-                                        <span className="hidden lg:inline">»</span>
-                                    </span>
-                                    <span
-                                        className="text-[10px] font-bold tracking-[0.25em] uppercase whitespace-nowrap lg:[writing-mode:vertical-rl] lg:rotate-180"
-                                        style={{ color: teamColor }}
-                                    >
-                                        {me.name} · {me.teamCode}
-                                    </span>
-                                    <span
-                                        className="w-2 h-2 rounded-full shrink-0"
-                                        style={{ backgroundColor: teamColor }}
-                                    />
-                                </button>
+                                />
                             ) : (
                                 <>
-                                    <div
-                                        className="flex items-center justify-between px-3 py-1.5 rounded-lg border bg-black/80 text-[10px] font-mono tracking-widest uppercase"
-                                        style={{ borderColor: `${teamColor}30` }}
-                                    >
-                                        <span className="font-bold flex items-center gap-1.5 truncate" style={{ color: teamColor }}>
-                                            <span className="opacity-60">&gt;_</span> PILOTO &amp; GARAGEM
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setLeftCollapsed(true)}
-                                            className="px-2 py-0.5 rounded border text-[10px] font-bold transition-colors cursor-pointer hover:bg-white/10 shrink-0"
-                                            style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}10` }}
-                                            title="Retrair painel esquerdo"
-                                            aria-label="Retrair painel esquerdo"
-                                        >
-                                            « RETRAIR
-                                        </button>
-                                    </div>
+                                    <SidebarToggleButton
+                                        side="left"
+                                        collapsed={false}
+                                        accentColor={teamColor}
+                                        onClick={() => setLeftCollapsed(true)}
+                                    />
                             <CredentialCard
                                 me={me}
                                 number={String(targetProfile?.driver_number || '00')}
@@ -3108,49 +3149,22 @@ export default function OfficialStrategistDashboard() {
                             }`}
                         >
                             {rightCollapsed ? (
-                                <button
-                                    type="button"
+                                <SidebarToggleButton
+                                    side="right"
+                                    collapsed={true}
+                                    accentColor={mainAccent}
+                                    isStandardStyle={isStandardStyle}
                                     onClick={() => setRightCollapsed(false)}
-                                    className={`w-full px-3 py-2.5 lg:py-4 lg:px-1.5 rounded-lg border hover:bg-white/[0.06] transition-all flex flex-row lg:flex-col items-center justify-between gap-3 lg:gap-4 cursor-pointer group lg:min-h-[240px] ${isStandardStyle ? 'bg-black' : 'bg-black/85'}`}
-                                    style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.2)' : `${mainAccent}40` }}
-                                    title="Expandir painel direito"
-                                    aria-label="Expandir painel direito"
-                                >
-                                    <span className="text-xs font-black transition-transform group-hover:-translate-x-0.5" style={{ color: mainAccent }}>
-                                        <span className="lg:hidden">[+]</span>
-                                        <span className="hidden lg:inline">«</span>
-                                    </span>
-                                    <span
-                                        className="text-[10px] font-bold tracking-[0.25em] uppercase whitespace-nowrap lg:[writing-mode:vertical-rl]"
-                                        style={{ color: mainAccent }}
-                                    >
-                                        RANKINGS &amp; ALIANÇAS
-                                    </span>
-                                    <span
-                                        className="w-2 h-2 rounded-full shrink-0"
-                                        style={{ backgroundColor: mainAccent }}
-                                    />
-                                </button>
+                                />
                             ) : (
                                 <>
-                                    <div
-                                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg border text-[10px] font-mono tracking-widest uppercase ${isStandardStyle ? 'bg-black' : 'bg-black/80'}`}
-                                        style={{ borderColor: isStandardStyle ? 'rgba(255,255,255,0.15)' : `${mainAccent}30` }}
-                                    >
-                                        <button
-                                            type="button"
-                                            onClick={() => setRightCollapsed(true)}
-                                            className="px-2 py-0.5 rounded border text-[10px] font-bold transition-colors cursor-pointer hover:bg-white/10 shrink-0"
-                                            style={{ borderColor: `${mainAccent}40`, color: mainAccent, backgroundColor: `${mainAccent}10` }}
-                                            title="Retrair painel direito"
-                                            aria-label="Retrair painel direito"
-                                        >
-                                            RETRAIR »
-                                        </button>
-                                        <span className="font-bold flex items-center gap-1.5 truncate" style={{ color: mainAccent }}>
-                                            <span className="opacity-60">&gt;_</span> RANKINGS &amp; LIGAS
-                                        </span>
-                                    </div>
+                                    <SidebarToggleButton
+                                        side="right"
+                                        collapsed={false}
+                                        accentColor={mainAccent}
+                                        isStandardStyle={isStandardStyle}
+                                        onClick={() => setRightCollapsed(true)}
+                                    />
                             <Panel
                                 title="Índices das Alianças"
                                 bodyClass="p-0"
