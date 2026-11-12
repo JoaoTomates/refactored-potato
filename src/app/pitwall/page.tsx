@@ -23,23 +23,43 @@ interface ContractRow {
 }
 
 interface BlockPalette {
-    bg: string;
+    from: string;
+    to: string;
     text: string;
     divider: string;
 }
 
 const TEAM_BLOCK_PALETTE: Record<string, BlockPalette> = {
-    FER: { bg: '#E8002D', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
-    RBR: { bg: '#0600EF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
-    MCL: { bg: '#FF8000', text: '#080A0D', divider: 'rgba(8,10,13,0.2)' },
-    MER: { bg: '#00D2BE', text: '#080A0D', divider: 'rgba(8,10,13,0.2)' },
-    WIL: { bg: '#FFFFFF', text: '#080A0D', divider: 'rgba(8,10,13,0.16)' },
-    AST: { bg: '#007A33', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
-    ALP: { bg: '#0090FF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
-    RBA: { bg: '#162E52', text: '#7CC4FF', divider: 'rgba(124,196,255,0.24)' },
-    HAA: { bg: '#F3F4F6', text: '#D90429', divider: 'rgba(217,4,41,0.2)' },
-    AUD: { bg: '#2B303A', text: '#FF3B30', divider: 'rgba(255,59,48,0.24)' },
-    CAD: { bg: '#FFB800', text: '#080A0D', divider: 'rgba(8,10,13,0.2)' },
+    MCL: { from: '#FF941A', to: '#E66900', text: '#080A0D', divider: 'rgba(8,10,13,0.22)' },
+    FER: { from: '#FF1A3C', to: '#C40020', text: '#FFFFFF', divider: 'rgba(255,255,255,0.26)' },
+    RBR: { from: '#1E29FF', to: '#02009E', text: '#FFFFFF', divider: 'rgba(255,255,255,0.26)' },
+    MER: { from: '#00F0DA', to: '#00A898', text: '#080A0D', divider: 'rgba(8,10,13,0.22)' },
+    AST: { from: '#009944', to: '#005E28', text: '#FFFFFF', divider: 'rgba(255,255,255,0.26)' },
+    ALP: { from: '#24A2FF', to: '#0070D1', text: '#FFFFFF', divider: 'rgba(255,255,255,0.26)' },
+    HAA: { from: '#FFFFFF', to: '#D8DBE0', text: '#D90429', divider: 'rgba(217,4,41,0.22)' },
+    RBA: { from: '#2A4D80', to: '#122340', text: '#7CC4FF', divider: 'rgba(124,196,255,0.26)' },
+    WIL: { from: '#FFFFFF', to: '#DDE2EC', text: '#005AFF', divider: 'rgba(0,90,255,0.22)' },
+    AUD: { from: '#3D4452', to: '#1E222A', text: '#FF4D4D', divider: 'rgba(255,77,77,0.26)' },
+    CAD: { from: '#FFCC24', to: '#E59F00', text: '#080A0D', divider: 'rgba(8,10,13,0.22)' },
+};
+
+/**
+ * Ordem oficial F1 pelo ranking de Construtores do ano anterior (2024):
+ * 1. McLaren, 2. Ferrari, 3. Red Bull Racing, 4. Mercedes, 5. Aston Martin,
+ * 6. Alpine, 7. Haas, 8. RB (Racing Bulls), 9. Williams, 10. Audi (Sauber/Kick), 11. Cadillac (Nova entrante)
+ */
+const F1_OFFICIAL_ORDER: Record<string, number> = {
+    MCL: 1,
+    FER: 2,
+    RBR: 3,
+    MER: 4,
+    AST: 5,
+    ALP: 6,
+    HAA: 7,
+    RBA: 8,
+    WIL: 9,
+    AUD: 10,
+    CAD: 11,
 };
 
 function unwrapProfile(raw: ContractRow['profiles']): ProfileRow | null {
@@ -118,13 +138,12 @@ export default function PitwallPage() {
     }, [contracts, userContract]);
 
     const orderedTeams = useMemo(() => {
-        const preferredTeamId = userContract?.team_id || 'e59f0b0a-b8c3-4416-b90c-6f26bf8fc888'; // Ferrari padrão primeiro
         return [...F1_TEAMS].sort((a, b) => {
-            if (a.id === preferredTeamId) return -1;
-            if (b.id === preferredTeamId) return 1;
-            return 0;
+            const rankA = F1_OFFICIAL_ORDER[a.logo] ?? 99;
+            const rankB = F1_OFFICIAL_ORDER[b.logo] ?? 99;
+            return rankA - rankB;
         });
-    }, [userContract]);
+    }, []);
 
     return (
         <main className="relative w-full min-h-screen overflow-x-hidden bg-[#050401] font-mono">
@@ -140,11 +159,12 @@ export default function PitwallPage() {
             </div>
 
             {/* Blocos Coloridos 2 Rows x 3 Columns */}
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 min-h-screen flex items-center">
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 lg:gap-x-8 gap-y-5">
+            <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-10 py-10 sm:py-14 min-h-screen flex items-center">
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-16 gap-y-6 sm:gap-y-7">
                     {orderedTeams.map((team: TeamData) => {
                         const palette = TEAM_BLOCK_PALETTE[team.logo] || {
-                            bg: team.color,
+                            from: team.color,
+                            to: team.color,
                             text: '#FFFFFF',
                             divider: 'rgba(255,255,255,0.2)',
                         };
@@ -180,37 +200,51 @@ export default function PitwallPage() {
                         return (
                             <div
                                 key={team.id}
-                                className={`w-full overflow-hidden border-2 transition-transform duration-150 ${
-                                    isUsersTeam
-                                        ? 'border-[#fbaa19] ring-2 ring-[#fbaa19]/60 shadow-[0_0_24px_rgba(251,170,25,0.35)]'
-                                        : 'border-black/90 shadow-[0_10px_24px_rgba(0,0,0,0.7)]'
+                                className={`w-full overflow-hidden relative transition-transform duration-150 ${
+                                    isUsersTeam ? 'ring-2 ring-[#fbaa19]' : ''
                                 }`}
                                 style={{
-                                    backgroundColor: palette.bg,
+                                    borderRadius: '10px 10px 10px 20px',
+                                    border: '2px solid rgba(0, 0, 0, 0.95)',
+                                    boxShadow: isUsersTeam
+                                        ? '0 12px 28px 4px rgba(0, 0, 0, 0.85), 0 0 22px rgba(251, 170, 25, 0.45)'
+                                        : '0 10px 24px 3px rgba(0, 0, 0, 0.75)',
+                                    background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
                                     color: palette.text,
                                 }}
                             >
+                                {/* Brilho espelhado / reflexo de vidro chanfrado */}
+                                <div
+                                    className="absolute inset-0 pointer-events-none"
+                                    style={{
+                                        background: 'linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 42%, rgba(255,255,255,0) 45%, rgba(0,0,0,0.2) 100%)',
+                                    }}
+                                />
+
                                 {/* ROW 1: Nome da Equipe (destaque) | Piloto 1 (ex: LEC) | Estrategista Principal (Usuário) */}
                                 <div
-                                    className="grid grid-cols-[1.55fr_0.45fr_1fr] items-center min-h-[56px] sm:min-h-[64px] px-5 sm:px-6 py-4 sm:py-5 border-b-2"
+                                    className="relative z-10 grid grid-cols-[1.5fr_0.45fr_1.05fr] items-center min-h-[48px] sm:min-h-[52px] px-4 sm:px-5 py-2.5 sm:py-3 border-b"
                                     style={{ borderBottomColor: palette.divider }}
                                 >
                                     <span
-                                        className="text-left text-xl sm:text-2xl lg:text-[28px] font-black uppercase tracking-[-0.03em] leading-none truncate pr-3"
-                                        style={{ fontFamily: 'var(--font-montserrat), sans-serif', fontWeight: 900 }}
+                                        className="text-left text-lg sm:text-xl lg:text-[22px] font-black uppercase tracking-normal leading-none truncate pr-2.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+                                        style={{
+                                            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                                            fontWeight: 900,
+                                        }}
                                     >
                                         {team.name}
                                     </span>
-                                    <span className="text-center text-base sm:text-lg lg:text-xl font-black tracking-[0.18em] uppercase">
+                                    <span className="text-center text-sm sm:text-base font-black tracking-[0.16em] uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]">
                                         {driver1.code}
                                     </span>
-                                    <span className="text-right text-sm sm:text-base lg:text-lg font-black tracking-wide uppercase truncate pl-2">
+                                    <span className="text-right text-xs sm:text-sm font-black tracking-wider uppercase truncate pl-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]">
                                         {primarySlug ? (
                                             <Link href={`/${primarySlug}`} className="hover:underline">
                                                 {primaryName}
                                             </Link>
                                         ) : (
-                                            <span className={primaryContract ? '' : 'opacity-60'}>
+                                            <span className={primaryContract ? '' : 'opacity-65'}>
                                                 {primaryName}
                                             </span>
                                         )}
@@ -218,18 +252,18 @@ export default function PitwallPage() {
                                 </div>
 
                                 {/* ROW 2: (vazio) | Piloto 2 (ex: HAM) | Colega de Box */}
-                                <div className="grid grid-cols-[1.55fr_0.45fr_1fr] items-center min-h-[56px] sm:min-h-[64px] px-5 sm:px-6 py-4 sm:py-5">
+                                <div className="relative z-10 grid grid-cols-[1.5fr_0.45fr_1.05fr] items-center min-h-[48px] sm:min-h-[52px] px-4 sm:px-5 py-2.5 sm:py-3">
                                     <span aria-hidden="true" />
-                                    <span className="text-center text-base sm:text-lg lg:text-xl font-black tracking-[0.18em] uppercase">
+                                    <span className="text-center text-sm sm:text-base font-black tracking-[0.16em] uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]">
                                         {driver2.code}
                                     </span>
-                                    <span className="text-right text-sm sm:text-base lg:text-lg font-black tracking-wide uppercase truncate pl-2">
+                                    <span className="text-right text-xs sm:text-sm font-black tracking-wider uppercase truncate pl-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]">
                                         {teammateSlug ? (
                                             <Link href={`/${teammateSlug}`} className="hover:underline">
                                                 {teammateName}
                                             </Link>
                                         ) : (
-                                            <span className={teammateContract ? '' : 'opacity-60'}>
+                                            <span className={teammateContract ? '' : 'opacity-65'}>
                                                 {teammateName}
                                             </span>
                                         )}
