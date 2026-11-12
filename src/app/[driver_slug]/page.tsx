@@ -2505,13 +2505,6 @@ export default function OfficialStrategistDashboard() {
                                             <span>📈</span> COTAÇÃO
                                         </button>
                                         <button
-                                            onClick={() => setActiveTab('book')}
-                                            className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'book' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'book' ? mainAccent : undefined }}
-                                        >
-                                            <span>📊</span> BOOK DE PREVISÕES
-                                        </button>
-                                        <button
                                             onClick={() => setActiveTab('radio')}
                                             className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'radio' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
                                             style={{ color: activeTab === 'radio' ? mainAccent : undefined }}
@@ -2524,13 +2517,6 @@ export default function OfficialStrategistDashboard() {
                                             style={{ color: activeTab === 'history' ? mainAccent : undefined }}
                                         >
                                             <span>⏱️</span> TELEMETRIA
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveTab('teamwork')}
-                                            className={`px-3 py-1.5 rounded text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'teamwork' ? 'bg-white/10 text-white shadow' : 'text-white/40 hover:text-white/80'}`}
-                                            style={{ color: activeTab === 'teamwork' ? mainAccent : undefined }}
-                                        >
-                                            <span>👥</span> TEAMWORK
                                         </button>
                                     </div>
 
