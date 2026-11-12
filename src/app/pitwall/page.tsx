@@ -29,17 +29,17 @@ interface BlockPalette {
 }
 
 const TEAM_BLOCK_PALETTE: Record<string, BlockPalette> = {
-    FER: { bg: '#E8002D', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
-    RBR: { bg: '#0600EF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
-    MCL: { bg: '#FF8000', text: '#080A0D', divider: 'rgba(8,10,13,0.18)' },
-    MER: { bg: '#00D2BE', text: '#080A0D', divider: 'rgba(8,10,13,0.18)' },
-    WIL: { bg: '#FFFFFF', text: '#080A0D', divider: 'rgba(8,10,13,0.14)' },
-    AST: { bg: '#007A33', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
-    ALP: { bg: '#0090FF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.2)' },
-    RBA: { bg: '#162E52', text: '#7CC4FF', divider: 'rgba(124,196,255,0.2)' },
-    HAA: { bg: '#F3F4F6', text: '#D90429', divider: 'rgba(217,4,41,0.18)' },
-    AUD: { bg: '#262A30', text: '#FF3B30', divider: 'rgba(255,59,48,0.22)' },
-    CAD: { bg: '#0B0D10', text: '#FFE600', divider: 'rgba(255,230,0,0.2)' },
+    FER: { bg: '#E8002D', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
+    RBR: { bg: '#0600EF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
+    MCL: { bg: '#FF8000', text: '#080A0D', divider: 'rgba(8,10,13,0.2)' },
+    MER: { bg: '#00D2BE', text: '#080A0D', divider: 'rgba(8,10,13,0.2)' },
+    WIL: { bg: '#FFFFFF', text: '#080A0D', divider: 'rgba(8,10,13,0.16)' },
+    AST: { bg: '#007A33', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
+    ALP: { bg: '#0090FF', text: '#FFFFFF', divider: 'rgba(255,255,255,0.24)' },
+    RBA: { bg: '#162E52', text: '#7CC4FF', divider: 'rgba(124,196,255,0.24)' },
+    HAA: { bg: '#F3F4F6', text: '#D90429', divider: 'rgba(217,4,41,0.2)' },
+    AUD: { bg: '#2B303A', text: '#FF3B30', divider: 'rgba(255,59,48,0.24)' },
+    CAD: { bg: '#FFB800', text: '#080A0D', divider: 'rgba(8,10,13,0.2)' },
 };
 
 function unwrapProfile(raw: ContractRow['profiles']): ProfileRow | null {
@@ -140,8 +140,8 @@ export default function PitwallPage() {
             </div>
 
             {/* Blocos Coloridos 2 Rows x 3 Columns */}
-            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12 min-h-screen flex items-center">
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 lg:gap-x-8 gap-y-4 sm:gap-y-5">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 min-h-screen flex items-center">
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 lg:gap-x-8 gap-y-5">
                     {orderedTeams.map((team: TeamData) => {
                         const palette = TEAM_BLOCK_PALETTE[team.logo] || {
                             bg: team.color,
@@ -180,10 +180,10 @@ export default function PitwallPage() {
                         return (
                             <div
                                 key={team.id}
-                                className={`w-full overflow-hidden border transition-transform duration-150 ${
+                                className={`w-full overflow-hidden border-2 transition-transform duration-150 ${
                                     isUsersTeam
                                         ? 'border-[#fbaa19] ring-2 ring-[#fbaa19]/60 shadow-[0_0_24px_rgba(251,170,25,0.35)]'
-                                        : 'border-black/80 shadow-[0_8px_22px_rgba(0,0,0,0.65)]'
+                                        : 'border-black/90 shadow-[0_10px_24px_rgba(0,0,0,0.7)]'
                                 }`}
                                 style={{
                                     backgroundColor: palette.bg,
@@ -192,19 +192,19 @@ export default function PitwallPage() {
                             >
                                 {/* ROW 1: Nome da Equipe (destaque) | Piloto 1 (ex: LEC) | Estrategista Principal (Usuário) */}
                                 <div
-                                    className="grid grid-cols-[1.45fr_0.45fr_1.1fr] items-center px-4 sm:px-5 py-3 sm:py-3.5 border-b"
+                                    className="grid grid-cols-[1.55fr_0.45fr_1fr] items-center min-h-[56px] sm:min-h-[64px] px-5 sm:px-6 py-4 sm:py-5 border-b-2"
                                     style={{ borderBottomColor: palette.divider }}
                                 >
                                     <span
-                                        className="text-left text-base sm:text-lg lg:text-xl font-black uppercase tracking-tight leading-none truncate pr-2"
-                                        style={{ fontFamily: 'var(--font-montserrat)' }}
+                                        className="text-left text-xl sm:text-2xl lg:text-[28px] font-black uppercase tracking-[-0.03em] leading-none truncate pr-3"
+                                        style={{ fontFamily: 'var(--font-montserrat), sans-serif', fontWeight: 900 }}
                                     >
                                         {team.name}
                                     </span>
-                                    <span className="text-center text-sm sm:text-base font-black tracking-[0.18em] uppercase">
+                                    <span className="text-center text-base sm:text-lg lg:text-xl font-black tracking-[0.18em] uppercase">
                                         {driver1.code}
                                     </span>
-                                    <span className="text-right text-xs sm:text-sm font-black tracking-wider uppercase truncate pl-2">
+                                    <span className="text-right text-sm sm:text-base lg:text-lg font-black tracking-wide uppercase truncate pl-2">
                                         {primarySlug ? (
                                             <Link href={`/${primarySlug}`} className="hover:underline">
                                                 {primaryName}
@@ -218,12 +218,12 @@ export default function PitwallPage() {
                                 </div>
 
                                 {/* ROW 2: (vazio) | Piloto 2 (ex: HAM) | Colega de Box */}
-                                <div className="grid grid-cols-[1.45fr_0.45fr_1.1fr] items-center px-4 sm:px-5 py-3 sm:py-3.5">
+                                <div className="grid grid-cols-[1.55fr_0.45fr_1fr] items-center min-h-[56px] sm:min-h-[64px] px-5 sm:px-6 py-4 sm:py-5">
                                     <span aria-hidden="true" />
-                                    <span className="text-center text-sm sm:text-base font-black tracking-[0.18em] uppercase">
+                                    <span className="text-center text-base sm:text-lg lg:text-xl font-black tracking-[0.18em] uppercase">
                                         {driver2.code}
                                     </span>
-                                    <span className="text-right text-xs sm:text-sm font-black tracking-wider uppercase truncate pl-2">
+                                    <span className="text-right text-sm sm:text-base lg:text-lg font-black tracking-wide uppercase truncate pl-2">
                                         {teammateSlug ? (
                                             <Link href={`/${teammateSlug}`} className="hover:underline">
                                                 {teammateName}
