@@ -291,6 +291,39 @@ export function resolveCrewCharacterById(
     return found ? applyCharacterOverride(found, config) : undefined;
 }
 
+export function findCrewCharacter(
+    identifier: string | null | undefined,
+    config?: CrewRolesConfig | null
+): CrewCharacterBase | undefined {
+    if (!identifier) return undefined;
+    const clean = identifier.replace(/[\[\]]/g, '').trim().toLowerCase();
+    const catalog = getBaseCrewCatalog();
+
+    // 1. Casamento direto por ID
+    let found = catalog.find((c) => c.id.toLowerCase() === clean);
+    if (found) return applyCharacterOverride(found, config);
+
+    // 2. Casamento por Código (ex: "H.LEWISEVANS", "M.SALO", "D.CHADWICK", "M.BELLINI")
+    found = catalog.find((c) => c.code.toLowerCase() === clean);
+    if (found) return applyCharacterOverride(found, config);
+
+    // 3. Casamento específico do Diretor de Operações
+    if (clean === 'diretor' || clean === 'diretor de operações' || clean.includes('diretor')) {
+        const directorId = config?.slots?.inviteDirectorId || DEFAULT_CREW_ROLES_CONFIG.slots.inviteDirectorId;
+        return resolveCrewCharacterById(directorId, config);
+    }
+
+    // 4. Casamento por Nome Completo ou Parcial
+    found = catalog.find((c) => c.fullName.toLowerCase().includes(clean));
+    if (found) return applyCharacterOverride(found, config);
+
+    // 5. Casamento por URL do Avatar
+    found = catalog.find((c) => c.avatarUrl.toLowerCase().includes(clean) || c.fallbackUrl.toLowerCase().includes(clean));
+    if (found) return applyCharacterOverride(found, config);
+
+    return undefined;
+}
+
 export function normalizeCrewRolesConfig(raw: unknown): CrewRolesConfig {
     if (!raw || typeof raw !== 'object') return DEFAULT_CREW_ROLES_CONFIG;
     const obj = raw as Partial<CrewRolesConfig>;

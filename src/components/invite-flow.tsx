@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { ENGINE_FACTIONS, ALLIANCE_KEYS, FactionData } from '@/utils/alliance-data';
@@ -54,6 +55,7 @@ const ALLIANCE_CHIEFS_AVATARS: Record<'A' | 'B' | 'C', { avatarUrl: string; chie
 };
 
 export function InviteFlow() {
+    const router = useRouter();
     const { user, isLoading: authLoading } = useSupabaseAuth();
 
     const [phase, setPhase] = useState<Phase>('LOADING');
@@ -69,6 +71,7 @@ export function InviteFlow() {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const [typingComplete, setTypingComplete] = useState(false);
+    const [enlistFormVisible, setEnlistFormVisible] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<'A' | 'B' | 'C' | null>(null);
 
     const [fullName, setFullName] = useState("");
