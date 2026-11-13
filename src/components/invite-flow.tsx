@@ -248,6 +248,7 @@ export function InviteFlow() {
         setSelectedGroup(groupId);
         setErrorMsg("");
         setTypingComplete(false);
+        setEnlistFormVisible(false);
         localStorage.setItem('draft_alliance', groupId);
 
         setIsPageClearing(true);
@@ -586,7 +587,12 @@ export function InviteFlow() {
                                                     {/* Retrato do Chefe da Aliança */}
                                                     <div className="flex flex-col items-center shrink-0">
                                                         <div
-                                                            className="w-12 h-12 rounded-[3px] overflow-hidden border border-[#000000] p-0.5 bg-[#030303] group-hover:scale-105 transition-transform"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                router.push(`/crew/${encodeURIComponent(chief.chiefName.toLowerCase())}`);
+                                                            }}
+                                                            title={`${chief.chiefName} — ${chief.chiefRole} [Clique para abrir Ficha de Funcionário]`}
+                                                            className="w-12 h-12 rounded-[3px] overflow-hidden border border-[#000000] p-0.5 bg-[#030303] group-hover:scale-105 transition-transform cursor-pointer hover:ring-1 hover:ring-[#fbaa19]"
                                                             style={{ boxShadow: portraitShadow }}
                                                         >
                                                             <img
@@ -596,7 +602,12 @@ export function InviteFlow() {
                                                             />
                                                         </div>
                                                         <span
-                                                            className="text-[9px] font-mono font-black uppercase tracking-wider mt-1 px-1.5 py-0.5 rounded-[2px] border border-[#000000] bg-[#030303]"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                router.push(`/crew/${encodeURIComponent(chief.chiefName.toLowerCase())}`);
+                                                            }}
+                                                            title={`${chief.chiefName} — ${chief.chiefRole} [Clique para abrir Ficha de Funcionário]`}
+                                                            className="text-[9px] font-mono font-black uppercase tracking-wider mt-1 px-1.5 py-0.5 rounded-[2px] border border-[#000000] bg-[#030303] cursor-pointer hover:text-white transition-colors"
                                                             style={{ color: chief.accentColor }}
                                                         >
                                                             [{chief.chiefName}]
@@ -670,27 +681,68 @@ export function InviteFlow() {
                     {/* Box do mesmo Diretor do início comentando a escolha da aliança */}
                     <DialogueBox
                         speaker={directorSpeaker}
+                        speakerRole={directorRole}
+                        badgeTitle={`ALIANÇA SELECIONADA // ${ENGINE_FACTIONS[selectedGroup].title.toUpperCase()}`}
+                        categoryTag={`[${ENGINE_FACTIONS[selectedGroup].badge}]`}
                         avatarUrl={directorAvatarUrl}
                         accentColor="#fbaa19"
                         italic
+                        compact
                         prefix={null}
                         text={ENGINE_FACTIONS[selectedGroup].directorResponse}
                         startDelay={200}
-                        onReadyForNext={() => setTypingComplete(true)}
+                        onReadyForNext={() => {
+                            setTypingComplete(true);
+                            setTimeout(() => setEnlistFormVisible(true), 350);
+                        }}
+                        onClick={() => {
+                            setTypingComplete(true);
+                            setEnlistFormVisible(true);
+                        }}
                     />
 
-                    {(typingComplete || phase === 'SUBMITTING_ENLIST') && (
+                    {/* Formulário com entrada suave, alinhamento visual ao balão de diálogo e cabeçalho tático */}
+                    <div
+                        className={`w-full flex flex-col sm:pl-[68px] md:pl-[72px] transition-all duration-500 ease-out ${
+                            enlistFormVisible || phase === 'SUBMITTING_ENLIST'
+                                ? 'opacity-100 translate-y-0'
+                                : 'opacity-0 translate-y-3 pointer-events-none'
+                        }`}
+                    >
                         <div
-                            className="w-full p-6 md:p-8 border border-[#000000] rounded-[3px] animate-fade-in flex flex-col gap-6"
-                            style={getSystemBoxStyle('#fbaa19')}
+                            className="w-full p-5 sm:p-6 border border-[#000000] rounded-[3px] flex flex-col gap-5"
+                            style={{
+                                background: DIALOGUE_BOX_GRADIENT,
+                                boxShadow: getDialogueShadow('left', '#fbaa19'),
+                            }}
                         >
+                            {/* Cabeçalho do Terminal de Alistamento */}
+                            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-pulse" />
+                                    <span className="text-[11px] sm:text-xs font-black uppercase tracking-[0.16em] text-[#fbaa19]">
+                                        PROTOCOLO DE ALISTAMENTO // EMISSÃO DE SUPERLICENÇA
+                                    </span>
+                                </div>
+                                <span
+                                    className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-[2px] border border-[#000000] font-black"
+                                    style={{
+                                        backgroundColor: `${resolvedAllianceChiefs[selectedGroup].accentColor}20`,
+                                        color: resolvedAllianceChiefs[selectedGroup].accentColor,
+                                        borderColor: resolvedAllianceChiefs[selectedGroup].accentColor,
+                                    }}
+                                >
+                                    [{ENGINE_FACTIONS[selectedGroup].badge}]
+                                </span>
+                            </div>
+
                             {/* Formulário de Emissão da Superlicença */}
                             <form
                                 onSubmit={handleEnlistSubmit}
-                                className="flex flex-col gap-6 w-full"
+                                className="flex flex-col gap-5 w-full"
                             >
                                 {errorMsg && (
-                                    <div className="text-red-500 font-bold uppercase tracking-widest text-sm bg-red-900/20 border border-red-500/50 p-3 rounded">
+                                    <div className="text-red-500 font-bold uppercase tracking-widest text-xs bg-red-900/20 border border-red-500/50 p-3 rounded">
                                         [FALHA DE HOMOLOGAÇÃO] {errorMsg}
                                     </div>
                                 )}
@@ -704,7 +756,7 @@ export function InviteFlow() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="flex flex-col md:flex-row gap-4 items-start">
+                                        <div className="flex flex-col md:flex-row gap-3.5 items-start">
                                             <div className="flex flex-col w-full">
                                                 <input
                                                     type="text"
@@ -712,7 +764,7 @@ export function InviteFlow() {
                                                     placeholder="NOME E SOBRENOME"
                                                     value={fullName}
                                                     onChange={e => setFullName(e.target.value)}
-                                                    className={`w-full bg-[#030303] border text-white p-4 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)] ${fullName.trim()
+                                                    className={`w-full bg-[#030303] border text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.8125rem+0.5px)] sm:text-[calc(0.875rem+0.5px)] ${fullName.trim()
                                                             ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
                                                                 ? "border-emerald-500/50 focus:border-emerald-500"
                                                                 : "border-amber-500/60 focus:border-amber-500"
@@ -732,7 +784,7 @@ export function InviteFlow() {
                                                     placeholder="EMAIL"
                                                     value={email}
                                                     onChange={e => setEmail(e.target.value)}
-                                                    className="w-full bg-[#030303] border border-[#000000] text-white p-4 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.875rem+0.5px)]"
+                                                    className="w-full bg-[#030303] border border-[#000000] text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.8125rem+0.5px)] sm:text-[calc(0.875rem+0.5px)]"
                                                 />
                                             </div>
                                         </div>
@@ -746,7 +798,7 @@ export function InviteFlow() {
                                                 autoCapitalize="none"
                                                 autoCorrect="off"
                                                 spellCheck={false}
-                                                className="w-full bg-[#030303] border border-[#000000] text-white p-4 pr-24 font-mono font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)]"
+                                                className="w-full bg-[#030303] border border-[#000000] text-white p-3.5 pr-24 font-mono font-bold tracking-wider focus:outline-none focus:border-[#fbaa19] transition-all rounded-[3px] placeholder-white/30 text-[calc(0.75rem+0.5px)] sm:text-[calc(0.8125rem+0.5px)]"
                                             />
                                             <button
                                                 type="button"
@@ -760,13 +812,13 @@ export function InviteFlow() {
 
                                         <button
                                             type="submit"
-                                            className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-colors rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm"
+                                            className="w-full bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] p-4 hover:bg-white transition-all rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.4)] cursor-pointer text-xs md:text-sm hover:scale-[1.01]"
                                         >
                                             [ TRANSMITIR CREDENCIAIS & EMITIR SUPERLICENÇA ] »
                                         </button>
 
                                         {/* Botão VOLTAR: Limpa a tela e recomeça o diálogo de cima para baixo */}
-                                        <div className="flex justify-between items-center pt-2">
+                                        <div className="flex justify-between items-center pt-1">
                                             <button
                                                 type="button"
                                                 onClick={handleBackAndRestartDialogue}
@@ -780,7 +832,7 @@ export function InviteFlow() {
                                 )}
                             </form>
                         </div>
-                    )}
+                    </div>
                 </div>
             )}
 
@@ -792,6 +844,7 @@ export function InviteFlow() {
                     <DialogueBox
                         speaker={directorSpeaker}
                         speakerRole={directorRole}
+                        characterId={crewConfig.slots.inviteDirectorId}
                         badgeTitle="VERIFIQUE SEU CANAL DE TELEMETRIA"
                         categoryTag="HOMOLOGAÇÃO ENVIADA"
                         avatarUrl={directorAvatarUrl}
@@ -811,6 +864,7 @@ export function InviteFlow() {
                             <div className="lg:col-span-7 flex">
                                 <DialogueBox
                                     speaker={assignedStrategist.code}
+                                    characterId={assignedStrategist.id}
                                     badgeTitle={`CONSELHEIRO DESIGNADO // ${assignedStrategist.displayName}`}
                                     categoryTag={`${assignedStrategist.decade} • ${assignedStrategist.nationality}`}
                                     avatarUrl={assignedStrategistAvatar}
@@ -872,27 +926,28 @@ export function InviteFlow() {
                         </div>
                     </div>
 
-                    {/* 3. Barra de Ação Compacta (alinhada ao modelo padronizado) */}
+                    {/* 3. Barra de Ação Centralizada (alinhada ao modelo padronizado) */}
                     <div
-                        className="w-full p-3.5 border border-[#000000] rounded-[3px] flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in"
+                        className="w-full p-4 border border-[#000000] rounded-[3px] flex flex-col items-center justify-center gap-2.5 animate-fade-in"
                         style={getSystemBoxStyle('#fbaa19')}
                     >
                         <button
                             type="button"
-                            onClick={handleBackAndRestartDialogue}
-                            className="text-white/55 hover:text-white text-[11px] font-bold uppercase tracking-widest transition-colors cursor-pointer shrink-0 order-2 sm:order-1"
+                            onClick={() => {
+                                router.push('/headquarters');
+                            }}
+                            className="w-full sm:max-w-xl bg-[#fbaa19] text-black font-black uppercase tracking-[0.16em] py-3.5 px-6 hover:bg-white transition-all rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.35)] cursor-pointer text-xs text-center hover:scale-[1.01]"
                         >
-                            « Escolher outra aliança
+                            [ JÁ CONFIRMEI O LINK / AVANÇAR PARA A ESCOLHA DE EQUIPE ] »
                         </button>
 
                         <button
                             type="button"
-                            onClick={() => {
-                                window.location.href = '/headquarters';
-                            }}
-                            className="w-full sm:w-auto flex-1 sm:max-w-md bg-[#fbaa19] text-black font-black uppercase tracking-[0.16em] py-3 px-5 hover:bg-white transition-colors rounded-[3px] border border-[#000000] shadow-[0_0_15px_rgba(251,170,25,0.35)] cursor-pointer text-xs text-center order-1 sm:order-2"
+                            onClick={handleBackAndRestartDialogue}
+                            className="text-white/45 hover:text-white text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-widest transition-colors cursor-pointer text-center py-1 hover:underline underline-offset-4"
+                            title="Voltar e escolher outro consórcio de motores"
                         >
-                            [ JÁ CONFIRMEI O LINK / AVANÇAR PARA A ESCOLHA DE EQUIPE ] »
+                            « Deseja escolher outra aliança? Clique aqui para reiniciar o diálogo
                         </button>
                     </div>
                 </div>

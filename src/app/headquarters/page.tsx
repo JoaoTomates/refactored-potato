@@ -314,10 +314,24 @@ function HeadquartersFlow() {
 
     const faction = ENGINE_FACTIONS[activeAllianceKey] || ENGINE_FACTIONS['B'];
 
-    const fallbackSpeech = `Identificação confirmada. Seus canais estão criptografados e homologados na base da BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do ${activeGroupName}.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILÉSIMUS: Cravar a volta mais rápida da Pole Position nos treinos classificatórios até a casa dos milésimos de segundo;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Somar pontos em todas as etapas para colocar nossa aliança técnica no topo do campeonato mundial de construtores.\n\nAnalise as propostas oficiais abaixo com vagas disponíveis e assine seu contrato de pitwall.`;
-    const agentSpeech = HEADQUARTERS_DIALOG_TEXT
-        ? HEADQUARTERS_DIALOG_TEXT.replace(/dentro do seu grupo/i, `dentro do ${activeGroupName}`)
-        : fallbackSpeech;
+    const isMainGroup = activeGroupName.includes('1');
+    const cleanFarinaName = activeGroupName.replace(/^Grupo\s+1\s*\((.*?)\)$/, '$1') || 'G. Farina';
+    const groupLabel = isMainGroup 
+        ? `O grupo principal (${cleanFarinaName})`
+        : `O ${activeGroupName}`;
+
+    const teamsLabel = offeredTeams.length >= 2 
+        ? `${offeredTeams[0].name} e ${offeredTeams[1].name}`
+        : (offeredTeams[0]?.name || 'nossas escuderias');
+
+    const agentSpeech = `Identificação confirmada. Seu canal foi homologado.
+
+${groupLabel} precisa de estrategistas para ${teamsLabel}. Lembrando: ao final da temporada haverá um grande novo recrutamento feito pelas principais equipes e grupos do paddock.
+
+O que essas equipes esperam de você:
+1. Termine entre os 10 primeiros colocados no seu grupo Master e a renovação de contrato estará garantida;
+2. Uma participação consistente em Poletime e Milesimus — traga recursos;
+3. Monte um time (Teamwork) de bons estrategistas e melhore seu desempenho.`;
 
     const resolvedAgent = resolveCrewCharacterById(crewConfig.slots.headquartersAgentId, crewConfig);
     const agentSpeaker = resolvedAgent?.code || 'AGENTE';
@@ -325,7 +339,7 @@ function HeadquartersFlow() {
     const agentRoleTag = resolvedAgent?.role || 'HEADQUARTERS // CONTRATOS';
 
     return (
-        <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center pb-24">
+        <main className="w-full min-h-dvh relative bg-[#050401] overflow-x-clip select-none flex flex-col font-mono items-center pb-12 sm:pb-16">
             
             {/* Background com arte em pixel art do Quartel-General - Viewport Estável sem expansão */}
             <div
@@ -340,31 +354,33 @@ function HeadquartersFlow() {
                 />
             </div>
 
-            <div className="relative z-10 w-full max-w-4xl flex flex-col gap-6 mt-8 md:mt-12 px-4">
+            <div className="relative z-10 w-full max-w-4xl flex flex-col gap-4 mt-4 sm:mt-6 px-4">
                 
                 {/* Header do Terminal: Discurso do Agente com as Instruções */}
                 <DialogueBox
                     speaker={agentSpeaker}
+                    characterId={crewConfig.slots.headquartersAgentId}
                     badgeTitle={`[${faction.badge}] ${faction.title}`}
                     categoryTag={agentRoleTag}
                     avatarUrl={agentAvatarUrl}
                     accentColor="#fbaa19"
                     text={agentSpeech}
-                    startDelay={150}
-                    speed={25}
-                    minHeightClass="min-h-[220px] md:min-h-[190px]"
+                    startDelay={100}
+                    speed={18}
+                    compact
+                    minHeightClass="min-h-[130px] md:min-h-[110px]"
                     onReadyForNext={() => setTypingDone(true)}
                     animateEntrance
                 />
 
                 {errorMsg && (
-                    <div className="bg-red-900/40 border border-red-500/50 p-4 rounded text-red-500 font-bold uppercase tracking-widest text-xs animate-fade-in">
+                    <div className="bg-red-900/40 border border-red-500/50 p-3 rounded text-red-500 font-bold uppercase tracking-widest text-xs animate-fade-in">
                         [FALHA DE HOMOLOGAÇÃO] {errorMsg}
                     </div>
                 )}
 
                 {/* Propostas Oficiais de Equipes em Badges Compactos Interativos (Mesmo padrão sólido do box text) */}
-                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity duration-700 ${typingDone ? 'opacity-100' : 'opacity-90'}`}>
+                <div className={`grid grid-cols-1 md:grid-cols-2 gap-3.5 transition-opacity duration-700 ${typingDone ? 'opacity-100' : 'opacity-90'}`}>
                     {offeredTeams.map((teamOffer) => {
                         const availableSpots = Math.max(0, 2 - teamOffer.occupied);
                         const isSigning = signingId === teamOffer.id;
@@ -374,7 +390,7 @@ function HeadquartersFlow() {
                                 key={teamOffer.id}
                                 onClick={() => availableSpots > 0 && !isSigning && handleSignContract(teamOffer)}
                                 disabled={isSigning || availableSpots <= 0}
-                                className={`relative w-full text-left border border-[#000000] rounded-[3px] p-4 sm:p-5 transition-all cursor-pointer group flex flex-col justify-between gap-3 overflow-hidden font-mono ${
+                                className={`relative w-full text-left border border-[#000000] rounded-[3px] p-3.5 sm:p-4 transition-all cursor-pointer group flex flex-col justify-between gap-2.5 overflow-hidden font-mono ${
                                     isSigning 
                                         ? 'ring-1 ring-[#fbaa19]' 
                                         : 'hover:brightness-110'

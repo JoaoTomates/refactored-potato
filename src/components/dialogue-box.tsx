@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Check, Radio } from 'lucide-react';
+import { findCrewCharacter } from '@/lib/crew-config';
 
 /**
  * Motor de áudio mecânico do PitWall para digitação tática.
@@ -213,6 +215,7 @@ export interface DialogueBoxProps {
         avatarUrl?: string;
         name?: string;
     };
+    characterId?: string;
     dataStrategySource?: string;
     className?: string;
 }
@@ -251,6 +254,7 @@ interface AvatarFrameProps {
     sizeClass: string;
     interactive?: boolean;
     allowWideLabel?: boolean;
+    characterId?: string;
 }
 
 function AvatarFrame({
@@ -261,7 +265,9 @@ function AvatarFrame({
     sizeClass,
     interactive = false,
     allowWideLabel = false,
+    characterId,
 }: AvatarFrameProps) {
+    const router = useRouter();
     const [currentImg, setCurrentImg] = useState<string | undefined>(avatarUrl);
     const [imgFailed, setImgFailed] = useState(false);
 
@@ -283,12 +289,28 @@ function AvatarFrame({
 
     const cleanName = name ? name.replace(/[\[\]]/g, '').trim() : '';
 
+    const resolvedChar = useMemo(() => {
+        return findCrewCharacter(characterId || name || avatarUrl);
+    }, [characterId, name, avatarUrl]);
+
+    const tooltipText = resolvedChar
+        ? `${resolvedChar.fullName} — ${resolvedChar.role} [Clique para abrir Ficha de Funcionário]`
+        : (cleanName ? `${cleanName} [Clique para ver Ficha]` : 'Ficha do Colaborador');
+
+    const handleNavigateToCrew = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const targetId = resolvedChar?.id || (cleanName ? cleanName.toLowerCase() : 'strat-1');
+        router.push(`/crew/${encodeURIComponent(targetId)}`);
+    };
+
     return (
-        <div className="flex flex-col items-center shrink-0 select-none">
+        <div
+            onClick={handleNavigateToCrew}
+            title={tooltipText}
+            className="flex flex-col items-center shrink-0 select-none cursor-pointer group/avatar transition-transform hover:scale-[1.04]"
+        >
             <div
-                className={`${sizeClass} rounded-[3px] overflow-hidden border border-[#000000] p-0.5 flex items-center justify-center shrink-0 transition-transform ${
-                    interactive ? 'group-hover:scale-[1.03]' : ''
-                }`}
+                className={`${sizeClass} rounded-[3px] overflow-hidden border border-[#000000] p-0.5 flex items-center justify-center shrink-0 transition-all group-hover/avatar:ring-1 group-hover/avatar:ring-[#fbaa19]`}
                 style={{
                     background: BOX_GRADIENT,
                     boxShadow: shadow,
@@ -297,9 +319,9 @@ function AvatarFrame({
                 {currentImg && !imgFailed ? (
                     <img
                         src={currentImg}
-                        alt={cleanName || 'Personagem'}
+                        alt={resolvedChar?.fullName || cleanName || 'Personagem'}
                         onError={handleImgError}
-                        className="w-full h-full object-cover rounded-[2px] filter contrast-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] transition-all"
+                        className="w-full h-full object-cover rounded-[2px] filter contrast-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] transition-all group-hover/avatar:brightness-110"
                     />
                 ) : (
                     <div className="w-full h-full rounded-[2px] flex flex-col items-center justify-center bg-[#030303] text-center">
@@ -319,7 +341,7 @@ function AvatarFrame({
 
             {cleanName && (
                 <span
-                    className={`text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center px-2 py-0.5 rounded-[3px] border border-[#000000] ${
+                    className={`text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center px-2 py-0.5 rounded-[3px] border border-[#000000] group-hover/avatar:border-white/30 group-hover/avatar:text-white transition-colors ${
                         allowWideLabel ? 'whitespace-nowrap' : 'truncate max-w-[96px] sm:max-w-[116px]'
                     }`}
                     style={{
@@ -369,6 +391,7 @@ export function DialogueBox({
     animateEntrance = false,
     hideAvatar = false,
     inlinePortrait,
+    characterId,
     dataStrategySource,
     className = '',
 }: DialogueBoxProps) {
@@ -413,6 +436,7 @@ export function DialogueBox({
                 <AvatarFrame
                     avatarUrl={avatarUrl}
                     name={speaker}
+                    characterId={characterId}
                     accentColor={effectiveAccent}
                     shadow={avatarShadow}
                     sizeClass={avatarSizeClass}

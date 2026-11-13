@@ -50,10 +50,11 @@ export function isDashboardRoute(pathname: string | null): boolean {
         '/academy'
     ]);
 
-    // Ignora rotas de API, resultados e sub-rotas NC não-dashboard
+    // Ignora rotas de API, resultados, crew e sub-rotas NC não-dashboard
     if (
         pathname.startsWith('/api') ||
         pathname.startsWith('/f1-results') ||
+        pathname.startsWith('/crew') ||
         pathname === '/nc/positions' ||
         pathname === '/nc/invite' ||
         pathname === '/nc/headquarters' ||
