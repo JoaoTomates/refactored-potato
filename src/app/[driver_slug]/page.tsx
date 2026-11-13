@@ -239,6 +239,7 @@ function useNow() {
 function Panel({
     title,
     tag,
+    headerAction,
     children,
     className = '',
     bodyClass = 'p-4',
@@ -248,6 +249,7 @@ function Panel({
 }: {
     title: string;
     tag?: React.ReactNode;
+    headerAction?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
     bodyClass?: string;
@@ -281,6 +283,7 @@ function Panel({
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
                     {tag && <span className="text-[9px] tracking-widest text-white/40 uppercase shrink-0">{tag}</span>}
+                    {headerAction && <div onClick={(e) => e.stopPropagation()} className="flex items-center">{headerAction}</div>}
                     {collapsible && (
                         <span
                             className="text-[10px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded border transition-all"
@@ -493,6 +496,7 @@ function CredentialCard({
     realDriver,
     isOwner = false,
     onOpenSetup,
+    onToggleCollapse,
 }: {
     me: Strategist;
     number: string;
@@ -502,6 +506,7 @@ function CredentialCard({
     realDriver?: RealF1Driver | null;
     isOwner?: boolean;
     onOpenSetup?: () => void;
+    onToggleCollapse?: () => void;
 }) {
     const badgeUid = useId().replace(/[^a-zA-Z0-9_-]/g, '_');
     const last = me.series.length > 0 ? me.series[me.series.length - 1] : 100;
@@ -520,6 +525,32 @@ function CredentialCard({
         <Panel
             title="Credencial Oficial"
             tag={me.teamCode}
+            headerAction={
+                onToggleCollapse ? (
+                    <button
+                        type="button"
+                        onClick={onToggleCollapse}
+                        className="p-1 rounded border border-white/10 hover:border-white/30 bg-black/60 hover:bg-white/[0.08] transition-all cursor-pointer flex items-center justify-center group"
+                        title="Recolher painel esquerdo"
+                        aria-label="Recolher painel esquerdo"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5"
+                            style={{ color: me.teamColor }}
+                            aria-hidden="true"
+                        >
+                            <path d="M11 17l-5-5 5-5" />
+                            <path d="M18 17l-5-5 5-5" />
+                        </svg>
+                    </button>
+                ) : undefined
+            }
             bodyClass="p-0 overflow-hidden"
             className="!bg-black bg-black"
             accentColor={me.teamColor}
@@ -1917,12 +1948,6 @@ export default function OfficialStrategistDashboard() {
                                 />
                             ) : (
                                 <>
-                                    <SidebarToggleButton
-                                        side="left"
-                                        collapsed={false}
-                                        accentColor={teamColor}
-                                        onClick={() => setLeftCollapsed(true)}
-                                    />
                             <CredentialCard
                                 me={me}
                                 number={String(targetProfile?.driver_number || '00')}
@@ -1937,6 +1962,7 @@ export default function OfficialStrategistDashboard() {
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                     }
                                 }}
+                                onToggleCollapse={() => setLeftCollapsed(true)}
                             />
 
                             {/* SANFONA 1: COMPANHEIRO DE EQUIPE (BOX) */}
@@ -3130,15 +3156,32 @@ export default function OfficialStrategistDashboard() {
                                 />
                             ) : (
                                 <>
-                                    <SidebarToggleButton
-                                        side="right"
-                                        collapsed={false}
-                                        accentColor={mainAccent}
-                                        isStandardStyle={isStandardStyle}
-                                        onClick={() => setRightCollapsed(true)}
-                                    />
                             <Panel
                                 title="Índices das Alianças"
+                                headerAction={
+                                    <button
+                                        type="button"
+                                        onClick={() => setRightCollapsed(true)}
+                                        className="p-1 rounded border border-white/10 hover:border-white/30 bg-black/60 hover:bg-white/[0.08] transition-all cursor-pointer flex items-center justify-center group"
+                                        title="Recolher painel direito"
+                                        aria-label="Recolher painel direito"
+                                    >
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.4"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"
+                                            style={{ color: mainAccent }}
+                                            aria-hidden="true"
+                                        >
+                                            <path d="M6 17l5-5-5-5" />
+                                            <path d="M13 17l5-5-5-5" />
+                                        </svg>
+                                    </button>
+                                }
                                 bodyClass="p-0"
                                 className={isStandardStyle ? '!bg-black bg-black' : ''}
                                 accentColor={mainAccent}
