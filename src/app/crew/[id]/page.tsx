@@ -213,7 +213,7 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
         if (typeof window !== 'undefined' && window.history.length > 1) {
             router.back();
         } else {
-            router.push('/invite');
+            router.push('/invite?step=alliances');
         }
     };
 

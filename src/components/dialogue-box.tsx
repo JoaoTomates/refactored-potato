@@ -218,6 +218,8 @@ export interface DialogueBoxProps {
     characterId?: string;
     dataStrategySource?: string;
     className?: string;
+    disableAvatarClick?: boolean;
+    hideDividers?: boolean;
 }
 
 export const DIALOGUE_BOX_GRADIENT = 'linear-gradient(160deg, #030303 0%, #000000 100%)';
@@ -255,6 +257,7 @@ interface AvatarFrameProps {
     interactive?: boolean;
     allowWideLabel?: boolean;
     characterId?: string;
+    disableClick?: boolean;
 }
 
 function AvatarFrame({
@@ -266,6 +269,7 @@ function AvatarFrame({
     interactive = false,
     allowWideLabel = false,
     characterId,
+    disableClick = false,
 }: AvatarFrameProps) {
     const router = useRouter();
     const [currentImg, setCurrentImg] = useState<string | undefined>(avatarUrl);
@@ -293,24 +297,33 @@ function AvatarFrame({
         return findCrewCharacter(characterId || name || avatarUrl);
     }, [characterId, name, avatarUrl]);
 
-    const tooltipText = resolvedChar
-        ? `${resolvedChar.fullName} — ${resolvedChar.role} [Clique para abrir Ficha de Funcionário]`
-        : (cleanName ? `${cleanName} [Clique para ver Ficha]` : 'Ficha do Colaborador');
+    const tooltipText = disableClick
+        ? (resolvedChar ? `${resolvedChar.fullName} — ${resolvedChar.role}` : cleanName || 'Personagem')
+        : (resolvedChar
+            ? `${resolvedChar.fullName} — ${resolvedChar.role} [Clique para abrir Ficha de Funcionário]`
+            : (cleanName ? `${cleanName} [Clique para ver Ficha]` : 'Ficha do Colaborador'));
 
     const handleNavigateToCrew = (e: React.MouseEvent) => {
         e.stopPropagation();
+        if (disableClick) return;
         const targetId = resolvedChar?.id || (cleanName ? cleanName.toLowerCase() : 'strat-1');
         router.push(`/crew/${encodeURIComponent(targetId)}`);
     };
 
     return (
         <div
-            onClick={handleNavigateToCrew}
+            onClick={disableClick ? (e) => e.stopPropagation() : handleNavigateToCrew}
             title={tooltipText}
-            className="flex flex-col items-center shrink-0 select-none cursor-pointer group/avatar transition-transform hover:scale-[1.04]"
+            className={`flex flex-col items-center shrink-0 select-none ${
+                disableClick
+                    ? 'cursor-default'
+                    : 'cursor-pointer group/avatar transition-transform hover:scale-[1.04]'
+            }`}
         >
             <div
-                className={`${sizeClass} rounded-[3px] overflow-hidden border border-[#000000] p-0.5 flex items-center justify-center shrink-0 transition-all group-hover/avatar:ring-1 group-hover/avatar:ring-[#fbaa19]`}
+                className={`${sizeClass} rounded-[3px] overflow-hidden border border-[#000000] p-0.5 flex items-center justify-center shrink-0 transition-all ${
+                    disableClick ? '' : 'group-hover/avatar:ring-1 group-hover/avatar:ring-[#fbaa19]'
+                }`}
                 style={{
                     background: BOX_GRADIENT,
                     boxShadow: shadow,
@@ -321,7 +334,9 @@ function AvatarFrame({
                         src={currentImg}
                         alt={resolvedChar?.fullName || cleanName || 'Personagem'}
                         onError={handleImgError}
-                        className="w-full h-full object-cover rounded-[2px] filter contrast-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] transition-all group-hover/avatar:brightness-110"
+                        className={`w-full h-full object-cover rounded-[2px] filter contrast-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] transition-all ${
+                            disableClick ? '' : 'group-hover/avatar:brightness-110'
+                        }`}
                     />
                 ) : (
                     <div className="w-full h-full rounded-[2px] flex flex-col items-center justify-center bg-[#030303] text-center">
@@ -341,7 +356,9 @@ function AvatarFrame({
 
             {cleanName && (
                 <span
-                    className={`text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center px-2 py-0.5 rounded-[3px] border border-[#000000] group-hover/avatar:border-white/30 group-hover/avatar:text-white transition-colors ${
+                    className={`text-[10px] sm:text-[11px] font-mono font-black tracking-wider mt-1.5 uppercase text-center px-2 py-0.5 rounded-[3px] border border-[#000000] transition-colors ${
+                        disableClick ? '' : 'group-hover/avatar:border-white/30 group-hover/avatar:text-white'
+                    } ${
                         allowWideLabel ? 'whitespace-nowrap' : 'truncate max-w-[96px] sm:max-w-[116px]'
                     }`}
                     style={{
@@ -394,6 +411,8 @@ export function DialogueBox({
     characterId,
     dataStrategySource,
     className = '',
+    disableAvatarClick = false,
+    hideDividers = false,
 }: DialogueBoxProps) {
     const effectiveAccent = isFilled ? '#10b981' : accentColor;
     const isRight = direction === 'right';
@@ -441,6 +460,7 @@ export function DialogueBox({
                     shadow={avatarShadow}
                     sizeClass={avatarSizeClass}
                     interactive={Boolean(onClick)}
+                    disableClick={disableAvatarClick}
                 />
             )}
 
@@ -457,7 +477,9 @@ export function DialogueBox({
                 {/* Cabeçalho interno opcional (cargo / contexto / categoria) */}
                 {hasHeader && (
                     <div
-                        className={`flex items-center justify-between gap-2 border-b border-white/10 pb-1.5 mb-1.5 ${
+                        className={`flex items-center justify-between gap-2 ${
+                            hideDividers ? 'pb-1 mb-1' : 'border-b border-white/10 pb-1.5 mb-1.5'
+                        } ${
                             isRight ? 'flex-row-reverse' : 'flex-row'
                         }`}
                     >
@@ -520,6 +542,7 @@ export function DialogueBox({
                             sizeClass={avatarSizeClass}
                             interactive={Boolean(onClick)}
                             allowWideLabel
+                            disableClick={disableAvatarClick}
                         />
                     )}
                 </div>
@@ -527,7 +550,9 @@ export function DialogueBox({
                 {/* Rodapé opcional: ações, status homologado, nota tática ou dica de avanço */}
                 {hasActionsRow && (
                     <div
-                        className={`mt-2 pt-2 border-t border-white/10 flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono flex-wrap ${
+                        className={`mt-2 pt-2 ${
+                            hideDividers ? '' : 'border-t border-white/10'
+                        } flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono flex-wrap ${
                             isRight ? 'justify-between flex-row-reverse' : 'justify-between'
                         }`}
                     >

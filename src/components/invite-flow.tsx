@@ -78,6 +78,8 @@ export function InviteFlow() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [isNameFocused, setIsNameFocused] = useState(false);
+    const fullNameInputRef = useRef<HTMLInputElement>(null);
     const [errorMsg, setErrorMsg] = useState("");
     const [assignedStrategist, setAssignedStrategist] = useState<SeniorStrategist | null>(null);
     const [crewConfig, setCrewConfig] = useState<CrewRolesConfig>(DEFAULT_CREW_ROLES_CONFIG);
@@ -88,6 +90,50 @@ export function InviteFlow() {
     useEffect(() => {
         fetchCrewRolesConfig().then((cfg) => setCrewConfig(cfg));
     }, []);
+
+    const shouldRestoreAlliances = () => {
+        if (typeof window === 'undefined') return false;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const hasParam = params.get('step') === 'alliances';
+            const hasStorage = sessionStorage.getItem('vg_invite_dialog_page') === '3';
+            return hasParam || hasStorage;
+        } catch {
+            return false;
+        }
+    };
+
+    // Foco automático suave no campo Nome e Sobrenome ao abrir o formulário
+    useEffect(() => {
+        if (enlistFormVisible || phase === 'ENLIST') {
+            const timer = setTimeout(() => {
+                fullNameInputRef.current?.focus();
+            }, 250);
+            return () => clearTimeout(timer);
+        }
+    }, [enlistFormVisible, phase]);
+
+    // Sincroniza estado de retorno para a escolha das alianças
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            if (phase === 'AUTO_DIALOG' && dialogPage === 3) {
+                sessionStorage.setItem('vg_invite_dialog_page', '3');
+                const url = new URL(window.location.href);
+                if (url.searchParams.get('step') !== 'alliances') {
+                    url.searchParams.set('step', 'alliances');
+                    window.history.replaceState(null, '', url.toString());
+                }
+            } else if (phase === 'INTRO' || (phase === 'AUTO_DIALOG' && dialogPage === 1)) {
+                sessionStorage.removeItem('vg_invite_dialog_page');
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('step')) {
+                    url.searchParams.delete('step');
+                    window.history.replaceState(null, '', url.pathname + (url.search ? url.search : ''));
+                }
+            }
+        } catch {}
+    }, [phase, dialogPage]);
 
     const resolvedDirector = resolveCrewCharacterById(crewConfig.slots.inviteDirectorId, crewConfig);
     const directorAvatarUrl = resolvedDirector?.avatarUrl || DIRECTOR_AVATAR_URL;
@@ -144,7 +190,14 @@ export function InviteFlow() {
                 if (error || !data) {
                     clearCachedStrategistSession();
                     await supabase.auth.signOut();
-                    setPhase('INTRO');
+                    if (shouldRestoreAlliances()) {
+                        setDialogPage(3);
+                        setPhase('AUTO_DIALOG');
+                        setPageStep(1);
+                        setIsPageClearing(false);
+                    } else {
+                        setPhase('INTRO');
+                    }
                     return;
                 }
 
@@ -159,7 +212,15 @@ export function InviteFlow() {
                 window.location.replace('/headquarters');
                 return;
             }
-            setPhase('INTRO');
+
+            if (shouldRestoreAlliances()) {
+                setDialogPage(3);
+                setPhase('AUTO_DIALOG');
+                setPageStep(1);
+                setIsPageClearing(false);
+            } else {
+                setPhase('INTRO');
+            }
         };
 
         checkUserStatus();
@@ -168,7 +229,14 @@ export function InviteFlow() {
     // Previne tela preta se deslogar
     useEffect(() => {
         if (!authLoading && !user && phase === 'LOADING') {
-            setPhase('INTRO');
+            if (shouldRestoreAlliances()) {
+                setDialogPage(3);
+                setPhase('AUTO_DIALOG');
+                setPageStep(1);
+                setIsPageClearing(false);
+            } else {
+                setPhase('INTRO');
+            }
         }
     }, [authLoading, user, phase]);
 
@@ -229,6 +297,14 @@ export function InviteFlow() {
         setSelectedGroup(null);
         setTypingComplete(false);
         setIsPageClearing(true);
+        if (typeof window !== 'undefined') {
+            try {
+                sessionStorage.removeItem('vg_invite_dialog_page');
+                const url = new URL(window.location.href);
+                url.searchParams.delete('step');
+                window.history.replaceState(null, '', url.pathname + (url.search ? url.search : ''));
+            } catch {}
+        }
 
         setTimeout(() => {
             setPhase('AUTO_DIALOG');
@@ -239,6 +315,19 @@ export function InviteFlow() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }, 350);
+    };
+
+    // Navega para a ficha do chefe da aliança preservando o ponto de retorno na escolha de alianças
+    const handleOpenChiefProfile = (chiefName: string) => {
+        if (typeof window !== 'undefined') {
+            try {
+                sessionStorage.setItem('vg_invite_dialog_page', '3');
+                const url = new URL(window.location.href);
+                url.searchParams.set('step', 'alliances');
+                window.history.replaceState(null, '', url.toString());
+            } catch {}
+        }
+        router.push(`/crew/${encodeURIComponent(chiefName.toLowerCase())}`);
     };
 
     // 1. Ao escolher a aliança, recebe a mensagem do Diretor e abre o formulário
@@ -385,14 +474,14 @@ export function InviteFlow() {
                 <div className="absolute bottom-[20%] md:bottom-[25%] w-full max-w-3xl px-4 left-1/2 -translate-x-1/2 z-10">
                     <DialogueBox
                         speaker={directorSpeaker}
-                        speakerRole={directorRole}
                         avatarUrl={directorAvatarUrl}
+                        disableAvatarClick
                         accentColor="#fbaa19"
                         text={customDialogs[0]}
                         startDelay={150}
                         onReadyForNext={() => setIntroReady(true)}
                         onClick={startAutoDialog}
-                        footerHint="[ Continuar ] »"
+                        title="Clique para entrar e fechar a porta"
                     />
                 </div>
             )}
@@ -407,6 +496,7 @@ export function InviteFlow() {
                                 <DialogueBox
                                     speaker={directorSpeaker}
                                     avatarUrl={directorAvatarUrl}
+                                    disableAvatarClick
                                     accentColor="#fbaa19"
                                     text={customDialogs[1]}
                                     startDelay={150}
@@ -422,6 +512,7 @@ export function InviteFlow() {
                                 <DialogueBox
                                     speaker={directorSpeaker}
                                     avatarUrl={directorAvatarUrl}
+                                    disableAvatarClick
                                     accentColor="#fbaa19"
                                     text={customDialogs[2]}
                                     startDelay={150}
@@ -437,6 +528,7 @@ export function InviteFlow() {
                                 <DialogueBox
                                     speaker={directorSpeaker}
                                     avatarUrl={directorAvatarUrl}
+                                    disableAvatarClick
                                     accentColor="#fbaa19"
                                     text={customDialogs[3]}
                                     startDelay={150}
@@ -477,6 +569,7 @@ export function InviteFlow() {
                                 <DialogueBox
                                     speaker={directorSpeaker}
                                     avatarUrl={directorAvatarUrl}
+                                    disableAvatarClick
                                     accentColor="#fbaa19"
                                     text={customDialogs[4]}
                                     startDelay={150}
@@ -492,6 +585,7 @@ export function InviteFlow() {
                                 <DialogueBox
                                     speaker={directorSpeaker}
                                     avatarUrl={directorAvatarUrl}
+                                    disableAvatarClick
                                     accentColor="#fbaa19"
                                     text={customDialogs[5]}
                                     startDelay={150}
@@ -531,6 +625,7 @@ export function InviteFlow() {
                             <DialogueBox
                                 speaker={directorSpeaker}
                                 speakerRole={directorRole}
+                                disableAvatarClick
                                 badgeTitle="CONVOCAÇÃO OFICIAL // ESCOLHA DE ALIANÇA"
                                 categoryTag="3 CONSÓRCIOS DISPONÍVEIS"
                                 avatarUrl={directorAvatarUrl}
@@ -589,7 +684,7 @@ export function InviteFlow() {
                                                         <div
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                router.push(`/crew/${encodeURIComponent(chief.chiefName.toLowerCase())}`);
+                                                                handleOpenChiefProfile(chief.chiefName);
                                                             }}
                                                             title={`${chief.chiefName} — ${chief.chiefRole} [Clique para abrir Ficha de Funcionário]`}
                                                             className="w-12 h-12 rounded-[3px] overflow-hidden border border-[#000000] p-0.5 bg-[#030303] group-hover:scale-105 transition-transform cursor-pointer hover:ring-1 hover:ring-[#fbaa19]"
@@ -604,7 +699,7 @@ export function InviteFlow() {
                                                         <span
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                router.push(`/crew/${encodeURIComponent(chief.chiefName.toLowerCase())}`);
+                                                                handleOpenChiefProfile(chief.chiefName);
                                                             }}
                                                             title={`${chief.chiefName} — ${chief.chiefRole} [Clique para abrir Ficha de Funcionário]`}
                                                             className="text-[9px] font-mono font-black uppercase tracking-wider mt-1 px-1.5 py-0.5 rounded-[2px] border border-[#000000] bg-[#030303] cursor-pointer hover:text-white transition-colors"
@@ -682,6 +777,7 @@ export function InviteFlow() {
                     <DialogueBox
                         speaker={directorSpeaker}
                         speakerRole={directorRole}
+                        disableAvatarClick
                         badgeTitle={`ALIANÇA SELECIONADA // ${ENGINE_FACTIONS[selectedGroup].title.toUpperCase()}`}
                         categoryTag={`[${ENGINE_FACTIONS[selectedGroup].badge}]`}
                         avatarUrl={directorAvatarUrl}
@@ -757,20 +853,36 @@ export function InviteFlow() {
                                 ) : (
                                     <>
                                         <div className="flex flex-col md:flex-row gap-3.5 items-start">
-                                            <div className="flex flex-col w-full">
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    placeholder="NOME E SOBRENOME"
-                                                    value={fullName}
-                                                    onChange={e => setFullName(e.target.value)}
-                                                    className={`w-full bg-[#030303] border text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.8125rem+0.5px)] sm:text-[calc(0.875rem+0.5px)] ${fullName.trim()
-                                                            ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
-                                                                ? "border-emerald-500/50 focus:border-emerald-500"
-                                                                : "border-amber-500/60 focus:border-amber-500"
-                                                            : "border-[#000000] focus:border-[#fbaa19]"
-                                                        }`}
-                                                />
+                                            <div className="flex flex-col w-full relative">
+                                                <div className="relative w-full flex items-center">
+                                                    <input
+                                                        ref={fullNameInputRef}
+                                                        autoFocus
+                                                        type="text"
+                                                        required
+                                                        placeholder="NOME E SOBRENOME"
+                                                        value={fullName}
+                                                        onFocus={() => setIsNameFocused(true)}
+                                                        onBlur={() => setIsNameFocused(false)}
+                                                        onChange={e => setFullName(e.target.value)}
+                                                        style={{ caretColor: '#fbaa19' }}
+                                                        className={`w-full bg-[#030303] border text-white p-3.5 font-bold uppercase tracking-widest focus:outline-none transition-all rounded-[3px] placeholder-white/30 text-[calc(0.8125rem+0.5px)] sm:text-[calc(0.875rem+0.5px)] caret-[#fbaa19] ${fullName.trim()
+                                                                ? (fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p)))
+                                                                    ? "border-emerald-500/50 focus:border-emerald-500"
+                                                                    : "border-amber-500/60 focus:border-amber-500"
+                                                                : "border-[#000000] focus:border-[#fbaa19]"
+                                                            }`}
+                                                    />
+                                                    {/* Cursor piscando tático no campo Nome e Sobrenome caso esteja vazio e sem foco ativo */}
+                                                    {!isNameFocused && !fullName && (
+                                                        <span
+                                                            onClick={() => fullNameInputRef.current?.focus()}
+                                                            className="absolute left-[14px] top-1/2 -translate-y-1/2 text-[#fbaa19] font-black text-sm pointer-events-none animate-pulse select-none"
+                                                        >
+                                                            |
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 {fullName.trim() && !(fullName.trim().split(/\s+/).filter(Boolean).length >= 2 && fullName.trim().split(/\s+/).filter(Boolean).every(p => p.length >= 2 && /^[\p{L}'-]+$/u.test(p))) && (
                                                     <span className="text-[10px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
                                                         <span>⚠</span> A Superlicença exige pelo menos dois nomes (Nome e Sobrenome válidos).
@@ -844,6 +956,7 @@ export function InviteFlow() {
                     <DialogueBox
                         speaker={directorSpeaker}
                         speakerRole={directorRole}
+                        disableAvatarClick
                         characterId={crewConfig.slots.inviteDirectorId}
                         badgeTitle="VERIFIQUE SEU CANAL DE TELEMETRIA"
                         categoryTag="HOMOLOGAÇÃO ENVIADA"
