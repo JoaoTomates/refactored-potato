@@ -24,13 +24,18 @@ const VALID_NAME_PART = /^[\p{L}'-]+$/u;
 
 export async function POST(request: Request) {
     try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SERVICE_ROLE_KEY;
 
         if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
+            const missing: string[] = [];
+            if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+            if (!supabaseAnonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+            if (!serviceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+
             return NextResponse.json(
-                { error: 'Configuração de autenticação incompleta no servidor.' },
+                { error: `Configuração de autenticação incompleta no servidor (Faltando na Vercel: ${missing.join(', ')}).` },
                 { status: 500 }
             );
         }
