@@ -163,13 +163,15 @@ Toda fala de personagem, diretor, engenheiro ou mentor do paddock deve utilizar 
    - **Background:** `#030303` com degradê suave para `#000000` (`linear-gradient(160deg, #030303 0%, #000000 100%)`).
    - **Borda:** `1px solid #000000` (`border border-[#000000]`).
    - **Border Radius:** Máximo de `3px` (`rounded-[3px]`) tanto no retângulo de diálogo quanto na moldura do avatar e na plaqueta de identificação.
-2. **Sombra Spread Direcional (Box Card e Avatar):**
+2. **Sombra Spread Direcional & Avatar:**
    - Sombra preta profunda de elevação combinada com spread sutil na `accentColor` do falante (ou `#fbaa19` padrão), projetada **na direção oposta ao avatar**:
-     - `direction="left"` (avatar à esquerda): offset horizontal positivo (`8px 6px 24px 2px rgba(0,0,0,0.96), 4px 2px 16px 1px ${accentColor}30`).
-     - `direction="right"` (avatar à direita): offset horizontal negativo (`-8px 6px 24px 2px rgba(0,0,0,0.96), -4px 2px 16px 1px ${accentColor}30`).
-3. **Identificação do Falante:**
+     - `avatarPosition="left"` (padrão, avatar à esquerda): offset horizontal positivo (`8px 6px 24px 2px rgba(0,0,0,0.96), 4px 2px 16px 1px ${accentColor}30`).
+     - `avatarPosition="right"` (avatar à direita): offset horizontal negativo (`-8px 6px 24px 2px rgba(0,0,0,0.96), -4px 2px 16px 1px ${accentColor}30`).
+   - **Renderização do Avatar:** Por padrão ativo (`hasAvatar={true}`). Pode ser omitido (`hasAvatar={false}`) para diálogos limpos em tela cheia.
+3. **Identificação do Falante & Sem Linhas Cinza:**
    - **Plaqueta `[ NOME ]`** ancorada abaixo do avatar com o mesmo padrão `#030303 -> #000000`, borda `#000000`, `rounded-[3px]` e sombra direcional.
    - **Cabeçalho Interno Opcional:** exibido apenas quando houver `speakerRole`, `badgeTitle` ou `categoryTag`.
+   - **Sem Divisórias Cinza:** O design do DialogueBox opera sem linhas divisórias internas horizontais (espaçamento estrutural limpo sem `border-white/10`).
 4. **Tipografia & Interação:**
    - Fonte `font-mono` com incremento de **+0.5px** sobre a escala base (`calc(0.75rem + 0.5px)` / `calc(0.875rem + 0.5px)` / `calc(1rem + 0.5px)`).
    - Efeito `TypewriterLine` + áudio mecânico `PitWallSoundEngine` ativo por padrão em cenas ao vivo (com clique para completar imediatamente) e desativável via `typewriter={false}` em listas e históricos (ex.: Race Week, Lore).

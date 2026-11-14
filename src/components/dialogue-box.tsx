@@ -191,7 +191,18 @@ export interface DialogueBoxProps {
     text?: string;
     children?: React.ReactNode;
     accentColor?: string;
+    /**
+     * Direção / posicionamento do avatar: 'left' (padrão) ou 'right'.
+     */
     direction?: 'left' | 'right';
+    avatarPosition?: 'left' | 'right';
+    avatarSide?: 'left' | 'right';
+    /**
+     * Define se o avatar deve ser renderizado. Por padrão, true.
+     */
+    hasAvatar?: boolean;
+    showAvatar?: boolean;
+    hideAvatar?: boolean;
     prefix?: string | null;
     typewriter?: boolean;
     startDelay?: number;
@@ -210,7 +221,6 @@ export interface DialogueBoxProps {
     italic?: boolean;
     minHeightClass?: string;
     animateEntrance?: boolean;
-    hideAvatar?: boolean;
     inlinePortrait?: {
         avatarUrl?: string;
         name?: string;
@@ -220,6 +230,7 @@ export interface DialogueBoxProps {
     className?: string;
     disableAvatarClick?: boolean;
     hideDividers?: boolean;
+    textAlign?: 'left' | 'right' | 'inherit';
 }
 
 export const DIALOGUE_BOX_GRADIENT = 'linear-gradient(160deg, #030303 0%, #000000 100%)';
@@ -388,6 +399,11 @@ export function DialogueBox({
     children,
     accentColor = '#fbaa19',
     direction = 'left',
+    avatarPosition,
+    avatarSide,
+    hasAvatar,
+    showAvatar,
+    hideAvatar = false,
     prefix = '>_',
     typewriter = true,
     startDelay = 120,
@@ -406,18 +422,24 @@ export function DialogueBox({
     italic = false,
     minHeightClass,
     animateEntrance = false,
-    hideAvatar = false,
     inlinePortrait,
     characterId,
     dataStrategySource,
     className = '',
     disableAvatarClick = false,
-    hideDividers = false,
+    hideDividers = true,
+    textAlign,
 }: DialogueBoxProps) {
     const effectiveAccent = isFilled ? '#10b981' : accentColor;
-    const isRight = direction === 'right';
-    const directionalShadow = getDirectionalShadow(direction, effectiveAccent);
-    const avatarShadow = getAvatarBlackShadow(direction);
+    const effectiveSide: 'left' | 'right' = avatarPosition || avatarSide || direction || 'left';
+    const isRight = effectiveSide === 'right';
+    const directionalShadow = getDirectionalShadow(effectiveSide, effectiveAccent);
+    const avatarShadow = getAvatarBlackShadow(effectiveSide);
+
+    // Por padrão o avatar é exibido (hasAvatar = true), podendo ser desligado explicitamente
+    const shouldShowAvatar = hasAvatar !== undefined
+        ? hasAvatar
+        : (showAvatar !== undefined ? showAvatar : !hideAvatar);
 
     const hasHeader = Boolean(badgeTitle || speakerRole || categoryTag);
     const hasActionsRow = Boolean(isFilled || isSettled || (actions && actions.length > 0) || footerHint || footerNote);
@@ -441,6 +463,10 @@ export function DialogueBox({
         ? 'text-[calc(0.75rem+0.5px)] sm:text-[calc(0.8125rem+0.5px)]'
         : 'text-[calc(0.75rem+0.5px)] sm:text-[calc(0.875rem+0.5px)] md:text-[calc(1rem+0.5px)]';
 
+    const alignmentClass = textAlign
+        ? (textAlign === 'right' ? 'text-right justify-end' : (textAlign === 'left' ? 'text-left justify-start' : ''))
+        : (isRight ? 'text-right justify-end' : 'text-left justify-start');
+
     return (
         <div
             onClick={onClick}
@@ -450,8 +476,8 @@ export function DialogueBox({
                 isRight ? 'flex-row-reverse' : 'flex-row'
             } ${onClick ? 'cursor-pointer group' : ''} ${entranceAnim} ${className}`}
         >
-            {/* 1. AVATAR EXTERNO (ocultado quando usado como dossiê/retrato interno) */}
-            {!hideAvatar && (
+            {/* 1. AVATAR EXTERNO (por padrão sim, renderizado à esquerda [padrão] ou à direita) */}
+            {shouldShowAvatar && (
                 <AvatarFrame
                     avatarUrl={avatarUrl}
                     name={speaker}
@@ -464,7 +490,7 @@ export function DialogueBox({
                 />
             )}
 
-            {/* 2. BOX CARD DO DIÁLOGO (#030303 -> #000000, border #000000, radius <= 3px, sombra spread direcional) */}
+            {/* 2. BOX CARD DO DIÁLOGO (#030303 -> #000000, border #000000, radius <= 3px, sombra spread direcional, sem linhas cinza) */}
             <div
                 className={`flex-1 rounded-[3px] ${boxPaddingClass} transition-all duration-300 border border-[#000000] flex flex-col justify-between ${
                     compact ? 'min-h-[76px]' : 'min-h-[92px] sm:min-h-[98px]'
@@ -474,12 +500,10 @@ export function DialogueBox({
                     boxShadow: directionalShadow,
                 }}
             >
-                {/* Cabeçalho interno opcional (cargo / contexto / categoria) */}
+                {/* Cabeçalho interno opcional (cargo / contexto / categoria) - Sem linhas cinza */}
                 {hasHeader && (
                     <div
-                        className={`flex items-center justify-between gap-2 ${
-                            hideDividers ? 'pb-1 mb-1' : 'border-b border-white/10 pb-1.5 mb-1.5'
-                        } ${
+                        className={`flex items-center justify-between gap-2 pb-1.5 mb-1.5 ${
                             isRight ? 'flex-row-reverse' : 'flex-row'
                         }`}
                     >
@@ -504,9 +528,7 @@ export function DialogueBox({
                     }`}
                 >
                     <div
-                        className={`flex-1 min-w-0 text-white font-bold tracking-wide leading-relaxed py-0.5 ${textMinHeight} flex items-start ${textSizeClass} ${
-                            isRight ? 'text-right justify-end' : 'text-left justify-start'
-                        } ${italic ? 'italic' : ''}`}
+                        className={`flex-1 min-w-0 text-white font-bold tracking-wide leading-relaxed py-0.5 ${textMinHeight} flex items-start ${textSizeClass} ${alignmentClass} ${italic ? 'italic' : ''}`}
                     >
                         <div className="w-full">
                             {prefix && (
@@ -547,12 +569,10 @@ export function DialogueBox({
                     )}
                 </div>
 
-                {/* Rodapé opcional: ações, status homologado, nota tática ou dica de avanço */}
+                {/* Rodapé opcional: ações, status homologado, nota tática ou dica de avanço - Sem linhas cinza */}
                 {hasActionsRow && (
                     <div
-                        className={`mt-2 pt-2 ${
-                            hideDividers ? '' : 'border-t border-white/10'
-                        } flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono flex-wrap ${
+                        className={`mt-2 pt-1 flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest font-mono flex-wrap ${
                             isRight ? 'justify-between flex-row-reverse' : 'justify-between'
                         }`}
                     >
@@ -622,3 +642,6 @@ export function DialogueBox({
         </div>
     );
 }
+
+export default DialogueBox;
+
