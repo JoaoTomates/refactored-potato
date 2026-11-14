@@ -5,7 +5,8 @@ import {
     JetBrains_Mono, 
     Titillium_Web, 
     Montserrat, 
-    IBM_Plex_Sans 
+    IBM_Plex_Sans,
+    Alex_Brush 
 } from 'next/font/google';
 
 export const fontRajdhani = Rajdhani({ weight: ['400', '500', '600', '700'], subsets: ['latin'], variable: '--font-rajdhani' });
@@ -15,6 +16,7 @@ export const fontJetBrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: 
 export const fontTitillium = Titillium_Web({ weight: ['400', '600', '700'], subsets: ['latin'], variable: '--font-titillium' });
 export const fontMontserrat = Montserrat({ weight: ['400', '600', '700', '900'], subsets: ['latin'], variable: '--font-montserrat' });
 export const fontIBMPlexSans = IBM_Plex_Sans({ weight: ['400', '500', '600', '700'], subsets: ['latin'], variable: '--font-ibm' });
+export const fontSignature = Alex_Brush({ weight: ['400'], subsets: ['latin'], variable: '--font-signature' });
 
 export const allFonts = [
     fontRajdhani,
@@ -23,7 +25,8 @@ export const allFonts = [
     fontJetBrainsMono,
     fontTitillium,
     fontMontserrat,
-    fontIBMPlexSans
+    fontIBMPlexSans,
+    fontSignature
 ];
 
 export const allFontVariables = allFonts.map(f => f.variable).join(' ');

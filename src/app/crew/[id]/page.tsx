@@ -245,6 +245,16 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
 
     const { currentTeam, previousTeams } = getCharacterTeamHistory(character);
 
+    const signatureName = useMemo(() => {
+        if (!character?.fullName) return 'Titular Homologado';
+        // Extrai o nome de assinatura autêntico e legível sem parênteses/anos (ex: "B. Martini (Pierluigi Martini (1984–1995))" -> "Pierluigi Martini")
+        const innerMatch = character.fullName.match(/\(([^()0-9–-]+)/);
+        if (innerMatch && innerMatch[1]?.trim()) {
+            return innerMatch[1].trim();
+        }
+        return character.fullName.split('(')[0]?.trim() || character.fullName;
+    }, [character?.fullName]);
+
     return (
         <main className="min-h-screen w-full relative bg-[#0b0c10] font-mono select-none overflow-x-hidden flex flex-col items-center justify-start py-6 sm:py-10 px-3 sm:px-6">
 
@@ -539,15 +549,20 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
 
                         {/* 5. RODAPÉ DE VALIDAÇÃO: ASSINATURAS E CARIMBO */}
                         <div className="pt-4 border-t border-black/20 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 text-[10px]">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[8.5px] uppercase tracking-widest text-black/50">ASSINATURA DO TITULAR:</span>
-                                <span className="font-serif italic text-sm text-black/80 font-bold border-b border-black/40 pb-0.5 min-w-[180px]">
-                                    {character.fullName}
-                                </span>
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-[8.5px] uppercase tracking-widest text-black/50 font-bold">ASSINATURA DO TITULAR:</span>
+                                <div className="border-b-2 border-black/60 pb-0.5 min-w-[210px] sm:min-w-[240px] flex items-end">
+                                    <span 
+                                        className="font-signature text-2xl sm:text-3xl text-[#0b214d] tracking-wide inline-block -rotate-[2deg] transform origin-bottom-left select-none leading-none pt-1"
+                                        title={`Assinatura Oficial: ${signatureName}`}
+                                    >
+                                        {signatureName}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="flex flex-col gap-1 sm:text-right">
-                                <span className="text-[8.5px] uppercase tracking-widest text-black/50">VISTO DE AUDITORIA:</span>
+                                <span className="text-[8.5px] uppercase tracking-widest text-black/50 font-bold">VISTO DE AUDITORIA:</span>
                                 <span className="text-[10px] font-mono font-bold uppercase text-black">
                                     [ VISTO POR STUART EVANS — DIRETOR ]
                                 </span>
