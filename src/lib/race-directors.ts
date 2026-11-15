@@ -513,7 +513,7 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
         },
         briefingTips: {
             poletimeTarget: '1:32.100 – 1:32.400',
-            poletimeReasoning: 'Cuidado com os limites de pista na saída da Curva 19: tempos deletados pela FIA vão bagunçar a ordem de largada.',
+            poletimeReasoning: 'Cuidado com os limites de pista na saída da Curva 19: tempos deletados pela BAEF vão bagunçar a ordem de largada.',
             predictedTop3: ['M.VERSTAPPEN', 'L.NORRIS', 'C.LECLERC'],
             top3Reasoning: 'Equilíbrio máximo entre os três líderes do campeonato; decisão por menos de 2 segundos de margem na bandeirada.',
             evoTargetDriver: 'A.ALBON (Williams)',
@@ -590,7 +590,7 @@ export const SENIOR_STRATEGISTS: SeniorStrategist[] = [
             h2hReasoning: 'Sainz tem ritmo de adaptação rápida em pistas norte-americanas.',
             miscRiskAlert: 'Atenção aos toques na Curva 1: o risco de asa dianteira quebrada é crítico.'
         },
-        biography: 'Piloto oficial de Brabham e Surtees nos anos 70, Schenken tornou-se posteriormente um dos diretores de prova mais respeitados da FIA em todo o mundo.',
+        biography: 'Piloto oficial de Brabham e Surtees nos anos 70, Schenken tornou-se posteriormente um dos diretores de prova mais respeitados da BAEF em todo o mundo.',
         avatarUrl: 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/ex_drivers/avatar_driver_16.jpg'
     },
     {

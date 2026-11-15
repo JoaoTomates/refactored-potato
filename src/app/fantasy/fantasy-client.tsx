@@ -80,7 +80,7 @@ const COMPETITIONS: CompetitionDef[] = [
         title: 'MASTER LEAGUE',
         subtitle: 'O GRID FECHADO DE 22 PILOTOS',
         badge: 'LIGA OFICIAL',
-        desc: 'Micro-campeonato fechado dentro do seu grupo de 22 assentos com pontuação oficial FIA e desempate em 3 camadas táticas.',
+        desc: 'Micro-campeonato fechado dentro do seu grupo de 22 assentos com pontuação oficial BAEF e desempate em 3 camadas táticas.',
         icon: '🏆'
     },
     {
@@ -219,7 +219,7 @@ export default function FantasyClient() {
                                     &gt;_ FANTASY AUDIT ENGINE // TEMPORADA 2026
                                 </span>
                                 <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/50">
-                                    FIA OFFICIAL SPEC
+                                    BAEF OFFICIAL SPEC
                                 </span>
                             </div>
                             <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
@@ -730,7 +730,7 @@ export default function FantasyClient() {
                                             </h2>
                                         </div>
                                         <p className="text-xs text-white/60 uppercase tracking-wider">
-                                            CIRCUITO: {activeRoundData.track} • POLE POSITION OFICIAL FIA: <strong className="text-[#fbaa19] font-mono">{activeRoundData.poleTime}</strong>
+                                            CIRCUITO: {activeRoundData.track} • POLE POSITION OFICIAL BAEF: <strong className="text-[#fbaa19] font-mono">{activeRoundData.poleTime}</strong>
                                         </p>
                                     </div>
 
@@ -753,7 +753,7 @@ export default function FantasyClient() {
                                 <div className="bg-black/85 border border-white/10 rounded-lg p-5">
                                     <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
                                         <span className="text-xs font-black tracking-widest uppercase text-white">
-                                            🏁 RESULTADO OFICIAL FIA // {activeRoundData.name}
+                                            🏁 RESULTADO OFICIAL BAEF // {activeRoundData.name}
                                         </span>
                                         <span className="text-[10px] text-white/40 uppercase">AUDITADO</span>
                                     </div>
@@ -859,7 +859,7 @@ export default function FantasyClient() {
                                 </h3>
                                 <p className="text-xs md:text-sm text-white/80 leading-relaxed">
                                     O prazo limite para envio, consolidação ou alteração de qualquer ordem na central <strong className="text-white">/positions</strong> é o 
-                                    <strong className="text-[#fbaa19]"> exato instante em que as luzes verdes se acendem para o início do Q1 (Sessão de Classificação oficial da FIA)</strong>.
+                                    <strong className="text-[#fbaa19]"> exato instante em que as luzes verdes se acendem para o início do Q1 (Sessão de Classificação oficial da BAEF)</strong>.
                                     A partir deste momento, o terminal entra no modo <span className="text-amber-300 font-mono">[PREGÃO FECHADO // AUDITORIA]</span> e nenhuma nova aposta é computada.
                                 </p>
                             </div>
@@ -894,7 +894,7 @@ export default function FantasyClient() {
                                     </p>
                                     <div className="bg-white/[0.03] p-3 rounded border border-white/5 text-xs space-y-1.5 font-mono">
                                         <div className="text-[#fbaa19] font-bold">FASE 1: ACERTOS DE CORRIDA (P1 a P10)</div>
-                                        <div className="text-white/50 text-[11px]">Pontuação oficial FIA: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1.</div>
+                                        <div className="text-white/50 text-[11px]">Pontuação oficial BAEF: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1.</div>
                                         <div className="text-emerald-400 font-bold mt-2">FASE 2: TABELA DO CAMPEONATO ANUAL</div>
                                         <div className="text-white/50 text-[11px]">Os 10 melhores da rodada do grupo recebem: 25 a 1 ponto na tabela geral.</div>
                                     </div>
@@ -994,7 +994,7 @@ export default function FantasyClient() {
                                                     <span className="text-xs font-black text-white uppercase">Espelhamento contra o Treino de Classificação (Qualifying)</span>
                                                 </div>
                                                 <p className="text-[11px] text-white/60 mt-1">
-                                                    Se persistir o empate, sua aposta de corrida é confrontada contra o resultado oficial do Qualifying (grid de largada oficial da FIA), aplicando o mesmo critério de pontuação e os acertos no P10.
+                                                    Se persistir o empate, sua aposta de corrida é confrontada contra o resultado oficial do Qualifying (grid de largada oficial da BAEF), aplicando o mesmo critério de pontuação e os acertos no P10.
                                                 </p>
                                             </div>
                                             <div className="text-right shrink-0">

@@ -371,7 +371,7 @@
 - **Engenheiro de Pista (Alerta de Chuva / Janela de Box):**  
   > *“Box, box! A previsão do delta indicou chuva em 3 voltas. Entrando agora estamos com ar limpo.”*
 - **Engenheiro de Telemetria (Setor Roxo no Poletime):**  
-  > *“Confirmação da FIA: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!”*
+  > *“Confirmação da BAEF: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!”*
 - **Estrategista de Tráfego (Undercut Confirmado):**  
   > *“Ele saiu dos boxes atrás de você! O undercut funcionou perfeitamente. Posição ganha na pista!”*
 - **Conselheiro de Paddock (Final de Semana Sprint):**  

@@ -10,11 +10,13 @@ import {
     CrewRelationshipState 
 } from '@/lib/paddock-crew';
 import { SENIOR_STRATEGISTS, SeniorStrategist, getSeniorStrategistById } from '@/lib/race-directors';
-import { ChevronRight, Clock, Radio, UserCheck, Flame } from 'lucide-react';
+import { ChevronRight, Clock, Radio, UserCheck, Flame, Users, Sparkles } from 'lucide-react';
 import { DialogueBox } from '@/components/dialogue-box';
 import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
 import { supabase } from '@/utils/supabase';
 import { CrewRolesConfig, DEFAULT_CREW_ROLES_CONFIG, fetchCrewRolesConfig } from '@/lib/crew-config';
+import { EngineeringCouncilModal } from '@/components/engineering-council-modal';
+import { TeamPrincipalAvatar } from '@/components/team-principal-avatar';
 
 export interface DaySchedule {
     dayId: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
@@ -72,6 +74,7 @@ export default function RaceWeekSchedule({
     const [event, setEvent] = useState<F1Event | null>(propEvent || null);
     const [selectedDay, setSelectedDay] = useState<string>('today');
     const [showHospitalityModal, setShowHospitalityModal] = useState(false);
+    const [councilModalDay, setCouncilModalDay] = useState<'tue' | 'wed' | 'thu' | 'fri' | null>(null);
     const [relationship, setRelationship] = useState<CrewRelationshipState | null>(null);
     const [userMentorId, setUserMentorId] = useState<string | null>(mentorId || propMentor?.id || null);
     const [userTeamCode, setUserTeamCode] = useState<string>(teamCode || 'FER');
@@ -261,8 +264,8 @@ export default function RaceWeekSchedule({
                 marketStatus: 'COTAÇÕES MLS: HOMOLOGADAS NA BASE'
             },
             actionButton: {
-                label: 'DEBRIEF DO SUPERIOR // AVALIAÇÃO DA ENGENHARIA »',
-                href: '/war-room?mode=debrief'
+                label: 'MESA DE ENGENHARIA // DEBATER POLETIME',
+                href: '#council-tue'
             }
         },
         {
@@ -301,8 +304,8 @@ export default function RaceWeekSchedule({
                 marketStatus: 'JANELA DE PREVISÃO POLETIME: ABERTA'
             },
             actionButton: {
-                label: 'WAR ROOM // REUNIÃO TÁTICA DA MESA »',
-                href: '/war-room'
+                label: 'MESA DE ENGENHARIA // DEBATER EVO (ESCALADA)',
+                href: '#council-wed'
             }
         },
         {
@@ -348,8 +351,8 @@ export default function RaceWeekSchedule({
                 marketStatus: 'AVISO: JANELAS DE PREVISÃO EM CONTAGEM REGRESSIVA'
             },
             actionButton: {
-                label: 'ABRIR FORMULÁRIO DE POLETIME',
-                href: '/positions?tab=poletime'
+                label: 'MESA DE ENGENHARIA // DEBATER DUELOS H2H',
+                href: '#council-thu'
             }
         },
         {
@@ -396,13 +399,11 @@ export default function RaceWeekSchedule({
                     }
                 ],
             mentorDialogue: {
-                speaker: mentor.code,
-                role: mentor.title,
-                avatarUrl: mentorAvatarUrl,
-                message: isSprint
-                    ? `“Semana Sprint não perdoa hesitação: apenas 60 minutos de FP1 e entramos direto na disputa do grid Sprint. Olhe a velocidade máxima nos setores e crave seu palpite!”`
-                    : `“A telemetria do FP2 confirmou o ritmo das equipes líderes nos stints médios. Observe quem conserva os pneus dianteiros em ${circuitName.split(' ')[0]} para definir o Top 10.”`,
-                tacticalObjective: 'Entregar o insider de ritmo real para guiar a seleção de Top 10 e Duelos H2H.'
+                speaker: principal.code,
+                role: `${principal.title} // ${principal.teamName}`,
+                avatarUrl: undefined,
+                message: principal.fridayMiscBriefing,
+                tacticalObjective: `Orientação da Chefia [${principal.code} & ${principal.leadChiefStrategist.code}]: diretriz conservadora para o formulário MISC. A alocação de risco final pertence exclusivamente a você.`
             },
             baeff1Broadcast: {
                 code: 'BAEFF1-SYS // B105-PRACTICE',
@@ -411,8 +412,8 @@ export default function RaceWeekSchedule({
                 marketStatus: 'ALERTA: JANELA POLETIME FECHA NO INÍCIO DO Q1'
             },
             actionButton: {
-                label: 'CRAVAR POLETIME NO FORMULÁRIO',
-                href: '/positions?tab=poletime'
+                label: 'CRAVAR POLETIME & ABRIR MESA TÁTICA',
+                href: '#council-fri'
             }
         },
         {
@@ -674,27 +675,62 @@ export default function RaceWeekSchedule({
                             </div>
 
                             {/* DIÁLOGOS DE PADDOCK COM FUNDO PRETO E TEXTO BRANCO ENTRE ASPAS */}
-                            <div className="grid grid-cols-1 gap-3 relative z-10">
-                                
-                                {/* DISPARO DO ESTRATEGISTA SÊNIOR / CHEFE DE EQUIPE */}
-                                <DialogueBox
-                                    compact
-                                    typewriter={false}
-                                    speaker={day.mentorDialogue.speaker}
-                                    speakerRole={day.mentorDialogue.role}
-                                    categoryTag="RÁDIO DE PITWALL"
-                                    avatarUrl={day.mentorDialogue.avatarUrl}
-                                    text={day.mentorDialogue.message}
-                                    accentColor="#fbaa19"
-                                    italic
-                                    footerNote={
-                                        <>
-                                            <strong className="text-white/70">Alvo Tático:</strong> {day.mentorDialogue.tacticalObjective}
-                                        </>
-                                    }
-                                />
+                            {/* REGRA: Terça, Quarta e Quinta foram movidas para dentro do botão da Mesa de Engenharia */}
+                            {(day.dayId === 'mon' || day.dayId === 'fri' || day.dayId === 'sat' || day.dayId === 'sun') && (
+                                <div className="grid grid-cols-1 gap-3 relative z-10">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                        {/* Avatar dedicado do Chefe de Equipe no diálogo de Sexta */}
+                                        {day.dayId === 'fri' && (
+                                            <div className="hidden sm:block shrink-0">
+                                                <TeamPrincipalAvatar teamCode={principal.teamCode} size={64} />
+                                            </div>
+                                        )}
 
-                            </div>
+                                        <div className="flex-1 w-full">
+                                            <DialogueBox
+                                                compact
+                                                typewriter={false}
+                                                speaker={day.mentorDialogue.speaker}
+                                                speakerRole={day.mentorDialogue.role}
+                                                categoryTag={day.dayId === 'fri' ? "DIÁLOGO DIRETO COM O CHEFÃO" : "RÁDIO DE PITWALL"}
+                                                avatarUrl={day.dayId === 'fri' ? undefined : day.mentorDialogue.avatarUrl}
+                                                text={day.mentorDialogue.message}
+                                                accentColor={day.dayId === 'fri' ? "#ef4444" : "#fbaa19"}
+                                                italic
+                                                footerNote={
+                                                    <>
+                                                        <strong className="text-white/70">Alvo Tático:</strong> {day.mentorDialogue.tacticalObjective}
+                                                    </>
+                                                }
+                                                extraAction={
+                                                    day.dayId === 'mon' ? (
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowHospitalityModal(!showHospitalityModal)}
+                                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[10px] sm:text-[11px] tracking-wider px-3 py-1.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                                            >
+                                                                <Flame className="w-3.5 h-3.5" />
+                                                                <span>DESPACHO COM {principal.code}</span>
+                                                            </button>
+
+                                                            {showNavigationLink && (
+                                                                <Link
+                                                                    href="/race-week"
+                                                                    className="text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white px-2.5 py-1.5 border border-white/15 hover:border-white/40 transition-all flex items-center gap-1 rounded-xs bg-white/5"
+                                                                >
+                                                                    <span>VER PROTOCOLO</span>
+                                                                    <ChevronRight className="w-3 h-3" />
+                                                                </Link>
+                                                            )}
+                                                        </div>
+                                                    ) : undefined
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* ROTINA OPERACIONAL RESUMIDA */}
                             <div className="flex flex-col gap-1.5 relative z-10 pt-1">
@@ -743,55 +779,57 @@ export default function RaceWeekSchedule({
                                 </div>
                             )}
 
-                            {/* BOTÃO "ACTIONS": NA SEGUNDA-FEIRA HOSPEDA "DESPACHO COM {principal.code}" E "VER PROTOCOLO" */}
-                            {day.dayId === 'mon' ? (
-                                <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-end gap-2 relative z-10">
-                                    <button
-                                        onClick={() => setShowHospitalityModal(!showHospitalityModal)}
-                                        className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[11px] sm:text-xs tracking-wider px-3.5 py-2 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
-                                    >
-                                        <Flame className="w-3.5 h-3.5" />
-                                        <span>DESPACHO COM {principal.code}</span>
-                                    </button>
-
-                                    {showNavigationLink && (
-                                        <Link
-                                            href="/race-week"
-                                            className="text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white px-2.5 py-2 border border-white/15 hover:border-white/40 transition-all flex items-center gap-1 rounded-xs bg-white/5"
+                            {/* BOTÃO "ACTIONS" PARA OS DEMAIS DIAS */}
+                            {day.dayId !== 'mon' && day.actionButton && (
+                                <div className="pt-2 border-t border-white/10 flex justify-end relative z-10">
+                                    {day.actionButton.href.startsWith('#council-') ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const targetDay = day.actionButton?.href.replace('#council-', '') as 'tue' | 'wed' | 'thu' | 'fri';
+                                                setCouncilModalDay(targetDay || 'fri');
+                                            }}
+                                            className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
                                         >
-                                            <span>VER PROTOCOLO</span>
-                                            <ChevronRight className="w-3 h-3" />
+                                            <Users className="w-3.5 h-3.5" />
+                                            <span>{day.actionButton.label}</span>
+                                            <span>»</span>
+                                        </button>
+                                    ) : day.actionButton.href.startsWith('#') ? (
+                                        <button
+                                            onClick={() => setShowHospitalityModal(true)}
+                                            className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                                        >
+                                            <span>{day.actionButton.label}</span>
+                                            <span>»</span>
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            href={day.actionButton.href}
+                                            className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                                        >
+                                            <span>{day.actionButton.label}</span>
+                                            <span>»</span>
                                         </Link>
                                     )}
                                 </div>
-                            ) : (
-                                day.actionButton && (
-                                    <div className="pt-2 border-t border-white/10 flex justify-end relative z-10">
-                                        {day.actionButton.href.startsWith('#') ? (
-                                            <button
-                                                onClick={() => setShowHospitalityModal(true)}
-                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
-                                            >
-                                                <span>{day.actionButton.label}</span>
-                                                <span>»</span>
-                                            </button>
-                                        ) : (
-                                            <Link
-                                                href={day.actionButton.href}
-                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
-                                            >
-                                                <span>{day.actionButton.label}</span>
-                                                <span>»</span>
-                                            </Link>
-                                        )}
-                                    </div>
-                                )
                             )}
 
                         </div>
                     );
                 })}
             </div>
+
+            {/* MODAL DA MESA TÁTICA DA ENGENHARIA // DEBATES TER/QUA/QUI E CÚPULA SEX */}
+            {councilModalDay && (
+                <EngineeringCouncilModal
+                    isOpen={!!councilModalDay}
+                    onClose={() => setCouncilModalDay(null)}
+                    principal={principal}
+                    initialDay={councilModalDay}
+                    userPilotCode={effectiveTeamCode}
+                />
+            )}
         </section>
     );
 }

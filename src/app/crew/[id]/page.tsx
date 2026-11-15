@@ -41,7 +41,7 @@ function getCharacterTeamHistory(character: CrewCharacterBase): { currentTeam: T
         };
     } else if (character.subType === 'team_principal') {
         currentTeam = {
-            teamName: character.fullName.includes('Horner') ? 'Oracle Red Bull Racing' : character.fullName.includes('Vasseur') ? 'Scuderia Ferrari HP' : character.fullName.includes('Wolff') ? 'Mercedes-AMG PETRONAS F1 Team' : 'Escuderia Oficial FIA 2026',
+            teamName: character.fullName.includes('Horner') ? 'Oracle Red Bull Racing' : character.fullName.includes('Vasseur') ? 'Scuderia Ferrari HP' : character.fullName.includes('Wolff') ? 'Mercedes-AMG PETRONAS F1 Team' : 'Escuderia Oficial BAEF 2026',
             teamColor: character.accentColor,
             period: '2026 - PRESENTE',
             role: character.role,
@@ -89,7 +89,7 @@ function getCharacterTeamHistory(character: CrewCharacterBase): { currentTeam: T
                 period: '1954 - 1955',
                 role: 'Piloto de Monopostos 500cc',
                 chassisOrSpec: 'Cooper-Norton 500cc',
-                highlight: 'Múltiplas vitórias em Brands Hatch e Silverstone na categoria base que pavimentou sua superlicença FIA.',
+                highlight: 'Múltiplas vitórias em Brands Hatch e Silverstone na categoria base que pavimentou sua superlicença BAEF.',
                 status: 'ANTERIOR',
             },
         ];
@@ -366,14 +366,14 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
             </div>
 
             {/* ========================================================= */}
-            {/* CONTEÚDO PRINCIPAL: BARRA SUPERIOR + FICHA BRANCA         */}
+            {/* CONTEÚDO PRINCIPAL: FICHÁRIO FÍSICO COM FOLHAS 3D         */}
             {/* ========================================================= */}
-            <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-4 mt-8 sm:mt-12 animate-fade-in">
+            <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-2 mt-8 sm:mt-12 animate-fade-in">
                 
-                {/* Barra de Ações Superior (Voltar ao Paddock + Botão de Dossiê de Equipes ao Lado) */}
-                <div className="w-full flex flex-wrap items-center justify-between gap-2.5 px-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {/* 1. Botão Retornar */}
+                {/* Barra de Ações Superior & Abas de Fichário Integradas ao Topo da Pasta */}
+                <div className="w-full flex flex-col sm:flex-row sm:items-end justify-between gap-3 px-1">
+                    {/* Botão Retornar */}
+                    <div className="flex items-center pb-1">
                         <button
                             onClick={handleBack}
                             type="button"
@@ -382,51 +382,64 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                             <span>[ « Voltar ao PitWall ]</span>
                         </button>
+                    </div>
 
-                        {/* 2. Botão da Ficha Individual */}
+                    {/* ABAS FÍSICAS DO FICHÁRIO / FOLDER TABS */}
+                    <div className="flex items-end gap-1 overflow-x-auto pt-2">
+                        {/* Aba 1: Ficha Individual */}
                         <button
                             onClick={() => setActiveTab('profile')}
                             type="button"
-                            className={`inline-flex items-center gap-1.5 py-2 px-3 rounded-[3px] font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border ${
+                            aria-selected={activeTab === 'profile'}
+                            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-t-md font-mono text-xs font-black uppercase tracking-wider transition-all cursor-pointer relative ${
                                 activeTab === 'profile'
-                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19] shadow-[0_0_12px_rgba(251,170,25,0.4)]'
-                                    : 'bg-black/80 text-white/80 hover:text-white border-white/20 hover:border-white/40'
+                                    ? 'bg-[#fbfbf9] text-black border-t-4 border-t-[#fbaa19] border-l-2 border-r-2 border-black/30 shadow-[0_-4px_12px_rgba(0,0,0,0.4)] z-30 translate-y-[2px]'
+                                    : 'bg-[#181f2a] text-white/60 hover:text-white border-t border-l border-r border-white/15 hover:bg-[#222c3b] z-10 translate-y-[6px] hover:translate-y-[4px]'
                             }`}
                         >
-                            <FileText className="w-3.5 h-3.5" />
-                            <span>[ Ficha Individual ]</span>
+                            <FileText className={`w-3.5 h-3.5 ${activeTab === 'profile' ? 'text-black' : 'text-[#fbaa19]'}`} />
+                            <span>Ficha Individual</span>
+                            <span className="text-[9px] px-1 py-0.2 rounded bg-black/10 text-black/70 font-mono">P1</span>
                         </button>
 
-                        {/* 3. Botão do Histórico de Equipes (Solicitado pelo Usuário) */}
+                        {/* Aba 2: Dossiê de Equipes */}
                         <button
                             onClick={() => setActiveTab('history')}
                             type="button"
-                            className={`inline-flex items-center gap-1.5 py-2 px-3 rounded-[3px] font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border ${
+                            aria-selected={activeTab === 'history'}
+                            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-t-md font-mono text-xs font-black uppercase tracking-wider transition-all cursor-pointer relative ${
                                 activeTab === 'history'
-                                    ? 'bg-[#fbaa19] text-black border-[#fbaa19] shadow-[0_0_12px_rgba(251,170,25,0.4)]'
-                                    : 'bg-black/80 text-white/80 hover:text-white border-white/20 hover:border-white/40'
+                                    ? 'bg-[#fbfbf9] text-black border-t-4 border-t-blue-600 border-l-2 border-r-2 border-black/30 shadow-[0_-4px_12px_rgba(0,0,0,0.4)] z-30 translate-y-[2px]'
+                                    : 'bg-[#181f2a] text-white/60 hover:text-white border-t border-l border-r border-white/15 hover:bg-[#222c3b] z-10 translate-y-[6px] hover:translate-y-[4px]'
                             }`}
                         >
-                            <History className="w-3.5 h-3.5" />
-                            <span>[ Dossiê de Equipes ]</span>
+                            <History className={`w-3.5 h-3.5 ${activeTab === 'history' ? 'text-blue-700' : 'text-blue-400'}`} />
+                            <span>Dossiê de Equipes</span>
+                            <span className="text-[9px] px-1 py-0.2 rounded bg-black/10 text-black/70 font-mono">P2</span>
                         </button>
-                    </div>
-
-                    <div className="text-[10px] text-white/40 uppercase tracking-widest font-mono hidden sm:block">
-                        {activeTab === 'profile' ? 'FICHA INDIVIDUAL // ARQUIVO MORTO' : 'HISTÓRICO DE EQUIPES // CARREIRA'}
                     </div>
                 </div>
 
                 {/* ========================================================= */}
-                {/* ABA 1: FICHA INDIVIDUAL DE FUNCIONÁRIO                    */}
+                {/* PILHA FÍSICA DE FOLHAS DO FICHÁRIO (1º E 2º PLANO 3D)     */}
                 {/* ========================================================= */}
-                {activeTab === 'profile' && (
+                <div className="relative w-full">
+
+                    {/* FOLHA 1: FICHA INDIVIDUAL DE FUNCIONÁRIO */}
                     <article 
-                        className="w-full bg-[#fbfbf9] text-[#171717] rounded-[2px] p-6 sm:p-9 md:p-10 relative font-mono shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.15)] flex flex-col gap-6 animate-fade-in"
+                        onClick={() => {
+                            if (activeTab !== 'profile') setActiveTab('profile');
+                        }}
+                        className={`w-full bg-[#fbfbf9] text-[#171717] rounded-[2px] p-6 sm:p-9 md:p-10 font-mono flex flex-col gap-6 transition-all duration-500 ease-out ${
+                            activeTab === 'profile'
+                                ? 'relative z-20 scale-100 translate-y-0 translate-x-0 opacity-100 shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.15)] pointer-events-auto'
+                                : 'absolute top-0 left-0 z-10 scale-[0.985] translate-y-3.5 -translate-x-2 opacity-75 shadow-[0_15px_35px_rgba(0,0,0,0.5)] pointer-events-auto cursor-pointer filter brightness-90 hover:opacity-90 hover:brightness-95'
+                        }`}
                         style={{
                             backgroundImage: 'radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px)',
                             backgroundSize: '16px 16px'
                         }}
+                        title={activeTab !== 'profile' ? 'Clique para trazer a Ficha Individual para o primeiro plano' : undefined}
                     >
                         {/* Clipe Metálico Superior Esquerdo */}
                         <div className="absolute -top-3 left-8 w-5 h-9 rounded-t-full border-2 border-gray-400 bg-gradient-to-r from-gray-300 to-gray-200 shadow-[2px_3px_5px_rgba(0,0,0,0.4)] pointer-events-none" />
@@ -435,7 +448,7 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                         <div 
                             className="absolute top-6 right-6 sm:top-8 sm:right-8 border-2 border-red-700/80 text-red-700/85 px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-[2px] rotate-[-7deg] shadow-[0_1px_3px_rgba(0,0,0,0.15)] select-none pointer-events-none"
                         >
-                            HOMOLOGADO // FIA 2026
+                            HOMOLOGADO // BAEF 2026
                         </div>
 
                         {/* 1. CABEÇALHO DO DOCUMENTO */}
@@ -569,18 +582,22 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                             </div>
                         </div>
                     </article>
-                )}
 
-                {/* ========================================================= */}
-                {/* ABA 2: HISTÓRICO DE EQUIPES & GARAGENS (DOSSIÊ MOCK)       */}
-                {/* ========================================================= */}
-                {activeTab === 'history' && (
+                    {/* FOLHA 2: HISTÓRICO DE EQUIPES & GARAGENS (DOSSIÊ MOCK) */}
                     <article 
-                        className="w-full bg-[#fbfbf9] text-[#171717] rounded-[2px] p-6 sm:p-9 md:p-10 relative font-mono shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.15)] flex flex-col gap-6 animate-fade-in"
+                        onClick={() => {
+                            if (activeTab !== 'history') setActiveTab('history');
+                        }}
+                        className={`w-full bg-[#fbfbf9] text-[#171717] rounded-[2px] p-6 sm:p-9 md:p-10 font-mono flex flex-col gap-6 transition-all duration-500 ease-out ${
+                            activeTab === 'history'
+                                ? 'relative z-20 scale-100 translate-y-0 translate-x-0 opacity-100 shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.15)] pointer-events-auto'
+                                : 'absolute top-0 left-0 z-10 scale-[0.985] translate-y-3.5 translate-x-2 opacity-75 shadow-[0_15px_35px_rgba(0,0,0,0.5)] pointer-events-auto cursor-pointer filter brightness-90 hover:opacity-90 hover:brightness-95'
+                        }`}
                         style={{
                             backgroundImage: 'radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px)',
                             backgroundSize: '16px 16px'
                         }}
+                        title={activeTab !== 'history' ? 'Clique para trazer o Dossiê de Equipes para o primeiro plano' : undefined}
                     >
                         {/* Clipe Metálico Superior Esquerdo */}
                         <div className="absolute -top-3 left-8 w-5 h-9 rounded-t-full border-2 border-gray-400 bg-gradient-to-r from-gray-300 to-gray-200 shadow-[2px_3px_5px_rgba(0,0,0,0.4)] pointer-events-none" />
@@ -589,7 +606,7 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                         <div 
                             className="absolute top-6 right-6 sm:top-8 sm:right-8 border-2 border-blue-800/80 text-blue-800/85 px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-[2px] rotate-[-5deg] shadow-[0_1px_3px_rgba(0,0,0,0.15)] select-none pointer-events-none"
                         >
-                            HISTÓRICO AUDITADO // FIA
+                            HISTÓRICO AUDITADO // BAEF
                         </div>
 
                         {/* 1. CABEÇALHO DO DOCUMENTO */}
@@ -705,7 +722,7 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                             <div className="flex flex-col gap-1">
                                 <span className="text-[8.5px] uppercase tracking-widest text-black/50">CERTIFICAÇÃO DE VÍNCULO:</span>
                                 <span className="text-black/80 font-bold">
-                                    CONTRATOS AUDITADOS CONFORME DIRETRIZES DESPORTIVAS FIA 2026
+                                    CONTRATOS AUDITADOS CONFORME DIRETRIZES DESPORTIVAS BAEF 2026
                                 </span>
                             </div>
 
@@ -717,16 +734,17 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                             </div>
                         </div>
                     </article>
-                )}
 
-                {/* Botões de Rodapé para Facilitar Navegação */}
-                <div className="w-full flex flex-col sm:flex-row items-center gap-2 pt-1">
+                </div>
+
+                {/* Botões de Rodapé para Alternar Pastas */}
+                <div className="w-full flex flex-col sm:flex-row items-center gap-2 pt-2 z-30">
                     <button
                         onClick={() => setActiveTab(activeTab === 'profile' ? 'history' : 'profile')}
                         type="button"
                         className="w-full sm:flex-1 py-3 bg-[#fbaa19] text-black font-mono text-xs font-black uppercase tracking-widest rounded-[3px] border border-[#000000] hover:bg-white transition-all cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
                     >
-                        {activeTab === 'profile' ? '[ VER HISTÓRICO DE EQUIPES ] »' : '« [ VER FICHA INDIVIDUAL ]'}
+                        {activeTab === 'profile' ? '[ FOLHEAR PARA DOSSIÊ DE EQUIPES ] »' : '« [ FOLHEAR PARA FICHA INDIVIDUAL ]'}
                     </button>
 
                     <button

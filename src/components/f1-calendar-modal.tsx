@@ -37,7 +37,7 @@ export default function F1CalendarModal({ isOpen, onClose, onSelectRound, curren
             {isLoading ? (
                 <div className="p-12 text-center animate-pulse flex flex-col items-center justify-center">
                     <div className="w-8 h-8 rounded-full border-4 border-[#fbaa19] border-t-transparent animate-spin mb-4"></div>
-                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs">Syncing FIA Calendar...</p>
+                    <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs">Syncing BAEF Calendar...</p>
                 </div>
             ) : (
                 <div className="flex flex-col gap-4">

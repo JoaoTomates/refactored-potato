@@ -629,7 +629,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onReportSubmitted, onBackToDash
                                     value={customTitle}
                                     onChange={(e) => setCustomTitle(e.target.value)}
                                     required
-                                    placeholder="Ex: Horário da Sprint alterado pela FIA"
+                                    placeholder="Ex: Horário da Sprint alterado pela BAEF"
                                     className="bg-black border border-white/20 rounded p-2.5 text-xs font-bold text-white focus:border-[#fbaa19] outline-none"
                                 />
                             </div>
@@ -645,7 +645,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onReportSubmitted, onBackToDash
                                 onChange={(e) => setDetails(e.target.value)}
                                 required
                                 rows={3}
-                                placeholder="Explique o motivo ou documento da FIA (ex: Troca por lesão, punição de 5s por track limits, resultado atualizado pós-verificação...)"
+                                placeholder="Explique o motivo ou documento da BAEF (ex: Troca por lesão, punição de 5s por track limits, resultado atualizado pós-verificação...)"
                                 className="w-full bg-black/80 border border-white/20 rounded p-3 text-xs text-white focus:border-[#fbaa19] outline-none resize-none"
                             />
                         </div>

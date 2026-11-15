@@ -1181,7 +1181,7 @@ function DashboardCockpit() {
                                 </span>
                                 <div className="flex items-center justify-between text-[7.5px] mt-0.5 uppercase font-bold" style={{ color: masterTheme.textColor }}>
                                     <span>P{competitionTiers.meta.userGroupRank} NO GRUPO</span>
-                                    <span>{competitionTiers.master === 'green' ? 'ZONA FIA' : 'FORA PONTOS'}</span>
+                                    <span>{competitionTiers.master === 'green' ? 'ZONA BAEF' : 'FORA PONTOS'}</span>
                                 </div>
                             </div>
                         </button>
@@ -1443,7 +1443,7 @@ function DashboardCockpit() {
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between pb-1 border-b border-zinc-800">
                                     <span className="text-[10px] font-black uppercase tracking-wider text-red-400">
-                                        &gt;_ COMISSÁRIOS DA FIA // RELATÓRIOS & VOTAÇÕES
+                                        &gt;_ COMISSÁRIOS DA BAEF // RELATÓRIOS & VOTAÇÕES
                                     </span>
                                     <button
                                         type="button"
@@ -1479,7 +1479,7 @@ function DashboardCockpit() {
                                 </div>
                                 <div className="p-3 rounded bg-black/60 border border-zinc-800 space-y-2 text-xs">
                                     <div className="flex items-center justify-between text-[9px] text-zinc-400">
-                                        <span className="font-bold text-amber-400">[COMUNICADO OFICIAL FIA // ETAPA ATUAL]</span>
+                                        <span className="font-bold text-amber-400">[COMUNICADO OFICIAL BAEF // ETAPA ATUAL]</span>
                                         <span>CANAL CRIPTOGRAFADO</span>
                                     </div>
                                     <p className="text-zinc-300 text-[11px]">

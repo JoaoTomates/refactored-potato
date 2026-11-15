@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
 import { getDashboardPath } from '@/lib/slug';
 import { usePredictionStore } from '@/store/usePredictionStore';
 import { useSubmitPrediction } from '@/hooks/useSubmitPrediction';
@@ -21,6 +21,8 @@ import { nextRaceStart, isRaceWeek } from '@/lib/race';
 import { getSeniorStrategistForRound } from '@/lib/race-directors';
 import { getCircuitIntel } from '@/lib/circuits-intel';
 import { MISC_QUESTIONS, DEFAULT_ACTIVE_MISC_IDS, resolveActiveMiscIds } from '@/lib/misc-questions';
+import { getTeamPrincipal } from '@/lib/paddock-crew';
+import { TeamPrincipalAvatar } from '@/components/team-principal-avatar';
 
 // Formatação rigorosa de nomes no padrão de ouro do sistema: "L.GUSTAVO"
 function formatPilotName(firstName?: string | null, lastName?: string | null, driverNumber?: string | null, fallback?: string | null): string {
@@ -166,6 +168,11 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
 
     // Tooltip/popover contextual de observação de calibragem posicionado diretamente sobre o botão clicado
     const [activeTooltipId, setActiveTooltipId] = useState<string | null>(null);
+    const [userGpsCount, setUserGpsCount] = useState<number>(4);
+
+    const principal = useMemo(() => {
+        return getTeamPrincipal(pilot?.teamName || 'FER');
+    }, [pilot?.teamName]);
 
     // Conexão com a Store oficial de Predições / Posições
     const {
@@ -232,6 +239,11 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
 
                 const blockPredsCount = (predsRes.data || []).filter((p: any) => usersInBlock.has(p.user_id)).length;
                 const calibTier: BlockTier = blockPredsCount < 5 ? 'RED' : blockPredsCount < 10 ? 'YELLOW' : 'GREEN';
+
+                const myPredsCount = (predsRes.data || []).filter((p: any) => p.user_id === user.id).length;
+                if (myPredsCount > 0) {
+                    setUserGpsCount(myPredsCount);
+                }
 
                 setCalibration({
                     tier: calibTier,
@@ -941,23 +953,53 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
                         <section className="w-full bg-black/85 backdrop-blur-md border border-[#fbaa19]/30 rounded-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4 gap-2">
                                 <div>
-                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider">
-                                        EVENT PROPS
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase border border-red-500/30">
+                                            DECISÃO EXCLUSIVA DO USUÁRIO
+                                        </span>
+                                        <span className="text-[10px] text-white/40 uppercase">
+                                            HIERARQUIA: ESTRATEGISTA TITULAR DO PILOTO
+                                        </span>
+                                    </div>
+                                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider text-white mt-1">
+                                        EVENT PROPS // MISC
                                     </h2>
                                 </div>
                             </div>
 
-                            {/* Dica de Rádio do Estrategista Sênior */}
-                            <div className="bg-[#0e1015] border-l-2 border-[#fbaa19] px-3.5 py-2.5 rounded-r flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-white/80 gap-1.5 shadow-inner">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[#fbaa19] font-black tracking-wider flex items-center gap-1">
-                                        📻 {activeStrategist.code}:
-                                    </span>
-                                    <span className="italic text-gray-300">"{activeStrategist.briefingTips.miscRiskAlert}"</span>
+                            {/* REUNIÃO DE CÚPULA DE SEXTA-FEIRA: CHEFÃO & ESTRATEGISTA-CHEFE */}
+                            <div className="bg-[#0b0e14] border-2 border-amber-500/40 p-4 rounded-lg flex flex-col sm:flex-row items-start gap-4 shadow-lg">
+                                <div className="shrink-0 mx-auto sm:mx-0">
+                                    <TeamPrincipalAvatar teamCode={pilot?.teamName?.substring(0,3) || 'FER'} size={60} />
                                 </div>
-                                <div className="text-amber-400 font-black shrink-0 sm:ml-3 flex items-center gap-1">
-                                    <span className="text-white/40 font-normal">RISCO SC:</span>
-                                    <span>{circuitIntel.scProbability}%</span>
+
+                                <div className="flex-1 space-y-1.5">
+                                    <div className="flex flex-wrap items-center justify-between gap-1 border-b border-white/10 pb-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-black text-[#fbaa19] uppercase tracking-wider">
+                                                {principal.fullName} [{principal.code}]
+                                            </span>
+                                            <span className="text-[9px] text-white/50 uppercase">
+                                                » ESTRATEGISTA-CHEFE: {principal.leadChiefStrategist.code}
+                                            </span>
+                                        </div>
+                                        <span className="text-[9px] font-mono text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/30">
+                                            ORIENTAÇÃO CONSERVADORA DA DIRETORIA
+                                        </span>
+                                    </div>
+
+                                    <p className="text-xs sm:text-sm text-white/90 italic leading-relaxed">
+                                        {principal.fridayMiscBriefing}
+                                    </p>
+
+                                    <div className="pt-1.5 border-t border-white/5 flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/60">
+                                        <span>
+                                            <strong className="text-emerald-400">Prerrogativa Tática:</strong> Este é o único formulário sem voto dos engenheiros. A decisão final e a distribuição do risco são 100% suas.
+                                        </span>
+                                        <span className="text-[#fbaa19] font-bold">
+                                            RISCO SC HISTÓRICO: {circuitIntel.scProbability}%
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -994,27 +1036,76 @@ export default function PositionsView({ embedded = false, onSaved }: PositionsVi
                                     );
                                 })}
 
-                                {/* Nível de Confiança / Stake */}
-                                <div className="bg-black/60 border border-[#fbaa19]/30 rounded p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2">
-                                    <div>
-                                        <span className="text-xs text-[#fbaa19] font-bold uppercase tracking-widest">ALOCAÇÃO DE RISCO NO PITWALL:</span>
-                                        <p className="text-[11px] text-white/50">Nível de segurança na telemetria transmitida nesta rodada.</p>
+                                {/* Nível de Confiança / Stake com Regra de GPs no Currículo */}
+                                <div className="bg-black/60 border border-[#fbaa19]/30 rounded p-4 flex flex-col gap-3 mt-2">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                        <div>
+                                            <span className="text-xs text-[#fbaa19] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                                                <ShieldCheck className="w-3.5 h-3.5 text-[#fbaa19]" />
+                                                ALOCAÇÃO DE RISCO NO PITWALL (ORÇAMENTO DO GP):
+                                            </span>
+                                            <p className="text-[11px] text-white/50">
+                                                Percentual distribuído entre a quantidade de respostas do MISC. O Chefe de Equipe recomenda opções conservadoras.
+                                            </p>
+                                        </div>
+
+                                        <div className="text-[10px] text-white/50 font-mono bg-white/5 px-2.5 py-1 rounded border border-white/10 shrink-0">
+                                            CURRÍCULO: <strong className="text-white">{userGpsCount} GPS DISPUTADOS</strong>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        {['10', '30', '50'].map((val) => {
+
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        {[
+                                            { val: '10', label: '10%', tag: 'CONSERVADOR', hint: `Sugestão de ${principal.code}`, unlocked: true },
+                                            { val: '20', label: '20%', tag: 'MODERADO', hint: 'Equilíbrio de Frota', unlocked: true },
+                                            { val: '30', label: '30%', tag: 'AGRESSIVO', hint: 'Alto Risco', unlocked: true },
+                                            { val: '50', label: '50%', tag: 'ALL-IN TOTAL', hint: userGpsCount >= 20 ? 'Desbloqueado' : 'Requer 20+ GPs', unlocked: userGpsCount >= 20 },
+                                        ].map((tier) => {
                                             const activeStake = misc.stake || '10';
-                                            const isCurrent = activeStake === val;
+                                            const isCurrent = activeStake === tier.val;
+
+                                            if (!tier.unlocked) {
+                                                return (
+                                                    <div 
+                                                        key={tier.val}
+                                                        className="p-2.5 rounded bg-black/40 border border-white/10 opacity-50 flex flex-col justify-between cursor-not-allowed select-none"
+                                                        title="Bloqueado: Requer 20 ou mais Grandes Prêmios no currículo"
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-xs font-black text-white/40">{tier.label}</span>
+                                                            <Lock className="w-3 h-3 text-white/40" />
+                                                        </div>
+                                                        <span className="text-[7.5px] text-white/40 uppercase mt-1 truncate">
+                                                            {tier.hint}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            }
+
                                             return (
                                                 <button
-                                                    key={val}
+                                                    key={tier.val}
                                                     type="button"
-                                                    onClick={() => setMisc(prev => ({ ...prev, stake: val }))}
-                                                    className={`px-3 py-1.5 rounded text-xs font-black tracking-wider transition-all cursor-pointer border ${isCurrent
-                                                        ? 'bg-[#fbaa19] text-black border-[#fbaa19]'
-                                                        : 'bg-black/40 text-white/60 border-white/15 hover:border-[#fbaa19]'
-                                                        }`}
+                                                    onClick={() => setMisc(prev => ({ ...prev, stake: tier.val }))}
+                                                    className={`p-2.5 rounded text-left transition-all cursor-pointer border flex flex-col justify-between ${
+                                                        isCurrent
+                                                            ? 'bg-[#fbaa19] text-black border-[#fbaa19] shadow-md'
+                                                            : 'bg-black/60 text-white/80 border-white/15 hover:border-[#fbaa19]'
+                                                    }`}
                                                 >
-                                                    {val}%
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs font-black">{tier.label}</span>
+                                                        <span className={`text-[7.5px] px-1 py-0.2 rounded font-bold uppercase ${
+                                                            isCurrent ? 'bg-black/20 text-black' : 'bg-white/10 text-white/60'
+                                                        }`}>
+                                                            {tier.tag}
+                                                        </span>
+                                                    </div>
+                                                    <span className={`text-[7.5px] mt-1 truncate font-mono ${
+                                                        isCurrent ? 'text-black/80 font-bold' : 'text-white/50'
+                                                    }`}>
+                                                        {tier.hint}
+                                                    </span>
                                                 </button>
                                             );
                                         })}

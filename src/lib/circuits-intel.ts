@@ -173,7 +173,7 @@ export const CIRCUITS_INTEL: Record<string, CircuitTelemetryIntel> = {
                     "No Top 10, posicione as escuderias Mercedes e McLaren entre os 4 primeiros sem hesitar.",
                     "No H2H, aposte no piloto que gerenciar melhor as zebras agressivas da curva 9."
                 ],
-                secretWarning: "ALERTA DA FIA: Sensores de limite de pista nas curvas 19 e 20 serão intolerantes. Não confie em tempos de volta que beirem a linha branca."
+                secretWarning: "ALERTA DA BAEF: Sensores de limite de pista nas curvas 19 e 20 serão intolerantes. Não confie em tempos de volta que beirem a linha branca."
             },
             B: {
                 directorTitle: "Ing. Lorenzo Casali // Diretor de Operações de Pista de Maranello",
@@ -193,7 +193,7 @@ export const CIRCUITS_INTEL: Record<string, CircuitTelemetryIntel> = {
                 headquarters: "Milton Keynes Skunkworks & Ingolstadt Prototype Lab",
                 codeWord: "CHAOS THEORY 26 // DESPACHO SHADOW LABS",
                 confidentialityLevel: "SIGILOSO // DESTRUIÇÃO AUTOMÁTICA PÓS-GP",
-                memo: "Esqueça o manual burocrático que a FIA distribui. Austin é uma armadilha perfeita para quem aposta em linearidade. O asfalto ondulado de COTA e o vento traiçoeiro na curva 1 foram feitos sob medida para a nossa filosofia de caos planejado. Nossos pilotos não vão brigar por milésimos no Q1; nosso mapa de motor foi configurado para matar a corrida na segunda metade, quando os pneus dos outros blocos estiverem em bolhas. Use seus prognósticos para pescar as zebras: o pelotão intermediário vai quebrar e nós estaremos no pódio.",
+                memo: "Esqueça o manual burocrático que a BAEF distribui. Austin é uma armadilha perfeita para quem aposta em linearidade. O asfalto ondulado de COTA e o vento traiçoeiro na curva 1 foram feitos sob medida para a nossa filosofia de caos planejado. Nossos pilotos não vão brigar por milésimos no Q1; nosso mapa de motor foi configurado para matar a corrida na segunda metade, quando os pneus dos outros blocos estiverem em bolhas. Use seus prognósticos para pescar as zebras: o pelotão intermediário vai quebrar e nós estaremos no pódio.",
                 tacticalDirectives: [
                     "Na Escalada (EVO), selecione nosso segundo carro: largando do pelotão médio, ele passará pelo menos 5 carros na reta oposta.",
                     "Em Duelos H2H, a agressividade em disputas roda a roda nas curvas 12 a 15 definirá o vencedor.",

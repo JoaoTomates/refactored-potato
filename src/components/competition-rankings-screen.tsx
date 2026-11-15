@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { ArrowUp, ArrowDown, Search, X, ExternalLink, Trophy, Timer, Globe, Users, ChevronRight, Activity, Zap } from 'lucide-react';
 import MasterRankingsTable from '@/components/master-rankings-table';
+import GeneralRankingsTable from '@/components/general-rankings-table';
 import { getSystemBoxStyle } from '@/components/system-modal';
 
 export type CompetitionKey = 'poletime' | 'master' | 'milesimus' | 'teamwork';
@@ -36,11 +37,11 @@ const COMPETITIONS: CompetitionDef[] = [
         id: 'master',
         code: 'MASTER',
         title: 'MASTER LEAGUE',
-        subtitle: 'GRID FECHADO DE 22 ESTRATEGISTAS // TOP 10 FIA',
+        subtitle: 'GRID FECHADO DE 22 ESTRATEGISTAS // TOP 10 BAEF',
         badge: 'LIGA OFICIAL',
         accentColor: '#3874ff',
         icon: Trophy,
-        desc: 'Micro-campeonato oficial restrito ao seu grupo de 22 assentos. Os 10 primeiros colocados pontuam segundo o sistema oficial FIA de Grandes Prêmios.'
+        desc: 'Micro-campeonato oficial restrito ao seu grupo de 22 assentos. Os 10 primeiros colocados pontuam segundo o sistema oficial BAEF de Grandes Prêmios.'
     },
     {
         id: 'milesimus',
@@ -571,7 +572,7 @@ export default function CompetitionRankingsScreen({
                     style={getSystemBoxStyle('#e10600')}
                 >
                     
-                    {/* HEADER BROADCAST OFICIAL COM LOGO FIA F1 */}
+                    {/* HEADER BROADCAST OFICIAL COM LOGO BAEF F1 */}
                     <div className="bg-[#030303] border-b border-white/10 p-2.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             {/* Logo Estilizada Oficial da F1 */}
@@ -581,7 +582,7 @@ export default function CompetitionRankingsScreen({
                                 </span>
                                 <div className="flex flex-col">
                                     <span className="text-[8px] font-black tracking-widest text-white leading-none">
-                                        FIA FORMULA 1
+                                        BAEF FORMULA 1
                                     </span>
                                     <span className="text-[7px] text-white/50 font-bold uppercase tracking-wider">
                                         WORLD CHAMPIONSHIP
@@ -885,210 +886,19 @@ export default function CompetitionRankingsScreen({
                 </div>
             </div>
 
-            {/* CONTAINER DA TABELA TELEMETRY */}
-            <div className="w-full overflow-x-auto relative custom-scrollbar bg-[#000000]">
-                {loading ? (
-                    <div className="p-20 text-center flex flex-col items-center justify-center">
-                        <div className="w-10 h-10 rounded-full border-3 border-t-transparent animate-spin mb-3" style={{ borderColor: `${activeConfig.accentColor} transparent transparent transparent` }}></div>
-                        <p className="font-bold tracking-widest uppercase text-xs text-gray-400 font-mono">
-                            SINCRONIZANDO RANKING {activeConfig.code} EM TEMPO REAL...
-                        </p>
-                    </div>
-                ) : filteredRows.length === 0 ? (
-                    <div className="p-16 text-center text-gray-400 font-mono text-xs uppercase tracking-widest">
-                        Nenhum estrategista encontrado para os critérios selecionados.
-                    </div>
-                ) : (
-                    <table className="w-full text-left border-collapse min-w-[780px]">
-                        <thead className="bg-[#030303] border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-20">
-                            <tr>
-                                <th className="py-3 px-3 w-16 text-center">POS</th>
-                                <th className="py-3 px-2 w-12 text-center">VAR</th>
-                                <th className="py-3 px-3">ESTRATEGISTA &amp; ESCUDERIA</th>
-
-                                {activeComp === 'master' && (
-                                    <>
-                                        <th className="py-3 px-2 text-center w-10">1º</th>
-                                        <th className="py-3 px-2 text-center w-10">2º</th>
-                                        <th className="py-3 px-2 text-center w-10">3º</th>
-                                        <th className="py-3 px-2 text-center w-14">PODIUM</th>
-                                        <th className="py-3 px-2 text-center w-14">TOP 10</th>
-                                        <th className="py-3 px-4 text-center text-white font-black bg-white/[0.02]">PONTOS FIA</th>
-                                        <th className="py-3 px-4 text-center">ÚLT. GPS</th>
-                                    </>
-                                )}
-
-                                {activeComp === 'milesimus' && (
-                                    <>
-                                        <th className="py-3 px-3 text-center">DIVISÃO</th>
-                                        <th className="py-3 px-3 text-center">STATUS MERCADO</th>
-                                        <th className="py-3 px-4 text-center text-white font-black bg-white/[0.02]">SALDO TOTAL</th>
-                                        <th className="py-3 px-3 text-right">PERCENTIL GLOBAL</th>
-                                    </>
-                                )}
-
-                                {activeComp === 'teamwork' && (
-                                    <>
-                                        <th className="py-3 px-3">ESQUADRÃO COLETIVO</th>
-                                        <th className="py-3 px-3 text-center">MEMBROS</th>
-                                        <th className="py-3 px-4 text-center text-white font-black bg-white/[0.02]">MÉDIA MLS</th>
-                                        <th className="py-3 px-3 text-right">ALIANÇA TÉCNICA</th>
-                                    </>
-                                )}
-                            </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-white/5 text-xs font-mono">
-                            {filteredRows.map((pilot, idx) => {
-                                const pos = idx + 1;
-                                const isTop3 = pos <= 3;
-                                const isTop10 = pos <= 10;
-                                const isCurrentUser = userSlug && pilot.slug.toLowerCase().includes(userSlug.toLowerCase().replace('@', ''));
-                                const delta = pilot.prevRank - pos;
-
-                                return (
-                                    <tr 
-                                        key={pilot.id}
-                                        className={`hover:bg-white/[0.04] transition-colors group ${
-                                            isCurrentUser ? 'bg-white/[0.06] ring-1 ring-inset' : ''
-                                        }`}
-                                    >
-                                        <td className="py-3 px-3 text-center font-black">
-                                            <span className={`inline-block px-1.5 py-0.5 rounded ${
-                                                isTop3 
-                                                    ? 'text-[#fbaa19] font-black text-sm bg-[#fbaa19]/10' 
-                                                    : (activeComp === 'master' && isTop10) 
-                                                    ? 'text-emerald-400 font-bold' 
-                                                    : 'text-gray-400'
-                                            }`}>
-                                                {pos}º
-                                            </span>
-                                        </td>
-
-                                        <td className="py-3 px-2 text-center text-[10px]">
-                                            {delta > 0 ? (
-                                                <span className="text-emerald-400 font-bold flex items-center justify-center gap-0.5">
-                                                    <ArrowUp className="w-2.5 h-2.5" />
-                                                    {delta}
-                                                </span>
-                                            ) : delta < 0 ? (
-                                                <span className="text-red-400 font-bold flex items-center justify-center gap-0.5">
-                                                    <ArrowDown className="w-2.5 h-2.5" />
-                                                    {Math.abs(delta)}
-                                                </span>
-                                            ) : (
-                                                <span className="text-gray-500 font-bold">-</span>
-                                            )}
-                                        </td>
-
-                                        <td className="py-3 px-3">
-                                            <div className="flex items-center gap-2.5">
-                                                <div 
-                                                    className="w-7 h-7 rounded flex items-center justify-center font-black text-[11px] shadow border border-white/20 text-white shrink-0"
-                                                    style={{ backgroundColor: pilot.teamColor }}
-                                                >
-                                                    {pilot.teamCode}
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className={`font-black uppercase tracking-wider truncate flex items-center gap-1.5 ${
-                                                        isCurrentUser ? 'text-[#fbaa19]' : 'text-white'
-                                                    }`}>
-                                                        <span>{pilot.pilotName}</span>
-                                                        {isCurrentUser && (
-                                                            <span className="text-[9px] px-1 py-0.2 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/40">
-                                                                VOCÊ
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                    <span className="text-[10px] text-gray-400 uppercase tracking-widest truncate">
-                                                        {pilot.teamName}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        {activeComp === 'master' && (
-                                            <>
-                                                <td className="py-3 px-2 text-center text-gray-300 font-bold">{pilot.p1}</td>
-                                                <td className="py-3 px-2 text-center text-gray-300 font-bold">{pilot.p2}</td>
-                                                <td className="py-3 px-2 text-center text-gray-300 font-bold">{pilot.p3}</td>
-                                                <td className="py-3 px-2 text-center font-bold text-amber-400">{pilot.podiums}</td>
-                                                <td className="py-3 px-2 text-center font-bold text-emerald-400">{pilot.top10Hits}/10</td>
-                                                <td className="py-3 px-4 text-center font-black text-white text-sm bg-white/[0.02] tabular-nums">
-                                                    {pilot.masterPoints} PTS
-                                                </td>
-                                                <td className="py-3 px-4 text-center">
-                                                    <div className="flex items-center justify-center gap-1">
-                                                        {pilot.form.map((f, i) => (
-                                                            <span 
-                                                                key={i} 
-                                                                className={`w-4 h-4 rounded-xs text-[9px] font-black flex items-center justify-center ${
-                                                                    f === 'W' ? 'bg-[#fbaa19] text-black font-extrabold' :
-                                                                    f === 'P' ? 'bg-emerald-500 text-black font-extrabold' :
-                                                                    f === 'T' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'
-                                                                }`}
-                                                            >
-                                                                {f}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                            </>
-                                        )}
-
-                                        {activeComp === 'milesimus' && (
-                                            <>
-                                                <td className="py-3 px-3 text-center">
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                                                        pilot.division === 'DIVISÃO OURO'
-                                                            ? 'bg-[#fbaa19]/20 text-[#fbaa19] border-[#fbaa19]/40'
-                                                            : pilot.division === 'DIVISÃO PRATA'
-                                                            ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                                                            : 'bg-white/10 text-white/50 border-white/10'
-                                                    }`}>
-                                                        {pilot.division}
-                                                    </span>
-                                                </td>
-                                                <td className="py-3 px-3 text-center text-emerald-400 font-bold text-[11px]">
-                                                    {pilot.marketStatus}
-                                                </td>
-                                                <td className="py-3 px-4 text-center font-black text-[#fbaa19] text-sm bg-white/[0.02] font-mono tabular-nums">
-                                                    {pilot.mlsBalance.toLocaleString('pt-BR')} MLS
-                                                </td>
-                                                <td className="py-3 px-3 text-right text-gray-400 font-mono text-[11px]">
-                                                    {pos <= Math.ceil(filteredRows.length / 3) ? (
-                                                        <span className="text-emerald-400 font-bold">1/3 SUPERIOR</span>
-                                                    ) : pos <= Math.ceil((filteredRows.length * 2) / 3) ? (
-                                                        <span className="text-amber-400 font-bold">MEIO DO GRID</span>
-                                                    ) : (
-                                                        <span className="text-red-400 font-bold">1/3 INFERIOR</span>
-                                                    )}
-                                                </td>
-                                            </>
-                                        )}
-
-                                        {activeComp === 'teamwork' && (
-                                            <>
-                                                <td className="py-3 px-3 font-bold text-white truncate max-w-[200px]">
-                                                    {pilot.squadName}
-                                                </td>
-                                                <td className="py-3 px-3 text-center text-gray-300 font-mono text-[11px]">
-                                                    {pilot.squadMembers}/20 PILOTOS
-                                                </td>
-                                                <td className="py-3 px-4 text-center font-black text-purple-400 text-sm bg-white/[0.02] font-mono tabular-nums">
-                                                    {pilot.squadAverageMls.toLocaleString('pt-BR')} MLS
-                                                </td>
-                                                <td className="py-3 px-3 text-right text-gray-400 font-mono text-[10px] uppercase">
-                                                    {pilot.alliance}
-                                                </td>
-                                            </>
-                                        )}
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                )}
+            {/* CONTAINER DA TABELA TELEMETRY NO PADRÃO DIAGRAMADO (IMAGEM 1) */}
+            <div className="w-full relative custom-scrollbar bg-[#000000]">
+                <GeneralRankingsTable
+                    data={filteredRows.map((pilot, idx) => ({
+                        ...pilot,
+                        rank: idx + 1,
+                        isCurrentUser: userSlug ? pilot.slug.toLowerCase().includes(userSlug.toLowerCase().replace('@', '')) : false,
+                        points: activeComp === 'master' ? pilot.masterPoints : activeComp === 'milesimus' ? pilot.mlsBalance : pilot.squadAverageMls,
+                    }))}
+                    competition={activeComp}
+                    loading={loading}
+                    emptyMessage="Nenhum estrategista encontrado para os critérios selecionados."
+                />
             </div>
         </div>
     );

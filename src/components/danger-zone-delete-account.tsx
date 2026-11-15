@@ -72,7 +72,7 @@ export default function DangerZoneDeleteAccount() {
             window.location.href = '/?account_deleted=1';
         } catch (err: any) {
             console.error("Erro ao excluir conta:", err);
-            setErrorMessage(err.message || "Falha ao processar exclusão. Tente novamente ou contate o suporte da FIA.");
+            setErrorMessage(err.message || "Falha ao processar exclusão. Tente novamente ou contate o suporte da BAEF.");
             setIsDeleting(false);
         }
     };

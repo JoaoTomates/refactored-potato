@@ -58,7 +58,7 @@ const COMPETITIONS: CompetitionDef[] = [
     title: 'MASTER LEAGUE',
     subtitle: 'O GRID FECHADO DE 22 PILOTOS',
     badge: 'LIGA OFICIAL',
-    desc: 'Micro-campeonato fechado dentro do seu grupo de 22 assentos com pontuação oficial FIA e desempate em 3 camadas táticas.',
+    desc: 'Micro-campeonato fechado dentro do seu grupo de 22 assentos com pontuação oficial BAEF e desempate em 3 camadas táticas.',
   },
   {
     id: 'milesimus',

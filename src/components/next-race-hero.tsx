@@ -31,7 +31,7 @@ export default function RaceEventHero({ selectedRound, onOpenCalendar }: Props) 
         return (
             <div className="w-full h-[50vh] bg-black border-b-4 border-[#fbaa19] flex items-center justify-center mb-8">
                 <div className="animate-pulse text-[#fbaa19] font-bold tracking-widest uppercase">
-                    SYNCING WITH FIA...
+                    SYNCING WITH BAEF...
                 </div>
             </div>
         );

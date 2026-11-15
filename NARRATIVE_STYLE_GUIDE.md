@@ -81,7 +81,7 @@ A identidade cromática equilibra a escuridão do paddock com acentos de telemet
 | :--- | :--- | :--- |
 | **Market Bull / Disponível** | `#10b981` (Verde Esmeralda) | Vagas abertas, alta de cotação (▲), lucros de rendimento, status operacional ativo. |
 | **Market Bear / Esgotado** | `#ef4444` (Vermelho) | Vagas esgotadas, baixa de cotação (▼), penalidades, limites de motor estourados. |
-| **Order Pending / Atenção** | `#f59e0b` (Âmbar Alerta) | Vagas em negociação, transferências sob análise da FIA. |
+| **Order Pending / Atenção** | `#f59e0b` (Âmbar Alerta) | Vagas em negociação, transferências sob análise da BAEF. |
 
 #### Paleta Oficial das Escuderias do Grid (Cores Homologadas)
 - **Mercedes-AMG:** `#00D2BE`
@@ -134,7 +134,7 @@ O grid do BAEFF1 é tratado conceitualmente como um **pregão financeiro de velo
 | :--- | :--- |
 | Criar conta / Registrar | Emitir Superlicença / Abrir Custódia de Piloto |
 | Escolha seu time | Requisite sua vaga no grid / Escolha sua aliança |
-| Regras do jogo | Regulamento da FIA / Briefing Tático Operacional |
+| Regras do jogo | Regulamento da BAEF / Briefing Tático Operacional |
 | Fazer aposta | Transmitir previsão de telemetria / Ordem de Q3 |
 | Erro no formulário | Falha de transmissão / Ordem rejeitada |
 | Pontos do Fantasy | Rendimento de Portfólio / XP de Temporada |

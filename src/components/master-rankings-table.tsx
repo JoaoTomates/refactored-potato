@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Minus, ExternalLink } from 'lucide-react';
 import { getSystemBoxStyle } from '@/components/system-modal';
+import GeneralRankingsTable from '@/components/general-rankings-table';
 
 export interface MasterStanding {
     rank: number;
@@ -299,151 +300,13 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                         </Link>
                     </div>
 
-                    {/* Tabela de Classificação dos Usuários no Padrão Globo.com */}
-                    <div className="w-full overflow-x-auto border border-white/10 rounded-[3px] bg-[#000000]">
-                        <table className="w-full text-left border-collapse min-w-[620px]">
-                            <thead>
-                                <tr className="bg-[#030303] border-b border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                    <th className="py-2.5 px-3">CLASSIFICAÇÃO</th>
-                                    <th className="py-2.5 px-2 text-center w-10">1o</th>
-                                    <th className="py-2.5 px-2 text-center w-10">2o</th>
-                                    <th className="py-2.5 px-2 text-center w-10">3o</th>
-                                    <th className="py-2.5 px-2 text-center w-14">PODIUM</th>
-                                    <th className="py-2.5 px-2 text-center w-14">TOP 10</th>
-                                    <th className="py-2.5 px-3 text-center w-16 text-white font-black bg-white/[0.02]">PONTOS</th>
-                                    <th className="py-2.5 px-3 text-center w-24">ÚLT. GPS</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5 text-xs font-mono">
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan={8} className="py-12 text-center text-gray-500 uppercase tracking-widest text-xs">
-                                            Carregando telemetria Master...
-                                        </td>
-                                    </tr>
-                                ) : visibleRows.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={8} className="py-12 text-center text-gray-500 uppercase tracking-widest text-xs">
-                                            Nenhum estrategista registrado na liga Master.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    visibleRows.map((pilot) => {
-                                        // Variação em relação à rodada anterior
-                                        const delta = pilot.prevRank - pilot.rank;
-                                        
-                                        // Destaque para Zona de Pódio Master (1º ao 4º colocados)
-                                        const isTop4 = pilot.rank <= 4;
-                                        const isPodiumZone = pilot.rank <= 3;
-
-                                        return (
-                                            <tr 
-                                                key={pilot.rank}
-                                                className="hover:bg-white/[0.03] transition-colors group"
-                                            >
-                                                {/* Coluna 1: Classificação (Posição + Variação + Nome) */}
-                                                <td className="py-2.5 px-3 flex items-center gap-3">
-                                                    {/* Posição no Grid */}
-                                                    <span className={`w-5 text-right font-black ${
-                                                        isPodiumZone ? 'text-[#3874ff] text-sm' : isTop4 ? 'text-cyan-400 font-bold' : 'text-gray-400'
-                                                    }`}>
-                                                        {pilot.rank}
-                                                    </span>
-
-                                                    {/* Variação (↑, ↓ ou =) */}
-                                                    <span className="flex items-center gap-0.5 w-6 text-[10px] text-gray-400">
-                                                        {delta > 0 ? (
-                                                            <span className="text-emerald-400 font-bold flex items-center">
-                                                                <ArrowUp className="w-2.5 h-2.5" />
-                                                                {delta}
-                                                            </span>
-                                                        ) : delta < 0 ? (
-                                                            <span className="text-red-400 font-bold flex items-center">
-                                                                <ArrowDown className="w-2.5 h-2.5" />
-                                                                {Math.abs(delta)}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-gray-600 font-bold">
-                                                                0 <span className="inline-block w-1.5 h-1.5 bg-gray-600 rounded-2xs align-middle" />
-                                                            </span>
-                                                        )}
-                                                    </span>
-
-                                                    {/* Tarja da Escuderia + Nome do Usuário */}
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <span 
-                                                            className="w-1.5 h-4 rounded-full shrink-0" 
-                                                            style={{ backgroundColor: pilot.teamColor }} 
-                                                        />
-                                                        <Link
-                                                            href={`/nc/${pilot.slug}`}
-                                                            className="font-bold text-white group-hover:text-[#fbaa19] transition-colors truncate font-sans text-xs tracking-wide"
-                                                        >
-                                                            {pilot.pilotName}
-                                                        </Link>
-                                                        <span className="text-[10px] text-gray-400 uppercase font-mono">
-                                                            {pilot.teamCode}
-                                                        </span>
-                                                    </div>
-                                                </td>
-
-                                                {/* 1º Lugar */}
-                                                <td className="py-2.5 px-2 text-center text-gray-300 tabular-nums">
-                                                    {pilot.p1}
-                                                </td>
-
-                                                {/* 2º Lugar */}
-                                                <td className="py-2.5 px-2 text-center text-gray-300 tabular-nums">
-                                                    {pilot.p2}
-                                                </td>
-
-                                                {/* 3º Lugar */}
-                                                <td className="py-2.5 px-2 text-center text-gray-300 tabular-nums">
-                                                    {pilot.p3}
-                                                </td>
-
-                                                {/* Podium */}
-                                                <td className="py-2.5 px-2 text-center text-gray-200 font-semibold tabular-nums">
-                                                    {pilot.podium}
-                                                </td>
-
-                                                {/* Top 10 */}
-                                                <td className="py-2.5 px-2 text-center text-gray-300 tabular-nums">
-                                                    {pilot.top10}
-                                                </td>
-
-                                                {/* PONTOS (Coluna de Destaque no padrão Globo.com) */}
-                                                <td className="py-2.5 px-3 text-center font-black text-white text-sm bg-white/[0.02] tabular-nums">
-                                                    {pilot.points}
-                                                </td>
-
-                                                {/* Últimos GPs (Bolinhas de Desempenho) */}
-                                                <td className="py-2.5 px-3 text-center">
-                                                    <div className="flex items-center justify-center gap-1">
-                                                        {pilot.form.map((res, i) => (
-                                                            <span
-                                                                key={i}
-                                                                className={`w-2 h-2 rounded-full inline-block ${
-                                                                    res === 'W' || res === 'P'
-                                                                        ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
-                                                                        : res === 'T'
-                                                                        ? 'bg-amber-400'
-                                                                        : res === 'L'
-                                                                        ? 'bg-red-500'
-                                                                        : 'bg-gray-600'
-                                                                }`}
-                                                                title={res === 'W' ? 'Vitória' : res === 'P' ? 'Pódio' : res === 'T' ? 'Top 10' : 'Fora da Pontuação'}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                    {/* Tabela de Ranking Geral no Padrão Diagramado (Imagem 1 & Imagem 2) */}
+                    <GeneralRankingsTable
+                        data={visibleRows}
+                        competition="master"
+                        loading={loading}
+                        emptyMessage="Nenhum estrategista registrado na liga Master."
+                    />
 
                     {/* Botão para ver tabela completa */}
                     {standings.length > 10 && (

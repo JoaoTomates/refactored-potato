@@ -2412,7 +2412,7 @@ export default function OfficialStrategistDashboard() {
                                         </span>
                                         <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold" style={{ color: masterTheme.textColor }}>
                                             <span>P{competitionTiers.meta.userGroupRank} NO GRUPO</span>
-                                            <span>{competitionTiers.master === 'green' ? 'ZONA FIA (P1-P10)' : 'FORA DOS PONTOS'}</span>
+                                            <span>{competitionTiers.master === 'green' ? 'ZONA BAEF (P1-P10)' : 'FORA DOS PONTOS'}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -2781,10 +2781,10 @@ export default function OfficialStrategistDashboard() {
                                             <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col gap-1.5">
                                                 <div className="flex items-center justify-between text-[9px] text-white/40 border-b border-white/5 pb-1">
                                                     <span className="font-bold text-[#fbaa19]">[COMUNICADO DA ALIANÇA // {ALLIANCES[allianceId].name}]</span>
-                                                    <span>HOMOLOGADO PELA FIA</span>
+                                                    <span>HOMOLOGADO PELA BAEF</span>
                                                 </div>
                                                 <p className="text-white/80 text-[11px]">
-                                                    "Atenção a todos os estrategistas do bloco: atualização de mapa de motor homologada pela FIA. O multiplicador de construtores está ativo para o próximo Grande Prêmio."
+                                                    "Atenção a todos os estrategistas do bloco: atualização de mapa de motor homologada pela BAEF. O multiplicador de construtores está ativo para o próximo Grande Prêmio."
                                                 </p>
                                             </div>
 

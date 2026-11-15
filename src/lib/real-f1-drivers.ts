@@ -7,7 +7,7 @@
  */
 
 export interface RealF1Driver {
-    code: string;       // 3 letras oficiais FIA (ex: "LEC", "HAM", "PER")
+    code: string;       // 3 letras oficiais BAEF (ex: "LEC", "HAM", "PER")
     number: string;     // Número oficial (ex: "16", "44", "11")
     name: string;       // "C.LECLERC", "L.HAMILTON"
     seat: 1 | 2;

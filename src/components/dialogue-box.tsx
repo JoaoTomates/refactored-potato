@@ -214,6 +214,7 @@ export interface DialogueBoxProps {
     footerHint?: string;
     footerNote?: React.ReactNode;
     actions?: DialogueActionButton[];
+    extraAction?: React.ReactNode;
     isSettled?: boolean;
     settledLabel?: string;
     isFilled?: boolean;
@@ -415,6 +416,7 @@ export function DialogueBox({
     footerHint,
     footerNote,
     actions,
+    extraAction,
     isSettled = false,
     settledLabel,
     isFilled = false,
@@ -442,7 +444,7 @@ export function DialogueBox({
         : (showAvatar !== undefined ? showAvatar : !hideAvatar);
 
     const hasHeader = Boolean(badgeTitle || speakerRole || categoryTag);
-    const hasActionsRow = Boolean(isFilled || isSettled || (actions && actions.length > 0) || footerHint || footerNote);
+    const hasActionsRow = Boolean(isFilled || isSettled || (actions && actions.length > 0) || extraAction || footerHint || footerNote);
 
     const entranceAnim = animateEntrance
         ? (isRight ? 'animate-fade-in-right' : 'animate-fade-in-left')
@@ -633,6 +635,8 @@ export function DialogueBox({
                                             {footerHint}
                                         </span>
                                     )}
+
+                                    {extraAction && extraAction}
                                 </>
                             )}
                         </div>

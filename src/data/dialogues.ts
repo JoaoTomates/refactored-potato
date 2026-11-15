@@ -1224,7 +1224,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
           "id": "engenheiro_de_telemetria_setor_roxo_no_poletime_",
           "title": "Engenheiro de Telemetria (Setor Roxo no Poletime)",
           "speaker": "DIRETOR DE OPERAÇÕES",
-          "text": "Confirmação da FIA: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!",
+          "text": "Confirmação da BAEF: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!",
           "actions": []
         },
         {
