@@ -295,7 +295,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                             href="/playground"
                             className="text-xs font-bold text-gray-300 hover:text-white flex items-center gap-1.5 transition-colors uppercase tracking-wider"
                         >
-                            <span>Acessar Simulador</span>
+                            <span>Access Simulator</span>
                             <span className="text-[#fbaa19]">&rarr;</span>
                         </Link>
                     </div>
@@ -305,7 +305,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                         data={visibleRows}
                         competition="master"
                         loading={loading}
-                        emptyMessage="Nenhum estrategista registrado na liga Master."
+                        emptyMessage="No strategists registered in Master league."
                     />
 
                     {/* Botão para ver tabela completa */}
@@ -315,7 +315,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                                 onClick={() => setShowAllRows(!showAllRows)}
                                 className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider py-1.5 px-4 rounded hover:bg-white/5 transition-colors cursor-pointer"
                             >
-                                {showAllRows ? '[-] Ocultar Estrategistas Restantes' : `[+] Ver Tabela Completa (${standings.length} Estrategistas)`}
+                                {showAllRows ? '[-] Hide Remaining Strategists' : `[+] View Full Standings (${standings.length} Strategists)`}
                             </button>
                         </div>
                     )}
@@ -437,7 +437,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                                             href="/pitwall"
                                             className="text-[10px] font-black uppercase text-emerald-400 hover:text-emerald-300 tracking-wider hover:underline inline-block transition-colors"
                                         >
-                                            SAIBA COMO FOI
+                                            RACE RECAP
                                         </Link>
                                     </div>
                                 </div>
@@ -448,7 +448,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                     {/* Rodapé Informativo */}
                     <div className="mt-4 pt-3 border-t border-white/10 text-center">
                         <span className="text-[9px] text-gray-400 uppercase tracking-widest font-mono">
-                            COMPETIÇÃO MASTER · TOP 10 FINISH BAEFF1
+                            MASTER LEAGUE · TOP 10 FINISH BAEFF1
                         </span>
                     </div>
 

@@ -897,7 +897,7 @@ export default function CompetitionRankingsScreen({
                     }))}
                     competition={activeComp}
                     loading={loading}
-                    emptyMessage="Nenhum estrategista encontrado para os critérios selecionados."
+                    emptyMessage="No strategists found for the selected criteria."
                 />
             </div>
         </div>
