@@ -107,7 +107,7 @@ export default function GeneralRankingsTable({
     competition = 'master',
     columns,
     loading = false,
-    emptyMessage = "Nenhum estrategista registrado.",
+    emptyMessage = "No strategists registered.",
     className = '',
     onRowClick,
 }: GeneralRankingsTableProps) {
@@ -118,11 +118,10 @@ export default function GeneralRankingsTable({
         if (columns && columns.length > 0) return columns;
 
         if (competition === 'master') {
-            // Mantém rigorosamente os títulos das colunas já existentes na imagem 2
             return [
                 {
                     id: 'classification',
-                    header: 'CLASSIFICAÇÃO',
+                    header: 'RANKINGS',
                     widthClass: 'flex-1 min-w-[210px]',
                     align: 'left',
                     render: (item) => {
@@ -189,7 +188,7 @@ export default function GeneralRankingsTable({
 
                                     {item.isCurrentUser && (
                                         <span className="text-[9px] px-1 py-0.2 rounded bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/40 font-mono font-bold shrink-0">
-                                            VOCÊ
+                                            YOU
                                         </span>
                                     )}
                                 </div>
@@ -198,22 +197,34 @@ export default function GeneralRankingsTable({
                     },
                 },
                 {
+                    id: 'points',
+                    header: 'POINTS',
+                    widthClass: 'w-16 text-center shrink-0',
+                    align: 'center',
+                    isHighlight: true,
+                    render: (item) => (
+                        <span className="font-black text-white text-sm tabular-nums tracking-wide">
+                            {item.points ?? 0}
+                        </span>
+                    ),
+                },
+                {
                     id: 'p1',
-                    header: '10',
+                    header: '1',
                     widthClass: 'w-10 text-center shrink-0',
                     align: 'center',
                     render: (item) => <span className="text-white/90 tabular-nums">{item.p1 ?? 0}</span>,
                 },
                 {
                     id: 'p2',
-                    header: '20',
+                    header: '2',
                     widthClass: 'w-10 text-center shrink-0',
                     align: 'center',
                     render: (item) => <span className="text-white/90 tabular-nums">{item.p2 ?? 0}</span>,
                 },
                 {
                     id: 'p3',
-                    header: '30',
+                    header: '3',
                     widthClass: 'w-10 text-center shrink-0',
                     align: 'center',
                     render: (item) => <span className="text-white/90 tabular-nums">{item.p3 ?? 0}</span>,
@@ -233,20 +244,8 @@ export default function GeneralRankingsTable({
                     render: (item) => <span className="text-white/90 tabular-nums">{item.top10 ?? 0}</span>,
                 },
                 {
-                    id: 'points',
-                    header: 'PONTOS',
-                    widthClass: 'w-16 text-center shrink-0',
-                    align: 'center',
-                    isHighlight: true,
-                    render: (item) => (
-                        <span className="font-black text-white text-sm tabular-nums tracking-wide">
-                            {item.points ?? 0}
-                        </span>
-                    ),
-                },
-                {
                     id: 'form',
-                    header: 'ÚLT. GPS',
+                    header: 'LAST GPS',
                     widthClass: 'w-24 text-center shrink-0',
                     align: 'center',
                     render: (item) => {
@@ -267,12 +266,12 @@ export default function GeneralRankingsTable({
                                         }`}
                                         title={
                                             res === 'W'
-                                                ? 'Vitória'
+                                                ? 'Win'
                                                 : res === 'P'
-                                                ? 'Pódio'
+                                                ? 'Podium'
                                                 : res === 'T'
                                                 ? 'Top 10'
-                                                : 'Fora da Pontuação'
+                                                : 'Out of Points'
                                         }
                                     />
                                 ))}
@@ -287,7 +286,7 @@ export default function GeneralRankingsTable({
             return [
                 {
                     id: 'classification',
-                    header: 'CLASSIFICAÇÃO',
+                    header: 'RANKINGS',
                     widthClass: 'flex-1 min-w-[210px]',
                     align: 'left',
                     render: (item) => {
@@ -314,8 +313,20 @@ export default function GeneralRankingsTable({
                     },
                 },
                 {
+                    id: 'points',
+                    header: 'POINTS',
+                    widthClass: 'w-16 text-center shrink-0',
+                    align: 'center',
+                    isHighlight: true,
+                    render: (item) => (
+                        <span className="font-black text-white text-sm tabular-nums">
+                            {item.polePoints ?? item.points ?? 0}
+                        </span>
+                    ),
+                },
+                {
                     id: 'poleTime',
-                    header: 'VOLTA Q3',
+                    header: 'Q3 LAP',
                     widthClass: 'w-20 text-center shrink-0',
                     align: 'center',
                     render: (item) => <span className="text-white font-bold tabular-nums">{item.poletimeDisplay || item.poleTime || '-'}</span>,
@@ -333,7 +344,7 @@ export default function GeneralRankingsTable({
                 },
                 {
                     id: 'tyre',
-                    header: 'PNEU',
+                    header: 'TYRE',
                     widthClass: 'w-12 text-center shrink-0',
                     align: 'center',
                     render: (item) => {
@@ -353,25 +364,13 @@ export default function GeneralRankingsTable({
                     align: 'center',
                     render: (item) => (
                         <span className="text-[10px] text-emerald-400 font-bold uppercase">
-                            {item.poleStatus || 'HOMOLOGADO'}
-                        </span>
-                    ),
-                },
-                {
-                    id: 'points',
-                    header: 'PONTOS',
-                    widthClass: 'w-16 text-center shrink-0',
-                    align: 'center',
-                    isHighlight: true,
-                    render: (item) => (
-                        <span className="font-black text-white text-sm tabular-nums">
-                            {item.polePoints ?? item.points ?? 0}
+                            {item.poleStatus || 'HOMOLOGATED'}
                         </span>
                     ),
                 },
                 {
                     id: 'form',
-                    header: 'ÚLT. GPS',
+                    header: 'LAST GPS',
                     widthClass: 'w-20 text-center shrink-0',
                     align: 'center',
                     render: (item) => {
@@ -397,7 +396,7 @@ export default function GeneralRankingsTable({
             return [
                 {
                     id: 'classification',
-                    header: 'CLASSIFICAÇÃO',
+                    header: 'RANKINGS',
                     widthClass: 'flex-1 min-w-[210px]',
                     align: 'left',
                     render: (item) => {
@@ -424,36 +423,8 @@ export default function GeneralRankingsTable({
                     },
                 },
                 {
-                    id: 'division',
-                    header: 'DIVISÃO',
-                    widthClass: 'w-28 text-center shrink-0',
-                    align: 'center',
-                    render: (item) => (
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                            item.division === 'DIVISÃO OURO'
-                                ? 'bg-[#fbaa19]/20 text-[#fbaa19] border-[#fbaa19]/40'
-                                : item.division === 'DIVISÃO PRATA'
-                                ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                                : 'bg-white/10 text-white/70 border-white/10'
-                        }`}>
-                            {item.division || 'DIVISÃO PRATA'}
-                        </span>
-                    ),
-                },
-                {
-                    id: 'marketStatus',
-                    header: 'MERCADO',
-                    widthClass: 'w-28 text-center shrink-0',
-                    align: 'center',
-                    render: (item) => (
-                        <span className="text-[11px] font-bold text-emerald-400">
-                            {item.marketStatus || 'ESTÁVEL (0.0%)'}
-                        </span>
-                    ),
-                },
-                {
                     id: 'mlsBalance',
-                    header: 'SALDO MLS',
+                    header: 'MLS BALANCE',
                     widthClass: 'w-28 text-center shrink-0',
                     align: 'center',
                     isHighlight: true,
@@ -464,24 +435,55 @@ export default function GeneralRankingsTable({
                     ),
                 },
                 {
+                    id: 'division',
+                    header: 'DIVISION',
+                    widthClass: 'w-28 text-center shrink-0',
+                    align: 'center',
+                    render: (item) => {
+                        const divLabel = item.division === 'DIVISÃO OURO' ? 'GOLD DIVISION' : item.division === 'DIVISÃO PRATA' ? 'SILVER DIVISION' : item.division === 'DIVISÃO BRONZE' ? 'BRONZE DIVISION' : (item.division || 'SILVER DIVISION');
+                        return (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                                item.division === 'DIVISÃO OURO'
+                                    ? 'bg-[#fbaa19]/20 text-[#fbaa19] border-[#fbaa19]/40'
+                                    : item.division === 'DIVISÃO PRATA'
+                                    ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                                    : 'bg-white/10 text-white/70 border-white/10'
+                            }`}>
+                                {divLabel}
+                            </span>
+                        );
+                    },
+                },
+                {
+                    id: 'marketStatus',
+                    header: 'MARKET',
+                    widthClass: 'w-28 text-center shrink-0',
+                    align: 'center',
+                    render: (item) => (
+                        <span className="text-[11px] font-bold text-emerald-400">
+                            {item.marketStatus ? item.marketStatus.replace('ALTA', 'BULLISH').replace('ESTÁVEL', 'STABLE') : 'STABLE (0.0%)'}
+                        </span>
+                    ),
+                },
+                {
                     id: 'percentile',
-                    header: 'PERCENTIL',
+                    header: 'PERCENTILE',
                     widthClass: 'w-28 text-right shrink-0',
                     align: 'right',
                     render: (item) => {
                         const rank = item.rank || 1;
                         const total = totalRows || 20;
                         if (rank <= Math.ceil(total / 3)) {
-                            return <span className="text-emerald-400 font-bold text-[10px]">1/3 SUPERIOR</span>;
+                            return <span className="text-emerald-400 font-bold text-[10px]">TOP 1/3</span>;
                         } else if (rank <= Math.ceil((total * 2) / 3)) {
-                            return <span className="text-amber-400 font-bold text-[10px]">MEIO DO GRID</span>;
+                            return <span className="text-amber-400 font-bold text-[10px]">MID GRID</span>;
                         }
-                        return <span className="text-red-400 font-bold text-[10px]">1/3 INFERIOR</span>;
+                        return <span className="text-red-400 font-bold text-[10px]">BOTTOM 1/3</span>;
                     },
                 },
                 {
                     id: 'form',
-                    header: 'ÚLT. GPS',
+                    header: 'LAST GPS',
                     widthClass: 'w-20 text-center shrink-0',
                     align: 'center',
                     render: (item) => {
@@ -507,7 +509,7 @@ export default function GeneralRankingsTable({
         return [
             {
                 id: 'classification',
-                header: 'CLASSIFICAÇÃO',
+                header: 'RANKINGS',
                 widthClass: 'flex-1 min-w-[210px]',
                 align: 'left',
                 render: (item) => {
@@ -534,26 +536,8 @@ export default function GeneralRankingsTable({
                 },
             },
             {
-                id: 'squad',
-                header: 'ESQUADRÃO',
-                widthClass: 'w-36 text-left shrink-0',
-                align: 'left',
-                render: (item) => (
-                    <span className="text-white font-bold text-xs truncate block max-w-[140px]">
-                        {item.squadName || `ESQUADRÃO ${item.teamCode || 'VOL'}`}
-                    </span>
-                ),
-            },
-            {
-                id: 'members',
-                header: 'MEMBROS',
-                widthClass: 'w-20 text-center shrink-0',
-                align: 'center',
-                render: (item) => <span className="text-white/80 tabular-nums">{item.squadMembers ?? 12}/20</span>,
-            },
-            {
                 id: 'averageMls',
-                header: 'MÉDIA MLS',
+                header: 'AVG MLS',
                 widthClass: 'w-24 text-center shrink-0',
                 align: 'center',
                 isHighlight: true,
@@ -564,8 +548,26 @@ export default function GeneralRankingsTable({
                 ),
             },
             {
+                id: 'squad',
+                header: 'SQUAD',
+                widthClass: 'w-36 text-left shrink-0',
+                align: 'left',
+                render: (item) => (
+                    <span className="text-white font-bold text-xs truncate block max-w-[140px]">
+                        {item.squadName ? item.squadName.replace('ESQUADRÃO', 'SQUAD') : `SQUAD ${item.teamCode || 'VOL'}`}
+                    </span>
+                ),
+            },
+            {
+                id: 'members',
+                header: 'MEMBERS',
+                widthClass: 'w-20 text-center shrink-0',
+                align: 'center',
+                render: (item) => <span className="text-white/80 tabular-nums">{item.squadMembers ?? 12}/20</span>,
+            },
+            {
                 id: 'alliance',
-                header: 'ALIANÇA TÉCNICA',
+                header: 'ALLIANCE',
                 widthClass: 'w-28 text-right shrink-0',
                 align: 'right',
                 render: (item) => (
@@ -576,7 +578,7 @@ export default function GeneralRankingsTable({
             },
             {
                 id: 'form',
-                header: 'ÚLT. GPS',
+                header: 'LAST GPS',
                 widthClass: 'w-20 text-center shrink-0',
                 align: 'center',
                 render: (item) => {
@@ -623,7 +625,7 @@ export default function GeneralRankingsTable({
                 {loading ? (
                     <div className="py-12 text-center text-white/50 uppercase tracking-widest text-xs flex flex-col items-center justify-center gap-2">
                         <div className="w-6 h-6 rounded-full border-2 border-t-transparent border-white animate-spin" />
-                        <span>Carregando telemetria oficial...</span>
+                        <span>Loading official telemetry...</span>
                     </div>
                 ) : data.length === 0 ? (
                     <div className="py-12 text-center text-white/50 uppercase tracking-widest text-xs">

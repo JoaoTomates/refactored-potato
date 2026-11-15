@@ -155,6 +155,16 @@ export function getTeamCarColor(teamNameOrCode: string, seat: 1 | 2 = 1): string
 }
 
 /**
+ * Retorna SEMPRE a cor primária oficial da escuderia (independente de ser Piloto 1 ou Piloto 2).
+ * Ex: Ferrari -> Vermelho (#E8002D), Red Bull -> Azul (#0600EF), McLaren -> Laranja (#FF8000), Mercedes -> Verde Petronas (#00D2BE)
+ */
+export function getTeamPrimaryColor(teamNameOrCode: string): string {
+    const key = normalizeTeamKey(teamNameOrCode);
+    const entry = TEAM_CAR_COLORS[key] || TEAM_CAR_COLORS.ferrari;
+    return entry.car1Color;
+}
+
+/**
  * Calcula a cor de texto contrastante (Preto ou Branco) baseada na luminância relativa da cor de fundo (WCAG)
  */
 export function getContrastingTextColor(bgHex: string): string {

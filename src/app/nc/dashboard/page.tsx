@@ -33,7 +33,7 @@ import {
     AllianceBlock
 } from '@/lib/race-directors';
 import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
-import { getRealF1Driver, RealF1Driver, getTeamCarColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
+import { getRealF1Driver, RealF1Driver, getTeamCarColor, getTeamPrimaryColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
 import { getTeamPrincipal } from '@/lib/paddock-crew';
 import { useThemeStore, STANDARD_ACCENT_OPTIONS } from '@/store/useThemeStore';
 
@@ -724,6 +724,7 @@ function DashboardCockpit() {
 
     const carSeat = realDriver?.seat || 1;
     const carBgColor = getTeamCarColor(me.teamCode || me.teamName, carSeat);
+    const primaryTeamColor = getTeamPrimaryColor(me.teamCode || me.teamName);
     const carTextColor = getContrastingTextColor(carBgColor);
     const cleanNationality = targetProfile?.nationality?.trim() || '';
     const flag = getCountryFlag(cleanNationality);
@@ -868,9 +869,9 @@ function DashboardCockpit() {
                                 <div className="flex flex-wrap items-center gap-1.5 mt-1">
                                     <span
                                         className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[2px] border text-[8px] font-black uppercase"
-                                        style={{ borderColor: `${carBgColor}50`, backgroundColor: `${carBgColor}15`, color: carBgColor }}
+                                        style={{ borderColor: `${primaryTeamColor}50`, backgroundColor: `${primaryTeamColor}15`, color: primaryTeamColor }}
                                     >
-                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: carBgColor }} />
+                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryTeamColor }} />
                                         {me.teamName}
                                     </span>
                                     <span className="text-[8px] text-zinc-400 border border-zinc-800 px-1 py-0.2 rounded-[2px] bg-white/[0.02] uppercase truncate">

@@ -44,7 +44,7 @@ import {
     AllianceBlock
 } from '@/lib/race-directors';
 import { getGroupTechnicalEngineer, GroupTechnicalEngineer } from '@/lib/group-engineers';
-import { getRealF1Driver, RealF1Driver, getTeamCarColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
+import { getRealF1Driver, RealF1Driver, getTeamCarColor, getTeamPrimaryColor, getContrastingTextColor } from '@/lib/real-f1-drivers';
 import { getTeamPrincipal, TeamPrincipal } from '@/lib/paddock-crew';
 import { useThemeStore, STANDARD_ACCENT_OPTIONS } from '@/store/useThemeStore';
 
@@ -517,6 +517,7 @@ function CredentialCard({
     // Cor 1 se piloto 1, Cor 2 se piloto 2
     const carSeat = realDriver?.seat || 1;
     const carBgColor = getTeamCarColor(me.teamCode || me.teamName, carSeat);
+    const primaryTeamColor = getTeamPrimaryColor(me.teamCode || me.teamName);
     // Regra matemática de contraste WCAG (Preto ou Branco de máxima legibilidade)
     const carTextColor = getContrastingTextColor(carBgColor);
 
@@ -702,14 +703,14 @@ function CredentialCard({
                                 <span
                                     className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] border text-[8.5px] sm:text-[9px] font-mono font-black tracking-[0.18em] uppercase truncate"
                                     style={{
-                                        borderColor: `${carBgColor}45`,
-                                        backgroundColor: `${carBgColor}14`,
-                                        color: carBgColor,
+                                        borderColor: `${primaryTeamColor}45`,
+                                        backgroundColor: `${primaryTeamColor}14`,
+                                        color: primaryTeamColor,
                                     }}
                                 >
                                     <span
                                         className="w-1.5 h-1.5 rounded-full shrink-0"
-                                        style={{ backgroundColor: carBgColor }}
+                                        style={{ backgroundColor: primaryTeamColor }}
                                     />
                                     {me.teamName}
                                 </span>
