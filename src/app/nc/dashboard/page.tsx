@@ -283,6 +283,13 @@ function DashboardCockpit() {
 
     // Acordeões da coluna esquerda
     const [openAccordion, setOpenAccordion] = useState<string | null>('info');
+    const [helmetReady, setHelmetReady] = useState(false);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setHelmetReady(true);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const badgeUid = useId().replace(/[^a-zA-Z0-9_-]/g, '_');
     const stewardVoting = useStewardVoting();
@@ -819,7 +826,7 @@ function DashboardCockpit() {
                                 style={{ borderColor: `${carBgColor}80`, boxShadow: `0 0 12px ${carBgColor}30` }}
                             >
                                 <div
-                                    className="absolute inset-1 rounded-full flex items-center justify-center pointer-events-none"
+                                    className={`absolute inset-1 rounded-full flex items-center justify-center pointer-events-none transition-opacity duration-500 ${helmetReady ? 'opacity-100' : 'opacity-0'}`}
                                     style={{
                                         background: `radial-gradient(circle at 50% 50%, ${carBgColor} 0%, ${carBgColor} 75%, rgba(0,0,0,0.95) 95%)`
                                     }}
@@ -844,8 +851,9 @@ function DashboardCockpit() {
                                 </div>
                                 <img
                                     alt="Capacete F1"
-                                    className="w-full h-full object-contain select-none mix-blend-screen scale-110 relative z-10 pointer-events-none"
+                                    className={`w-full h-full object-contain select-none mix-blend-screen scale-110 relative z-10 pointer-events-none transition-opacity duration-500 ${helmetReady ? 'opacity-100' : 'opacity-0'}`}
                                     src="/avatar-overlay.svg"
+                                    onLoad={() => setHelmetReady(true)}
                                 />
                             </div>
 

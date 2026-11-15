@@ -520,6 +520,15 @@ function CredentialCard({
     // Regra matemática de contraste WCAG (Preto ou Branco de máxima legibilidade)
     const carTextColor = getContrastingTextColor(carBgColor);
 
+    // Sincronização e delay de 0.5s para renderizar círculo e código do piloto junto com o capacete
+    const [helmetReady, setHelmetReady] = useState(false);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setHelmetReady(true);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <div className="flex flex-col gap-4 md:gap-5">
         <Panel
@@ -581,8 +590,8 @@ function CredentialCard({
                             background: 'linear-gradient(to bottom, #000000 0%, #000000 66%, #000000 66%, #000000 100%)',
                         }}
                     >
-                        {/* Preenchimento colorido restrito à área do capacete (sem vazar nas bordas laterais ou topo) */}
-                        <div className="absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center pointer-events-none pt-3">
+                        {/* Preenchimento colorido restrito à área do capacete (com delay sincronizado) */}
+                        <div className={`absolute top-0 left-0 right-0 h-[66%] flex items-center justify-center pointer-events-none pt-3 transition-opacity duration-500 ${helmetReady ? 'opacity-100' : 'opacity-0'}`}>
                             <div
                                 className="relative w-[calc(92%-5px)] aspect-square rounded-full flex items-center justify-center"
                                 style={{
@@ -624,12 +633,13 @@ function CredentialCard({
                     </div>
 
                     {/* CAPACETE OFICIAL F1 COM PADDING SUPERIOR EM RELAÇÃO AO TOPO */}
-                    <div className="w-full h-full flex items-start justify-center relative scale-105 pt-5 sm:pt-7 transition-transform z-10">
+                    <div className={`w-full h-full flex items-start justify-center relative scale-105 pt-5 sm:pt-7 transition-all duration-500 z-10 ${helmetReady ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="relative w-full h-[65%] flex items-center justify-center">
                             <img
                                 alt="Capacete Oficial F1"
                                 className="w-full h-full object-contain select-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)] mix-blend-screen"
                                 src="/avatar-overlay.svg"
+                                onLoad={() => setHelmetReady(true)}
                             />
                             <div
                                 className="absolute inset-0 mix-blend-multiply pointer-events-none"

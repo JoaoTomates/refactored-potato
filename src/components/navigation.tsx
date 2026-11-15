@@ -16,7 +16,13 @@ const Navigation = () => {
     const { user, isLoading: authLoading } = useSupabaseAuth();
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [dashboardUrl, setDashboardUrl] = useState<string>('/superlicense');
+    const [dashboardUrl, setDashboardUrl] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const cached = localStorage.getItem('vg_user_slug');
+            if (cached) return getDashboardPath(cached);
+        }
+        return '/superlicense';
+    });
 
     // Close mobile menu on route change
     useEffect(() => {

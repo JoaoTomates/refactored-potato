@@ -559,37 +559,11 @@ export default function RaceWeekSchedule({
     return (
         <section className={`w-full font-mono flex flex-col gap-3 ${className}`}>
             
-            {/* 1. CABEÇALHO DO COMPONENTE COM MONITOR DE RELAÇÕES INTEGRADO */}
+            {/* 1. CABEÇALHO DO COMPONENTE */}
             <div className="w-full bg-black border border-white/10 p-4 sm:p-5 flex flex-col gap-3 rounded-sm shadow-xl">
                 
-                {/* Linha Superior: Alerta BAEFF1 & Monitor de Relação */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
-                    <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-pulse" />
-                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-[#fbaa19]">
-                            BAEFF1 // RACE WEEK GUIA OPERACIONAL
-                        </span>
-                        {event?.round && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 bg-white/10 text-white rounded-xs">
-                                R{event.round}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Monitor de Relações com o Chefe e a Diretoria */}
-                    {relationship && (
-                        <div className="flex items-center gap-2 text-[10px]">
-                            <span className="text-white/40 uppercase hidden sm:inline">CONFIANÇA DA DIRETORIA:</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/15 text-emerald-400 font-bold flex items-center gap-1.5">
-                                <UserCheck className="w-3 h-3 text-emerald-400" />
-                                <span>{principal.code} [{relationship.boardConfidence}]</span>
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Título do Evento & Botão Action de Hospitalidade */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                {/* Título do Evento */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                         <h2 className="text-lg sm:text-xl font-black uppercase tracking-wide text-white">
                             {eventName}
@@ -598,56 +572,7 @@ export default function RaceWeekSchedule({
                             {circuitName} {event?.date ? `· ${event.date}` : ''}
                         </p>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        {/* Botão de Hospitalidade / Reunião com o Chefe */}
-                        <button
-                            onClick={() => setShowHospitalityModal(!showHospitalityModal)}
-                            className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[11px] tracking-wider px-3.5 py-2 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
-                        >
-                            <Flame className="w-3.5 h-3.5" />
-                            <span>DESPACHO COM {principal.code}</span>
-                        </button>
-
-                        {showNavigationLink && (
-                            <Link
-                                href="/race-week"
-                                className="text-[10px] font-bold uppercase tracking-wider text-white/50 hover:text-white px-2.5 py-1.5 border border-white/15 hover:border-white/40 transition-all flex items-center gap-1"
-                            >
-                                <span>VER PROTOCOLO</span>
-                                <ChevronRight className="w-3 h-3" />
-                            </Link>
-                        )}
-                    </div>
                 </div>
-
-                {/* MODAL / BOX CLEAN DE REUNIÃO DE HOSPITALIDADE */}
-                {showHospitalityModal && (
-                    <div className="my-1 flex flex-col gap-2">
-                        <DialogueBox
-                            compact
-                            typewriter={false}
-                            speaker={principal.code}
-                            badgeTitle={`HOSPITALITY // ${principal.fullName.toUpperCase()} (${principal.title})`}
-                            text={principal.hospitalityWelcome}
-                            accentColor={accentColor}
-                            italic
-                            actions={[
-                                { label: '[FECHAR]', onClick: () => setShowHospitalityModal(false), variant: 'secondary' }
-                            ]}
-                            footerNote={
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-[10px] text-white/50">
-                                    <span>
-                                        <strong className="text-white">Perfil da Chefia:</strong> {principal.personality}
-                                    </span>
-                                    <span>
-                                        <strong className="text-[#fbaa19]">Foco do Briefing:</strong> {principal.briefingFocus}
-                                    </span>
-                                </div>
-                            }
-                        />
-                    </div>
-                )}
 
                 {/* SELETOR DE DIAS DA SEMANA */}
                 <div className="pt-2 flex flex-wrap items-center gap-1.5 border-t border-white/10">
@@ -790,27 +715,77 @@ export default function RaceWeekSchedule({
                                 </div>
                             </div>
 
-                            {/* BOTÃO "ACTIONS" AMARELO COM LETRA PRETA BOLD */}
-                            {day.actionButton && (
-                                <div className="pt-2 border-t border-white/10 flex justify-end relative z-10">
-                                    {day.actionButton.href.startsWith('#') ? (
-                                        <button
-                                            onClick={() => setShowHospitalityModal(true)}
-                                            className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
-                                        >
-                                            <span>{day.actionButton.label}</span>
-                                            <span>»</span>
-                                        </button>
-                                    ) : (
+                            {/* HOSPITALITY DIALOGUE BOX (QUANDO ABERTO NO DIA DO DESPACHO - SEGUNDA-FEIRA) */}
+                            {day.dayId === 'mon' && showHospitalityModal && (
+                                <div className="my-1 flex flex-col gap-2 relative z-10">
+                                    <DialogueBox
+                                        compact
+                                        typewriter={false}
+                                        speaker={principal.code}
+                                        badgeTitle={`HOSPITALITY // ${principal.fullName.toUpperCase()} (${principal.title})`}
+                                        text={principal.hospitalityWelcome}
+                                        accentColor={accentColor}
+                                        italic
+                                        actions={[
+                                            { label: '[FECHAR]', onClick: () => setShowHospitalityModal(false), variant: 'secondary' }
+                                        ]}
+                                        footerNote={
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-[10px] text-white/50">
+                                                <span>
+                                                    <strong className="text-white">Perfil da Chefia:</strong> {principal.personality}
+                                                </span>
+                                                <span>
+                                                    <strong className="text-[#fbaa19]">Foco do Briefing:</strong> {principal.briefingFocus}
+                                                </span>
+                                            </div>
+                                        }
+                                    />
+                                </div>
+                            )}
+
+                            {/* BOTÃO "ACTIONS": NA SEGUNDA-FEIRA HOSPEDA "DESPACHO COM {principal.code}" E "VER PROTOCOLO" */}
+                            {day.dayId === 'mon' ? (
+                                <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-end gap-2 relative z-10">
+                                    <button
+                                        onClick={() => setShowHospitalityModal(!showHospitalityModal)}
+                                        className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[11px] sm:text-xs tracking-wider px-3.5 py-2 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                    >
+                                        <Flame className="w-3.5 h-3.5" />
+                                        <span>DESPACHO COM {principal.code}</span>
+                                    </button>
+
+                                    {showNavigationLink && (
                                         <Link
-                                            href={day.actionButton.href}
-                                            className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                                            href="/race-week"
+                                            className="text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white px-2.5 py-2 border border-white/15 hover:border-white/40 transition-all flex items-center gap-1 rounded-xs bg-white/5"
                                         >
-                                            <span>{day.actionButton.label}</span>
-                                            <span>»</span>
+                                            <span>VER PROTOCOLO</span>
+                                            <ChevronRight className="w-3 h-3" />
                                         </Link>
                                     )}
                                 </div>
+                            ) : (
+                                day.actionButton && (
+                                    <div className="pt-2 border-t border-white/10 flex justify-end relative z-10">
+                                        {day.actionButton.href.startsWith('#') ? (
+                                            <button
+                                                onClick={() => setShowHospitalityModal(true)}
+                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                                            >
+                                                <span>{day.actionButton.label}</span>
+                                                <span>»</span>
+                                            </button>
+                                        ) : (
+                                            <Link
+                                                href={day.actionButton.href}
+                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-xs tracking-wider px-4 py-2.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                                            >
+                                                <span>{day.actionButton.label}</span>
+                                                <span>»</span>
+                                            </Link>
+                                        )}
+                                    </div>
+                                )
                             )}
 
                         </div>

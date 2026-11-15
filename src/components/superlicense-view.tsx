@@ -53,6 +53,15 @@ function SuperlicenseAuthContent() {
         const checkExistingSession = async () => {
             if (isLoading) return;
             if (user) {
+                // Redirecionamento instantâneo se já houver slug em cache
+                if (typeof window !== 'undefined' && !safeRedirect) {
+                    const cachedSlug = localStorage.getItem('vg_user_slug');
+                    if (cachedSlug) {
+                        window.location.replace(getDashboardPath(cachedSlug));
+                        return;
+                    }
+                }
+
                 const { data } = await supabase.from('profiles').select('slug, setup_completed').eq('id', user.id).maybeSingle();
                 const normalizedSlug = normalizeAtSlug(data?.slug);
                 if (typeof window !== 'undefined') {
@@ -68,6 +77,8 @@ function SuperlicenseAuthContent() {
                         return;
                     }
                     window.location.replace(getDashboardPath(normalizedSlug));
+                } else if (!data?.setup_completed) {
+                    window.location.replace('/headquarters');
                 }
             }
         };
@@ -224,11 +235,15 @@ function SuperlicenseAuthContent() {
         }
     };
 
-    if (isLoading) {
+    const forceLogin = searchParams?.get('force') === 'login' || searchParams?.get('logout') === 'true';
+
+    if (isLoading || (user && !forceLogin)) {
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+            <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4">
                 <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">VERIFICANDO CREDENCIAIS...</p>
+                <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-xs animate-pulse">
+                    {user ? 'REDIRECIONANDO AO TERMINAL DO ESTRATEGISTA...' : 'VERIFICANDO CREDENCIAIS...'}
+                </p>
             </div>
         );
     }
