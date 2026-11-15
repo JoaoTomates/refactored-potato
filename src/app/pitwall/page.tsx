@@ -23,6 +23,14 @@ interface ContractRow {
     profiles: ProfileRow | ProfileRow[] | null;
 }
 
+interface PredictionRow {
+    user_id: string;
+    poletime?: string | null;
+    top10?: any;
+    positions?: any;
+    created_at?: string;
+}
+
 interface BlockPalette {
     from: string;
     to: string;
@@ -56,6 +64,61 @@ const TEAM_BLOCK_PALETTE: Record<string, BlockPalette> = {
     AUD: { from: '#3D4452', to: '#1E222A', text: '#FF4D4D', divider: 'rgba(255,77,77,0.26)' },
     CAD: { from: '#FFCC24', to: '#E59F00', text: '#080A0D', divider: 'rgba(8,10,13,0.22)' },
 };
+
+/**
+ * Cores de faixa da referência gráfica (degradê pontilhado / halftone de transição)
+ */
+const TEAM_BANNER_COLORS: Record<string, { bg: string; text: string; glow: string }> = {
+    FER: { bg: '#E10600', text: '#FFFFFF', glow: 'rgba(225,6,0,0.45)' },
+    MCL: { bg: '#FF8000', text: '#FFFFFF', glow: 'rgba(255,128,0,0.45)' },
+    RBR: { bg: '#3671C6', text: '#FFFFFF', glow: 'rgba(54,113,198,0.45)' },
+    MER: { bg: '#00D2BE', text: '#080A0D', glow: 'rgba(0,210,190,0.45)' },
+    AST: { bg: '#229971', text: '#FFFFFF', glow: 'rgba(34,153,113,0.45)' },
+    ALP: { bg: '#0090FF', text: '#FFFFFF', glow: 'rgba(0,144,255,0.45)' },
+    HAA: { bg: '#DA291C', text: '#FFFFFF', glow: 'rgba(218,41,28,0.45)' },
+    RBA: { bg: '#4E7CFF', text: '#FFFFFF', glow: 'rgba(78,124,255,0.45)' },
+    WIL: { bg: '#005AFF', text: '#FFFFFF', glow: 'rgba(0,90,255,0.45)' },
+    AUD: { bg: '#F50537', text: '#FFFFFF', glow: 'rgba(245,5,55,0.45)' },
+    CAD: { bg: '#FFB800', text: '#080A0D', glow: 'rgba(255,184,0,0.45)' },
+};
+
+/**
+ * Ícone lateral vetorial do carro F1 estilizado (side-view)
+ */
+function F1CarSideIcon({ color = '#FFFFFF', className = '' }: { color?: string; className?: string }) {
+    return (
+        <svg
+            viewBox="0 0 110 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+        >
+            {/* Asa Dianteira */}
+            <path d="M2 19.5H16L19 16.5H11L2 19.5Z" fill="#15171B" />
+            <path d="M14 18H23L27 15H17L14 18Z" fill={color} />
+            {/* Bico / Chassi */}
+            <path d="M24 16L38 12.5L52 11.5L67 11L79 9L85 14H24V16Z" fill={color} />
+            {/* Halo / Cockpit */}
+            <path d="M52 11.5C52 8.5 56 6.5 61 6.5C65 6.5 68 8.5 68 11.5H52Z" fill="#0A0B0E" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
+            <circle cx="58" cy="8.5" r="1.8" fill="#FBAA19" />
+            {/* Entrada de ar / Airbox */}
+            <path d="M62 6.5L67 2.5H74L71 6.5H62Z" fill={color} />
+            {/* Sidepod & Asa Traseira */}
+            <path d="M68 11.5L82 11L95 13H102V9.5H92L90 4.5H105V15H85L68 11.5Z" fill={color} />
+            <rect x="94" y="3.5" width="12" height="2.5" rx="0.5" fill="#15171B" />
+            {/* Pneu Dianteiro */}
+            <circle cx="27" cy="18.5" r="7" fill="#0B0C0E" stroke="#2B2D33" strokeWidth="1.5" />
+            <circle cx="27" cy="18.5" r="3.2" fill="#1C1E24" />
+            <circle cx="27" cy="18.5" r="1.2" fill="#FBAA19" />
+            {/* Pneu Traseiro (maior) */}
+            <circle cx="86" cy="18" r="7.5" fill="#0B0C0E" stroke="#2B2D33" strokeWidth="1.5" />
+            <circle cx="86" cy="18" r="3.4" fill="#1C1E24" />
+            <circle cx="86" cy="18" r="1.2" fill="#FBAA19" />
+            {/* Linhas aerodinâmicas / assoalho */}
+            <line x1="34" y1="21.5" x2="78" y2="21.5" stroke="#15171B" strokeWidth="1.8" />
+        </svg>
+    );
+}
 
 /**
  * Ordem oficial F1 pelo ranking de Construtores do ano anterior (2024):
@@ -110,29 +173,60 @@ function formatStrategistName(profile: ProfileRow | null): string {
     return 'ESTRATEGISTA';
 }
 
+/**
+ * Separa o nome formatado para estilização estilo broadcast TV (ex: "LEWIS HAMILTON" -> first: "LEWIS", last: "HAMILTON")
+ */
+function splitDriverDisplayName(formatted: string): { first: string; last: string } {
+    if (!formatted || formatted === 'VAGA ABERTA') {
+        return { first: 'VAGA', last: 'ABERTA' };
+    }
+    const clean = formatted.replace(/^@+/, '');
+    if (clean.includes('.')) {
+        const [f, ...rest] = clean.split('.');
+        return { first: f, last: rest.join('.') };
+    }
+    const parts = clean.split(' ');
+    if (parts.length > 1) {
+        return { first: parts[0], last: parts.slice(1).join(' ') };
+    }
+    return { first: clean.slice(0, 1), last: clean.slice(1) };
+}
+
 export default function PitwallPage() {
     const { user } = useSupabaseAuth();
     const [contracts, setContracts] = useState<ContractRow[]>([]);
+    const [predictions, setPredictions] = useState<PredictionRow[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<number>(1);
 
     useEffect(() => {
         let active = true;
 
-        const fetchContracts = async () => {
+        const fetchData = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('contracts')
-                    .select('group_id, team_id, user_id, profiles(slug, first_name, last_name, driver_number)');
+                const [contractsRes, predsRes] = await Promise.all([
+                    supabase
+                        .from('contracts')
+                        .select('group_id, team_id, user_id, profiles(slug, first_name, last_name, driver_number)'),
+                    supabase
+                        .from('predictions')
+                        .select('user_id, poletime, top10, positions, created_at')
+                        .order('created_at', { ascending: false })
+                ]);
 
-                if (active && !error && data) {
-                    setContracts(data as ContractRow[]);
+                if (active) {
+                    if (!contractsRes.error && contractsRes.data) {
+                        setContracts(contractsRes.data as ContractRow[]);
+                    }
+                    if (!predsRes.error && predsRes.data) {
+                        setPredictions(predsRes.data as PredictionRow[]);
+                    }
                 }
             } catch (err) {
-                console.error('Erro ao carregar contratos em /pitwall:', err);
+                console.error('Erro ao carregar dados em /pitwall:', err);
             }
         };
 
-        fetchContracts();
+        fetchData();
         return () => {
             active = false;
         };
@@ -169,25 +263,69 @@ export default function PitwallPage() {
         });
     }, []);
 
-    // Estrategistas reais alocados no grupo selecionado para preencher a tabela de 25 linhas
-    const groupStrategists = useMemo(() => {
-        const list: { name: string; slug: string | null; teamName: string; teamLogo: string; teamColor: string; isUser: boolean }[] = [];
-        orderedTeams.forEach(team => {
-            const teamContracts = contracts.filter(c => c.team_id === team.id && Number(c.group_id || 1) === activeGroupId);
-            teamContracts.forEach(tc => {
-                const p = unwrapProfile(tc.profiles);
-                list.push({
-                    name: formatStrategistName(p),
-                    slug: normalizeAtSlug(p?.slug),
-                    teamName: team.name,
-                    teamLogo: team.logo,
-                    teamColor: team.color,
-                    isUser: Boolean(user && tc.user_id === user.id),
-                });
-            });
+    // Mapa das últimas previsões indexadas por user_id
+    const predictionsMap = useMemo(() => {
+        const map = new Map<string, PredictionRow>();
+        predictions.forEach(p => {
+            if (p.user_id && !map.has(p.user_id)) {
+                map.set(p.user_id, p);
+            }
         });
-        return list;
-    }, [contracts, orderedTeams, activeGroupId, user]);
+        return map;
+    }, [predictions]);
+
+    // Lista dos 11 Estrategistas Principais das 11 equipes (Row 1 de cada box) com telemetria Master (Poletime até P3)
+    const primaryStrategistsList = useMemo(() => {
+        return orderedTeams.map((team, idx) => {
+            const rawTeamContracts = contracts.filter(
+                c => c.team_id === team.id && Number(c.group_id || 1) === activeGroupId
+            );
+
+            // Prioriza o usuário autenticado caso pertença a esta equipe
+            const orderedContracts = [...rawTeamContracts].sort((a, b) => {
+                if (user && a.user_id === user.id) return -1;
+                if (user && b.user_id === user.id) return 1;
+                return 0;
+            });
+
+            const primaryContract = orderedContracts[0] || null;
+            const primaryProfile = unwrapProfile(primaryContract?.profiles || null);
+            const strategistName = formatStrategistName(primaryProfile);
+            const slug = normalizeAtSlug(primaryProfile?.slug);
+            const isUser = Boolean(user && primaryContract?.user_id === user.id);
+
+            // Informações reais ou canônicas de Poletime até P3 (P1, P2, P3 do top 10 master)
+            const pred = primaryContract ? predictionsMap.get(primaryContract.user_id) : null;
+            const poletime = pred?.poletime || `1:15.${890 + idx * 23}`;
+
+            // P1, P2, P3 extraídos dos palpites do usuário ou do grid da equipe
+            const top10Arr = Array.isArray(pred?.top10) ? pred.top10 : [];
+            const posArr = Array.isArray(pred?.positions) ? pred.positions : [];
+            const p1 = top10Arr[0] || posArr[0] || getRealF1Driver(team.name, 1).code;
+            const p2 = top10Arr[1] || posArr[1] || getRealF1Driver(team.name, 2).code;
+            const fallbackP3 = ['VER', 'NOR', 'LEC', 'HAM', 'RUS', 'PIA', 'SAI', 'ALO'][idx % 8];
+            const p3 = top10Arr[2] || posArr[2] || fallbackP3;
+
+            const bannerTheme = TEAM_BANNER_COLORS[team.logo] || {
+                bg: team.color,
+                text: '#FFFFFF',
+                glow: 'rgba(255,255,255,0.3)',
+            };
+
+            return {
+                team,
+                strategistName,
+                slug,
+                isUser,
+                hasContract: Boolean(primaryContract),
+                poletime,
+                p1,
+                p2,
+                p3,
+                bannerTheme,
+            };
+        });
+    }, [orderedTeams, contracts, activeGroupId, user, predictionsMap]);
 
     return (
         <main className="relative w-full min-h-screen overflow-x-hidden bg-[#050401] font-mono">
@@ -226,7 +364,7 @@ export default function PitwallPage() {
                 </div>
             </header>
 
-            {/* ÁREA PRINCIPAL: SELETOR LATERAL ESQUERDO + CONTAINERS DUPLICADOS */}
+            {/* ÁREA PRINCIPAL: SELETOR LATERAL ESQUERDO + CONTAINERS */}
             <div className="relative z-10 w-full min-h-[calc(100vh-60px)] px-4 sm:px-6 lg:px-8 py-5 flex flex-col lg:flex-row gap-5 items-start justify-start">
                 
                 {/* SELETOR DE GRUPO (BARRA LATERAL ESQUERDA) */}
@@ -257,7 +395,7 @@ export default function PitwallPage() {
                     </div>
                 </aside>
 
-                {/* WRAPPER COM ZOOM 0.67: CONTAINER 1 (GARAGENS) + CONTAINER 2 DUPLICADO (25 LINHAS ÍMPARES/PARES) */}
+                {/* WRAPPER COM ZOOM 0.67: CONTAINER 1 (GARAGENS) + CONTAINER 2 (TELEMETRIA FORMATADA COMO A REFERÊNCIA) */}
                 <div
                     className="w-full flex-1 flex flex-col xl:flex-row gap-6 items-start"
                     style={{ zoom: '0.67' }}
@@ -390,106 +528,97 @@ export default function PitwallPage() {
                         </div>
                     </section>
 
-                    {/* CONTAINER 2 DUPLICADO: 25 LINHAS COM ÍMPARES E PARES ALTERNADOS */}
-                    <section className="w-full xl:w-[860px] shrink-0 px-6 sm:px-8 py-6 bg-black/65 backdrop-blur-md border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.85)] rounded-2xl flex flex-col">
+                    {/* CONTAINER 2 (DIREITA): FORMATAÇÃO FIEL À IMAGEM DE REFERÊNCIA */}
+                    <section className="w-full xl:w-[940px] shrink-0 px-6 sm:px-8 py-6 bg-black/65 backdrop-blur-md border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.85)] rounded-2xl flex flex-col">
                         <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10 text-xs font-black tracking-widest uppercase text-white/70">
                             <span className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-pulse" />
-                                TABELA DE CLASSIFICAÇÃO // ÍMPARES &amp; PARES
+                                TELEMETRIA MASTER // ESTRATEGISTA PRINCIPAL &amp; GRID
                             </span>
-                            <span className="text-white/40 font-bold">25 LINHAS OPERACIONAIS</span>
+                            <span className="text-[#fbaa19] font-bold">POLETIME ➔ P1 ➔ P2 ➔ P3</span>
                         </div>
 
-                        {/* Cabeçalho da Tabela de 25 Linhas */}
-                        <div className="grid grid-cols-[50px_1fr_120px_90px] items-center px-4 py-2 bg-white/5 border border-white/10 rounded-t-lg text-[11px] font-black tracking-widest uppercase text-white/50">
-                            <span className="text-left">POS</span>
-                            <span className="text-left">ESTRATEGISTA / PILOTO</span>
-                            <span className="text-center">ESCUDERIA</span>
-                            <span className="text-right">PTS / STATUS</span>
-                        </div>
-
-                        {/* As 25 Linhas alternadas entre Ímpares e Pares */}
-                        <div className="flex flex-col border-x border-b border-white/10 rounded-b-lg overflow-hidden divide-y divide-white/5">
-                            {Array.from({ length: 25 }, (_, i) => {
-                                const pos = i + 1;
-                                const isOdd = pos % 2 !== 0;
-                                const strategist = groupStrategists[i] || null;
-                                const defaultPoints = Math.max(0, 250 - (i * 10));
-
+                        {/* Linhas formatadas exatamente como o design de transmissão da imagem */}
+                        <div className="flex flex-col gap-2.5">
+                            {primaryStrategistsList.map((item, idx) => {
+                                const { first, last } = splitDriverDisplayName(item.strategistName);
                                 return (
                                     <div
-                                        key={pos}
-                                        className={`grid grid-cols-[50px_1fr_120px_90px] items-center px-4 py-2 text-xs transition-colors ${
-                                            isOdd
-                                                ? 'bg-black/40 hover:bg-white/[0.04]'
-                                                : 'bg-white/[0.02] hover:bg-white/[0.06]'
-                                        } ${strategist?.isUser ? 'border-l-4 border-l-[#fbaa19] bg-[#fbaa19]/10' : ''}`}
+                                        key={item.team.id}
+                                        className={`w-full flex items-center min-h-[46px] sm:min-h-[50px] transition-all relative ${
+                                            item.isUser ? 'scale-[1.01] z-10' : ''
+                                        }`}
                                     >
-                                        {/* Posição com badge Ímpar/Par */}
-                                        <div className="flex items-center gap-1.5 font-black">
-                                            <span
-                                                className={`inline-flex items-center justify-center w-6 h-5 rounded text-[11px] font-black ${
-                                                    pos <= 3
-                                                        ? 'bg-[#fbaa19] text-black font-extrabold shadow-[0_0_8px_rgba(251,170,25,0.4)]'
-                                                        : isOdd
-                                                        ? 'bg-white/10 text-white'
-                                                        : 'bg-white/5 text-white/70'
-                                                }`}
-                                            >
-                                                {pos}
+                                        {/* 1. LADO ESQUERDO (FUNDO ESCURO): NOME DO ESTRATEGISTA PRINCIPAL COM PRIMEIRO NOME NORMAL E SOBRENOME EM NEGRITO PESADO */}
+                                        <div className="w-[260px] sm:w-[290px] shrink-0 pr-3 flex items-center justify-start text-white">
+                                            <span className="text-xs sm:text-sm font-normal tracking-wide uppercase truncate">
+                                                {first}{' '}
+                                                <strong className="font-black text-sm sm:text-base tracking-wider text-white">
+                                                    {last}
+                                                </strong>
                                             </span>
                                         </div>
 
-                                        {/* Nome do Estrategista */}
-                                        <div className="flex items-center gap-2 truncate pr-2">
-                                            {strategist ? (
-                                                strategist.slug ? (
-                                                    <Link href={`/${strategist.slug}`} className="font-black uppercase tracking-wide hover:text-[#fbaa19] truncate">
-                                                        {strategist.name}
-                                                    </Link>
-                                                ) : (
-                                                    <span className="font-black uppercase tracking-wide text-white truncate">
-                                                        {strategist.name}
-                                                    </span>
-                                                )
-                                            ) : (
-                                                <span className="font-semibold uppercase tracking-wider text-white/35 italic">
-                                                    {isOdd ? `ESTRATEGISTA #${pos} (ÍMPAR)` : `ESTRATEGISTA #${pos} (PAR)`}
-                                                </span>
-                                            )}
-                                        </div>
+                                        {/* 2. TRANSIÇÃO PONTILHADA / HALFTONE GRADIENT ENTRE O FUNDO ESCURO E A FAIXA COLORIDA */}
+                                        <div
+                                            className="w-[70px] sm:w-[90px] h-[38px] sm:h-[42px] shrink-0"
+                                            style={{
+                                                backgroundImage: `radial-gradient(${item.bannerTheme.bg} 1.5px, transparent 1.5px)`,
+                                                backgroundSize: '4px 4px',
+                                                maskImage: 'linear-gradient(to right, transparent 0%, black 100%)',
+                                                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 100%)',
+                                            }}
+                                        />
 
-                                        {/* Escuderia */}
-                                        <div className="flex justify-center items-center">
-                                            {strategist ? (
+                                        {/* 3. FAIXA COLORIDA HORIZONTAL DA EQUIPE (ESCUDERIA + POLETIME + P1/P2/P3 + CARRO F1) */}
+                                        <div
+                                            className="flex-1 h-[38px] sm:h-[42px] flex items-center justify-between px-3 sm:px-4 rounded-r-md relative overflow-hidden"
+                                            style={{
+                                                backgroundColor: item.bannerTheme.bg,
+                                                color: item.bannerTheme.text,
+                                                boxShadow: `0 3px 12px ${item.bannerTheme.glow}`,
+                                            }}
+                                        >
+                                            {/* Nome da Escuderia em destaque arredondado */}
+                                            <div className="flex items-center gap-3">
                                                 <span
-                                                    className="inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border"
+                                                    className="text-xs sm:text-sm md:text-base font-black uppercase tracking-wider"
                                                     style={{
-                                                        color: strategist.teamColor,
-                                                        borderColor: `${strategist.teamColor}55`,
-                                                        backgroundColor: `${strategist.teamColor}15`,
+                                                        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                                        letterSpacing: '0.04em',
                                                     }}
                                                 >
-                                                    {strategist.teamLogo}
+                                                    {item.team.name}
                                                 </span>
-                                            ) : (
-                                                <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
-                                                    {isOdd ? 'GRID A' : 'GRID B'}
-                                                </span>
-                                            )}
-                                        </div>
 
-                                        {/* Pontos / Status */}
-                                        <div className="text-right font-black font-mono">
-                                            {strategist ? (
-                                                <span className="text-[#fbaa19] tabular-nums">
-                                                    {defaultPoints} PTS
+                                                {/* Mini badge da escuderia para reforçar contraste quando aplicável */}
+                                                <span className="hidden sm:inline-block text-[9px] font-black px-1.5 py-0.5 rounded bg-black/25 text-white uppercase tracking-widest">
+                                                    {item.team.logo}
                                                 </span>
-                                            ) : (
-                                                <span className="text-white/30 text-[11px] tabular-nums">
-                                                    --
-                                                </span>
-                                            )}
+                                            </div>
+
+                                            {/* BLOCO CENTRAL: INFORMAÇÕES DE POLETIME ATÉ P3 DO USUÁRIO NA MASTER */}
+                                            <div className="flex items-center gap-2 sm:gap-3 bg-black/35 backdrop-blur-xs px-2.5 py-1 rounded border border-black/20 text-white font-mono text-[10px] sm:text-xs">
+                                                {/* POLETIME */}
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-[#fbaa19] font-black text-[9px] uppercase tracking-wider">POLE</span>
+                                                    <span className="font-bold tracking-tight text-white tabular-nums">{item.poletime}</span>
+                                                </div>
+
+                                                <span className="text-white/30">|</span>
+
+                                                {/* P1, P2, P3 */}
+                                                <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-black tracking-wider">
+                                                    <span className="text-amber-300">P1:{item.p1}</span>
+                                                    <span className="text-gray-300">P2:{item.p2}</span>
+                                                    <span className="text-amber-600">P3:{item.p3}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* ÍCONE VETORIAL DO CARRO F1 DE PERFIL (SIDE VIEW) NO CANTO DIREITO */}
+                                            <div className="w-[58px] sm:w-[76px] h-auto flex items-center justify-end shrink-0 pl-2">
+                                                <F1CarSideIcon color="#0D0F12" className="w-full h-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                                            </div>
                                         </div>
                                     </div>
                                 );
