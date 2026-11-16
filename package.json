@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev-sync.js",
-    "build": "node scripts/sync-dialogues.js && next build",
+    "build": "node scripts/sync-dialogues.js && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "reset-db": "node scripts/wipe_auth.js",

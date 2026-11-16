@@ -2289,6 +2289,56 @@ export default function OfficialStrategistDashboard() {
                                     </div>
                                 </Panel>
                             )}
+
+                            {/* GRID COMPACTO 2x3 DE FERRAMENTAS DO ESTRATEGISTA */}
+                            <div className="p-2.5 rounded bg-[#0a0d14] border border-white/10 mt-1 flex flex-col gap-1.5 shadow-inner">
+                                <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest block font-mono">
+                                    &gt;_ AÇÕES &amp; FERRAMENTAS
+                                </span>
+                                <div className="grid grid-cols-2 gap-1.5 text-[9px] font-bold font-mono uppercase">
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('silly_season')}
+                                        className="p-1.5 rounded-[2px] text-center border border-white/10 bg-[#0e131b] hover:bg-[#151c27] hover:border-amber-500/50 text-white/80 hover:text-white transition-all cursor-pointer truncate"
+                                    >
+                                        Silly Season
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('calendar')}
+                                        className="p-1.5 rounded-[2px] text-center border border-white/10 bg-[#0e131b] hover:bg-[#151c27] hover:border-amber-500/50 text-white/80 hover:text-white transition-all cursor-pointer truncate"
+                                    >
+                                        Calendário F1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('telemetry')}
+                                        className="p-1.5 rounded-[2px] text-center border border-white/10 bg-[#0e131b] hover:bg-[#151c27] hover:border-amber-500/50 text-white/80 hover:text-white transition-all cursor-pointer truncate"
+                                    >
+                                        Telemetria
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('pitwall')}
+                                        className="p-1.5 rounded-[2px] text-center border border-white/10 bg-[#0e131b] hover:bg-[#151c27] hover:border-amber-500/50 text-white/80 hover:text-white transition-all cursor-pointer truncate"
+                                    >
+                                        Pitwall
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => openSubView('race_control')}
+                                        className="p-1.5 rounded-[2px] text-center border border-white/10 bg-[#0e131b] hover:bg-[#151c27] hover:border-amber-500/50 text-white/80 hover:text-white transition-all cursor-pointer truncate"
+                                    >
+                                        Race Control
+                                    </button>
+                                    <Link
+                                        href="/superlicense"
+                                        className="p-1.5 rounded-[2px] text-center border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer truncate"
+                                    >
+                                        Superlicença
+                                    </Link>
+                                </div>
+                            </div>
                                 </>
                             )}
                         </section>
@@ -3048,105 +3098,6 @@ export default function OfficialStrategistDashboard() {
                                 </div>
                             </div>
 
-                            {/* 3. BARRA DE COMANDOS / OPERAÇÕES DO DASHBOARD */}
-                            <div
-                                className="border border-[#000000] rounded-[3px] p-3 md:p-4"
-                                style={getSystemBoxStyle(isStandardStyle ? '#fbaa19' : mainAccent)}
-                            >
-                                <div className="flex items-center justify-between mb-3 px-1">
-                                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 flex items-center gap-1.5">
-                                        <span style={{ color: mainAccent }}>⚡</span> AÇÕES &amp; FERRAMENTAS DO ESTRATEGISTA
-                                    </span>
-                                    <span className="text-[9px] text-white/30 uppercase tracking-widest">SISTEMA BAEFF1</span>
-                                </div>
-
-                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
-                                    {isOwner && (
-                                        <button
-                                            type="button"
-                                            onClick={() => openSubView('silly_season')}
-                                            className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                        >
-                                            Silly Season
-                                        </button>
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={() => openSubView('calendar')}
-                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        F1 Calendar
-                                    </button>
-                                    {isOwner && (
-                                        <button
-                                            type="button"
-                                            onClick={() => openSubView('settings')}
-                                            className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                        >
-                                            Settings
-                                        </button>
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={() => openSubView('telemetry')}
-                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Telemetry
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => openSubView('pitwall')}
-                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Pitwall
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => openSubView('race_control')}
-                                        className="p-2.5 rounded-[3px] text-center transition-all border border-white/10 bg-[#030303] hover:bg-white/10 text-white cursor-pointer"
-                                    >
-                                        Race Control
-                                    </button>
-                                    {isOwner ? (
-                                        <Link
-                                            href="/superlicense"
-                                            className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                            style={{ backgroundColor: mainAccent, borderColor: mainAccent }}
-                                        >
-                                            Licença
-                                        </Link>
-                                    ) : user ? (
-                                        <Link
-                                            href={myTerminalHref}
-                                            className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                            style={{ backgroundColor: mainAccent, borderColor: mainAccent }}
-                                        >
-                                            Meu Terminal
-                                        </Link>
-                                    ) : (
-                                        <Link
-                                            href="/superlicense"
-                                            className="p-2.5 rounded text-center transition-all border font-black text-black"
-                                            style={{ backgroundColor: mainAccent, borderColor: mainAccent }}
-                                        >
-                                            Entrar
-                                        </Link>
-                                    )}
-                                    {isOwner && (
-                                        <button
-                                            onClick={handleLogout}
-                                            className={`p-2.5 rounded text-center transition-all border cursor-pointer ${
-                                                isStandardStyle
-                                                    ? 'border-white/15 bg-black text-white/60 hover:border-[#fbaa19] hover:text-[#fbaa19]'
-                                                    : 'border-red-500/30 bg-red-950/20 text-red-400 hover:bg-red-900/40'
-                                            }`}
-                                        >
-                                            Logout
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-
                         </section>
 
                         {/* COLUNA DIREITA: Índices das Alianças + Sanfonas das Competições (Master, Milesimus, Poletime) + Ranking do Grupo */}
@@ -3221,6 +3172,20 @@ export default function OfficialStrategistDashboard() {
                                         </div>
                                     </div>
                                 ))}
+                                <div className="p-2 border-t border-white/10 bg-white/[0.02] flex items-center justify-between">
+                                    <span className="text-[8.5px] text-white/40 uppercase tracking-widest font-mono">QUARTEL-GENERAL</span>
+                                    <Link
+                                        href="/headquarters"
+                                        className="text-[8.5px] font-black uppercase tracking-widest px-2 py-0.5 rounded-[2px] border transition-all flex items-center gap-1 cursor-pointer hover:brightness-125"
+                                        style={{
+                                            color: mainAccent,
+                                            borderColor: `${mainAccent}50`,
+                                            backgroundColor: `${mainAccent}15`,
+                                        }}
+                                    >
+                                        <span>SEDE DAS ALIANÇAS »</span>
+                                    </Link>
+                                </div>
                             </Panel>
 
                             {/* SANFONAS DE RANKING GERAL (TOP 10): MASTER, MILESIMUS E POLETIME */}

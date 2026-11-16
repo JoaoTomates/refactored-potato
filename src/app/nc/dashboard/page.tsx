@@ -772,6 +772,22 @@ function DashboardCockpit() {
 
                     <PaddockRadioPlayer teamColor={mainAccent} />
 
+                    <Link
+                        href="/fantasy"
+                        className="hidden lg:inline-flex items-center gap-1 text-amber-400 font-bold hover:brightness-125 px-1.5 py-0.5 rounded-[2px] border border-amber-500/30 bg-amber-500/10 transition-all text-[9px]"
+                        title="Abrir o Fantasy Game Oficial"
+                    >
+                        [ FANTASY ]
+                    </Link>
+
+                    <Link
+                        href="/socialmedia"
+                        className="hidden xl:inline-flex items-center gap-1 text-cyan-400 font-bold hover:brightness-125 px-1.5 py-0.5 rounded-[2px] border border-cyan-500/30 bg-cyan-500/10 transition-all text-[9px]"
+                        title="Feed Social do Paddock"
+                    >
+                        [ SOCIAL ]
+                    </Link>
+
                     <button
                         type="button"
                         onClick={() => setOperationalModal('setup')}
@@ -1522,6 +1538,15 @@ function DashboardCockpit() {
                                 </div>
                             </div>
                         ))}
+                        <div className="pt-1 flex items-center justify-between border-t border-zinc-800/80">
+                            <span className="text-[7.5px] text-zinc-400 uppercase tracking-widest font-mono">QUARTEL-GENERAL</span>
+                            <Link
+                                href="/headquarters"
+                                className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-[2px] border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all flex items-center gap-1 cursor-pointer"
+                            >
+                                <span>SEDE DAS ALIANÇAS »</span>
+                            </Link>
+                        </div>
                     </div>
 
                     {/* PAINEL ÚNICO DE RANKINGS COM 3 ABAS INTERNAS NO TOPO */}

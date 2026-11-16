@@ -708,21 +708,11 @@ export default function RaceWeekSchedule({
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setShowHospitalityModal(!showHospitalityModal)}
-                                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[10px] sm:text-[11px] tracking-wider px-3 py-1.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[10px] sm:text-[11px] tracking-wider px-3.5 py-1.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
                                                             >
                                                                 <Flame className="w-3.5 h-3.5" />
-                                                                <span>DESPACHO COM {principal.code}</span>
+                                                                <span>DESPACHO COM {principal.code} »</span>
                                                             </button>
-
-                                                            {showNavigationLink && (
-                                                                <Link
-                                                                    href="/race-week"
-                                                                    className="text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white px-2.5 py-1.5 border border-white/15 hover:border-white/40 transition-all flex items-center gap-1 rounded-xs bg-white/5"
-                                                                >
-                                                                    <span>VER PROTOCOLO</span>
-                                                                    <ChevronRight className="w-3 h-3" />
-                                                                </Link>
-                                                            )}
                                                         </div>
                                                     ) : undefined
                                                 }

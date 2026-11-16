@@ -18,6 +18,7 @@ import {
     ArrowUpRight,
     Calendar,
     Radio,
+    Gamepad2,
 } from 'lucide-react';
 
 export type DashboardSubView =
@@ -218,8 +219,20 @@ export default function PitwallQuickDock({
                     )}
                 </button>
 
-                {/* 7. STANDINGS */}
-                {renderNavButton('rankings', '/rankings', 'STANDINGS', Trophy)}
+                {/* 7. FANTASY GAME */}
+                <Link
+                    href="/fantasy"
+                    className={`${btnBase} ${btnInactive} hover:border-amber-400/50 hover:text-amber-400`}
+                    title="Acessar o Fantasy Game BAEFF1 Oficial"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Gamepad2 className="w-3.5 h-3.5 text-[#fbaa19] shrink-0" />
+                        <span className="truncate">FANTASY</span>
+                    </span>
+                    <span className="text-[7.5px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-black border border-amber-500/40 shrink-0">
+                        GAME
+                    </span>
+                </Link>
 
                 {/* 8. GARAGE CREW */}
                 {renderNavButton('crew', '/crew', 'GARAGE CREW', Wrench)}
@@ -227,19 +240,18 @@ export default function PitwallQuickDock({
                 {/* 9. PADDOCK WIRE */}
                 {renderNavButton('news', '/news', 'PADDOCK WIRE', Newspaper)}
 
-                {/* 10. TEAM (Final da segunda coluna / grid) */}
-                <button
-                    type="button"
-                    onClick={onJumpToTeam}
-                    className={`${btnBase} ${btnInactive} hover:border-[#00e5ff]/50`}
-                    title="Acessar Esquadrão e Estatísticas de Equipe"
+                {/* 10. SOCIAL FEED */}
+                <Link
+                    href="/socialmedia"
+                    className={`${btnBase} ${btnInactive} hover:border-[#00e5ff]/50 hover:text-[#00e5ff]`}
+                    title="Acessar Paddock Social & Comunicação de Pilotos"
                 >
                     <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <Users className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">TEAM</span>
+                        <Radio className="w-3.5 h-3.5 text-[#00e5ff] shrink-0" />
+                        <span className="truncate">SOCIAL FEED</span>
                     </span>
                     <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
-                </button>
+                </Link>
             </div>
 
             {/* DRAWER INLINE: TRACK INTEL */}
