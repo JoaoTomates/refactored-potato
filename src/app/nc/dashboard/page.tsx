@@ -834,8 +834,8 @@ function DashboardCockpit() {
                                 >
                                     <svg viewBox="0 0 100 100" className="w-full h-full select-none pointer-events-none">
                                         <text
-                                            x="44"
-                                            y="52"
+                                            x="46"
+                                            y="53"
                                             textAnchor="middle"
                                             dominantBaseline="central"
                                             fill={carTextColor}

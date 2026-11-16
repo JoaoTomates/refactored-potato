@@ -610,8 +610,8 @@ function CredentialCard({
                                         </filter>
                                     </defs>
                                     <text
-                                        x="128"
-                                        y="150"
+                                        x="134"
+                                        y="153"
                                         textAnchor="middle"
                                         dominantBaseline="central"
                                         fill={carTextColor}
