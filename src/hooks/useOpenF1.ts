@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export function useOpenF1Session(sessionType: string) {
+export function useOpenF1Session(sessionType: string, customYear?: number) {
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -23,10 +23,16 @@ export function useOpenF1Session(sessionType: string) {
                 };
 
                 const openF1SessionName = sessionMap[sessionType] || "Race";
+                const targetYear = customYear || new Date().getFullYear();
                 
-                // 1. Fetch sessions
-                const sessionRes = await fetch(`https://api.openf1.org/v1/sessions?year=2024&session_name=${encodeURIComponent(openF1SessionName)}`);
-                const sessions = await sessionRes.json();
+                // 1. Fetch sessions com ano corrente e fallback gracioso para 2024 caso a sessão ainda não tenha ocorrido
+                let sessionRes = await fetch(`https://api.openf1.org/v1/sessions?year=${targetYear}&session_name=${encodeURIComponent(openF1SessionName)}`);
+                let sessions = await sessionRes.json();
+                
+                if ((!sessions || sessions.length === 0) && targetYear !== 2024) {
+                    sessionRes = await fetch(`https://api.openf1.org/v1/sessions?year=2024&session_name=${encodeURIComponent(openF1SessionName)}`);
+                    sessions = await sessionRes.json();
+                }
                 
                 if (!sessions || sessions.length === 0) {
                     if (isMounted) { setResults([]); setIsLoading(false); }
