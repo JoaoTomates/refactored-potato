@@ -40,6 +40,13 @@ export async function POST(request: Request) {
             );
         }
 
+        if (serviceRoleKey.startsWith('sbp_')) {
+            return NextResponse.json(
+                { error: 'A variável SUPABASE_SERVICE_ROLE_KEY na Vercel está incorreta: foi configurada com o Personal Access Token (sbp_...). Configure com a chave JWT service_role (que começa com eyJ... em Project Settings > API Keys).' },
+                { status: 500 }
+            );
+        }
+
         const body = (await request.json()) as EnlistBody;
         const rawFullName = (body.fullName || '').trim();
         const rawEmail = (body.email || '').trim();
@@ -263,7 +270,7 @@ export async function POST(request: Request) {
                 if (taken) canonicalToStore = null;
             }
 
-            await adminClient.from('profiles').upsert({
+            const { error: upsertErr } = await adminClient.from('profiles').upsert({
                 id: authData.user.id,
                 email: emailToUse,
                 canonical_email: canonicalToStore,
@@ -280,13 +287,19 @@ export async function POST(request: Request) {
                 senior_strategist_id: randomStrategist.id,
                 mls_balance: eligibleInitialBonus ? 100 : 0,
             });
+            if (upsertErr) {
+                console.error('[ENLIST CRITICAL] Erro no upsert do profile:', upsertErr);
+            }
 
-            await adminClient.from('account_signals').insert({
+            const { error: signalErr } = await adminClient.from('account_signals').insert({
                 user_id: authData.user.id,
                 device_hash: deviceHash,
                 ip_hash: ipHash,
                 event_type: 'enlist',
             });
+            if (signalErr) {
+                console.warn('[ENLIST WARN] Erro ao registrar account_signals:', signalErr);
+            }
         }
 
         return NextResponse.json({

@@ -56,28 +56,52 @@ function HeadquartersFlow() {
                     .eq('user_id', user.id)
                     .maybeSingle();
 
-                if (contract) {
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('slug, setup_completed')
-                        .eq('id', user.id)
-                        .maybeSingle();
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('slug, setup_completed, first_name, last_name')
+                    .eq('id', user.id)
+                    .maybeSingle();
 
-                    // Só redireciona se o contrato existe E o setup foi devidamente concluído
-                    if (profile?.slug && profile?.setup_completed === true) {
-                        const redirectKey = 'redirect_hq_guard';
-                        const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
-                        if (count > 2) {
-                            console.warn('[BAEFF1 Guard] Loop detectado em headquarters. Redirecionamento interrompido.');
+                // Se já assinou contrato ou completou setup, garante o slug e redireciona ao Pitwall
+                if (contract || profile?.setup_completed === true) {
+                    let userSlug = profile?.slug;
+
+                    // Auto-heal: recupera ou gera slug caso esteja nulo no banco
+                    if (!userSlug) {
+                        const metaFirst = user.user_metadata?.first_name || profile?.first_name || '';
+                        const metaLast = user.user_metadata?.last_name || profile?.last_name || '';
+                        if (metaFirst && metaLast) {
+                            const init = metaFirst.charAt(0).toUpperCase().replace(/[^A-Z0-9]/g, '');
+                            const last = metaLast.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                            userSlug = `${init}.${last}${Math.floor(Math.random() * 99) + 1}`.toLowerCase();
                         } else {
-                            sessionStorage.setItem(redirectKey, String(count + 1));
-                            const target = (profile.slug.startsWith('@') ? profile.slug : `@${profile.slug}`).toLowerCase();
-                            router.replace(`/${target}`);
-                            return;
+                            userSlug = `${(user.email || 'driver').split('@')[0].replace(/[^A-Z0-9]/gi, '')}${Math.floor(Math.random() * 99) + 1}`.toLowerCase();
                         }
-                    } else {
-                        sessionStorage.removeItem('redirect_hq_guard');
+
+                        await supabase.from('profiles').update({
+                            slug: userSlug,
+                            setup_completed: true,
+                            ...(metaFirst ? { first_name: metaFirst } : {}),
+                            ...(metaLast ? { last_name: metaLast } : {})
+                        }).eq('id', user.id);
                     }
+
+                    const redirectKey = 'redirect_hq_guard';
+                    const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
+                    if (count > 2) {
+                        console.warn('[BAEFF1 Guard] Loop detectado em headquarters. Redirecionamento interrompido.');
+                    } else {
+                        sessionStorage.setItem(redirectKey, String(count + 1));
+                        const normalizedSlug = normalizeAtSlug(userSlug);
+                        if (typeof window !== 'undefined' && normalizedSlug) {
+                            localStorage.setItem('vg_user_slug', normalizedSlug);
+                        }
+                        const target = (userSlug.startsWith('@') ? userSlug : `@${userSlug}`).toLowerCase();
+                        router.replace(`/${target}`);
+                        return;
+                    }
+                } else {
+                    sessionStorage.removeItem('redirect_hq_guard');
                 }
 
                 // 2. Recupera a aliança escolhida pelo usuário
@@ -198,7 +222,14 @@ function HeadquartersFlow() {
         try {
             // 1. Assina o contrato oficial na equipe via RPC
             const { error: rpcError } = await supabase.rpc('sign_initial_contract', { p_team_id: team.id });
-            if (rpcError) throw rpcError;
+            if (rpcError) {
+                // Se já concluiu o setup ou já assinou, prossegue sem travar
+                if (rpcError.message?.includes('already completed setup') || rpcError.code === 'P0001') {
+                    console.log('Setup já concluído previamente, prosseguindo com auto-heal e redirecionamento...');
+                } else {
+                    throw rpcError;
+                }
+            }
 
             // 2. Atualiza o perfil do estrategista
             await supabase.from('profiles').update({ 
@@ -209,16 +240,36 @@ function HeadquartersFlow() {
             // 3. Obtém o slug e redireciona para o pitwall do piloto
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('slug')
+                .select('slug, first_name, last_name')
                 .eq('id', user.id)
                 .single();
 
-            const normalizedSlug = normalizeAtSlug(profile?.slug);
+            let targetSlug = profile?.slug;
+            if (!targetSlug) {
+                const metaFirst = user.user_metadata?.first_name || profile?.first_name || '';
+                const metaLast = user.user_metadata?.last_name || profile?.last_name || '';
+                if (metaFirst && metaLast) {
+                    const init = metaFirst.charAt(0).toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    const last = metaLast.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    targetSlug = `${init}.${last}${Math.floor(Math.random() * 99) + 1}`.toLowerCase();
+                } else {
+                    targetSlug = `${(user.email || 'driver').split('@')[0].replace(/[^A-Z0-9]/gi, '')}${Math.floor(Math.random() * 99) + 1}`.toLowerCase();
+                }
+                await supabase.from('profiles').update({ 
+                    slug: targetSlug,
+                    setup_completed: true,
+                    ...(metaFirst ? { first_name: metaFirst } : {}),
+                    ...(metaLast ? { last_name: metaLast } : {})
+                }).eq('id', user.id);
+            }
+
+            const normalizedSlug = normalizeAtSlug(targetSlug);
             if (typeof window !== 'undefined') {
                 if (normalizedSlug) localStorage.setItem('vg_user_slug', normalizedSlug);
                 else localStorage.removeItem('vg_user_slug');
             }
-            router.replace(getDashboardPath(normalizedSlug, '/headquarters'));
+            const targetUrl = normalizedSlug ? `/${normalizedSlug}` : '/superlicense';
+            router.replace(targetUrl);
 
         } catch (err: any) {
             console.error(err);
