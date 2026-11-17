@@ -16,6 +16,7 @@ import { getStrategistSquad } from '@/lib/teamwork';
 import { getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/slug';
 import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { DialogueBox, DialogueActionButton, pitWallSound as soundEngine } from '@/components/dialogue-box';
+import { useWarRoomChat } from '@/hooks/useWarRoomChat';
 
 // --- Definição das 3 Cores por Aliança ---
 // Cor 1: Sênior (#fbaa19 - Amarelo Frank Miller Noir)
@@ -74,6 +75,10 @@ interface BoxCardProps {
     copyLabel?: string;
     avatarUrl?: string;
     strategySource?: string;
+    isStreaming?: boolean;
+    streamingBadge?: string;
+    onRadioConsult?: () => void;
+    radioConsultLabel?: string;
 }
 
 function BoxCard({
@@ -91,9 +96,16 @@ function BoxCard({
     fillLabel,
     copyLabel = 'COPY',
     avatarUrl,
-    strategySource
+    strategySource,
+    isStreaming = false,
+    streamingBadge,
+    onRadioConsult,
+    radioConsultLabel = '[ RÁDIO AO VIVO ]',
 }: BoxCardProps) {
     const actions: DialogueActionButton[] = [];
+    if (onRadioConsult && !isStreaming) {
+        actions.push({ label: radioConsultLabel, onClick: onRadioConsult, variant: 'secondary' });
+    }
     if (!isSettled && onCopy) {
         actions.push({ label: `[ ${copyLabel} ]`, onClick: onCopy, variant: 'secondary' });
     }
@@ -117,6 +129,8 @@ function BoxCard({
             isSettled={isSettled}
             settledLabel={settledLabel}
             isFilled={isFilled}
+            isStreaming={isStreaming}
+            streamingBadge={streamingBadge}
             actions={actions}
             animateEntrance
         />
@@ -345,6 +359,27 @@ export function WarRoomContent() {
     const [currentTopic, setCurrentTopic] = useState<Topic>('POLETIME');
     const [isClearing, setIsClearing] = useState(false);
 
+    // Rádio do Pitwall / IA dos Estrategistas
+    const {
+        isTransmitting,
+        streamingText,
+        activeSpeaker,
+        remainingToday,
+        askStrategist,
+        resetChat,
+    } = useWarRoomChat();
+
+    const getCardText = (charType: 'senior' | 'technical', defaultText: string) => {
+        if (activeSpeaker === charType && streamingText !== null) {
+            return streamingText;
+        }
+        return defaultText;
+    };
+
+    const isCardStreaming = (charType: 'senior' | 'technical') => {
+        return isTransmitting && activeSpeaker === charType;
+    };
+
     // Sub-etapa interna em cada tópico:
     // 'SENIOR': apenas fala do Sênior visível (Row 1)
     // 'TECH': Técnico entrou abaixo em Row 2 (porque deu OK ou preencheu)
@@ -544,6 +579,7 @@ export function WarRoomContent() {
 
     // Função de limpeza de tela e transição entre tópicos
     const transitionToTopic = (next: Topic) => {
+        resetChat();
         setIsClearing(true);
         setTimeout(() => {
             setCurrentTopic(next);
@@ -739,11 +775,26 @@ export function WarRoomContent() {
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag={`1/4 ${seniorSep} POLETIME Q3`}
                                 strategySource={seniorSourceId}
-                                text={
+                                text={getCardText(
+                                    'senior',
                                     isSeniorHistoricalRole
                                         ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo perfeito."`
                                         : `"Pelo movimento dos boxes e contatos no pitwall, a marca de referência é ${seniorTimeTarget}. Esse é o ponto ótimo de aposta."`
-                                }
+                                )}
+                                isStreaming={isCardStreaming('senior')}
+                                streamingBadge="RÁDIO SÊNIOR"
+                                onRadioConsult={() => {
+                                    askStrategist({
+                                        characterType: 'senior',
+                                        characterId: seniorStrategist.id,
+                                        topic: 'POLETIME',
+                                        circuitId: 'americas',
+                                        message: 'M. Amon, qual o seu conselho de pista para a disputa da Pole Position?',
+                                        fallbackText: isSeniorHistoricalRole
+                                            ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo perfeito."`
+                                            : `"Pelo movimento dos boxes e contatos no pitwall, a marca de referência é ${seniorTimeTarget}. Esse é o ponto ótimo de aposta."`
+                                    });
+                                }}
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
@@ -764,11 +815,26 @@ export function WarRoomContent() {
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag={`TELEMETRIA ${techSep} Q3`}
                                     strategySource={techSourceId}
-                                    text={
+                                    text={getCardText(
+                                        'technical',
                                         isSeniorHistoricalRole
                                             ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
                                             : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
-                                    }
+                                    )}
+                                    isStreaming={isCardStreaming('technical')}
+                                    streamingBadge="TELEMETRIA AO VIVO"
+                                    onRadioConsult={() => {
+                                        askStrategist({
+                                            characterType: 'technical',
+                                            characterId: technicalStrategist.id,
+                                            topic: 'POLETIME',
+                                            circuitId: 'americas',
+                                            message: 'Engenheiro, qual a projeção matemática de tempo exato para o Q3?',
+                                            fallbackText: isSeniorHistoricalRole
+                                                ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
+                                                : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
+                                        });
+                                    }}
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
@@ -795,11 +861,26 @@ export function WarRoomContent() {
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag={`2/4 ${seniorSep} TOP 10 FINISH`}
                                 strategySource={seniorSourceId}
-                                text={
+                                text={getCardText(
+                                    'senior',
                                     isSeniorHistoricalRole
                                         ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${seniorTop3}."`
                                         : `"Quem quer pontuar alto no campeonato precisa mirar nestes nomes: ${seniorTop3} decidem as primeiras posições."`
-                                }
+                                )}
+                                isStreaming={isCardStreaming('senior')}
+                                streamingBadge="RÁDIO SÊNIOR"
+                                onRadioConsult={() => {
+                                    askStrategist({
+                                        characterType: 'senior',
+                                        characterId: seniorStrategist.id,
+                                        topic: 'TOP10',
+                                        circuitId: 'americas',
+                                        message: 'M. Amon, qual o seu conselho sobre o ritmo de corrida para o Top 10?',
+                                        fallbackText: isSeniorHistoricalRole
+                                            ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${seniorTop3}."`
+                                            : `"Quem quer pontuar alto no campeonato precisa mirar nestes nomes: ${seniorTop3} decidem as primeiras posições."`
+                                    });
+                                }}
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
@@ -820,11 +901,26 @@ export function WarRoomContent() {
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag={`MONTE CARLO ${techSep} SIM`}
                                     strategySource={techSourceId}
-                                    text={
+                                    text={getCardText(
+                                        'technical',
                                         isSeniorHistoricalRole
                                             ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
                                             : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
-                                    }
+                                    )}
+                                    isStreaming={isCardStreaming('technical')}
+                                    streamingBadge="TELEMETRIA AO VIVO"
+                                    onRadioConsult={() => {
+                                        askStrategist({
+                                            characterType: 'technical',
+                                            characterId: technicalStrategist.id,
+                                            topic: 'TOP10',
+                                            circuitId: 'americas',
+                                            message: 'Engenheiro, quais os dados de degradação térmica para os líderes?',
+                                            fallbackText: isSeniorHistoricalRole
+                                                ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
+                                                : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
+                                        });
+                                    }}
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
@@ -850,7 +946,19 @@ export function WarRoomContent() {
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="3/4 • EVO / ESCALADA"
-                                text={`"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`}
+                                text={getCardText('senior', `"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`)}
+                                isStreaming={isCardStreaming('senior')}
+                                streamingBadge="RÁDIO SÊNIOR"
+                                onRadioConsult={() => {
+                                    askStrategist({
+                                        characterType: 'senior',
+                                        characterId: seniorStrategist.id,
+                                        topic: 'EVO',
+                                        circuitId: 'americas',
+                                        message: 'M. Amon, quem tem estofo para escalar o grid com Safety Car?',
+                                        fallbackText: `"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`
+                                    });
+                                }}
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
@@ -870,7 +978,19 @@ export function WarRoomContent() {
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DELTA ULTRAPASSAGEM"
-                                    text={`"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`}
+                                    text={getCardText('technical', `"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`)}
+                                    isStreaming={isCardStreaming('technical')}
+                                    streamingBadge="TELEMETRIA AO VIVO"
+                                    onRadioConsult={() => {
+                                        askStrategist({
+                                            characterType: 'technical',
+                                            characterId: technicalStrategist.id,
+                                            topic: 'EVO',
+                                            circuitId: 'americas',
+                                            message: 'Engenheiro, qual o piloto com melhor delta de ultrapassagem nos setores de DRS?',
+                                            fallbackText: `"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`
+                                        });
+                                    }}
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
@@ -896,7 +1016,19 @@ export function WarRoomContent() {
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="4/4 • DUELOS TÁTICOS"
-                                text={`"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`}
+                                text={getCardText('senior', `"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`)}
+                                isStreaming={isCardStreaming('senior')}
+                                streamingBadge="RÁDIO SÊNIOR"
+                                onRadioConsult={() => {
+                                    askStrategist({
+                                        characterType: 'senior',
+                                        characterId: seniorStrategist.id,
+                                        topic: 'H2H',
+                                        circuitId: 'americas',
+                                        message: 'M. Amon, como avaliar a pressão psicológica nos duelos diretos de garagem?',
+                                        fallbackText: `"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`
+                                    });
+                                }}
                                 accentColor={theme.seniorColor}
                                 animationDirection="left"
                                 isSettled={subStep === 'TECH'}
@@ -916,7 +1048,19 @@ export function WarRoomContent() {
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DUELOS ASA MÓVEL"
-                                    text={`"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`}
+                                    text={getCardText('technical', `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`)}
+                                    isStreaming={isCardStreaming('technical')}
+                                    streamingBadge="TELEMETRIA AO VIVO"
+                                    onRadioConsult={() => {
+                                        askStrategist({
+                                            characterType: 'technical',
+                                            characterId: technicalStrategist.id,
+                                            topic: 'H2H',
+                                            circuitId: 'americas',
+                                            message: 'Engenheiro, os dados de telemetria apontam vantagem de motor ou de chassi nos confrontos diretos?',
+                                            fallbackText: `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`
+                                        });
+                                    }}
                                     accentColor={theme.techColor}
                                     accentGlow={theme.techGlow}
                                     animationDirection="right"
@@ -960,6 +1104,60 @@ export function WarRoomContent() {
                                 <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
+                    </div>
+                )}
+
+                {/* RÁDIO INTERATIVO DO PIT WALL (IA) */}
+                {currentTopic !== 'FINAL_MISC' && (
+                    <div className="w-full mt-1 flex flex-col gap-1.5 animate-fade-in font-mono">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                const form = e.currentTarget;
+                                const input = form.elements.namedItem('radioMsg') as HTMLInputElement;
+                                if (!input || !input.value.trim() || isTransmitting) return;
+                                const query = input.value.trim();
+                                input.value = '';
+                                const targetCharType = subStep === 'TECH' && technicalStrategist ? 'technical' : 'senior';
+                                const targetCharId = targetCharType === 'technical' ? technicalStrategist!.id : seniorStrategist.id;
+                                askStrategist({
+                                    characterType: targetCharType,
+                                    characterId: targetCharId,
+                                    topic: currentTopic,
+                                    circuitId: 'americas',
+                                    message: query,
+                                    fallbackText: targetCharType === 'senior' 
+                                        ? 'Telemetria do rádio sênior em sincronização padrão.' 
+                                        : 'Canal de dados operando em redundância local.',
+                                });
+                            }}
+                            className="flex items-center gap-2 bg-[#050505] border border-white/10 rounded-[3px] px-3 py-2 text-xs shadow-lg focus-within:border-[#fbaa19]/60 transition-all"
+                        >
+                            <span className="text-[#fbaa19] font-black shrink-0">&gt;_</span>
+                            <input
+                                name="radioMsg"
+                                type="text"
+                                disabled={isTransmitting}
+                                placeholder={
+                                    isTransmitting
+                                        ? "Transmissão aberta no canal de telemetria..."
+                                        : `Questionar ${subStep === 'TECH' && technicalStrategist ? technicalStrategist.code : seniorStrategist.code} pelo rádio... [Enter para transmitir]`
+                                }
+                                className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/35 text-xs font-mono disabled:opacity-50"
+                            />
+                            <button
+                                type="submit"
+                                disabled={isTransmitting}
+                                className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-[2px] bg-white/10 text-white/90 hover:bg-[#fbaa19] hover:text-black transition-all cursor-pointer disabled:opacity-40"
+                            >
+                                {isTransmitting ? 'TRANSMITINDO...' : 'FALAR'}
+                            </button>
+                            {remainingToday !== null && (
+                                <span className="text-[9px] text-white/40 shrink-0 hidden sm:inline" title="Cota diária restante">
+                                    COTA: {remainingToday}
+                                </span>
+                            )}
+                        </form>
                     </div>
                 )}
 

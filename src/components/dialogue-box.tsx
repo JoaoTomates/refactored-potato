@@ -232,6 +232,9 @@ export interface DialogueBoxProps {
     disableAvatarClick?: boolean;
     hideDividers?: boolean;
     textAlign?: 'left' | 'right' | 'inherit';
+    /** Modo streaming de rádio / IA */
+    isStreaming?: boolean;
+    streamingBadge?: string;
 }
 
 export const DIALOGUE_BOX_GRADIENT = 'linear-gradient(160deg, #030303 0%, #000000 100%)';
@@ -431,6 +434,8 @@ export function DialogueBox({
     disableAvatarClick = false,
     hideDividers = true,
     textAlign,
+    isStreaming = false,
+    streamingBadge,
 }: DialogueBoxProps) {
     const effectiveAccent = isFilled ? '#10b981' : accentColor;
     const effectiveSide: 'left' | 'right' = avatarPosition || avatarSide || direction || 'left';
@@ -509,12 +514,20 @@ export function DialogueBox({
                             isRight ? 'flex-row-reverse' : 'flex-row'
                         }`}
                     >
-                        <span
-                            className="text-[10px] sm:text-xs font-black uppercase tracking-wider truncate"
-                            style={{ color: effectiveAccent }}
-                        >
-                            {badgeTitle || speakerRole}
-                        </span>
+                        <div className="flex items-center gap-2 truncate">
+                            <span
+                                className="text-[10px] sm:text-xs font-black uppercase tracking-wider truncate"
+                                style={{ color: effectiveAccent }}
+                            >
+                                {badgeTitle || speakerRole}
+                            </span>
+                            {isStreaming && (
+                                <span className="animate-pulse inline-flex items-center gap-1 text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-1.5 py-0.2 rounded-[2px]">
+                                    <Radio className="w-2.5 h-2.5 animate-spin" />
+                                    <span>{streamingBadge || 'TRANSMISSÃO AO VIVO'}</span>
+                                </span>
+                            )}
+                        </div>
                         {categoryTag && (
                             <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-white/45 shrink-0">
                                 {categoryTag}
@@ -541,7 +554,21 @@ export function DialogueBox({
                                     {prefix}
                                 </span>
                             )}
-                            {text !== undefined ? (
+                            {isStreaming ? (
+                                <span className="leading-relaxed relative whitespace-pre-wrap">
+                                    {text || (
+                                        <span className="text-white/40 italic">
+                                            Aguardando telemetria do rádio...
+                                        </span>
+                                    )}
+                                    <span
+                                        className="animate-pulse ml-1 inline-block translate-y-[1px]"
+                                        style={{ color: effectiveAccent }}
+                                    >
+                                        ■
+                                    </span>
+                                </span>
+                            ) : text !== undefined ? (
                                 <TypewriterLine
                                     text={text}
                                     startDelay={startDelay}
