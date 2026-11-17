@@ -97,6 +97,9 @@ export function isDisposableEmail(rawEmail: string): boolean {
  * sem expor PII em texto claro.
  */
 export function hashSignal(value: string): string {
+    if (process.env.NODE_ENV === 'production' && !process.env.ANTI_SYBIL_SECRET && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.warn('[SECURITY] ANTI_SYBIL_SECRET ou SUPABASE_SERVICE_ROLE_KEY ausente em produção.');
+    }
     const secret =
         process.env.ANTI_SYBIL_SECRET ||
         process.env.SUPABASE_SERVICE_ROLE_KEY ||

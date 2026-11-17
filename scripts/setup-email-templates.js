@@ -7,9 +7,17 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const LOGO_URL = 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/voltgrid-logo.png';
-const SUPABASE_ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN || 'sbp_90eb61ed9d08d723537719c5f60b8ce839221f1f';
+const LOGO_URL = process.env.NEXT_PUBLIC_SUPABASE_URL 
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/voltgrid-logo.png`
+  : 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/voltgrid-logo.png';
+const SUPABASE_ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
 const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'fivzbbqzgvvwgtlhietx';
+
+if (!SUPABASE_ACCESS_TOKEN) {
+  console.error('ERRO: SUPABASE_ACCESS_TOKEN ausente.');
+  console.error('Uso: SUPABASE_ACCESS_TOKEN=sbp_... node scripts/setup-email-templates.js (ou use node --env-file=.env.local)');
+  process.exit(1);
+}
 
 function generateTemplate({ tag, title, message, buttonText, isRecovery = false }) {
   return `<!DOCTYPE html>

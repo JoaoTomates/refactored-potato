@@ -1,8 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fivzbbqzgvvwgtlhietx.supabase.co';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!serviceRoleKey) {
+  console.error('ERRO: SUPABASE_SERVICE_ROLE_KEY ausente.');
+  console.error('Uso: node --env-file=.env.local scripts/wipe_auth.js');
+  process.exit(1);
+}
+
 const supabase = createClient(
-  'https://fivzbbqzgvvwgtlhietx.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpdnpiYnF6Z3Z2d2d0bGhpZXR4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjczMjE0MiwiZXhwIjoyMDk4MzA4MTQyfQ.9qN4j9vkaI6kz2kyptG7QSdCLcQgpiFO6GwqasvNTQE',
+  supabaseUrl,
+  serviceRoleKey,
   {
     auth: {
       autoRefreshToken: false,

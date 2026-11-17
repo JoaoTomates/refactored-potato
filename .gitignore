@@ -46,3 +46,8 @@ next-env.d.ts
 
 # repomix
 repomix-output*
+
+# scratch & temporary dev scripts
+/scratch/
+scratch/
+
