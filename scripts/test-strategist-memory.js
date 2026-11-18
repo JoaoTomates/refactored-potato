@@ -1,0 +1,20 @@
+﻿process.env.NEXT_PUBLIC_SUPABASE_URL = '';
+const assert = require('assert');
+const m = require('../src/lib/strategist-memory');
+(async () => {
+  const empty = await m.getUserStrategistMemory('u1');
+  assert.strictEqual(empty.hasHistory, false);
+  assert.strictEqual(empty.accuracyRate, null);
+  const line0 = m.buildMemoryPromptLine(empty, 'senior');
+  assert(!/\d+%/.test(line0), 'sem historico nao pode citar percentual');
+  await m.updateUserStrategistMemory('u1', { accuracyRate: 61.25, totalPredictions: 3, recentPicksSummary: 'Acertou 6/10 no Top 10.' });
+  const real = await m.getUserStrategistMemory('u1');
+  assert.strictEqual(real.hasHistory, true);
+  assert.strictEqual(real.accuracyRate, 61.3);
+  assert(m.buildMemoryPromptLine(real, 'technical').includes('61.3%'));
+  await m.updateUserStrategistMemory('u2', { accuracyRate: 50, totalPredictions: 0, recentPicksSummary: null });
+  assert.strictEqual((await m.getUserStrategistMemory('u2')).hasHistory, false, 'total 0 = sem historico');
+  await m.clearUserStrategistMemory('u1');
+  assert.strictEqual((await m.getUserStrategistMemory('u1')).hasHistory, false);
+  console.log('OK: memoria sem numeros inventados (4 casos)');
+})().catch(e => { console.error(e); process.exit(1); });

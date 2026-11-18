@@ -637,11 +637,16 @@ export function WarRoomContent() {
             }
 
             if (!res.ok || !data.ok) {
-                throw new Error(data.error || 'Falha ao compilar proposta de estratégia.');
+                const noirMsg = data?.message || '>_ Sem sinal com o pit wall. Tente novamente em instantes.';
+                throw new Error(noirMsg);
             }
             setSuggestedPrediction(data.suggestion);
         } catch (err: any) {
-            setSuggestError(err.message || 'Erro de comunicação no rádio.');
+            const rawMsg = err.message || '';
+            const safeMsg = rawMsg.startsWith('>_')
+                ? rawMsg
+                : '>_ Sem sinal com o pit wall. Tente novamente em instantes.';
+            setSuggestError(safeMsg);
         } finally {
             setIsSuggesting(false);
         }
@@ -732,10 +737,11 @@ export function WarRoomContent() {
                 setMemoryResetNotice('Memória reiniciada com sucesso.');
                 setTacticalMemory({
                     userId: user?.id || 'guest',
-                    accuracyRate: 72.0,
-                    totalPredictions: 1,
-                    recentPicksSummary: 'Estrategista estreando telemetria de precisão na temporada.',
-                    updatedAt: new Date().toISOString(),
+                    hasHistory: false,
+                    accuracyRate: null,
+                    totalPredictions: 0,
+                    recentPicksSummary: null,
+                    updatedAt: null,
                 });
             }
         } catch (_) {
@@ -1384,7 +1390,7 @@ export function WarRoomContent() {
                         )}
 
                         {suggestError && !isSuggesting && (
-                            <div className="bg-red-950/40 border border-red-500/40 text-red-300 p-3 rounded text-[11px]">
+                            <div className="bg-black/60 border-l-2 border-[#fbaa19] text-[#fbaa19] p-3 rounded text-[11px] font-mono leading-relaxed">
                                 {suggestError}
                             </div>
                         )}
@@ -1508,7 +1514,7 @@ export function WarRoomContent() {
                                             TAXA DE ASSERTIVIDADE
                                         </span>
                                         <span className="text-[#fbaa19] font-bold text-lg">
-                                            {tacticalMemory?.accuracyRate ? `${tacticalMemory.accuracyRate}%` : '72%'}
+                                            {tacticalMemory?.hasHistory && tacticalMemory.accuracyRate !== null ? `${tacticalMemory.accuracyRate}%` : '—'}
                                         </span>
                                     </div>
                                     <div className="bg-black/60 border border-white/10 p-3 rounded">
@@ -1516,7 +1522,7 @@ export function WarRoomContent() {
                                             GPS NO PIT WALL
                                         </span>
                                         <span className="text-white font-bold text-lg">
-                                            {tacticalMemory?.totalPredictions || 1}
+                                            {tacticalMemory?.hasHistory ? tacticalMemory.totalPredictions : 0}
                                         </span>
                                     </div>
                                 </div>
@@ -1526,7 +1532,9 @@ export function WarRoomContent() {
                                         HISTÓRICO TÁTICO RECENTE
                                     </span>
                                     <p className="text-white/80 text-[11px] leading-relaxed">
-                                        {tacticalMemory?.recentPicksSummary || 'Estrategista ativo na temporada com telemetria calibrada.'}
+                                        {tacticalMemory?.hasHistory
+                                            ? (tacticalMemory.recentPicksSummary || '>_ Histórico registrado. Resumo ainda não compilado.')
+                                            : '>_ Sem histórico pontuado. Seu registro começa no próximo GP.'}
                                     </p>
                                 </div>
 

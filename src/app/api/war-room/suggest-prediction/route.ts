@@ -3,9 +3,26 @@ import { validateUserSession, checkRateLimitAndUsage } from '@/lib/server-auth-l
 import { chatCompletion, LLMError, ChatMessage } from '@/lib/llm';
 import { getRaceWeekDossier } from '@/lib/f1-dossier';
 import { validateSuggestedPrediction, ValidatedPrediction } from '@/lib/prediction-validator';
-import { getUserStrategistMemory } from '@/lib/strategist-memory';
+import { getUserStrategistMemory, buildMemoryPromptLine } from '@/lib/strategist-memory';
 
 export const maxDuration = 30;
+
+function getFallbackStrategy(canonicalPole: string): ValidatedPrediction {
+  const fallbackPrediction = {
+    poletime: canonicalPole || '1:32.450',
+    top10: ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'],
+    evo: ['HAM', 'SAI', 'ALO', 'TSU', 'ALB'],
+    h2h: {
+      m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
+      m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27',
+    },
+    misc: { q1: 'SIM', q2: 'NÃO', q3: 'NÃO' },
+    reasoning: 'Sem sinal com o pit wall. Telemetria operando com a linha de base histórica do circuito.',
+  };
+
+  const validated = validateSuggestedPrediction(fallbackPrediction);
+  return validated.data!;
+}
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +30,11 @@ export async function POST(request: Request) {
     const { user, error: authError } = await validateUserSession(request);
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Acesso negado: sessão não identificada.' },
+        {
+          error: 'ai_unavailable',
+          code: 'UNAUTHORIZED',
+          message: '>_ Acesso negado: sessão do estrategista não identificada.',
+        },
         { status: 401 }
       );
     }
@@ -22,7 +43,12 @@ export async function POST(request: Request) {
     const limitCheck = await checkRateLimitAndUsage(user);
     if (!limitCheck.ok) {
       return NextResponse.json(
-        { error: limitCheck.error, remainingToday: limitCheck.remainingToday },
+        {
+          error: 'ai_unavailable',
+          code: 'RATE_LIMIT',
+          message: '>_ Cota diária de rádio atingida. Consulte o dossiê da equipe.',
+          remainingToday: limitCheck.remainingToday,
+        },
         { status: limitCheck.status || 429 }
       );
     }
@@ -38,26 +64,15 @@ export async function POST(request: Request) {
       getUserStrategistMemory(user.id),
     ]);
 
+    const canonicalPole = dossier.poleStats.avgPoleTime || '1:32.450';
+
     // 4. Se não há chave de API, retorna recomendação canônica estruturada sem travar
     if (!process.env.LLM_API_KEY && !process.env.LLM_BASE_URL?.includes('localhost')) {
-      const canonicalPole = dossier.poleStats.avgPoleTime || '1:32.450';
-      const fallbackPrediction = {
-        poletime: canonicalPole,
-        top10: ['NOR', 'VER', 'LEC', 'PIA', 'RUS', 'HAM', 'SAI', 'ALO', 'GAS', 'ALB'],
-        evo: ['HAM', 'SAI', 'ALO', 'TSU', 'ALB'],
-        h2h: {
-          m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
-          m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27',
-        },
-        misc: { q1: 'SIM', q2: 'NÃO', q3: 'NÃO' },
-        reasoning: 'Sugestão tática baseada na média histórica e nos modelos canônicos de telemetria.',
-      };
-
-      const validated = validateSuggestedPrediction(fallbackPrediction);
       return NextResponse.json({
         ok: true,
-        suggestion: validated.data,
+        suggestion: getFallbackStrategy(canonicalPole),
         fallback: true,
+        remainingToday: limitCheck.remainingToday,
       });
     }
 
@@ -67,7 +82,7 @@ export async function POST(request: Request) {
       'Sua tarefa é PROPOR uma estratégia completa de palpites para a rodada no formato JSON EXATO abaixo.',
       'Aritmética e números devem basear-se no seguinte dossiê:',
       dossier.shortSummary,
-      `Taxa de assertividade histórica do usuário: ${memory.accuracyRate}%.`,
+      buildMemoryPromptLine(memory, 'technical'),
       '',
       'REGRAS RÍGIDAS DE JSON (NÃO ESCREVA NENHUM TEXTO FORA DO JSON):',
       '{',
@@ -92,52 +107,53 @@ export async function POST(request: Request) {
       },
     ];
 
-    const rawResponse = await chatCompletion({
-      messages,
-      temperature: 0.4, // Mais determinístico para JSON
-      maxTokens: 500,
-    });
-
-    // 6. Sanitização e Validação do JSON
-    let parsed: any = null;
     try {
+      const rawResponse = await chatCompletion({
+        messages,
+        temperature: 0.4,
+        maxTokens: 500,
+      });
+
+      // 6. Sanitização e Validação do JSON
+      let parsed: any = null;
       const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0]);
       } else {
         parsed = JSON.parse(rawResponse);
       }
-    } catch {
-      // JSON malformado pela LLM: rejeição limpa
-      return NextResponse.json(
-        { error: 'A IA retornou um formato de dados inválido.', code: 'INVALID_JSON' },
-        { status: 422 }
-      );
+
+      const validationResult = validateSuggestedPrediction(parsed);
+      if (validationResult.valid && validationResult.data) {
+        return NextResponse.json({
+          ok: true,
+          suggestion: validationResult.data,
+          fallback: false,
+          remainingToday: limitCheck.remainingToday,
+        });
+      }
+
+      console.warn('[SUGGEST_PREDICTION] Validação de schema da IA falhou, ativando fallback histórico');
+    } catch (llmErr) {
+      console.warn('[SUGGEST_PREDICTION] Falha na chamada da LLM, ativando fallback histórico:', (llmErr as Error)?.name || 'Error');
     }
 
-    const validationResult = validateSuggestedPrediction(parsed);
-    if (!validationResult.valid || !validationResult.data) {
-      return NextResponse.json(
-        {
-          error: 'A sugestão da IA continha parâmetros fora do regulamento da FIA.',
-          details: validationResult.errors,
-          code: 'SCHEMA_VALIDATION_FAILED',
-        },
-        { status: 422 }
-      );
-    }
-
+    // 7. Degradação elegante: Se a IA falhar ou o JSON for inválido, entrega a proposta de contingência
     return NextResponse.json({
       ok: true,
-      suggestion: validationResult.data,
-      fallback: false,
+      suggestion: getFallbackStrategy(canonicalPole),
+      fallback: true,
       remainingToday: limitCheck.remainingToday,
     });
   } catch (error: unknown) {
-    if (error instanceof LLMError) {
-      return NextResponse.json({ error: error.message, code: error.code }, { status: 503 });
-    }
-    const message = (error as Error)?.message || 'Erro ao gerar sugestão de estratégia.';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[SUGGEST_PREDICTION_CRITICAL_ERROR]', (error as Error)?.name || 'Error');
+    return NextResponse.json(
+      {
+        error: 'ai_unavailable',
+        code: 'AI_UNAVAILABLE',
+        message: '>_ Sem sinal com o pit wall. Tente novamente em instantes.',
+      },
+      { status: 503 }
+    );
   }
 }
