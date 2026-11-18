@@ -107,7 +107,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "id": "linha_5_ap_s_sele_o_do_bloco_",
               "title": "Linha 5 (Após seleção do bloco)",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "Entendo perfeitamente sua escolha. Como os contratos na BAEFF1 são dinâmicos e disputados a tapa, consegui duas ofertas oficiais dentro do seu bloco... mais uma opção inusitada da diretoria.",
+              "text": "Entendo perfeitamente sua escolha. Como os contratos no TS1 são dinâmicos e disputados a tapa, consegui duas ofertas oficiais dentro do seu bloco... mais uma opção inusitada da diretoria.",
               "actions": []
             },
             {
@@ -257,8 +257,8 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "painel_financeiro_baeff1",
-              "title": "Painel Financeiro BAEFF1",
+              "id": "painel_financeiro_ts1",
+              "title": "Painel Financeiro TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
               "text": "BÔNUS INICIAL (MILESIMUS): +000.100 mls creditados na conta do estrategista.\nESTADO: AGUARDANDO CLIQUE NO LINK DO E-MAIL.\nPRÓXIMA ETAPA: CENTRAL DE OPERAÇÕES // ESCOLHA DE EQUIPE (`/headquarters`).",
               "actions": []
@@ -414,7 +414,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
           "id": "mensagem_de_abertura",
           "title": "Mensagem de Abertura",
           "speaker": "DIRETOR DE OPERAÇÕES",
-          "text": "Identificação confirmada. Seus canal de e-mail foi homologado na BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.",
+          "text": "Identificação confirmada. Seu canal de e-mail foi homologado no TS1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.",
           "actions": []
         },
         {
@@ -844,10 +844,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B101-INIT` — Sincronização de satélites e servidores locais. Abertura do Book de Mercados em modo pre-race.",
+              "text": "`TS1-SYS // B101-INIT` — Sincronização de satélites e servidores locais. Abertura do Book de Mercados em modo pre-race.",
               "actions": []
             }
           ]
@@ -878,10 +878,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B102-INFRA` — Validação de frequências de rádio e cotações MLS base.",
+              "text": "`TS1-SYS // B102-INFRA` — Validação de frequências de rádio e cotações MLS base.",
               "actions": []
             }
           ]
@@ -912,10 +912,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B103-COMPOUNDS` — Divulgação oficial dos compostos C1-C5 e zonas de DRS. Abertura das previsões de Poletime.",
+              "text": "`TS1-SYS // B103-COMPOUNDS` — Divulgação oficial dos compostos C1-C5 e zonas de DRS. Abertura das previsões de Poletime.",
               "actions": []
             }
           ]
@@ -946,10 +946,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B104-SCRUTINEER` — Homologação dos monopostos. Contagem regressiva oficial.",
+              "text": "`TS1-SYS // B104-SCRUTINEER` — Homologação dos monopostos. Contagem regressiva oficial.",
               "actions": []
             }
           ]
@@ -987,10 +987,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B105-PRACTICE` — Relatório de telemetria pós-treinos liberado. Alerta: Janela Poletime fecha no início do Q1.",
+              "text": "`TS1-SYS // B105-PRACTICE` — Relatório de telemetria pós-treinos liberado. Alerta: Janela Poletime fecha no início do Q1.",
               "actions": []
             }
           ]
@@ -1021,10 +1021,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B106-GRID` — Fechamento definitivo do Poletime e abertura de Duelos e Volta Rápida.",
+              "text": "`TS1-SYS // B106-GRID` — Fechamento definitivo do Poletime e abertura de Duelos e Volta Rápida.",
               "actions": []
             }
           ]
@@ -1055,10 +1055,10 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
               "actions": []
             },
             {
-              "id": "boletim_baeff1",
-              "title": "Boletim BAEFF1",
+              "id": "boletim_ts1",
+              "title": "Boletim TS1",
               "speaker": "DIRETOR DE OPERAÇÕES",
-              "text": "`BAEFF1-SYS // B107-RESULTS` — Auditoria das apostas, liquidação de dividendos MLS e atualização do ranking geral.",
+              "text": "`TS1-SYS // B107-RESULTS` — Auditoria das apostas, liquidação de dividendos MLS e atualização do ranking geral.",
               "actions": []
             }
           ]
@@ -1224,7 +1224,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
           "id": "engenheiro_de_telemetria_setor_roxo_no_poletime_",
           "title": "Engenheiro de Telemetria (Setor Roxo no Poletime)",
           "speaker": "DIRETOR DE OPERAÇÕES",
-          "text": "Confirmação da BAEF: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!",
+          "text": "Confirmação do TS1: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!",
           "actions": []
         },
         {
@@ -1257,7 +1257,7 @@ export const MASTER_DIALOGUES_DATA: MasterScriptData = {
     "B": "Sangue quente. Você escolheu a paixão de Maranello e a agressividade da nova parceira americana. Aqui não existe desculpa para o segundo lugar: ou suas previsões nos colocam na frente ou a torcida te destrói.",
     "C": "Adoro a ousadia. Você foi direto no terreno desconhecido da Ford, da Honda e da Audi. Motores inéditos trazem riscos brutais, mas é no caos que os maiores estrategistas da história constroem dinastias."
   },
-  "headquartersSpeech": "Identificação confirmada. Seus canal de e-mail foi homologado na BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP fará diferença na sua trajetória;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILESIMUS: Faça o máximo de pontos possíveis nos finais de semana de Grand Prix e traga MLS para a equipe;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Colocar nossa aliança técnica no topo do campeonato.\n\nDuas propostas caíram na sua mesa. Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.",
+  "headquartersSpeech": "Identificação confirmada. Seu canal de e-mail foi homologado no TS1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.\n\nAntes de assinar, preste atenção no que a diretoria exige de você nesta temporada:\n1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP fará diferença na sua trajetória;\n2. CLASSIFICAÇÃO DE ELITE NA COMPETIÇÃO MILESIMUS: Faça o máximo de pontos possíveis nos finais de semana de Grand Prix e traga MLS para a equipe;\n3. LIDERANÇA ABSOLUTA NO MUNDIAL DE MOTORES: Colocar nossa aliança técnica no topo do campeonato.\n\nDuas propostas caíram na sua mesa. Assine com uma das garagens para desbloquear sua credencial no Pit Wall. A outra vaga será preenchida por um rival.",
   "teamPrincipalWelcomes": {
     "T.WOLFF": "Bem-vindo à nossa garagem. Aqui em Brackley nós não toleramos desculpas, toleramos dados. Se a sua telemetria for precisa, você terá o pit wall mais respeitado do grid.",
     "F.VASSEUR": "Benvenuto a Maranello. Você agora representa a paixão de milhões de tifosi. Não procure inventar estratégias mirabolantes: faça o simples com perfeição cirúrgica.",

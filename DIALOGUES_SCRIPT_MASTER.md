@@ -1,4 +1,4 @@
-# Roteiro Canônico de Diálogos & Narrativa // BAEFF1 Paddock Intelligence
+# Roteiro Canônico de Diálogos & Narrativa // TS1 Paddock Intelligence
 > **Documento Oficial de Consulta e Edição de Diálogos**  
 > *Versão:* 2.0 (Guerra dos Motores & Temporada 2026)  
 > *Tom Narrativo:* Cyberpunk Noir, Terminal de Pitwall, Alta Fidelidade F1, Thriller Corporativo.
@@ -24,7 +24,7 @@
 
 ### 1.1 Versão 1.0 (Clássica / Roteiro Original do Onboarding)
 *Cenário:* Uma sala fechada com vista chuvosa para o pitlane noturno. O silêncio é quebrado apenas pelos cliques de relés mecânicos e monitores âmbar.  
-*Personagem:* **Diretor de Operações BAEFF1**  
+*Personagem:* **Diretor de Operações TS1**  
 *Arquivo Fonte:* `src/locales/invite.ts`, `src/app/lore/page.tsx`
 
 #### Sequência do Diálogo:
@@ -41,7 +41,7 @@
   > *“Então... onde você vai colocar suas fichas?”*  
   *(Gatilho: Desbloqueio da seleção das 3 alianças técnicas.)*
 - **Linha 5 (Após seleção do bloco):**  
-  > *“Entendo perfeitamente sua escolha. Como os contratos na BAEFF1 são dinâmicos e disputados a tapa, consegui duas ofertas oficiais dentro do seu bloco... mais uma opção inusitada da diretoria.”*  
+  > *“Entendo perfeitamente sua escolha. Como os contratos no TS1 são dinâmicos e disputados a tapa, consegui duas ofertas oficiais dentro do seu bloco... mais uma opção inusitada da diretoria.”*  
   *(Gatilho: Ofertas de garagens vagas.)*
 - **Linha 6 (Formalização da Superlicença):**  
   > *“Preciso de uma linha criptografada e da sua assinatura digital. Quem estou representando hoje no Pit Wall?”*
@@ -49,8 +49,8 @@
 ---
 
 ### 1.2 Versão 2.0 (Atual Dinâmica — Implementada em `/invite` e `InviteFlow`)
-*Cenário:* O jogador caminha em pixel art rumo ao motorhome da BAEFF1 (`/pixel_invite_walk.jpg`) e entra na central de dados iluminada por telas de telemetria CRT (`/pixel_invite_bg_v2.jpg`). O ritmo é pontuado por som de máquina mecânica (`PitWallSoundEngine`), paginação de tela limpa e contagem de transição automática de 10 segundos.  
-*Personagem:* **Diretor Executivo de Operações BAEFF1**  
+*Cenário:* O jogador caminha em pixel art rumo ao motorhome do TS1 (`/pixel_invite_walk.jpg`) e entra na central de dados iluminada por telas de telemetria CRT (`/pixel_invite_bg_v2.jpg`). O ritmo é pontuado por som de máquina mecânica (`PitWallSoundEngine`), paginação de tela limpa e contagem de transição automática de 10 segundos.  
+*Personagem:* **Diretor Executivo de Operações TS1**  
 *Arquivo Fonte:* `src/components/invite-flow.tsx`
 
 #### Fase 1: Recepção Inicial (Caminhada ao Motorhome)
@@ -108,7 +108,7 @@
   > *“VERIFIQUE SEU E-MAIL: Um link de homologação foi transmitido. Clique no link de confirmação para validar sua Superlicença e desbloquear as duas vagas de equipe no pitwall.”*
 - **Sorteio do Conselheiro Sênior do Pitwall:**  
   > *Um dos 24 Estrategistas Sêniores (ex: `M.AMON`, `T.WARWICK`) é sorteado para ser o mentor exclusivo do piloto, já exibindo sua frase de impacto e índice de assertividade histórica.*  
-- **Painel Financeiro BAEFF1:**  
+- **Painel Financeiro TS1:**  
   > *BÔNUS INICIAL (MILESIMUS): +000.100 mls creditados na conta do estrategista.*  
   > *ESTADO: AGUARDANDO CLIQUE NO LINK DO E-MAIL.*  
   > *PRÓXIMA ETAPA: CENTRAL DE OPERAÇÕES // ESCOLHA DE EQUIPE (`/headquarters`).*
@@ -160,7 +160,7 @@
 *Arquivo Fonte:* `src/app/headquarters/page.tsx`
 
 - **Mensagem de Abertura:**  
-  > *“Identificação confirmada. Seus canal de e-mail foi homologado na BAEFF1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.”*
+  > *“Identificação confirmada. Seu canal de e-mail foi homologado no TS1. Temos garagens oficiais com vagas abertas na nossa aliança dentro do seu grupo.”*
 - **Exigências da Diretoria para a Temporada:**  
   > *“Antes de assinar, preste atenção no que a diretoria exige de você nesta temporada:*  
   > *1. MÁXIMA PRECISÃO NO FORMULÁRIO TOP 10 FINISH: Leitura cirúrgica de ritmo de corrida, desgaste de pneus e previsão de pitstops em cada GP fará diferença na sua trajetória;*  
@@ -262,28 +262,28 @@
 - **Diálogo de Paddock:**  
   > *“Nossas cargas tocaram o solo do autódromo. A garagem está sendo montada. Comece alinhando os parâmetros do Grande Prêmio. A semana de GP é curta e cada erro de telemetria custa caro.”*
 - **Alvo Tático:** Alinhamento com o Chefe de Equipe e introdução das características de downforce do traçado.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B101-INIT` — Sincronização de satélites e servidores locais. Abertura do Book de Mercados em modo pre-race.
+- **Boletim TS1:** `TS1-SYS // B101-INIT` — Sincronização de satélites e servidores locais. Abertura do Book de Mercados em modo pre-race.
 
 ### Dia 2 — Terça-feira (Pit Wall & Mecânica)
 - **Voz:** Estrategista Sênior (Mentor)
 - **Diálogo de Paddock:**  
   > *“O motor está no chassi. A fábrica está simulando janelas de degradação térmica para as retas do circuito. Acompanhe o clima previsto antes de definir os alvos de tempo.”*
 - **Alvo Tático:** Estimular análise de clima e direção dos ventos para poletime e corrida.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B102-INFRA` — Validação de frequências de rádio e cotações MLS base.
+- **Boletim TS1:** `TS1-SYS // B102-INFRA` — Validação de frequências de rádio e cotações MLS base.
 
 ### Dia 3 — Quarta-feira (Track Walk & Pneus Pirelli)
 - **Voz:** Estrategista Sênior (Mentor)
 - **Diálogo de Paddock:**  
   > *“Caminhamos pelo asfalto esta manhã. As zebras externas exigem cuidado com assoalho. Ajuste sua estimativa de desgaste e paradas de box no terminal.”*
 - **Alvo Tático:** Fornecer dados técnicos de pista para refinar o Top 10 e Duelos H2H.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B103-COMPOUNDS` — Divulgação oficial dos compostos C1-C5 e zonas de DRS. Abertura das previsões de Poletime.
+- **Boletim TS1:** `TS1-SYS // B103-COMPOUNDS` — Divulgação oficial dos compostos C1-C5 e zonas de DRS. Abertura das previsões de Poletime.
 
 ### Dia 4 — Quinta-feira (Media Day & Escrutínio Técnico)
 - **Voz:** Estrategista Sênior (Mentor)
 - **Diálogo de Paddock:**  
   > *“Monopostos aprovados na balança sem infrações. O alvo de Poletime projetado pela nossa equipe fica na faixa recomendada. Abra seu formulário e faça as primeiras marcações.”*
 - **Alvo Tático:** Pressionar o estrategista a registrar seu Poletime antes dos treinos decisivos.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B104-SCRUTINEER` — Homologação dos monopostos. Contagem regressiva oficial.
+- **Boletim TS1:** `TS1-SYS // B104-SCRUTINEER` — Homologação dos monopostos. Contagem regressiva oficial.
 
 ### Dia 5 — Sexta-feira (Treinos Livres / Sprint Shootout)
 - **Voz:** Estrategista Sênior (Mentor)
@@ -292,21 +292,21 @@
 - **Diálogo de Paddock (Fim de semana Sprint):**  
   > *“Semana Sprint não perdoa hesitação: apenas 60 minutos de FP1 e entramos direto na disputa do grid Sprint. Olhe a velocidade máxima nos setores e crave seu palpite!”*
 - **Alvo Tático:** Entregar o insider de ritmo real para guiar a seleção de Top 10 e Duelos H2H.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B105-PRACTICE` — Relatório de telemetria pós-treinos liberado. Alerta: Janela Poletime fecha no início do Q1.
+- **Boletim TS1:** `TS1-SYS // B105-PRACTICE` — Relatório de telemetria pós-treinos liberado. Alerta: Janela Poletime fecha no início do Q1.
 
 ### Dia 6 — Sábado (Classificação Oficial & Parque Fechado)
 - **Voz:** Chefe de Equipe
 - **Diálogo de Paddock:**  
   > *“O grid de largada está homologado e os carros entram em regime de Parque Fechado. A diretoria espera precisão total na montagem do Top 10 e nas apostas de duelo. Mostre seu valor no pit wall.”*
 - **Alvo Tático:** Conectar resultado da classificação com o Poletime e preparar as previsões de domingo.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B106-GRID` — Fechamento definitivo do Poletime e abertura de Duelos e Volta Rápida.
+- **Boletim TS1:** `TS1-SYS // B106-GRID` — Fechamento definitivo do Poletime e abertura de Duelos e Volta Rápida.
 
 ### Dia 7 — Domingo (Dia do GP & Pós-Bandeirada)
 - **Voz:** Chefe de Equipe
 - **Diálogo de Paddock:**  
   > *“Bandeirada quadriculada no Grande Prêmio! As decisões de pit stop definiram o resultado. Acesse o extrato de Milesimus (MLS) no seu painel: os dividendos das posições homologadas já estão disponíveis.”*
 - **Alvo Tático:** Debriefing da rodada, cálculo de dividendos MLS e atualização do ranking Master.
-- **Boletim BAEFF1:** `BAEFF1-SYS // B107-RESULTS` — Auditoria das apostas, liquidação de dividendos MLS e atualização do ranking geral.
+- **Boletim TS1:** `TS1-SYS // B107-RESULTS` — Auditoria das apostas, liquidação de dividendos MLS e atualização do ranking geral.
 
 ---
 
@@ -371,11 +371,11 @@
 - **Engenheiro de Pista (Alerta de Chuva / Janela de Box):**  
   > *“Box, box! A previsão do delta indicou chuva em 3 voltas. Entrando agora estamos com ar limpo.”*
 - **Engenheiro de Telemetria (Setor Roxo no Poletime):**  
-  > *“Confirmação da BAEF: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!”*
+  > *“Confirmação do TS1: seu piloto acabou de fechar o setor 2 no roxo. A pontuação de pole está subindo no quadro!”*
 - **Estrategista de Tráfego (Undercut Confirmado):**  
   > *“Ele saiu dos boxes atrás de você! O undercut funcionou perfeitamente. Posição ganha na pista!”*
 - **Conselheiro de Paddock (Final de Semana Sprint):**  
   > *“Parque Fechado trancado até amanhã de manhã. O acerto que você escolheu agora vai ter que aguentar a Sprint inteira. Sem choro na mureta.”*
 
 ---
-*Este documento pode ser editado livremente para calibrar tons, criar novos diálogos de eventos especiais e expandir a mitologia corporativa do BAEFF1.*
+*Este documento pode ser editado livremente para calibrar tons, criar novos diálogos de eventos especiais e expandir a mitologia corporativa do TS1.*
