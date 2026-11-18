@@ -10,18 +10,18 @@ const BetNow = (props) => {
     return (
         <div className="bet-now-container1">
             <Helmet>
-                <title>VoltGrid – Racing Betting & Fantasy Game Platform</title>
+                <title>The Strategist One – Racing Betting & Fantasy Game Platform</title>
                 <meta
                     name="description"
-                    content="Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join VoltGrid for strategic wagering and real-time race analytics."
+                    content="Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join The Strategist One for strategic wagering and real-time race analytics."
                 />
                 <meta
                     property="og:title"
-                    content="VoltGrid – Racing Betting &amp; Fantasy Game Platform"
+                    content="The Strategist One – Racing Betting &amp; Fantasy Game Platform"
                 />
                 <meta
                     property="og:description"
-                    content="Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join VoltGrid for strategic wagering and real-time race analytics."
+                    content="Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join The Strategist One for strategic wagering and real-time race analytics."
                 />
                 <meta
                     property="og:image"
@@ -30,11 +30,11 @@ const BetNow = (props) => {
                 <meta property="og:type" content="website" />
                 <meta
                     name="twitter:title"
-                    content="VoltGrid – Racing Betting &amp; Fantasy Game Platform"
+                    content="The Strategist One – Racing Betting &amp; Fantasy Game Platform"
                 />
                 <meta
                     name="twitter:description"
-                    content="Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join VoltGrid for strategic wagering and real-time race analytics."
+                    content="Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join The Strategist One for strategic wagering and real-time race analytics."
                 />
                 <meta
                     name="twitter:image"
@@ -52,14 +52,14 @@ const BetNow = (props) => {
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
                         __html:
-                            '{"@context":"https://schema.org","@type":"Organization","name":"VoltGrid – Racing Betting & Fantasy Game Platform","url":"https://ripe-sympathetic-cormorant-9ilgxh.teleporthq.site","logo":"https://aheioqhobo.cloudimg.io/v7/_playground-bucket-v2.teleporthq.io_/fea89e45-b7dd-4392-9162-26627e927c11/97fb9ebf-cb64-45ab-98a1-2a3638dab07f?org_if_sml=1&force_format=original"}',
+                            '{"@context":"https://schema.org","@type":"Organization","name":"The Strategist One – Racing Betting & Fantasy Game Platform","url":"https://ripe-sympathetic-cormorant-9ilgxh.teleporthq.site","logo":"https://aheioqhobo.cloudimg.io/v7/_playground-bucket-v2.teleporthq.io_/fea89e45-b7dd-4392-9162-26627e927c11/97fb9ebf-cb64-45ab-98a1-2a3638dab07f?org_if_sml=1&force_format=original"}',
                     }}
                 />
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
                         __html:
-                            '{"@context":"https://schema.org","@type":"WebSite","name":"VoltGrid – Racing Betting & Fantasy Game Platform","url":"https://ripe-sympathetic-cormorant-9ilgxh.teleporthq.site","description":"Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join VoltGrid for strategic wagering and real-time race analytics."}',
+                            '{"@context":"https://schema.org","@type":"WebSite","name":"The Strategist One – Racing Betting & Fantasy Game Platform","url":"https://ripe-sympathetic-cormorant-9ilgxh.teleporthq.site","description":"Experience Formula 1-inspired betting, fantasy gaming, and live dashboards. Join The Strategist One for strategic wagering and real-time race analytics."}',
                     }}
                 />
             </Helmet>

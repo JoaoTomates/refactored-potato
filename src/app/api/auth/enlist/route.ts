@@ -75,7 +75,7 @@ export async function POST(request: Request) {
         let emailToUse = rawEmail.toLowerCase();
         if (!emailToUse.includes('@')) {
             if (testMode) {
-                emailToUse = `${emailToUse.replace(/[^0-9a-z]/g, '')}@baeff1.com`;
+                emailToUse = `${emailToUse.replace(/[^0-9a-z]/g, '')}@ts1.com`;
             } else {
                 return NextResponse.json(
                     { error: 'Informe um endereço de e-mail válido para emissão da Superlicença.' },

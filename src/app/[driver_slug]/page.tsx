@@ -50,7 +50,7 @@ import { useThemeStore, STANDARD_ACCENT_OPTIONS } from '@/store/useThemeStore';
 
 
 /* ============================================================
- * BAEFF1 // DASHBOARD OFICIAL DO ESTRATEGISTA (PÁGINA DO ARROBA)
+ * TS1 // DASHBOARD OFICIAL DO ESTRATEGISTA (PÁGINA DO ARROBA)
  * Integrado com:
  * 1. Poletime (Qualify & Grid)
  * 2. Master (Previsões de Corrida)
@@ -1185,7 +1185,7 @@ export default function OfficialStrategistDashboard() {
                         const redirectKey = 'redirect_slug_guard';
                         const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
                         if (count > 2) {
-                            console.warn('[BAEFF1 Guard] Loop detectado em driver_slug. Redirecionamento interrompido.');
+                            console.warn('[TS1 Guard] Loop detectado em driver_slug. Redirecionamento interrompido.');
                         } else {
                             sessionStorage.setItem(redirectKey, String(count + 1));
                             router.replace('/headquarters');
@@ -1701,7 +1701,7 @@ export default function OfficialStrategistDashboard() {
 
         return [
             `Bom dia, ${me.name}. Cotação base de abertura fixada em ${formatMls(currentBalance)} MLS. Nenhum evento homologado no momento.`,
-            `Grid BAEFF1 oficial: ${field.length} estrategistas confirmados com contratos ativos.`,
+            `Grid TS1 oficial: ${field.length} estrategistas confirmados com contratos ativos.`,
             `O ${ALLIANCES[allianceId].name} acompanha sua telemetria. Rating inicial: AAA.`,
             partnerMsg,
             predMsg,
@@ -1777,7 +1777,7 @@ export default function OfficialStrategistDashboard() {
                 >
                     <div className="flex items-center gap-3">
                         <Link href="/" className="text-lg md:text-xl font-black tracking-widest hover:opacity-80 transition-opacity">
-                            BAEFF<span style={{ color: mainAccent }}>1</span>
+                            TS<span style={{ color: mainAccent }}>1</span>
                         </Link>
                         <span className="hidden md:inline text-[10px] tracking-[0.3em] text-white/40">// TERMINAL DO ESTRATEGISTA</span>
                         <span
@@ -1828,7 +1828,7 @@ export default function OfficialStrategistDashboard() {
                     </div>
                 </header>
 
-                {/* Ticker Nasdaq dentro da página, logo abaixo do menu BAEFF1 // Terminal do Estrategista */}
+                {/* Ticker Nasdaq dentro da página, logo abaixo do menu TS1 // Terminal do Estrategista */}
                 <NasdaqTicker />
 
                 {isDemo ? (
@@ -2463,7 +2463,7 @@ export default function OfficialStrategistDashboard() {
                                         </span>
                                         <div className="flex items-center justify-between text-[8px] mt-1 uppercase font-bold" style={{ color: masterTheme.textColor }}>
                                             <span>P{competitionTiers.meta.userGroupRank} NO GRUPO</span>
-                                            <span>{competitionTiers.master === 'green' ? 'ZONA BAEF (P1-P10)' : 'FORA DOS PONTOS'}</span>
+                                            <span>{competitionTiers.master === 'green' ? 'ZONA TS1 (P1-P10)' : 'FORA DOS PONTOS'}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -2832,10 +2832,10 @@ export default function OfficialStrategistDashboard() {
                                             <div className="p-3 rounded bg-white/5 border border-white/10 flex flex-col gap-1.5">
                                                 <div className="flex items-center justify-between text-[9px] text-white/40 border-b border-white/5 pb-1">
                                                     <span className="font-bold text-[#fbaa19]">[COMUNICADO DA ALIANÇA // {ALLIANCES[allianceId].name}]</span>
-                                                    <span>HOMOLOGADO PELA BAEF</span>
+                                                    <span>HOMOLOGADO PELO TS1</span>
                                                 </div>
                                                 <p className="text-white/80 text-[11px]">
-                                                    "Atenção a todos os estrategistas do bloco: atualização de mapa de motor homologada pela BAEF. O multiplicador de construtores está ativo para o próximo Grande Prêmio."
+                                                    "Atenção a todos os estrategistas do bloco: atualização de mapa de motor homologada pelo TS1. O multiplicador de construtores está ativo para o próximo Grande Prêmio."
                                                 </p>
                                             </div>
 
@@ -3252,7 +3252,7 @@ export default function OfficialStrategistDashboard() {
 
                 <footer className="max-w-[1500px] mx-auto px-3 md:px-6 pb-8 flex flex-wrap justify-between gap-2 text-[9px] tracking-[0.3em] text-white/25">
                     <span>SINAL: ESTÁVEL · CANAL CRIPTOGRAFADO</span>
-                    <span>BAEFF1 TERMINAL // PAINEL OFICIAL DO ESTRATEGISTA {targetSlug.toUpperCase()}</span>
+                    <span>TS1 TERMINAL // PAINEL OFICIAL DO ESTRATEGISTA {targetSlug.toUpperCase()}</span>
                 </footer>
             </div>
 

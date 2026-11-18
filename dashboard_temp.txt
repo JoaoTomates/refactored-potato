@@ -95,7 +95,7 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                                 
                                 {/* Slide 1: MLS (Milésimos) */}
                                 <div className="w-full shrink-0 snap-center flex flex-col items-center justify-center px-4">
-                                    <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">VoltGrid Currency</span>
+                                    <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">TS1 Currency</span>
                                     <div className="flex items-baseline gap-1 drop-shadow-[0_0_10px_rgba(251,170,25,0.3)]">
                                         <span className="text-4xl md:text-5xl font-black font-display tracking-tighter text-[#fbaa19]">000.000</span>
                                         <span className="text-sm font-bold text-[#fbaa19]">mls</span>
@@ -269,7 +269,7 @@ export default function DashboardHome({ profile, setActiveView, logout }: Dashbo
                     
                     <div className="relative z-10 flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">VoltGrid Paddock</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">TS1 Paddock</span>
                             <h3 className="text-xl font-black uppercase tracking-widest font-display leading-tight">Daily Briefing</h3>
                         </div>
                         

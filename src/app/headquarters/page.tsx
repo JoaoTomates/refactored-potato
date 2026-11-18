@@ -89,7 +89,7 @@ function HeadquartersFlow() {
                     const redirectKey = 'redirect_hq_guard';
                     const count = parseInt(sessionStorage.getItem(redirectKey) || '0', 10);
                     if (count > 2) {
-                        console.warn('[BAEFF1 Guard] Loop detectado em headquarters. Redirecionamento interrompido.');
+                        console.warn('[TS1 Guard] Loop detectado em headquarters. Redirecionamento interrompido.');
                     } else {
                         sessionStorage.setItem(redirectKey, String(count + 1));
                         const normalizedSlug = normalizeAtSlug(userSlug);
@@ -306,7 +306,7 @@ function HeadquartersFlow() {
                 >
                     <div className="w-12 h-12 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[#fbaa19] font-bold tracking-widest uppercase text-[calc(0.75rem+0.5px)] animate-pulse">
-                        &gt;_ SINCRONIZANDO TELEMETRIA COM A BASE DE DADOS DA BAEFF1...
+                        &gt;_ SINCRONIZANDO TELEMETRIA COM A BASE DE DADOS DO TS1...
                     </p>
                 </div>
             </main>
@@ -512,7 +512,7 @@ O que essas equipes esperam de você:
 
                 {/* Rodapé institucional */}
                 <div className="text-center text-[11px] text-gray-400 tracking-widest uppercase border-t border-white/10 pt-4 flex flex-col gap-1 font-mono">
-                    <p>&gt;_ CONTRATO VINCULANTE TEMPORADA 2026 • HOMOLOGAÇÃO SOB DIRETRIZES DA BAEFF1</p>
+                    <p>&gt;_ CONTRATO VINCULANTE TEMPORADA 2026 • HOMOLOGAÇÃO SOB DIRETRIZES DO TS1</p>
                     <p className="text-[10px] text-gray-400">Após a confirmação, o assento é reservado e intransferível até a janela de Silly Season.</p>
                 </div>
 

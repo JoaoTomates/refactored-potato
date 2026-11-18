@@ -72,7 +72,7 @@ export default function DangerZoneDeleteAccount() {
             window.location.href = '/?account_deleted=1';
         } catch (err: any) {
             console.error("Erro ao excluir conta:", err);
-            setErrorMessage(err.message || "Falha ao processar exclusão. Tente novamente ou contate o suporte da BAEF.");
+            setErrorMessage(err.message || "Falha ao processar exclusão. Tente novamente ou contate o suporte do TS1.");
             setIsDeleting(false);
         }
     };
@@ -93,7 +93,7 @@ export default function DangerZoneDeleteAccount() {
                             Revogar Superlicença & Excluir Conta
                         </h3>
                         <p className="text-white/60 text-xs max-w-xl leading-relaxed">
-                            A exclusão da conta é permanente e irreversível. Todas as suas previsões, contratos com alianças, histórico de telemetria e sua credencial de estrategista serão purgados dos bancos de dados oficiais do BAEFF1.
+                            A exclusão da conta é permanente e irreversível. Todas as suas previsões, contratos com alianças, histórico de telemetria e sua credencial de estrategista serão purgados dos bancos de dados oficiais do TS1.
                         </p>
                     </div>
 

@@ -87,7 +87,7 @@ export function isDashboardRoute(pathname: string | null): boolean {
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isDashboard = isDashboardRoute(pathname) && pathname !== '/pitwall';
-    // O Dashboard /[driver_slug] renderiza o NasdaqTicker internamente logo abaixo do header BAEFF1
+    // O Dashboard /[driver_slug] renderiza o NasdaqTicker internamente logo abaixo do header TS1
     const isDriverSlugDashboard = Boolean(pathname) && !pathname!.startsWith('/nc/') && pathname !== '/pitwall' && isDashboard;
 
     return (

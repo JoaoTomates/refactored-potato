@@ -27,7 +27,7 @@ function RankingsContent() {
 
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono text-gray-500 uppercase">
-                        VOLTGRID RANKINGS V2 // TELEMETRIA OFICIAL
+                        TS1 RANKINGS V2 // TELEMETRIA OFICIAL
                     </span>
                 </div>
             </div>

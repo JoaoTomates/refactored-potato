@@ -9,7 +9,7 @@ const Logo = (props) => {
     return (
         <div className="logo-container1">
             {props.isOnDarkBackground === false && (
-                <div className="logo-thq-voltgrid-logo-light-elm voltgrid-logo-light">
+                <div className="logo-thq-thestrategistone-logo-light-elm thestrategistone-logo-light">
                     <div className="logo-lockup">
                         <div className="logo-mark">
                             <svg
@@ -38,14 +38,14 @@ const Logo = (props) => {
                             </svg>
                         </div>
                         <div className="logo-text-group">
-                            <span className="logo-brand">VOLTGRID</span>
+                            <span className="logo-brand">THE STRATEGIST ONE</span>
                             <span className="logo-tagline">RACING SYSTEMS</span>
                         </div>
                     </div>
                 </div>
             )}
             {props.isOnDarkBackground === true && (
-                <div className="logo-thq-voltgrid-logo-dark-elm voltgrid-logo-dark">
+                <div className="logo-thq-thestrategistone-logo-dark-elm thestrategistone-logo-dark">
                     <div className="logo-lockup">
                         <div className="logo-mark">
                             <svg
@@ -74,7 +74,7 @@ const Logo = (props) => {
                             </svg>
                         </div>
                         <div className="logo-text-group">
-                            <span className="logo-brand">VOLTGRID</span>
+                            <span className="logo-brand">THE STRATEGIST ONE</span>
                             <span className="logo-tagline">RACING SYSTEMS</span>
                         </div>
                     </div>
@@ -83,7 +83,7 @@ const Logo = (props) => {
             <div className="logo-container2">
                 <div className="logo-container3">
                     <Script
-                        html={`<script defer data-name="voltgrid-logo-logic">
+                        html={`<script defer data-name="thestrategistone-logo-logic">
 (function(){
 document.addEventListener('DOMContentLoaded', () => {
   /* Logo interaction logic if needed in future */

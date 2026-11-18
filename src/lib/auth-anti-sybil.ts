@@ -103,7 +103,7 @@ export function hashSignal(value: string): string {
     const secret =
         process.env.ANTI_SYBIL_SECRET ||
         process.env.SUPABASE_SERVICE_ROLE_KEY ||
-        'baeff1-local-dev-signal-salt';
+        'ts1-local-dev-signal-salt';
     return crypto.createHmac('sha256', secret).update(value.trim().toLowerCase()).digest('hex');
 }
 

@@ -30,7 +30,7 @@ export const useTeamworkAuto = () => {
         type: 'BASELINE',
         count: 0,
         label: 'TELEMETRIA OFICIAL F1',
-        description: 'Sem histórico de ordens no momento. Calibrado pelo benchmark da BAEF.',
+        description: 'Sem histórico de ordens no momento. Calibrado pelo benchmark do TS1.',
         tier: 'RED',
         helpBorder: '#ef4444',
         dot: 'bg-red-500 animate-pulse',

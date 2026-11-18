@@ -1097,7 +1097,7 @@ export default function PlaygroundPage() {
                                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 flex items-center gap-1.5">
                                     <span style={{ color: teamColor }}>⚡</span> AÇÕES & FERRAMENTAS DO ESTRATEGISTA
                                 </span>
-                                <span className="text-[9px] text-white/30 uppercase tracking-widest">SISTEMA BAEFF1</span>
+                                <span className="text-[9px] text-white/30 uppercase tracking-widest">SISTEMA TS1</span>
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-[10px] tracking-widest uppercase font-bold">
@@ -1214,7 +1214,7 @@ export default function PlaygroundPage() {
 
                 <footer className="max-w-[1500px] mx-auto px-3 md:px-6 pb-8 flex flex-wrap justify-between gap-2 text-[9px] tracking-[0.3em] text-white/25">
                     <span>SINAL: ESTÁVEL · CANAL CRIPTOGRAFADO</span>
-                    <span>BAEFF1 PLAYGROUND · TERMINAL MULTI-MODAL COM AÇÕES INTEGRADAS</span>
+                    <span>TS1 PLAYGROUND · TERMINAL MULTI-MODAL COM AÇÕES INTEGRADAS</span>
                 </footer>
             </div>
         </main>

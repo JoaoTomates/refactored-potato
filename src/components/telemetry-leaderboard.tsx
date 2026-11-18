@@ -73,7 +73,7 @@ export default function TelemetryLeaderboard() {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-bold uppercase tracking-widest text-sm md:text-base text-black dark:text-white">{user.name}</span>
-                                    <span className="text-xs text-gray-500 uppercase tracking-widest">BAEFF1 Pro</span>
+                                    <span className="text-xs text-gray-500 uppercase tracking-widest">TS1 Pro</span>
                                 </div>
                             </div>
 

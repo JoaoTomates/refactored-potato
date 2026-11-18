@@ -9,19 +9,19 @@ import './footer.css'
 const Footer = (props) => {
     return (
         <div className="footer-container1">
-            <footer className="footer-thq-voltgrid-footer-root-elm voltgrid-footer-root">
-                <div className="voltgrid-footer-inner">
-                    <div className="voltgrid-footer-layout">
-                        <div className="voltgrid-footer-copyright-group">
-                            <div className="voltgrid-footer-brand-mark">
+            <footer className="footer-thq-thestrategistone-footer-root-elm thestrategistone-footer-root">
+                <div className="thestrategistone-footer-inner">
+                    <div className="thestrategistone-footer-layout">
+                        <div className="thestrategistone-footer-copyright-group">
+                            <div className="thestrategistone-footer-brand-mark">
                                 <Link to="/homepage">
-                                    <div className="voltgrid-footer-logo-link">
+                                    <div className="thestrategistone-footer-logo-link">
                                         <Logo isOnDarkBackground={false}></Logo>
                                     </div>
                                 </Link>
                             </div>
-                            <div className="voltgrid-footer-legal-copy">
-                                <div className="voltgrid-footer-icon-wrap">
+                            <div className="thestrategistone-footer-legal-copy">
+                                <div className="thestrategistone-footer-icon-wrap">
                                     <svg
                                         fill="none"
                                         width="14"
@@ -37,32 +37,32 @@ const Footer = (props) => {
                                         <path d="M14.83 14.83a4 4 0 1 1 0-5.66"></path>
                                     </svg>
                                 </div>
-                                <span className="voltgrid-footer-year">2026</span>
-                                <span className="voltgrid-footer-company">
-                                    VoltGrid Telemetry. All rights reserved.
+                                <span className="thestrategistone-footer-year">2026</span>
+                                <span className="thestrategistone-footer-company">
+                                    The Strategist One Telemetry. All rights reserved.
                                 </span>
                             </div>
                         </div>
-                        <nav aria-label="Legal navigation" className="voltgrid-footer-nav">
-                            <ul className="voltgrid-footer-links">
-                                <li className="voltgrid-footer-link-item">
+                        <nav aria-label="Legal navigation" className="thestrategistone-footer-nav">
+                            <ul className="thestrategistone-footer-links">
+                                <li className="thestrategistone-footer-link-item">
                                     <span
                                         data-planned-page="Game Asset Details"
-                                        className="voltgrid-footer-link-dummy"
+                                        className="thestrategistone-footer-link-dummy"
                                     >
                                         Asset Registry
                                     </span>
                                 </li>
-                                <li className="voltgrid-footer-link-item">
+                                <li className="thestrategistone-footer-link-item">
                                     <Link to="/terms-conditions">
-                                        <div className="voltgrid-footer-link">
+                                        <div className="thestrategistone-footer-link">
                                             <span>Terms of Service</span>
                                         </div>
                                     </Link>
                                 </li>
-                                <li className="voltgrid-footer-link-item">
+                                <li className="thestrategistone-footer-link-item">
                                     <Link to="/terms-conditions">
-                                        <div className="voltgrid-footer-link">
+                                        <div className="thestrategistone-footer-link">
                                             <span>Privacy Policy</span>
                                         </div>
                                     </Link>
@@ -75,10 +75,10 @@ const Footer = (props) => {
             <div className="footer-container2">
                 <div className="footer-container3">
                     <Script
-                        html={`<script defer data-name="voltgrid-footer-interactions">
+                        html={`<script defer data-name="thestrategistone-footer-interactions">
 (function(){
 document.addEventListener('DOMContentLoaded', () => {
-  const yearSpan = document.querySelector('.voltgrid-footer-year');
+  const yearSpan = document.querySelector('.thestrategistone-footer-year');
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
   }

@@ -702,7 +702,7 @@ export default function TelemetryView({
                             </span>
                         </div>
                         <span className="text-[10px] text-gray-500 uppercase tracking-wider">
-                            BAEFF1 TELEMETRY PROTOCOL // MATRIX
+                            TS1 TELEMETRY PROTOCOL // MATRIX
                         </span>
                     </div>
                 </div>

@@ -27,7 +27,7 @@ export default function NewConceptInvitePage() {
 
     const previewCode = (firstName && lastName)
         ? `${firstName.charAt(0).toUpperCase()}.${lastName.toUpperCase().replace(/\s+/g, '')}88`
-        : 'PILOTO.BAEFF1';
+        : 'PILOTO.TS1';
 
     const previewSlug = (firstName && lastName)
         ? `@${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase().replace(/[^a-z0-9]/g, '')}88`
@@ -128,7 +128,7 @@ export default function NewConceptInvitePage() {
             <header className="w-full max-w-4xl mx-auto flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3">
                     <span className="text-xs font-black tracking-widest text-[#fbaa19]">
-                        NC // RECRUTAMENTO BAEFF1
+                        NC // RECRUTAMENTO TS1
                     </span>
                     <span className="text-[10px] text-white/40 uppercase tracking-widest hidden sm:inline">
                         • CONCEITO MINIMALISTA
@@ -220,7 +220,7 @@ export default function NewConceptInvitePage() {
                                 &lt;&lt; Voltar para seleção de aliança
                             </button>
                             <span className="text-[10px] font-bold text-[#fbaa19] uppercase tracking-widest">
-                                ETAPA 02 // SUPERLICENÇA BAEFF1
+                                ETAPA 02 // SUPERLICENÇA TS1
                             </span>
                             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight mt-1 text-white">
                                 Registro de Piloto e Estrategista
@@ -323,7 +323,7 @@ export default function NewConceptInvitePage() {
 
             {/* Footer Minimalista */}
             <footer className="w-full max-w-4xl mx-auto flex items-center justify-between border-t border-white/10 pt-4 text-[10px] text-white/40 uppercase tracking-widest">
-                <span>BAEFF1 • REQUISITOS TÉCNICOS TEMPORADA 2026</span>
+                <span>TS1 • REQUISITOS TÉCNICOS TEMPORADA 2026</span>
                 <span>PADRÃO PRIVATIVO @INITIAL_LASTNAME</span>
             </footer>
 

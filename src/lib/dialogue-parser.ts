@@ -1,5 +1,5 @@
 /**
- * BAEFF1 Markdown Dialogue & Narrative Parser
+ * TS1 Markdown Dialogue & Narrative Parser
  * 
  * Converte o arquivo canônico DIALOGUES_SCRIPT_MASTER.md em estruturas
  * de dados tipadas para consumo direto pela interface e fluxos operacionais.

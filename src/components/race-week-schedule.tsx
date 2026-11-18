@@ -38,7 +38,7 @@ export interface DaySchedule {
         message: string;
         tacticalObjective: string;
     };
-    baeff1Broadcast: {
+    ts1Broadcast: {
         code: string;
         title: string;
         systemAction: string;
@@ -219,8 +219,8 @@ export default function RaceWeekSchedule({
                 message: `“${principal.hospitalityWelcome.replace(/“|”/g, '')} Comece alinhando os parâmetros do ${eventName}. A semana de GP é curta e cada erro de telemetria custa caro.”`,
                 tacticalObjective: 'Alinhamento com o Chefe de Equipe e introdução das características de downforce do traçado.'
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B101-INIT',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B101-INIT',
                 title: 'HOMOLOGAÇÃO DA ETAPA E ABERTURA OFICIAL DO CIRCUITO',
                 systemAction: 'Sincronização de satélites e enlace criptografado com o pitwall.',
                 marketStatus: 'BOOK DE MERCADOS: ABERTO EM MODO PRE-RACE'
@@ -259,8 +259,8 @@ export default function RaceWeekSchedule({
                 message: `“O motor está no chassi. A fábrica está simulando janelas de degradação térmica para as retas de ${circuitName}. Acompanhe o clima previsto antes de definir os alvos de tempo.”`,
                 tacticalObjective: 'Estimular análise de clima e direção dos ventos para poletime e corrida.'
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B102-INFRA',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B102-INFRA',
                 title: 'VALIDAÇÃO DE FREQUÊNCIAS DE RÁDIO E SENSORES',
                 systemAction: 'Checagem de transponders oficiais e enlace de dados do carro.',
                 marketStatus: 'COTAÇÕES MLS: HOMOLOGADAS NA BASE'
@@ -299,8 +299,8 @@ export default function RaceWeekSchedule({
                 message: '“Caminhamos pelo asfalto esta manhã. As zebras externas exigem cuidado com assoalho. Ajuste sua estimativa de desgaste e paradas de box no terminal.”',
                 tacticalObjective: 'Fornecer dados técnicos de pista para refinar o Top 10 e Duelos H2H.'
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B103-COMPOUNDS',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B103-COMPOUNDS',
                 title: 'DIVULGAÇÃO DOS COMPOSTOS OFICIAIS E LIMITES DE PISTA',
                 systemAction: 'Registro oficial das zonas de DRS e calibração de sensores de linha branca.',
                 marketStatus: 'JANELA DE PREVISÃO POLETIME: ABERTA'
@@ -314,7 +314,7 @@ export default function RaceWeekSchedule({
             dayId: 'thu',
             dayNumber: 4,
             dayName: 'QUINTA-FEIRA',
-            subTitle: 'Media Day Oficial & Escrutínio Técnico BAEFF1',
+            subTitle: 'Media Day Oficial & Escrutínio Técnico TS1',
             trackActivity: 'INSPEÇÃO TÉCNICA // TREINOS DE PIT STOP',
             operationalTimeline: [
                 {
@@ -333,7 +333,7 @@ export default function RaceWeekSchedule({
                 },
                 {
                     time: '20:00 - 06:00',
-                    title: 'Curfew Noturno Obrigatório BAEFF1',
+                    title: 'Curfew Noturno Obrigatório TS1',
                     desc: 'Paddock trancado para garantir descanso regulamentar dos mecânicos.',
                     badge: 'CURFEW',
                     color: '#ef4444'
@@ -346,8 +346,8 @@ export default function RaceWeekSchedule({
                 message: `“Monopostos aprovados na balança sem infrações. O alvo de Poletime projetado pela nossa equipe fica na faixa de ${mentor.briefingTips.poletimeTarget}. Abra seu formulário e faça as primeiras marcações.”`,
                 tacticalObjective: 'Pressionar o apostador a registrar seu Poletime antes dos treinos decisivos.'
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B104-SCRUTINEER',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B104-SCRUTINEER',
                 title: 'HOMOLOGAÇÃO TÉCNICA DOS MONOPOSTOS CONCLUÍDA',
                 systemAction: 'Contagem regressiva oficial para abertura do pitlane.',
                 marketStatus: 'AVISO: JANELAS DE PREVISÃO EM CONTAGEM REGRESSIVA'
@@ -407,8 +407,8 @@ export default function RaceWeekSchedule({
                 message: principal.fridayMiscBriefing,
                 tacticalObjective: `Orientação da Chefia [${principal.code} & ${principal.leadChiefStrategist.code}]: diretriz conservadora para o formulário MISC. A alocação de risco final pertence exclusivamente a você.`
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B105-PRACTICE',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B105-PRACTICE',
                 title: 'RELATÓRIO DE TELEMETRIA OFICIAL PÓS-TREINOS',
                 systemAction: 'Liberação de tempos de setores, speed traps e desgaste no painel de telemetria.',
                 marketStatus: 'ALERTA: JANELA POLETIME FECHA NO INÍCIO DO Q1'
@@ -467,8 +467,8 @@ export default function RaceWeekSchedule({
                 message: `“O grid de largada está homologado e os carros entram em regime de Parque Fechado. A diretoria espera precisão total na montagem do Top 10 e nas apostas de duelo. Mostre seu valor no pit wall.”`,
                 tacticalObjective: 'Conectar resultado da classificação com o Poletime e preparar as previsões de domingo.'
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B106-GRID',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B106-GRID',
                 title: 'HOMOLOGAÇÃO OFICIAL DO GRID E RESULTADOS POLETIME',
                 systemAction: 'Fechamento de Poletime e abertura dos mercados de Volta Mais Rápida e Duelos.',
                 marketStatus: 'MERCADO POLETIME: ENCERRADO E HOMOLOGADO'
@@ -520,11 +520,11 @@ export default function RaceWeekSchedule({
                 message: `“Bandeirada quadriculada no ${eventName}! As decisões de pit stop definiram o resultado. Acesse o extrato de Milesimus (MLS) no seu painel: os dividendos das posições homologadas já estão disponíveis.”`,
                 tacticalObjective: 'Debriefing da rodada, cálculo de dividendos MLS e atualização do ranking Master.'
             },
-            baeff1Broadcast: {
-                code: 'BAEFF1-SYS // B107-RESULTS',
+            ts1Broadcast: {
+                code: 'TS1-SYS // B107-RESULTS',
                 title: 'HOMOLOGAÇÃO DOS RESULTADOS E LIQUIDAÇÃO DE MERCADOS',
                 systemAction: 'Auditoria das apostas de Master, Duelos, Duplas Teamwork e ranking geral.',
-                marketStatus: 'MERCADOS LIQUIDADOS // RESULTADOS HOMOLOGADOS BAEFF1'
+                marketStatus: 'MERCADOS LIQUIDADOS // RESULTADOS HOMOLOGADOS TS1'
             },
             actionButton: {
                 label: 'VER EXTRATO DE MILESIMUS & RANKING',

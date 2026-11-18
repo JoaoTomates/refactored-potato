@@ -318,7 +318,7 @@
     text-decoration-thickness: 2px;
 }
 
-.voltgrid-logo-light {
+.thestrategistone-logo-light {
     color: #1a1a1a;
     display: inline-flex;
     align-items: center;
@@ -375,19 +375,19 @@
     text-transform: uppercase;
 }
 
-.voltgrid-logo-dark {
+.thestrategistone-logo-dark {
     color: #ffffff;
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
 }
 
-.voltgrid-logo-dark .logo-mark {
+.thestrategistone-logo-dark .logo-mark {
     color: #000000;
     background: #facc15;
 }
 
-.voltgrid-footer-root {
+.thestrategistone-footer-root {
     color: var(--color-on-surface);
     width: 100%;
     padding: var(--spacing-xl) 0;
@@ -398,7 +398,7 @@
     background-color: var(--color-surface);
 }
 
-.voltgrid-footer-inner {
+.thestrategistone-footer-inner {
     margin: 0 auto;
     padding: 0 var(--spacing-lg);
     z-index: 2;
@@ -406,30 +406,30 @@
     max-width: var(--content-max-width);
 }
 
-.voltgrid-footer-layout {
+.thestrategistone-footer-layout {
     gap: var(--spacing-xl);
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.voltgrid-footer-copyright-group {
+.thestrategistone-footer-copyright-group {
     gap: var(--spacing-xl);
     display: flex;
     align-items: center;
 }
 
-.voltgrid-footer-nav {
+.thestrategistone-footer-nav {
     display: flex;
 }
 
-.voltgrid-footer-brand-mark {
+.thestrategistone-footer-brand-mark {
     flex-shrink: 0;
     border-right: 1px solid color-mix(in srgb, var(--color-on-surface) 15%, transparent);
     padding-right: var(--spacing-xl);
 }
 
-.voltgrid-footer-legal-copy {
+.thestrategistone-footer-legal-copy {
     gap: var(--spacing-xs);
     color: var(--color-on-surface-secondary);
     display: flex;
@@ -440,7 +440,7 @@
     text-transform: uppercase;
 }
 
-.voltgrid-footer-links {
+.thestrategistone-footer-links {
     gap: var(--spacing-xl);
     margin: 0;
     display: flex;
@@ -449,13 +449,13 @@
     align-items: center;
 }
 
-.voltgrid-footer-logo-link {
+.thestrategistone-footer-logo-link {
     height: 24px;
     display: block;
     transition: opacity 0.2s ease;
 }
 
-.voltgrid-footer-icon-wrap {
+.thestrategistone-footer-icon-wrap {
     color: var(--color-primary);
     display: flex;
     align-items: center;
@@ -467,7 +467,7 @@
 
 
 
-.voltgrid-footer-link-dummy {
+.thestrategistone-footer-link-dummy {
     color: var(--color-on-surface-secondary);
     cursor: default;
     opacity: 0.4;
@@ -479,7 +479,7 @@
     text-transform: uppercase;
 }
 
-.voltgrid-footer-link {
+.thestrategistone-footer-link {
     color: var(--color-on-surface);
     padding: 4px 0;
     position: relative;
@@ -492,7 +492,7 @@
     text-decoration: none;
 }
 
-.voltgrid-footer-root::before {
+.thestrategistone-footer-root::before {
     top: 0;
     left: 0;
     width: 100%;
@@ -507,11 +507,11 @@
             transparent 40px);
 }
 
-.voltgrid-footer-logo-link:hover {
+.thestrategistone-footer-logo-link:hover {
     opacity: 0.8;
 }
 
-.voltgrid-footer-link::after {
+.thestrategistone-footer-link::after {
     left: 0;
     width: 0;
     bottom: 0;
@@ -522,11 +522,11 @@
     background-color: var(--color-primary);
 }
 
-.voltgrid-footer-link:hover {
+.thestrategistone-footer-link:hover {
     color: var(--color-primary);
 }
 
-.voltgrid-footer-link:hover::after {
+.thestrategistone-footer-link:hover::after {
     width: 100%;
 }
 
@@ -1953,13 +1953,13 @@
 }
 
 @media(max-width: 991px) {
-    .voltgrid-footer-layout {
+    .thestrategistone-footer-layout {
         gap: var(--spacing-lg);
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .voltgrid-footer-copyright-group {
+    .thestrategistone-footer-copyright-group {
         width: 100%;
         justify-content: space-between;
     }
@@ -1997,13 +1997,13 @@
 }
 
 @media(max-width: 767px) {
-    .voltgrid-footer-copyright-group {
+    .thestrategistone-footer-copyright-group {
         gap: var(--spacing-md);
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .voltgrid-footer-brand-mark {
+    .thestrategistone-footer-brand-mark {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid color-mix(in srgb, var(--color-on-surface) 15%, transparent);
@@ -2011,7 +2011,7 @@
         padding-bottom: var(--spacing-md);
     }
 
-    .voltgrid-footer-links {
+    .thestrategistone-footer-links {
         gap: var(--spacing-lg);
         flex-wrap: wrap;
     }
@@ -2118,11 +2118,11 @@
         display: none;
     }
 
-    .voltgrid-footer-root {
+    .thestrategistone-footer-root {
         padding: var(--spacing-lg) 0;
     }
 
-    .voltgrid-footer-links {
+    .thestrategistone-footer-links {
         gap: var(--spacing-sm);
         align-items: flex-start;
         flex-direction: column;

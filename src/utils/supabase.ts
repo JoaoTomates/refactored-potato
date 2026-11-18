@@ -6,7 +6,7 @@ export function createClient() {
 
   if (typeof window !== 'undefined' && (!url || !anonKey || url.includes('placeholder'))) {
     console.error(
-      '[BAEFF1 / Supabase] ERRO CRÍTICO DE CONFIGURAÇÃO: As variáveis NEXT_PUBLIC_SUPABASE_URL e/ou NEXT_PUBLIC_SUPABASE_ANON_KEY não foram definidas no painel da Netlify. Adicione-as em Site Configuration > Environment Variables e faça um novo deploy (Clear cache and deploy).'
+      '[TS1 / Supabase] ERRO CRÍTICO DE CONFIGURAÇÃO: As variáveis NEXT_PUBLIC_SUPABASE_URL e/ou NEXT_PUBLIC_SUPABASE_ANON_KEY não foram definidas no painel da Netlify. Adicione-as em Site Configuration > Environment Variables e faça um novo deploy (Clear cache and deploy).'
     );
   }
 

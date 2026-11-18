@@ -209,7 +209,7 @@ export default function PitwallView({ embedded = false }: PitwallViewProps) {
                             Central de Telemetria do Grid
                         </h1>
                         <p className="text-[11px] text-white/50 uppercase tracking-widest">
-                            Homologação de Contratos &amp; Distribuição de Assentos nas Escuderias da BAEF • Temporada 2026
+                            Homologação de Contratos &amp; Distribuição de Assentos nas Escuderias do TS1 • Temporada 2026
                         </p>
                     </div>
 
@@ -540,7 +540,7 @@ export default function PitwallView({ embedded = false }: PitwallViewProps) {
 
                                 <div className="px-4 py-2 border-t border-white/10 bg-[#030303] text-[9px] text-white/40 flex items-center justify-between">
                                     <span className="truncate">MOTORES: {allianceInfo.engine}</span>
-                                    <span className="text-[#fbaa19] font-bold">BAEF 2026</span>
+                                    <span className="text-[#fbaa19] font-bold">TS1 2026</span>
                                 </div>
                             </div>
                         );

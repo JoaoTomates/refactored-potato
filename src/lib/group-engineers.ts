@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // GROUP TECHNICAL ENGINEER ALLOCATION SYSTEM
+ * TS1 // GROUP TECHNICAL ENGINEER ALLOCATION SYSTEM
  * 
  * Sorteio e atribuição de avatares de Engenheiro Técnico por Grupo:
  * - Cada grupo tem até 22 pilotos/usuários (as 22 vagas do grid oficial da F1).

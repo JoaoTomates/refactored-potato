@@ -257,7 +257,7 @@ export default function PartnersPage() {
             <main className="relative z-10 flex-1 w-full max-w-5xl mx-auto px-4 pt-28 sm:pt-32 pb-16 flex flex-col items-center justify-center">
                 {/* Título Direto */}
                 <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-center tracking-tight text-white mb-10 sm:mb-14">
-                    Quer ser um parceiro da <span className="text-[#fbaa19]">VoltGrid</span> ?
+                    Quer ser um parceiro do <span className="text-[#fbaa19]">The Strategist One</span> ?
                 </h1>
 
                 {/* Colmeia Cinza Escuro (3 em cima, 2 encaixados embaixo) */}

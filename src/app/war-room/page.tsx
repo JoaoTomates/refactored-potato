@@ -312,7 +312,7 @@ async function fetchConsensusData(
                 poleTime: chosenTime,
                 top10Finish: defaultTechTop10,
                 top3: defaultTechTop10.slice(0, 3).join(', '),
-                reasoning: 'Média de apostas e projeções coletivas de todo o grid BAEFF1.'
+                reasoning: 'Média de apostas e projeções coletivas de todo o grid TS1.'
             };
         }
     } catch (e) {

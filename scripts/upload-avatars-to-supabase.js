@@ -301,7 +301,7 @@ async function uploadAllAvatars() {
     console.log(`Catálogo JSON salvo em: ${jsonPath}`);
 
     // Salva TypeScript com tipagem completa
-    const tsContent = `// Catálogo Oficial de Avatares da BAEFF1 carregados no Supabase Storage
+    const tsContent = `// Catálogo Oficial de Avatares do TS1 carregados no Supabase Storage
 // Gerado automaticamente por scripts/upload-avatars-to-supabase.js
 
 export interface AvatarEngineer {

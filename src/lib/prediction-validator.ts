@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // PREDICTION VALIDATOR (Servidor & Cliente)
+ * TS1 // PREDICTION VALIDATOR (Servidor & Cliente)
  * 
  * Validador estrito de saída da IA para sugestões de palpites estruturados.
  * Garante compatibilidade 100% com o usePredictionStore e useSubmitPrediction,

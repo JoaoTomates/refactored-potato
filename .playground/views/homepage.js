@@ -12,14 +12,14 @@ const Homepage = (props) => {
     return (
         <div className="homepage-container1">
             <Helmet>
-                <title>VoltGrid | Formula 1 Inspired Game UI Components</title>
+                <title>The Strategist One | Formula 1 Inspired Game UI Components</title>
                 <meta
                     name="description"
                     content="Explore React components for betting forms, trade dashboards, and fantasy game profiles. Formula 1 TV-inspired design with yellow, grey, and black."
                 />
                 <meta
                     property="og:title"
-                    content="VoltGrid | Formula 1 Inspired Game UI Components"
+                    content="The Strategist One | Formula 1 Inspired Game UI Components"
                 />
                 <meta
                     property="og:description"
@@ -32,7 +32,7 @@ const Homepage = (props) => {
                 <meta property="og:type" content="website" />
                 <meta
                     name="twitter:title"
-                    content="VoltGrid | Formula 1 Inspired Game UI Components"
+                    content="The Strategist One | Formula 1 Inspired Game UI Components"
                 />
                 <meta
                     name="twitter:description"
@@ -150,7 +150,7 @@ const Homepage = (props) => {
                                 <div className="volt-hero-dot-yellow volt-hero-dot"></div>
                                 <div className="volt-hero-dot-green volt-hero-dot"></div>
                                 <div className="volt-hero-mockup-address">
-                                    <span>voltgrid.io/dashboard</span>
+                                    <span>thestrategistone.com/dashboard</span>
                                 </div>
                             </div>
                             <div className="volt-hero-mockup-body">
@@ -330,7 +330,7 @@ const Homepage = (props) => {
                 <div className="volt-features-container">
                     <div className="volt-features-left">
                         <h2 className="section-title volt-features-headline">
-                            Why choose VoltGrid for your game project?
+                            Why choose The Strategist One for your game project?
                         </h2>
                         <p className="volt-features-subtitle">
                             Our design system is built for speed, bringing the intensity of
@@ -420,7 +420,7 @@ const Homepage = (props) => {
                             </div>
                             <h3 className="volt-tile-title">React Ready</h3>
                             <p className="volt-tile-meta">
-                                Modular components styled with the VoltGrid system.
+                                Modular components styled with the The Strategist One system.
                             </p>
                         </div>
                         <div className="volt-feature-tile volt-tile-4">
@@ -465,7 +465,7 @@ const Homepage = (props) => {
                                 />
                             </span>
                             <span className="homepage-thq-volt-how-pill-elm">
-                                VoltGrid Components
+                                The Strategist One Components
                             </span>
                             <span> in minutes</span>
                         </h2>
@@ -494,7 +494,7 @@ const Homepage = (props) => {
                                     </div>
                                 </div>
                                 <div className="volt-how-chat-bubble">
-                                    <span>Importing @voltgrid/bet-form...</span>
+                                    <span>Importing @thestrategistone/bet-form...</span>
                                 </div>
                                 <div className="volt-how-chat-bubble-user volt-how-chat-bubble">
                                     <span>Success. Component rendered in 14ms.</span>
@@ -619,7 +619,7 @@ const Homepage = (props) => {
             <div className="homepage-container2">
                 <div className="homepage-container3">
                     <Script
-                        html={`<script defer data-name="voltgrid-ui">
+                        html={`<script defer data-name="thestrategistone-ui">
 (function(){
   const steps = document.querySelectorAll('.volt-how-step-item');
   steps.forEach(step => {

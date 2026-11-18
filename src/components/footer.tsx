@@ -27,7 +27,7 @@ const Footer = () => {
                             </div>
                         </Link>
                         <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-                            © {new Date().getFullYear()} BAEFF1
+                            © {new Date().getFullYear()} The Strategist One (TS1)
                         </div>
                     </div>
                     

@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // REAL F1 PILOT INITIALS & CAR ALLOCATION
+ * TS1 // REAL F1 PILOT INITIALS & CAR ALLOCATION
  * 
  * Mapeia os pilotos reais da F1 (3 letras oficiais, número e nome) para cada escuderia:
  * - Carro 1 (ex: Ferrari 1 = LEC, Mercedes 1 = RUS, Cadillac 1 = PER)
@@ -7,7 +7,7 @@
  */
 
 export interface RealF1Driver {
-    code: string;       // 3 letras oficiais BAEF (ex: "LEC", "HAM", "PER")
+    code: string;       // 3 letras oficiais TS1 (ex: "LEC", "HAM", "PER")
     number: string;     // Número oficial (ex: "16", "44", "11")
     name: string;       // "C.LECLERC", "L.HAMILTON"
     seat: 1 | 2;

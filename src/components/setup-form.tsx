@@ -439,7 +439,7 @@ export default function SetupForm() {
                             <p className="text-[#fbaa19] text-xs font-bold uppercase tracking-[0.2em] mb-1 font-display">System Settings</p>
                             <h2 className="text-black dark:text-white text-2xl md:text-3xl font-black uppercase tracking-wider font-display">UI Configurator</h2>
                             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mt-1">
-                                Customize your BAEFF1 terminal appearance and visual ergonomics.
+                                Customize your TS1 terminal appearance and visual ergonomics.
                             </p>
                         </div>
                         {mounted && (

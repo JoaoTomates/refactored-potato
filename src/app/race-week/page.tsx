@@ -21,7 +21,7 @@ export default function RaceWeekPage() {
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-pulse" />
                         <span className="text-[11px] font-black uppercase tracking-[0.25em] text-[#fbaa19]">
-                            PROTOCOLO OFICIAL BAEFF1 // RACE WEEK ARCHITECTURE
+                            PROTOCOLO OFICIAL TS1 // RACE WEEK ARCHITECTURE
                         </span>
                     </div>
                     <Link 
@@ -37,7 +37,7 @@ export default function RaceWeekPage() {
 
                 {/* Rodapé Informativo */}
                 <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-white/40">
-                    <span>BAEFF1 RACE CONTROL // MOTORSPORT OPERATIONAL TIMETABLE</span>
+                    <span>TS1 RACE CONTROL // MOTORSPORT OPERATIONAL TIMETABLE</span>
                     <span className="text-white/60">AUTOMAÇÃO DE DISPAROS DE PRE-SEASON & GRAND PRIX</span>
                 </div>
             </div>

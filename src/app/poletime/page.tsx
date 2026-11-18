@@ -21,7 +21,7 @@ function PoletimeContent() {
                 <div className="flex items-center gap-3 text-[11px] font-mono">
                     <span className="flex items-center gap-1.5 text-red-500 font-bold uppercase tracking-widest">
                         <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
-                        BAEF LIVE TIMING
+                        TS1 LIVE TIMING
                     </span>
                     <span className="hidden sm:inline text-gray-400 uppercase tracking-widest">
                         // POLETIME HOMOLOGAÇÃO OFICIAL

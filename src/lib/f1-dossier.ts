@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // F1 INTELLIGENCE DOSSIER (Servidor)
+ * TS1 // F1 INTELLIGENCE DOSSIER (Servidor)
  * 
  * Agregador e analista de telemetria e dados oficiais da F1.
  * Integra OpenF1 (https://api.openf1.org/v1), Jolpica (https://api.jolpi.ca/ergast/f1/)

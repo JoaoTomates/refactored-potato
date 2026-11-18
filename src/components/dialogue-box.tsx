@@ -390,7 +390,7 @@ function AvatarFrame({
 }
 
 /**
- * Modelo definitivo e padronizado de Caixa de Diálogo Narrativa do BAEFF1.
+ * Modelo definitivo e padronizado de Caixa de Diálogo Narrativa do TS1.
  * Superfície #030303 -> #000000, borda #000000, radius <= 3px e sombra spread direcional.
  */
 export function DialogueBox({

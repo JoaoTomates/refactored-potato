@@ -274,7 +274,7 @@ export default function LoreStudioPage() {
                     <div>
                         <div className="flex items-center gap-2">
                             <h1 className="text-sm md:text-base font-black tracking-wider uppercase">
-                                FICHÁRIO DE NARRATIVAS // BAEFF1 LORE
+                                FICHÁRIO DE NARRATIVAS // TS1 LORE
                             </h1>
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                                 OFFLINE SYNC ON

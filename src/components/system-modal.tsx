@@ -25,7 +25,7 @@ export interface SystemModalProps {
 }
 
 /**
- * Shell definitivo de Modal do Sistema BAEFF1.
+ * Shell definitivo de Modal do Sistema TS1.
  * Segue o mesmo padrão visual do DialogueBox:
  * fundo #030303 -> #000000, borda #000000, radius <= 3px, sombra spread direcional e font-mono.
  */

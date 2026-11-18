@@ -333,7 +333,7 @@ export default function PitwallPage() {
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <img
                     src="/pitwall_helicopter_bg.jpg"
-                    alt="VoltGrid Pitwall Helicopter View"
+                    alt="The Strategist One Pitwall Helicopter View"
                     className="w-full h-full object-cover object-center"
                     style={{ imageRendering: 'pixelated' }}
                 />
@@ -351,7 +351,7 @@ export default function PitwallPage() {
                         <span>VOLTAR</span>
                     </Link>
                     <span className="hidden sm:inline-block text-[10px] text-white/40 tracking-[0.22em] uppercase font-bold">
-                        BAEFF1 // PITWALL GRID MATRIX
+                        TS1 // PITWALL GRID MATRIX
                     </span>
                 </div>
 

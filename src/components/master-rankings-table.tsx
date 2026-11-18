@@ -223,7 +223,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                             prevRank: prevRank,
                             pilotName: pilotName,
                             slug: p?.slug || `@${pilotName.toLowerCase()}`,
-                            teamName: t?.name || 'VoltGrid',
+                            teamName: t?.name || 'The Strategist One',
                             teamCode: t?.code || 'VOL',
                             teamColor: t?.color || '#fbaa19',
                             p1: p1Count,
@@ -448,7 +448,7 @@ export default function MasterRankingsTable({ isModalView = false, className = '
                     {/* Rodapé Informativo */}
                     <div className="mt-4 pt-3 border-t border-white/10 text-center">
                         <span className="text-[9px] text-gray-400 uppercase tracking-widest font-mono">
-                            MASTER LEAGUE · TOP 10 FINISH BAEFF1
+                            MASTER LEAGUE · TOP 10 FINISH TS1
                         </span>
                     </div>
 

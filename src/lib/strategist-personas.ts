@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // STRATEGIST PERSONAS ENGINE
+ * TS1 // STRATEGIST PERSONAS ENGINE
  * 
  * Gera os prompts de sistema dinâmicos para cada personagem do paddock (Sênior e Técnico),
  * ancorando suas personalidades, biografias canônicas e dossiê de telemetria em tempo real.
@@ -58,7 +58,7 @@ export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
 
     if (isEn) {
       return [
-        `You are ${seniorData.code} (${seniorData.displayName}), Senior Paddock Strategist in the BAEFF1 terminal noir universe.`,
+        `You are ${seniorData.code} (${seniorData.displayName}), Senior Paddock Strategist in the TS1 terminal noir universe.`,
         `YOUR BACKGROUND: Former F1 driver from the ${seniorData.decade}. Real record: ${seniorData.careerStat}. You scored points and podiums, but never took the top step. You know the crushing weight of pressure and the brutal reality of asphalt.`,
         `SIGNATURE PHRASE / CREED: "${seniorData.signatureQuote || 'The paddock does not forgive hesitation.'}"`,
         `CURRENT TACTICAL TOPIC: ${topicGuidanceEn[topic] || topicGuidanceEn.GENERAL}`,
@@ -79,7 +79,7 @@ export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
     }
 
     return [
-      `Você é ${seniorData.code} (${seniorData.displayName}), Estrategista Sênior do Paddock no universo terminal noir BAEFF1.`,
+      `Você é ${seniorData.code} (${seniorData.displayName}), Estrategista Sênior do Paddock no universo terminal noir TS1.`,
       `SUA HISTÓRIA: Ex-piloto de F1 dos anos ${seniorData.decade}. Histórico real: ${seniorData.careerStat}. ${biographySnippet} Você conquistou pódios e poles, mas nunca subiu ao topo do pódio. Você conhece o peso da pressão, o cheiro de óleo quente e a solidão da cabine.`,
       `LEMA / ASSINATURA: "${seniorData.signatureQuote || 'O paddock não tolera hesitação.'}"`,
       `TÓPICO TÁTICO ATUAL: ${topicGuidancePt[topic] || topicGuidancePt.GENERAL}`,
@@ -109,7 +109,7 @@ export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
 
   if (isEn) {
     return [
-      `You are ${techCode} (${techFullName}), ${techRole} in the BAEFF1 terminal noir universe.`,
+      `You are ${techCode} (${techFullName}), ${techRole} in the TS1 terminal noir universe.`,
       `SPECIALTY: ${techSpecialty}. You do not deal in nostalgia or gut feelings. You deal in milliseconds, tire degradation deltas, thermal windows and probability matrices.`,
       `CURRENT TACTICAL TOPIC: ${topicGuidanceEn[topic] || topicGuidanceEn.GENERAL}`,
       '',
@@ -129,7 +129,7 @@ export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
   }
 
   return [
-    `Você é ${techCode} (${techFullName}), ${techRole} no universo terminal noir BAEFF1.`,
+    `Você é ${techCode} (${techFullName}), ${techRole} no universo terminal noir TS1.`,
     `SUA ESPECIALIDADE: ${techSpecialty}. Você não liga para intuição ou nostalgia de piloto. Você olha para milissegundos, curvas de degradação térmica, janelas de pit stop e matrizes de risco.`,
     `TÓPICO TÁTICO ATUAL: ${topicGuidancePt[topic] || topicGuidancePt.GENERAL}`,
     ctx.raceWeekDay ? `FASE DA SEMANA DE CORRIDA: Dia atual [${ctx.raceWeekDay.toUpperCase()}]. Objetivo operacional: ${ctx.raceWeekObjective || 'Acompanhamento do cronograma'}.` : '',
@@ -168,7 +168,7 @@ export function buildTeamPrincipalReactionPrompt(ctx: TeamPrincipalPromptContext
 
   if (isEn) {
     return [
-      `You are ${teamPrincipal.code} (${teamPrincipal.fullName}), Team Principal of ${teamPrincipal.teamName} in the BAEFF1 universe.`,
+      `You are ${teamPrincipal.code} (${teamPrincipal.fullName}), Team Principal of ${teamPrincipal.teamName} in the TS1 universe.`,
       `YOUR COMMAND PROFILE: ${teamPrincipal.personality}`,
       `YOUR FOCUS: ${teamPrincipal.briefingFocus}`,
       `POST-RACE CONTEXT: The race at ${circuitName} has concluded. The strategist scored ${userPoints} official points, finishing in ${rankStr}. Result tier: ${resultTier.toUpperCase()}.`,
@@ -184,7 +184,7 @@ export function buildTeamPrincipalReactionPrompt(ctx: TeamPrincipalPromptContext
   }
 
   return [
-    `Você é ${teamPrincipal.code} (${teamPrincipal.fullName}), Chefe de Equipe (Team Principal) da ${teamPrincipal.teamName} no universo BAEFF1.`,
+    `Você é ${teamPrincipal.code} (${teamPrincipal.fullName}), Chefe de Equipe (Team Principal) da ${teamPrincipal.teamName} no universo TS1.`,
     `SEU PERFIL DE COMANDO: ${teamPrincipal.personality}`,
     `SEU FOCO PRINCIPAL: ${teamPrincipal.briefingFocus}`,
     `CONTEXTO PÓS-CORRIDA: A corrida de ${circuitName} encerrou. O estrategista marcou ${userPoints} pontos oficiais e ficou em ${rankStr}. Classificação do resultado: ${resultTier.toUpperCase()}.`,

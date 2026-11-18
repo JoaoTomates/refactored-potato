@@ -471,7 +471,7 @@ export default function DynamicMinimalistDashboard() {
                 {activeView === 'setup' && (
                     <div className="bg-black/90 border border-white/20 p-6 rounded-sm animate-fade-in relative">
                         <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
-                            <span className="text-xs font-bold tracking-widest text-[#fbaa19] uppercase">&gt;_ SETUP TÉCNICO BAEFF1</span>
+                            <span className="text-xs font-bold tracking-widest text-[#fbaa19] uppercase">&gt;_ SETUP TÉCNICO TS1</span>
                             <button onClick={() => setActiveView('menu')} className="text-xs text-white/50 hover:text-white">[FECHAR]</button>
                         </div>
                         <SetupForm />
@@ -553,7 +553,7 @@ export default function DynamicMinimalistDashboard() {
                                 <div className="flex flex-col gap-4 animate-fade-in">
                                     <div className="flex justify-between items-center text-xs">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[11px] font-bold tracking-widest uppercase text-white/50">CURVA DE VALORAÇÃO BAEFF1</span>
+                                            <span className="text-[11px] font-bold tracking-widest uppercase text-white/50">CURVA DE VALORAÇÃO TS1</span>
                                             <span className="text-[9px] px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
                                                 RATING AAA
                                             </span>
@@ -804,7 +804,7 @@ export default function DynamicMinimalistDashboard() {
                             </div>
                         </div>
 
-                        {/* 2. Índices das Alianças BAEFF1 */}
+                        {/* 2. Índices das Alianças TS1 */}
                         <div className="bg-black/75 border border-white/10 p-4 rounded-sm flex flex-col gap-3">
                             <div className="flex items-center justify-between border-b border-white/10 pb-2">
                                 <span className="text-[11px] font-bold uppercase tracking-wider text-white/80">
@@ -842,7 +842,7 @@ export default function DynamicMinimalistDashboard() {
 
                 {/* FOOTER */}
                 <footer className="border-t border-white/10 pt-4 flex flex-wrap justify-between items-center text-[10px] text-white/30 tracking-widest uppercase">
-                    <span>BAEFF1 PITWALL // MINIMAL CONCEPT [NC]</span>
+                    <span>TS1 PITWALL // MINIMAL CONCEPT [NC]</span>
                     <span>COCKPIT DO ESTRATEGISTA {me.name} ({me.slug})</span>
                 </footer>
 

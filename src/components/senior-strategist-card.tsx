@@ -62,11 +62,19 @@ export default function SeniorStrategistCard({
         setSelectedStrategist(strat);
     }, [roundNumber, initialStrategistId]);
 
-    // Carrega votos salvos do localStorage
+    // Carrega votos salvos do localStorage com migração de chave legada
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        const storageKey = `baeff1_vote_${selectedStrategist.id}`;
-        const savedVote = localStorage.getItem(storageKey);
+        const storageKey = `ts1_vote_${selectedStrategist.id}`;
+        let savedVote = localStorage.getItem(storageKey);
+        if (!savedVote) {
+            const legacyVote = localStorage.getItem(`baeff1_vote_${selectedStrategist.id}`);
+            if (legacyVote) {
+                savedVote = legacyVote;
+                localStorage.setItem(storageKey, legacyVote);
+                localStorage.removeItem(`baeff1_vote_${selectedStrategist.id}`);
+            }
+        }
         if (savedVote === 'up' || savedVote === 'down') {
             setUserVote(savedVote);
         } else {
@@ -85,7 +93,8 @@ export default function SeniorStrategistCard({
 
     const handleVote = (vote: 'up' | 'down') => {
         if (typeof window === 'undefined') return;
-        const storageKey = `baeff1_vote_${selectedStrategist.id}`;
+        const storageKey = `ts1_vote_${selectedStrategist.id}`;
+        localStorage.removeItem(`baeff1_vote_${selectedStrategist.id}`);
 
         if (userVote === vote) {
             // Desfazer voto

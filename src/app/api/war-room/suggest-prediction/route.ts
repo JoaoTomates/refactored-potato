@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     // 5. Chamada à LLM exigindo saída estrita em JSON
     const systemPrompt = [
-      'Você é um motor de estratégia de F1 do universo BAEFF1.',
+      'Você é um motor de estratégia de F1 do universo TS1.',
       'Sua tarefa é PROPOR uma estratégia completa de palpites para a rodada no formato JSON EXATO abaixo.',
       'Aritmética e números devem basear-se no seguinte dossiê:',
       dossier.shortSummary,

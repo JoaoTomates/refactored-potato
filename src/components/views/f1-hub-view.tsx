@@ -92,7 +92,7 @@ function RaceResultsView({ round, session }: { round: string; session: string })
             >
                 <div className={`w-8 h-8 rounded-full border-4 border-t-transparent animate-spin mb-4 ${effectiveIsOfficial ? 'border-[#fbaa19]' : 'border-[#00ff00]'}`} />
                 <p className={`font-bold tracking-widest uppercase text-xs ${effectiveIsOfficial ? 'text-[#fbaa19]' : 'text-[#00ff00]'}`}>
-                    {effectiveIsOfficial ? 'Buscando Classificacao Oficial (BAEF)...' : 'Sincronizando telemetria (OpenF1)...'}
+                    {effectiveIsOfficial ? 'Buscando Classificacao Oficial (TS1)...' : 'Sincronizando telemetria (OpenF1)...'}
                 </p>
             </div>
         );
@@ -126,7 +126,7 @@ function RaceResultsView({ round, session }: { round: string; session: string })
             style={getSystemBoxStyle(effectiveIsOfficial ? '#fbaa19' : '#00ff00')}
         >
             <div className={`border-b font-black uppercase tracking-widest p-4 text-xs md:text-sm flex justify-between items-center ${effectiveIsOfficial ? 'bg-[#fbaa19] text-black border-[#fbaa19]' : 'bg-[#030303] text-[#00ff00] border-[#00ff00]/30'}`}>
-                <span>{effectiveIsOfficial ? `Classificacao Oficial (${session})` : fallbackToOpenF1 ? `Telemetria em Tempo Real (${session} - Aguardando BAEF)` : 'OpenF1 Live Telemetry Engine'}</span>
+                <span>{effectiveIsOfficial ? `Classificacao Oficial (${session})` : fallbackToOpenF1 ? `Telemetria em Tempo Real (${session} - Aguardando TS1)` : 'OpenF1 Live Telemetry Engine'}</span>
                 {!effectiveIsOfficial && <span className="animate-pulse">● LIVE</span>}
             </div>
             <div className="overflow-x-auto bg-[#000000]">

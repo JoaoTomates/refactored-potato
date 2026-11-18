@@ -73,7 +73,7 @@ export interface GeneralRankingsTableProps {
 /**
  * Retorna o estilo de cor para o bloco de posição inspirado na referência esportiva (Imagem 1):
  * - Top 3 (Pódio): Verde esmeralda brilhante
- * - 4º ao 10º (Zona de Pontos BAEF): Verde floresta / zona de classificação
+ * - 4º ao 10º (Zona de Pontos TS1): Verde floresta / zona de classificação
  * - 11º ao 16º: Neutro translúcido
  * - 17º ao 22º (Zona de perigo / rebaixamento): Vermelho carmesim sutil
  */

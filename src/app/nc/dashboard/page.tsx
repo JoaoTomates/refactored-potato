@@ -38,7 +38,7 @@ import { getTeamPrincipal } from '@/lib/paddock-crew';
 import { useThemeStore, STANDARD_ACCENT_OPTIONS } from '@/store/useThemeStore';
 
 /* ============================================================
- * BAEFF1 // DASHBOARD DO ESTRATEGISTA - ARQUITETURA COCKPIT 100VH
+ * TS1 // DASHBOARD DO ESTRATEGISTA - ARQUITETURA COCKPIT 100VH
  * Viewport fixo sem scroll externo, grid de 3 colunas,
  * 6 abas principais e rankings unificados em abas.
  * ============================================================ */
@@ -741,7 +741,7 @@ function DashboardCockpit() {
             <header className="relative z-20 h-11 shrink-0 px-3 md:px-4 bg-[#080b10] border-b border-zinc-800 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-3 min-w-0">
                     <Link href="/" className="font-black tracking-widest text-sm text-zinc-100 hover:text-amber-400 transition-colors shrink-0">
-                        BAEFF<span className="text-amber-400">1</span>
+                        TS<span className="text-amber-400">1</span>
                     </Link>
                     <span className="hidden md:inline text-[10px] tracking-[0.25em] text-zinc-400 shrink-0">// TERMINAL DO ESTRATEGISTA</span>
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[2px] border border-zinc-800 bg-[#0f141d] text-[9.5px] font-bold tracking-wider text-zinc-300 shrink-0">
@@ -1198,7 +1198,7 @@ function DashboardCockpit() {
                                 </span>
                                 <div className="flex items-center justify-between text-[7.5px] mt-0.5 uppercase font-bold" style={{ color: masterTheme.textColor }}>
                                     <span>P{competitionTiers.meta.userGroupRank} NO GRUPO</span>
-                                    <span>{competitionTiers.master === 'green' ? 'ZONA BAEF' : 'FORA PONTOS'}</span>
+                                    <span>{competitionTiers.master === 'green' ? 'ZONA TS1' : 'FORA PONTOS'}</span>
                                 </div>
                             </div>
                         </button>
@@ -1460,7 +1460,7 @@ function DashboardCockpit() {
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between pb-1 border-b border-zinc-800">
                                     <span className="text-[10px] font-black uppercase tracking-wider text-red-400">
-                                        &gt;_ COMISSÁRIOS DA BAEF // RELATÓRIOS & VOTAÇÕES
+                                        &gt;_ COMISSÁRIOS DO TS1 // RELATÓRIOS & VOTAÇÕES
                                     </span>
                                     <button
                                         type="button"
@@ -1496,7 +1496,7 @@ function DashboardCockpit() {
                                 </div>
                                 <div className="p-3 rounded bg-black/60 border border-zinc-800 space-y-2 text-xs">
                                     <div className="flex items-center justify-between text-[9px] text-zinc-400">
-                                        <span className="font-bold text-amber-400">[COMUNICADO OFICIAL BAEF // ETAPA ATUAL]</span>
+                                        <span className="font-bold text-amber-400">[COMUNICADO OFICIAL TS1 // ETAPA ATUAL]</span>
                                         <span>CANAL CRIPTOGRAFADO</span>
                                     </div>
                                     <p className="text-zinc-300 text-[11px]">

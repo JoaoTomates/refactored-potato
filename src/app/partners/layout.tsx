@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Partners',
-    description: 'Quer ser um parceiro da VoltGrid ? Conheça os parceiros globais estilizados no ecossistema VoltGrid / BAEFF1.',
+    description: 'Quer ser um parceiro do The Strategist One ? Conheça os parceiros globais estilizados no ecossistema The Strategist One / TS1.',
 };
 
 export default function PartnersLayout({

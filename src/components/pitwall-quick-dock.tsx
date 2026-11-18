@@ -223,7 +223,7 @@ export default function PitwallQuickDock({
                 <Link
                     href="/fantasy"
                     className={`${btnBase} ${btnInactive} hover:border-amber-400/50 hover:text-amber-400`}
-                    title="Acessar o Fantasy Game BAEFF1 Oficial"
+                    title="Acessar o Fantasy Game TS1 Oficial"
                 >
                     <span className="flex items-center gap-1.5 min-w-0 truncate">
                         <Gamepad2 className="w-3.5 h-3.5 text-[#fbaa19] shrink-0" />

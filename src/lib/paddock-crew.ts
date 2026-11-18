@@ -1,5 +1,5 @@
 /**
- * BAEFF1 Paddock Crew & Relationship Engine
+ * TS1 Paddock Crew & Relationship Engine
  * 
  * Estrutura profissional de paddock:
  * 1. Chefe de Equipe (Team Principal) - Liderança executiva, hospitalidade e cobrança de metas.
@@ -10,7 +10,7 @@
 import { TEAM_PRINCIPAL_WELCOMES, TEAM_PRINCIPAL_REACTIONS } from '@/data/dialogues';
 
 export interface TeamPrincipal {
-    code: string;               // Padrão BAEFF1: "T.WULFF", "C.HORNE", "F.VASSEUX"
+    code: string;               // Padrão TS1: "T.WULFF", "C.HORNE", "F.VASSEUX"
     fullName: string;
     teamCode: string;           // "MER", "FER", "MCL", etc.
     teamName: string;

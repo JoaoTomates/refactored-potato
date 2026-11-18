@@ -35,43 +35,43 @@ const F1_TEAMS = [
 ];
 
 const PILOTS_DATA = [
-    { first: 'Lucas', last: 'GUSTAVO', num: 88, nat: 'BR', email: 'lgustavo88@baeff1.com' },
-    { first: 'James', last: 'HUNTLEY', num: 11, nat: 'GB', email: 'jhuntley11@baeff1.com' },
-    { first: 'Matteo', last: 'ROSSI', num: 46, nat: 'IT', email: 'mrossi46@baeff1.com' },
-    { first: 'Sebastian', last: 'WEBER', num: 5, nat: 'DE', email: 'sweber5@baeff1.com' },
-    { first: 'Pierre', last: 'MOREAU', num: 10, nat: 'FR', email: 'pmoreau10@baeff1.com' },
-    { first: 'Carlos', last: 'NAVARRO', num: 55, nat: 'ES', email: 'cnavarro55@baeff1.com' },
-    { first: 'Lars', last: 'VANDIJK', num: 33, nat: 'NL', email: 'lvandijk33@baeff1.com' },
-    { first: 'Kenji', last: 'SATO', num: 22, nat: 'JP', email: 'ksato22@baeff1.com' },
-    { first: 'Alexander', last: 'MILLER', num: 2, nat: 'US', email: 'amiller2@baeff1.com' },
-    { first: 'Charles', last: 'GRIMALDI', num: 16, nat: 'MC', email: 'cgrimaldi16@baeff1.com' },
-    { first: 'Mateo', last: 'HERRERA', num: 14, nat: 'MX', email: 'mherrera14@baeff1.com' },
-    { first: 'Franco', last: 'FONTANA', num: 43, nat: 'AR', email: 'ffontana43@baeff1.com' },
-    { first: 'Jack', last: 'BRABSON', num: 81, nat: 'AU', email: 'jbrabson81@baeff1.com' },
-    { first: 'Nicholas', last: 'TREMBLAY', num: 18, nat: 'CA', email: 'ntremblay18@baeff1.com' },
-    { first: 'Maximilian', last: 'BERGER', num: 28, nat: 'AT', email: 'mberger28@baeff1.com' },
-    { first: 'Marc', last: 'SURER', num: 9, nat: 'CH', email: 'msurer9@baeff1.com' },
-    { first: 'Mika', last: 'HAKKILA', num: 77, nat: 'FI', email: 'mhakkila77@baeff1.com' },
-    { first: 'Thierry', last: 'BOUTSEN', num: 20, nat: 'BE', email: 'tboutsen20@baeff1.com' },
-    { first: 'Tiago', last: 'MONTEIRO', num: 19, nat: 'PT', email: 'tmonteiro19@baeff1.com' },
-    { first: 'Stefan', last: 'JOHANSSON', num: 26, nat: 'SE', email: 'sjohansson26@baeff1.com' },
-    { first: 'Jan', last: 'MAGNUSSEN', num: 24, nat: 'DK', email: 'jmagnussen24@baeff1.com' },
-    { first: 'Liam', last: 'AMONSON', num: 30, nat: 'NZ', email: 'lamonson30@baeff1.com' },
-    { first: 'Gabriel', last: 'BORTOLETO', num: 8, nat: 'BR', email: 'gbortoleto8@baeff1.com' },
-    { first: 'Oliver', last: 'BEAR', num: 87, nat: 'GB', email: 'obear87@baeff1.com' },
-    { first: 'Andrea', last: 'KIMI', num: 12, nat: 'IT', email: 'akimi12@baeff1.com' },
-    { first: 'Felix', last: 'ROSEN', num: 23, nat: 'SE', email: 'frosen23@baeff1.com' },
-    { first: 'Esteban', last: 'GUERRIERI', num: 31, nat: 'AR', email: 'eguerrieri31@baeff1.com' },
-    { first: 'Nyck', last: 'DEVRIES', num: 21, nat: 'NL', email: 'ndevries21@baeff1.com' },
-    { first: 'Arvid', last: 'LINDBLAD', num: 41, nat: 'GB', email: 'alindblad41@baeff1.com' },
-    { first: 'Guanyu', last: 'ZHOU', num: 24, nat: 'CN', email: 'gzhou24@baeff1.com' },
+    { first: 'Lucas', last: 'GUSTAVO', num: 88, nat: 'BR', email: 'lgustavo88@ts1.com' },
+    { first: 'James', last: 'HUNTLEY', num: 11, nat: 'GB', email: 'jhuntley11@ts1.com' },
+    { first: 'Matteo', last: 'ROSSI', num: 46, nat: 'IT', email: 'mrossi46@ts1.com' },
+    { first: 'Sebastian', last: 'WEBER', num: 5, nat: 'DE', email: 'sweber5@ts1.com' },
+    { first: 'Pierre', last: 'MOREAU', num: 10, nat: 'FR', email: 'pmoreau10@ts1.com' },
+    { first: 'Carlos', last: 'NAVARRO', num: 55, nat: 'ES', email: 'cnavarro55@ts1.com' },
+    { first: 'Lars', last: 'VANDIJK', num: 33, nat: 'NL', email: 'lvandijk33@ts1.com' },
+    { first: 'Kenji', last: 'SATO', num: 22, nat: 'JP', email: 'ksato22@ts1.com' },
+    { first: 'Alexander', last: 'MILLER', num: 2, nat: 'US', email: 'amiller2@ts1.com' },
+    { first: 'Charles', last: 'GRIMALDI', num: 16, nat: 'MC', email: 'cgrimaldi16@ts1.com' },
+    { first: 'Mateo', last: 'HERRERA', num: 14, nat: 'MX', email: 'mherrera14@ts1.com' },
+    { first: 'Franco', last: 'FONTANA', num: 43, nat: 'AR', email: 'ffontana43@ts1.com' },
+    { first: 'Jack', last: 'BRABSON', num: 81, nat: 'AU', email: 'jbrabson81@ts1.com' },
+    { first: 'Nicholas', last: 'TREMBLAY', num: 18, nat: 'CA', email: 'ntremblay18@ts1.com' },
+    { first: 'Maximilian', last: 'BERGER', num: 28, nat: 'AT', email: 'mberger28@ts1.com' },
+    { first: 'Marc', last: 'SURER', num: 9, nat: 'CH', email: 'msurer9@ts1.com' },
+    { first: 'Mika', last: 'HAKKILA', num: 77, nat: 'FI', email: 'mhakkila77@ts1.com' },
+    { first: 'Thierry', last: 'BOUTSEN', num: 20, nat: 'BE', email: 'tboutsen20@ts1.com' },
+    { first: 'Tiago', last: 'MONTEIRO', num: 19, nat: 'PT', email: 'tmonteiro19@ts1.com' },
+    { first: 'Stefan', last: 'JOHANSSON', num: 26, nat: 'SE', email: 'sjohansson26@ts1.com' },
+    { first: 'Jan', last: 'MAGNUSSEN', num: 24, nat: 'DK', email: 'jmagnussen24@ts1.com' },
+    { first: 'Liam', last: 'AMONSON', num: 30, nat: 'NZ', email: 'lamonson30@ts1.com' },
+    { first: 'Gabriel', last: 'BORTOLETO', num: 8, nat: 'BR', email: 'gbortoleto8@ts1.com' },
+    { first: 'Oliver', last: 'BEAR', num: 87, nat: 'GB', email: 'obear87@ts1.com' },
+    { first: 'Andrea', last: 'KIMI', num: 12, nat: 'IT', email: 'akimi12@ts1.com' },
+    { first: 'Felix', last: 'ROSEN', num: 23, nat: 'SE', email: 'frosen23@ts1.com' },
+    { first: 'Esteban', last: 'GUERRIERI', num: 31, nat: 'AR', email: 'eguerrieri31@ts1.com' },
+    { first: 'Nyck', last: 'DEVRIES', num: 21, nat: 'NL', email: 'ndevries21@ts1.com' },
+    { first: 'Arvid', last: 'LINDBLAD', num: 41, nat: 'GB', email: 'alindblad41@ts1.com' },
+    { first: 'Guanyu', last: 'ZHOU', num: 24, nat: 'CN', email: 'gzhou24@ts1.com' },
 ];
 
 const SENIOR_IDS = Array.from({ length: 24 }, (_, i) => `strat-${String(i + 1).padStart(2, '0')}`);
 
 async function seedFakes() {
     console.log("==================================================");
-    console.log("INICIANDO CADASTRO DE 30 USUÁRIOS FAKES (BAEFF1)");
+    console.log("INICIANDO CADASTRO DE 30 USUÁRIOS FAKES (TS1)");
     console.log("==================================================\n");
 
     const createdUsers = [];

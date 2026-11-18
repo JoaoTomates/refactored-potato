@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'BAEFF1 – Mercado de Posições & Ordens de Pitwall',
+  title: 'TS1 – Mercado de Posições & Ordens de Pitwall',
   description: 'Terminal de abertura e consolidação de posições táticas de telemetria para o próximo Grande Prêmio.',
 };
 

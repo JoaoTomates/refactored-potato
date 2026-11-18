@@ -135,7 +135,7 @@ export default function CrewView({
                     )}
                     <div>
                         <span className="text-[10px] tracking-[0.25em] text-white/40 uppercase block">
-                            BAEFF1 // DOSSIÊ DE PADDOCK
+                            TS1 // DOSSIÊ DE PADDOCK
                         </span>
                         <h1 className="text-lg md:text-xl font-black tracking-widest uppercase text-white">
                             CORPO TÉCNICO &amp; LIDERANÇA

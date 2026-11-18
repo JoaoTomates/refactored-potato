@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ driver_sl
     const raw = params && typeof (params as any).then === 'function' ? (await params).driver_slug : (params as any)?.driver_slug;
     const slug = raw ? String(raw) : '';
     if (!slug || /\.(ico|png|jpg|jpeg|gif|svg|webp|txt|xml|json|map|js|css|woff2?|ttf|eot)$/i.test(slug) || slug.startsWith('_')) {
-        return { title: 'BAEFF1' };
+        return { title: 'TS1' };
     }
     return {
         title: `@${slug.toUpperCase()}`,

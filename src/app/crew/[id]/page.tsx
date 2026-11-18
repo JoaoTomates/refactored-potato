@@ -41,21 +41,21 @@ function getCharacterTeamHistory(character: CrewCharacterBase): { currentTeam: T
         };
     } else if (character.subType === 'team_principal') {
         currentTeam = {
-            teamName: character.fullName.includes('Horner') ? 'Oracle Red Bull Racing' : character.fullName.includes('Vasseur') ? 'Scuderia Ferrari HP' : character.fullName.includes('Wolff') ? 'Mercedes-AMG PETRONAS F1 Team' : 'Escuderia Oficial BAEF 2026',
+            teamName: character.fullName.includes('Horner') ? 'Oracle Red Bull Racing' : character.fullName.includes('Vasseur') ? 'Scuderia Ferrari HP' : character.fullName.includes('Wolff') ? 'Mercedes-AMG PETRONAS F1 Team' : 'Escuderia Oficial TS1 2026',
             teamColor: character.accentColor,
             period: '2026 - PRESENTE',
             role: character.role,
-            chassisOrSpec: 'Monocoque de Competição Homologado BAEFF1',
+            chassisOrSpec: 'Monocoque de Competição Homologado TS1',
             highlight: 'Comando supremo de operações desportivas, contratação de pilotos e ordens de rádio de mureta.',
             status: 'ATUAL',
         };
     } else {
         currentTeam = {
-            teamName: 'VoltGrid Paddock Operations // PitWall Mentorship',
+            teamName: 'The Strategist One Paddock Operations // PitWall Mentorship',
             teamColor: '#fbaa19',
             period: '2026 - PRESENTE',
             role: character.role,
-            chassisOrSpec: 'Central de Telemetria & Simulação BAEFF1 (Tempo Real)',
+            chassisOrSpec: 'Central de Telemetria & Simulação TS1 (Tempo Real)',
             highlight: 'Designado para mentoria tática de estrategistas novatos e homologação de previsões de corrida.',
             status: 'ATUAL',
         };
@@ -89,7 +89,7 @@ function getCharacterTeamHistory(character: CrewCharacterBase): { currentTeam: T
                 period: '1954 - 1955',
                 role: 'Piloto de Monopostos 500cc',
                 chassisOrSpec: 'Cooper-Norton 500cc',
-                highlight: 'Múltiplas vitórias em Brands Hatch e Silverstone na categoria base que pavimentou sua superlicença BAEF.',
+                highlight: 'Múltiplas vitórias em Brands Hatch e Silverstone na categoria base que pavimentou sua superlicença TS1.',
                 status: 'ANTERIOR',
             },
         ];
@@ -295,7 +295,7 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                         <div className="absolute top-1 right-1/3 w-40 h-20 bg-blue-500/20 blur-2xl rounded-full" />
                         <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-[#02040a] to-transparent flex items-end px-6 pb-1">
                             <span className="text-[9px] uppercase tracking-[0.25em] text-white/30 font-bold">
-                                // VOLTGRID INTERNATIONAL CIRCUIT — PADDOCK OFFICE PERSPECTIVE
+                                // THE STRATEGIST ONE INTERNATIONAL CIRCUIT — PADDOCK OFFICE PERSPECTIVE
                             </span>
                         </div>
                     </div>
@@ -448,14 +448,14 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                         <div 
                             className="absolute top-6 right-6 sm:top-8 sm:right-8 border-2 border-red-700/80 text-red-700/85 px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-[2px] rotate-[-7deg] shadow-[0_1px_3px_rgba(0,0,0,0.15)] select-none pointer-events-none"
                         >
-                            HOMOLOGADO // BAEF 2026
+                            HOMOLOGADO // TS1 2026
                         </div>
 
                         {/* 1. CABEÇALHO DO DOCUMENTO */}
                         <div className="border-b-2 border-black pb-4 flex flex-col gap-1 pr-24">
                             <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.25em] text-black/60 font-black">
                                 <FileText className="w-3.5 h-3.5" />
-                                <span>VOLTGRID MOTORSPORT // PADDOCK HR & OPERATIONS</span>
+                                <span>THE STRATEGIST ONE MOTORSPORT // PADDOCK HR & OPERATIONS</span>
                             </div>
                             <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-black leading-tight mt-0.5">
                                 Ficha Individual de Colaborador
@@ -606,14 +606,14 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                         <div 
                             className="absolute top-6 right-6 sm:top-8 sm:right-8 border-2 border-blue-800/80 text-blue-800/85 px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-[2px] rotate-[-5deg] shadow-[0_1px_3px_rgba(0,0,0,0.15)] select-none pointer-events-none"
                         >
-                            HISTÓRICO AUDITADO // BAEF
+                            HISTÓRICO AUDITADO // TS1
                         </div>
 
                         {/* 1. CABEÇALHO DO DOCUMENTO */}
                         <div className="border-b-2 border-black pb-4 flex flex-col gap-1 pr-24">
                             <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.25em] text-black/60 font-black">
                                 <Building2 className="w-3.5 h-3.5 text-blue-700" />
-                                <span>VOLTGRID MOTORSPORT // PADDOCK TEAM CONTRACTS</span>
+                                <span>THE STRATEGIST ONE MOTORSPORT // PADDOCK TEAM CONTRACTS</span>
                             </div>
                             <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-black leading-tight mt-0.5">
                                 Dossiê de Vínculos & Histórico de Equipes
@@ -722,14 +722,14 @@ export default function CharacterEmployeeSheetPage({ params }: PageProps) {
                             <div className="flex flex-col gap-1">
                                 <span className="text-[8.5px] uppercase tracking-widest text-black/50">CERTIFICAÇÃO DE VÍNCULO:</span>
                                 <span className="text-black/80 font-bold">
-                                    CONTRATOS AUDITADOS CONFORME DIRETRIZES DESPORTIVAS BAEF 2026
+                                    CONTRATOS AUDITADOS CONFORME DIRETRIZES DESPORTIVAS TS1 2026
                                 </span>
                             </div>
 
                             <div className="flex flex-col gap-1 sm:text-right">
                                 <span className="text-[8.5px] uppercase tracking-widest text-black/50">HOMOLOGAÇÃO:</span>
                                 <span className="text-[10px] font-mono font-bold uppercase text-black">
-                                    [ AUDITORIA HOMOLOGADA — BAEFF1 ]
+                                    [ AUDITORIA HOMOLOGADA — TS1 ]
                                 </span>
                             </div>
                         </div>

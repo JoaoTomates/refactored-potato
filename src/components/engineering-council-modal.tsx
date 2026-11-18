@@ -395,7 +395,7 @@ export function EngineeringCouncilModal({
                 {/* RODAPÉ DO MODAL COM BOTÕES RÁPIDOS */}
                 <div className="bg-[#0c1017] border-t border-white/10 p-3 flex flex-wrap items-center justify-between gap-2">
                     <span className="text-[10px] text-white/40 uppercase tracking-widest hidden sm:inline">
-                        BAEFF1 // CIRCUITO OPERACIONAL
+                        TS1 // CIRCUITO OPERACIONAL
                     </span>
 
                     <div className="flex items-center gap-2 ml-auto">

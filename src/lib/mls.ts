@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // Utilitários de Milésimos de Segundo (MLS / Pontos)
+ * TS1 // Utilitários de Milésimos de Segundo (MLS / Pontos)
  * Padrão oficial: 3 dígitos inteiros e 3 decimais, ex: "000.100" mls
  */
 

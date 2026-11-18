@@ -128,7 +128,7 @@ export default function RaceControlView({ embedded = false }: RaceControlViewPro
                     style={getSystemBoxStyle('#fbaa19')}
                 >
                     <div className="max-w-5xl mx-auto flex flex-col gap-3">
-                        <p className="text-[#fbaa19] text-sm md:text-base font-bold uppercase tracking-[0.2em] font-display">F1 // BAEFF1</p>
+                        <p className="text-[#fbaa19] text-sm md:text-base font-bold uppercase tracking-[0.2em] font-display">F1 // TS1</p>
                         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-widest font-display text-white">Race Control</h1>
                         <p className="text-white/60 text-sm md:text-base">Management panel for official data, scoring, and integrity.</p>
                     </div>
@@ -137,7 +137,7 @@ export default function RaceControlView({ embedded = false }: RaceControlViewPro
 
             {embedded && (
                 <div className="border-l-4 border-[#fbaa19] pl-4">
-                    <p className="text-[#fbaa19] text-[10px] font-bold uppercase tracking-[0.25em]">F1 // BAEFF1</p>
+                    <p className="text-[#fbaa19] text-[10px] font-bold uppercase tracking-[0.25em]">F1 // TS1</p>
                     <h1 className="text-2xl md:text-3xl font-black uppercase tracking-widest text-white">Race Control</h1>
                 </div>
             )}

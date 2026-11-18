@@ -37,11 +37,11 @@ const COMPETITIONS: CompetitionDef[] = [
         id: 'master',
         code: 'MASTER',
         title: 'MASTER LEAGUE',
-        subtitle: 'GRID FECHADO DE 22 ESTRATEGISTAS // TOP 10 BAEF',
+        subtitle: 'GRID FECHADO DE 22 ESTRATEGISTAS // TOP 10 TS1',
         badge: 'LIGA OFICIAL',
         accentColor: '#3874ff',
         icon: Trophy,
-        desc: 'Micro-campeonato oficial restrito ao seu grupo de 22 assentos. Os 10 primeiros colocados pontuam segundo o sistema oficial BAEF de Grandes Prêmios.'
+        desc: 'Micro-campeonato oficial restrito ao seu grupo de 22 assentos. Os 10 primeiros colocados pontuam segundo o sistema oficial TS1 de Grandes Prêmios.'
     },
     {
         id: 'milesimus',
@@ -572,7 +572,7 @@ export default function CompetitionRankingsScreen({
                     style={getSystemBoxStyle('#e10600')}
                 >
                     
-                    {/* HEADER BROADCAST OFICIAL COM LOGO BAEF F1 */}
+                    {/* HEADER BROADCAST OFICIAL COM LOGO TS1 */}
                     <div className="bg-[#030303] border-b border-white/10 p-2.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             {/* Logo Estilizada Oficial da F1 */}
@@ -582,7 +582,7 @@ export default function CompetitionRankingsScreen({
                                 </span>
                                 <div className="flex flex-col">
                                     <span className="text-[8px] font-black tracking-widest text-white leading-none">
-                                        BAEF FORMULA 1
+                                        TS1 FORMULA 1
                                     </span>
                                     <span className="text-[7px] text-white/50 font-bold uppercase tracking-wider">
                                         WORLD CHAMPIONSHIP
@@ -682,7 +682,7 @@ export default function CompetitionRankingsScreen({
 
                     {/* RODAPÉ DO TIMING TOWER */}
                     <div className="bg-[#121418] px-3 py-2 border-t border-white/15 flex items-center justify-between text-[9px] text-white/50">
-                        <span>BAEFF1 OFFICIAL TIMING</span>
+                        <span>TS1 OFFICIAL TIMING</span>
                         <span className="text-emerald-400 font-bold">● SESSÃO HOMOLOGADA</span>
                     </div>
                 </div>

@@ -207,7 +207,7 @@ function MinimalHeadquartersFlow() {
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono text-white p-4">
                 <div className="w-8 h-8 border-2 border-[#fbaa19] border-t-transparent rounded-full animate-spin mb-4" />
                 <p className="text-xs text-[#fbaa19] uppercase tracking-widest animate-pulse">
-                    &gt;_ SINCRONIZANDO VAGAS COM A BAEFF1...
+                    &gt;_ SINCRONIZANDO VAGAS COM O TS1...
                 </p>
             </main>
         );
@@ -290,7 +290,7 @@ function MinimalHeadquartersFlow() {
                         Garagens Oficiais Disponíveis
                     </h1>
                     <p className="text-xs text-white/50 max-w-2xl leading-relaxed">
-                        Selecione a sua escuderia no grid para a temporada 2026. A alocação garante seu assento no pitwall dentro do {activeGroupName} sob homologação da BAEFF1.
+                        Selecione a sua escuderia no grid para a temporada 2026. A alocação garante seu assento no pitwall dentro do {activeGroupName} sob homologação do TS1.
                     </p>
                 </div>
 
@@ -384,7 +384,7 @@ function MinimalHeadquartersFlow() {
 
             {/* Footer Minimalista */}
             <footer className="w-full max-w-4xl mx-auto flex items-center justify-between border-t border-white/10 pt-4 text-[10px] text-white/40 uppercase tracking-widest">
-                <span>BAEFF1 QUARTEL-GENERAL • TEMPORADA 2026</span>
+                <span>TS1 QUARTEL-GENERAL • TEMPORADA 2026</span>
                 <span>PADRÃO MINIMALISTA // NC</span>
             </footer>
 

@@ -52,7 +52,7 @@ export default function Settings() {
                     <p className="text-[#fbaa19] text-sm font-medium uppercase tracking-[0.2em] mb-2 font-display">System Settings</p>
                     <h1 className="text-black dark:text-white text-4xl md:text-5xl font-black uppercase tracking-wider font-display mb-4">UI Configurator</h1>
                     <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-2xl">
-                        Customize your BAEFF1 terminal. Select a typography engine that best suits your data analysis style—from high-speed F1 telemetry to institutional stock market dashboards.
+                        Customize your TS1 terminal. Select a typography engine that best suits your data analysis style—from high-speed F1 telemetry to institutional stock market dashboards.
                     </p>
                 </div>
                 {mounted && (

@@ -1,4 +1,4 @@
-// Catálogo Oficial de Avatares da BAEFF1 carregados no Supabase Storage
+// Catálogo Oficial de Avatares do TS1 carregados no Supabase Storage
 // Gerado automaticamente por scripts/upload-avatars-to-supabase.js
 
 export interface AvatarEngineer {

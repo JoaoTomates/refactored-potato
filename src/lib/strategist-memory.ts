@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // STRATEGIST USER MEMORY
+ * TS1 // STRATEGIST USER MEMORY
  * 
  * Gerencia a memória tática de desempenho do usuário no pit wall (taxa de acerto recente,
  * resumo de palpites passados) para injeção nos prompts dos estrategistas.

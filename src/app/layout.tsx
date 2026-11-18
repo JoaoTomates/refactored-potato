@@ -15,8 +15,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | BAEFF1',
-    default: 'BAEFF1',
+    template: '%s | TS1',
+    default: 'The Strategist One (TS1)',
   },
   description: 'The ultimate F1 Fantasy and Racing Management experience.',
 };
