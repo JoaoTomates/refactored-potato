@@ -132,7 +132,15 @@ export default function LoreStudioPage() {
 
     // Load custom edits from localStorage on mount (versioned so stale cache never hides Markdown updates)
     useEffect(() => {
-        const saved = localStorage.getItem('baeff1_lore_chapters_v2');
+        let saved = localStorage.getItem('ts1_lore_chapters_v2');
+        if (!saved) {
+            const legacySaved = localStorage.getItem('baeff1_lore_chapters_v2');
+            if (legacySaved) {
+                saved = legacySaved;
+                localStorage.setItem('ts1_lore_chapters_v2', legacySaved);
+                localStorage.removeItem('baeff1_lore_chapters_v2');
+            }
+        }
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
@@ -148,7 +156,7 @@ export default function LoreStudioPage() {
     // Save to localStorage on change
     const saveChapters = (updated: NarrativeChapter[]) => {
         setChapters(updated);
-        localStorage.setItem('baeff1_lore_chapters_v2', JSON.stringify(updated));
+        localStorage.setItem('ts1_lore_chapters_v2', JSON.stringify(updated));
     };
 
     const currentChapter = chapters.find(c => c.id === selectedChapterId) || chapters[0];

@@ -61,6 +61,22 @@ interface ThemeState {
     setStandardAccent: (accent: StandardAccentColor) => void;
 }
 
+// Migração automática de chaves legadas de tema
+if (typeof window !== 'undefined') {
+    try {
+        if (!localStorage.getItem('ts1-theme-storage')) {
+            const legacyTheme = localStorage.getItem('baeff1-theme-storage') || localStorage.getItem('voltgrid-theme-storage');
+            if (legacyTheme) {
+                localStorage.setItem('ts1-theme-storage', legacyTheme);
+                localStorage.removeItem('baeff1-theme-storage');
+                localStorage.removeItem('voltgrid-theme-storage');
+            }
+        }
+    } catch {
+        // Ignora erros de storage
+    }
+}
+
 export const useThemeStore = create<ThemeState>()(
     persist(
         (set) => ({
@@ -74,7 +90,7 @@ export const useThemeStore = create<ThemeState>()(
             setStandardAccent: (standardAccent) => set({ standardAccent }),
         }),
         {
-            name: 'baeff1-theme-storage',
+            name: 'ts1-theme-storage',
         }
     )
 );

@@ -213,7 +213,9 @@ class ArcadeSuspenseSynth {
         this.phaseStartTime = Date.now();
         this.startLoopMonitor();
         if (typeof window !== 'undefined') {
+            localStorage.removeItem('ts1_radio_off');
             localStorage.removeItem('baeff1_radio_off');
+            localStorage.removeItem('voltgrid_radio_off');
         }
         this.notify();
     }
@@ -223,7 +225,9 @@ class ArcadeSuspenseSynth {
         this.loopPhase = 'IDLE';
         this.stopLoopMonitor();
         if (typeof window !== 'undefined') {
-            localStorage.setItem('baeff1_radio_off', 'true');
+            localStorage.setItem('ts1_radio_off', 'true');
+            localStorage.removeItem('baeff1_radio_off');
+            localStorage.removeItem('voltgrid_radio_off');
         }
         this.notify();
     }

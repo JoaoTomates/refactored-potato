@@ -1,6 +1,7 @@
 "use client";
 
-const STORAGE_KEY = 'baeff1_device_signal_id';
+const STORAGE_KEY = 'ts1_device_signal_id';
+const LEGACY_STORAGE_KEY = 'baeff1_device_signal_id';
 
 async function sha256Hex(input: string): Promise<string> {
     if (typeof window !== 'undefined' && window.crypto?.subtle) {
@@ -29,6 +30,14 @@ export async function getDeviceSignalHash(): Promise<string> {
     let deviceId = '';
     try {
         deviceId = localStorage.getItem(STORAGE_KEY) || '';
+        if (!deviceId) {
+            const legacyId = localStorage.getItem(LEGACY_STORAGE_KEY);
+            if (legacyId) {
+                deviceId = legacyId;
+                localStorage.setItem(STORAGE_KEY, legacyId);
+                localStorage.removeItem(LEGACY_STORAGE_KEY);
+            }
+        }
         if (!deviceId) {
             deviceId = window.crypto?.randomUUID
                 ? window.crypto.randomUUID()

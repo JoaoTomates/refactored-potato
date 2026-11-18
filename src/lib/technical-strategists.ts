@@ -1,5 +1,5 @@
 /**
- * BAEFF1 // TECHNICAL STRATEGISTS & ENGINEERING POOL
+ * TS1 // TECHNICAL STRATEGISTS & ENGINEERING POOL
  * 
  * Engenheiros de dados e telemetria analítica alocados às escuderias.
  * Distribuição demográfica rigorosa:
@@ -359,7 +359,8 @@ export const TECHNICAL_STRATEGISTS_POOL: TechnicalStrategist[] = [
     }
 ];
 
-const LOCAL_STORAGE_KEY_PREFIX = 'baeff1_tech_strategist_';
+const LOCAL_STORAGE_KEY_PREFIX = 'ts1_tech_strategist_';
+const LEGACY_STORAGE_KEY_PREFIX = 'baeff1_tech_strategist_';
 
 /**
  * Retorna o estrategista técnico ativo do usuário para a equipe e aliança.
@@ -373,7 +374,16 @@ export function getActiveTechnicalStrategist(userId: string, teamCode: string, a
     }
 
     const storageKey = `${LOCAL_STORAGE_KEY_PREFIX}${userId || 'guest'}_${allianceCode}`;
-    const savedId = localStorage.getItem(storageKey);
+    let savedId = localStorage.getItem(storageKey);
+    if (!savedId) {
+        const legacyKey = `${LEGACY_STORAGE_KEY_PREFIX}${userId || 'guest'}_${allianceCode}`;
+        const legacyId = localStorage.getItem(legacyKey);
+        if (legacyId) {
+            savedId = legacyId;
+            localStorage.setItem(storageKey, legacyId);
+            localStorage.removeItem(legacyKey);
+        }
+    }
 
     if (savedId) {
         const found = TECHNICAL_STRATEGISTS_POOL.find(t => t.id === savedId);

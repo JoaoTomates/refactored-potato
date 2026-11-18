@@ -37,7 +37,16 @@ export default function RootLayout({
             __html: `
               try {
                 let mode = 'dark';
-                const stored = localStorage.getItem('baeff1-theme-storage') || localStorage.getItem('voltgrid-theme-storage');
+                let stored = localStorage.getItem('ts1-theme-storage');
+                if (!stored) {
+                  const legacyStored = localStorage.getItem('baeff1-theme-storage') || localStorage.getItem('voltgrid-theme-storage');
+                  if (legacyStored) {
+                    stored = legacyStored;
+                    localStorage.setItem('ts1-theme-storage', legacyStored);
+                    localStorage.removeItem('baeff1-theme-storage');
+                    localStorage.removeItem('voltgrid-theme-storage');
+                  }
+                }
                 if (stored) {
                   const parsed = JSON.parse(stored);
                   if (parsed.state && parsed.state.mode) {

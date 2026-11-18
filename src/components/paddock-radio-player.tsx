@@ -29,7 +29,17 @@ export default function PaddockRadioPlayer({ className, teamColor }: PaddockRadi
         // Suporte a primeiro clique do usuário para desbloquear AudioContext se não estiver desligado explicitamente
         const handleFirstInteraction = () => {
             if (typeof window === 'undefined') return;
-            const userOff = (localStorage.getItem('baeff1_radio_off') ?? localStorage.getItem('voltgrid_radio_off')) === 'true';
+            let userOffVal = localStorage.getItem('ts1_radio_off');
+            if (userOffVal === null) {
+                const legacyVal = localStorage.getItem('baeff1_radio_off') ?? localStorage.getItem('voltgrid_radio_off');
+                if (legacyVal !== null) {
+                    userOffVal = legacyVal;
+                    localStorage.setItem('ts1_radio_off', legacyVal);
+                    localStorage.removeItem('baeff1_radio_off');
+                    localStorage.removeItem('voltgrid_radio_off');
+                }
+            }
+            const userOff = userOffVal === 'true';
             if (!userOff && !arcadeAudioEngine.getIsPlaying() && arcadeAudioEngine.getPhase() === 'IDLE') {
                 arcadeAudioEngine.playManual();
             }

@@ -21,8 +21,10 @@ export function slugAlphanumericKey(raw?: string | null): string {
 export function clearCachedStrategistSession(): void {
     if (typeof window === 'undefined') return;
     try {
+        localStorage.removeItem('ts1_user_slug');
         localStorage.removeItem('vg_user_slug');
         localStorage.removeItem('war_room_draft');
+        localStorage.removeItem('ts1-predictions-storage');
         localStorage.removeItem('baeff1-predictions-storage');
         sessionStorage.removeItem('redirect_slug_guard');
         sessionStorage.removeItem('redirect_hq_guard');
