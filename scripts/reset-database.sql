@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT DE RESET DE BANCO DE DADOS (VOLTGRID)
+-- SCRIPT DE RESET DE BANCO DE DADOS (THE STRATEGIST ONE)
 -- ==========================================
 -- AVISO: A execução deste script é IRREVERSÍVEL.
 -- Ele irá apagar TODOS os usuários cadastrados, senhas e formulários de apostas.

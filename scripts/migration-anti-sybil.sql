@@ -1,4 +1,4 @@
--- Migration Fase 1: Fundação Anti-Sybil & Autenticação Segura (BAEFF1)
+-- Migration Fase 1: Fundação Anti-Sybil & Autenticação Segura (TS1)
 -- Aplicada no Supabase (projeto fivzbbqzgvvwgtlhietx)
 
 ALTER TABLE public.profiles

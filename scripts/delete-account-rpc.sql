@@ -1,5 +1,5 @@
 -- ==============================================================================
--- RPC: RESCISÃO DE SUPERLICENÇA & EXCLUSÃO DE CONTA (VOLTGRID)
+-- RPC: RESCISÃO DE SUPERLICENÇA & EXCLUSÃO DE CONTA (THE STRATEGIST ONE)
 -- ==============================================================================
 -- Esta função permite que um usuário autenticado exclua sua própria conta,
 -- preservando a integridade das competições e respeitando a LGPD/GDPR:

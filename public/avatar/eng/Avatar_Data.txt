@@ -174,7 +174,7 @@ Função: Mecânico-Chefe de Garagem
 Idade: 61 anos
 Nacionalidade: Alemão
 Perfil: A voz da experiência no box. Lidera a equipe de mecânicos nas situações mais críticas, resolvendo qualquer pane mecânica em tempo recorde.
-Estilo: O veterano da equipe, de bigode farto e grisalho, com óculos de leitura na ponta do nariz e boné da equipe VoltGrid.
+Estilo: O veterano da equipe, de bigode farto e grisalho, com óculos de leitura na ponta do nariz e boné da equipe The Strategist One.
 
 29. D. ADEBAYO
 Função: Analista de Desempenho & Telemetria

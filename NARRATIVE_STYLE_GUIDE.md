@@ -1,7 +1,7 @@
-# Guia de Estilo Narrativo, Visual & Design System — BAEFF1
+# Guia de Estilo Narrativo, Visual & Design System — TS1
 ## Cinemática Tática em Terminal Noir: Cyberpunk, Pixel Art & Pregão Financeiro
 
-Este documento é a diretriz canônica e definitiva de tom de voz, redação, direção de arte visual e padrões de interface para o **BAEFF1**. Todos os módulos, fluxos de onboarding, dashboards, tabelas de telemetria, relatórios e comunicações do sistema devem seguir rigorosamente este manual.
+Este documento é a diretriz canônica e definitiva de tom de voz, redação, direção de arte visual e padrões de interface para o **The Strategist One (TS1)**. Todos os módulos, fluxos de onboarding, dashboards, tabelas de telemetria, relatórios e comunicações do sistema devem seguir rigorosamente este manual.
 
 ---
 
@@ -39,7 +39,7 @@ Este documento é a diretriz canônica e definitiva de tom de voz, redação, di
 
 ### 2. Direção de Arte Visual: Backgrounds em Pixel Art
 
-O universo visual do BAEFF1 combina interfaces de dados de alta precisão com **cenários ricos em Pixel Art atmosférica (16-bit / 32-bit)**:
+O universo visual do TS1 combina interfaces de dados de alta precisão com **cenários ricos em Pixel Art atmosférica (16-bit / 32-bit)**:
 
 1. **Atmosfera dos Cenários:**
    - Centrais de telemetria noturnas iluminadas apenas pelo brilho de monitores CRT e telas âmbar.
@@ -63,7 +63,7 @@ O universo visual do BAEFF1 combina interfaces de dados de alta precisão com **
 
 ---
 
-### 3. Paleta de Cores Oficial do Projeto (BAEFF1 Core Palette)
+### 3. Paleta de Cores Oficial do Projeto (TS1 Core Palette)
 
 A identidade cromática equilibra a escuridão do paddock com acentos de telemetria analógica e cores oficiais do automobilismo:
 
@@ -71,7 +71,7 @@ A identidade cromática equilibra a escuridão do paddock com acentos de telemet
 | Nome | Hex | Uso Principal |
 | :--- | :--- | :--- |
 | **Black Void / Asfalto** | `#050401` / `#000000` | Background geral da aplicação, superfícies primárias. |
-| **Terminal Gold / Âmbar** | `#fbaa19` | Cor assinatura BAEFF1, cursor `>_`, botões primários, colchetes `[BLOCO A]`, alertas táticos. |
+| **Terminal Gold / Âmbar** | `#fbaa19` | Cor assinatura TS1, cursor `>_`, botões primários, colchetes `[BLOCO A]`, alertas táticos. |
 | **Pure Surgical White** | `#ffffff` | Títulos principais de blocos, dados de telemetria, texto de alta ênfase. |
 | **Console Dimmed** | `rgba(255,255,255,0.7)` | Subtítulos, descrições técnicas, dados secundários. |
 | **Subtle Border** | `rgba(251,170,25,0.3)` / `rgba(255,255,255,0.15)` | Bordas finas de caixas de terminal e divisórias. |
@@ -81,7 +81,7 @@ A identidade cromática equilibra a escuridão do paddock com acentos de telemet
 | :--- | :--- | :--- |
 | **Market Bull / Disponível** | `#10b981` (Verde Esmeralda) | Vagas abertas, alta de cotação (▲), lucros de rendimento, status operacional ativo. |
 | **Market Bear / Esgotado** | `#ef4444` (Vermelho) | Vagas esgotadas, baixa de cotação (▼), penalidades, limites de motor estourados. |
-| **Order Pending / Atenção** | `#f59e0b` (Âmbar Alerta) | Vagas em negociação, transferências sob análise da BAEF. |
+| **Order Pending / Atenção** | `#f59e0b` (Âmbar Alerta) | Vagas em negociação, transferências sob análise do TS1. |
 
 #### Paleta Oficial das Escuderias do Grid (Cores Homologadas)
 - **Mercedes-AMG:** `#00D2BE`
@@ -100,7 +100,7 @@ A identidade cromática equilibra a escuridão do paddock com acentos de telemet
 
 ### 4. Componentes Estilo Bolsa de Valores (Stock Exchange & Financial Terminal)
 
-O grid do BAEFF1 é tratado conceitualmente como um **pregão financeiro de velocidade e capital técnico (Wall Street / Bloomberg Terminal do Paddock)**. Equipes, motores, pilotos e contratos operam sob as convenções estéticas de mercados de capitais:
+O grid do TS1 é tratado conceitualmente como um **pregão financeiro de velocidade e capital técnico (Wall Street / Bloomberg Terminal do Paddock)**. Equipes, motores, pilotos e contratos operam sob as convenções estéticas de mercados de capitais:
 
 #### I. Painéis de Cotação & Livro de Ofertas (Order Book / Ticker Tape)
 - **Letreiros Monospaçados Contínuos:** Tickers com código do ativo (`TICKER`), preço/cotação atual e variação percentual (Δ%).
@@ -130,11 +130,11 @@ O grid do BAEFF1 é tratado conceitualmente como um **pregão financeiro de velo
 
 ### 5. Manual de Redação e Vocabulário
 
-| Evitar (Linguagem Comum) | Preferir (Estilo BAEFF1 Terminal / Stock Noir) |
+| Evitar (Linguagem Comum) | Preferir (Estilo TS1 Terminal / Stock Noir) |
 | :--- | :--- |
 | Criar conta / Registrar | Emitir Superlicença / Abrir Custódia de Piloto |
 | Escolha seu time | Requisite sua vaga no grid / Escolha sua aliança |
-| Regras do jogo | Regulamento da BAEF / Briefing Tático Operacional |
+| Regras do jogo | Regulamento do TS1 / Briefing Tático Operacional |
 | Fazer aposta | Transmitir previsão de telemetria / Ordem de Q3 |
 | Erro no formulário | Falha de transmissão / Ordem rejeitada |
 | Pontos do Fantasy | Rendimento de Portfólio / XP de Temporada |
@@ -177,4 +177,4 @@ Toda fala de personagem, diretor, engenheiro ou mentor do paddock deve utilizar 
    - Efeito `TypewriterLine` + áudio mecânico `PitWallSoundEngine` ativo por padrão em cenas ao vivo (com clique para completar imediatamente) e desativável via `typewriter={false}` em listas e históricos (ex.: Race Week, Lore).
 
 ---
-*BAEFF1 Technical Telemetry & Market Protocol — Strictly Confidential*
+*TS1 Technical Telemetry & Market Protocol — Strictly Confidential*

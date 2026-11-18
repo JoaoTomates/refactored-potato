@@ -18,11 +18,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 <!-- END:user-workflow-rules -->
 
 <!-- BEGIN:strategist-ai-rules -->
-# REGRAS PERMANENTES: IA DOS ESTRATEGISTAS (BAEFF1)
+# REGRAS PERMANENTES: IA DOS ESTRATEGISTAS (TS1)
 
 Projeto: fantasy de F1 em Next.js 16, React 19, TypeScript, Supabase, Zustand e next-intl. Antes de usar qualquer API do Next, leia node_modules/next/dist/docs/ e siga o AGENTS.md.
 
-Objetivo: estrategistas virtuais conversam com o usuário na mesa tática (/war-room e /pitwall) usando dados reais da F1, mantendo o universo BAEFF1 (NARRATIVE_STYLE_GUIDE.md e DIALOGUES_SCRIPT_MASTER.md).
+Objetivo: estrategistas virtuais conversam com o usuário na mesa tática (/war-room e /pitwall) usando dados reais da F1, mantendo o universo TS1 (NARRATIVE_STYLE_GUIDE.md e DIALOGUES_SCRIPT_MASTER.md).
 
 SEGURANÇA (inegociável)
 - NUNCA escreva chaves, tokens ou senhas no código, em scripts, em docs ou em commits. Só process.env, sem valor de fallback. Se faltar uma variável, aborte com erro claro.
