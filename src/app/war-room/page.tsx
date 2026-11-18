@@ -14,13 +14,13 @@ import {
 import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getStrategistSquad } from '@/lib/teamwork';
 import { getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/slug';
-import { ChevronLeft, ArrowRight, Sparkles, Brain, Trash2, Check, X } from 'lucide-react';
+import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { DialogueBox, DialogueActionButton, pitWallSound as soundEngine } from '@/components/dialogue-box';
 import { useWarRoomChat } from '@/hooks/useWarRoomChat';
 import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
 import { usePredictionStore } from '@/store/usePredictionStore';
-import { ValidatedPrediction } from '@/lib/prediction-validator';
-import { StrategistMemory } from '@/lib/strategist-memory';
+import { WarRoomBriefing } from '@/lib/war-room-briefing';
+import { getTeamPrincipal, TeamPrincipal } from '@/lib/paddock-crew';
 
 // --- Definição das 3 Cores por Aliança ---
 // Cor 1: Sênior (#fbaa19 - Amarelo Frank Miller Noir)
@@ -409,18 +409,10 @@ export function WarRoomContent() {
 
     const store = usePredictionStore();
 
-    // Estado da Sugestão Assistida por IA
-    const [isSuggesting, setIsSuggesting] = useState(false);
-    const [suggestModalOpen, setSuggestModalOpen] = useState(false);
-    const [suggestedPrediction, setSuggestedPrediction] = useState<ValidatedPrediction | null>(null);
-    const [suggestError, setSuggestError] = useState<string | null>(null);
-    const [applySuccessNotice, setApplySuccessNotice] = useState<string | null>(null);
-
-    // Estado da Memória Tática
-    const [memoryModalOpen, setMemoryModalOpen] = useState(false);
-    const [tacticalMemory, setTacticalMemory] = useState<StrategistMemory | null>(null);
-    const [isMemoryLoading, setIsMemoryLoading] = useState(false);
-    const [memoryResetNotice, setMemoryResetNotice] = useState<string | null>(null);
+    // Briefing de Sessão Unificado (IA + Telemetria incorporada nos personagens)
+    const [sessionBriefing, setSessionBriefing] = useState<WarRoomBriefing | null>(null);
+    const [principalClosing, setPrincipalClosing] = useState<string | null>(null);
+    const [teamPrincipal, setTeamPrincipal] = useState<TeamPrincipal | null>(null);
 
     useEffect(() => {
         if (authLoading) return;
@@ -501,7 +493,10 @@ export function WarRoomContent() {
             setUserTeamCode(teamCode);
             setSeniorStrategist(resolvedSenior);
 
-            // 5. Configura o Engenheiro Técnico da Garagem do próprio usuário
+            // 5. Configura Chefe de Equipe e Engenheiro Técnico da Garagem do próprio usuário
+            const principal = getTeamPrincipal(teamCode);
+            setTeamPrincipal(principal);
+
             const tech = getActiveTechnicalStrategist(user.id, teamCode, allianceKey);
             const groupEng = getGroupTechnicalEngineer(userGroupId, user.id);
             if (groupEng) {
@@ -533,6 +528,34 @@ export function WarRoomContent() {
             if (!isActive) return;
             setConsensusData(cData);
             setAccessReady(true);
+
+            // 7. CARREGAMENTO EM SEGUNDO PLANO DO BRIEFING DE SESSÃO & ORDENS DO CHEFE
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const token = session?.access_token;
+                const headers: Record<string, string> = {};
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                const [briefingRes, closingRes] = await Promise.all([
+                    fetch('/api/war-room/briefing', { headers }).then(r => r.json()).catch(() => null),
+                    fetch('/api/war-room/principal-closing', {
+                        method: 'POST',
+                        headers: { ...headers, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ circuitId: 'americas', teamCode }),
+                    }).then(r => r.json()).catch(() => null),
+                ]);
+
+                if (isActive) {
+                    if (briefingRes?.ok && briefingRes.briefing) {
+                        setSessionBriefing(briefingRes.briefing);
+                    }
+                    if (closingRes?.ok && closingRes.closingStatement) {
+                        setPrincipalClosing(closingRes.closingStatement);
+                    }
+                }
+            } catch (_) {
+                // Silencioso: o sistema usa fallbacks determinísticos sem quebrar a imersão
+            }
         };
 
         loadProfile();
@@ -603,151 +626,57 @@ export function WarRoomContent() {
         localStorage.setItem('war_room_draft', JSON.stringify(updated));
     };
 
-    // Handlers da Sugestão Assistida por IA
-    const handleRequestAiSuggestion = async () => {
-        setIsSuggesting(true);
-        setSuggestError(null);
-        setSuggestModalOpen(true);
-        setApplySuccessNotice(null);
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const token = session?.access_token;
-            const headers: Record<string, string> = {
-                'Content-Type': 'application/json',
-            };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
+    // Valores Finais Propostos (Prioridade: Briefing de Sessão com IA/Telemetria integrada > Consenso/Histórico)
+    const effectiveSeniorPoletime = sessionBriefing?.poletime.senior.value || seniorTimeTarget;
+    const effectiveTechPoletime = sessionBriefing?.poletime.technical.value || techTimeTarget;
 
-            const res = await fetch('/api/war-room/suggest-prediction', {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    circuitId: 'americas',
-                    characterType: subStep === 'TECH' ? 'technical' : 'senior',
-                }),
-            });
+    const effectiveSeniorTop10 = sessionBriefing?.top10.senior.value || seniorTop10List;
+    const effectiveTechTop10 = sessionBriefing?.top10.technical.value || techTop10List;
 
-            const text = await res.text();
-            let data: any;
-            try {
-                data = JSON.parse(text);
-            } catch {
-                throw new Error('Canal de telemetria indisponível ou deploy em andamento no servidor. Aguarde alguns instantes e tente novamente.');
-            }
+    const effectiveSeniorEvo = sessionBriefing?.evo.senior.value || [seniorEvoDriver, 'SAI', 'ALO', 'TSU', 'ALB'];
+    const effectiveTechEvo = sessionBriefing?.evo.technical.value || [techEvoDriver, 'HAM', 'ALO', 'TSU', 'COL'];
 
-            if (!res.ok || !data.ok) {
-                const noirMsg = data?.message || '>_ Sem sinal com o pit wall. Tente novamente em instantes.';
-                throw new Error(noirMsg);
-            }
-            setSuggestedPrediction(data.suggestion);
-        } catch (err: any) {
-            const rawMsg = err.message || '';
-            const safeMsg = rawMsg.startsWith('>_')
-                ? rawMsg
-                : '>_ Sem sinal com o pit wall. Tente novamente em instantes.';
-            setSuggestError(safeMsg);
-        } finally {
-            setIsSuggesting(false);
-        }
+    const defaultSeniorH2H: Record<string, string> = {
+        m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
+        m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27'
     };
-
-    const handleApplySuggestion = () => {
-        if (!suggestedPrediction) return;
-
-        // 1. Atualiza Zustand Store
-        store.setPoletime(suggestedPrediction.poletime);
-        store.setTop10(suggestedPrediction.top10);
-        store.setEvo(suggestedPrediction.evo);
-        store.setH2H(suggestedPrediction.h2h);
-        store.setMisc(suggestedPrediction.misc);
-
-        // 2. Atualiza estado local do War Room
-        setChosenPoletime(suggestedPrediction.formattedPoletime);
-        setChosenTop10(suggestedPrediction.top10);
-        setChosenEvo(suggestedPrediction.evo);
-        setChosenH2H(suggestedPrediction.h2h);
-
-        // 3. Persiste no localStorage para sincronização com /positions
-        saveToLocalStorage({
-            poletime: suggestedPrediction.formattedPoletime,
-            top10: suggestedPrediction.top10,
-            evo: suggestedPrediction.evo,
-            h2h: suggestedPrediction.h2h,
-        });
-
-        // 4. Som e notificação de confirmação
-        soundEngine.playKeyClick('!');
-        setApplySuccessNotice('Estratégia da IA gravada no rascunho com sucesso!');
-        setTimeout(() => {
-            setApplySuccessNotice(null);
-            setSuggestModalOpen(false);
-        }, 1500);
+    const defaultTechH2H: Record<string, string> = {
+        m1: '81', m2: '44', m3: '12', m4: '01', m5: '14',
+        m6: '43', m7: '87', m8: '41', m9: '77', m10: '23', m11: '05'
     };
+    const effectiveSeniorH2H = sessionBriefing?.h2h.senior.value || defaultSeniorH2H;
+    const effectiveTechH2H = sessionBriefing?.h2h.technical.value || defaultTechH2H;
 
-    const handleOpenMemoryModal = async () => {
-        setMemoryModalOpen(true);
-        setIsMemoryLoading(true);
-        setMemoryResetNotice(null);
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const token = session?.access_token;
-            const headers: Record<string, string> = {};
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
+    // Linhas de Diálogo dos Personagens (Briefing da Sessão ou Fallbacks Noir)
+    const seniorPoletimeLine = sessionBriefing?.poletime.senior.line
+        ? (sessionBriefing.memoryHook ? `${sessionBriefing.memoryHook} ${sessionBriefing.poletime.senior.line}` : sessionBriefing.poletime.senior.line)
+        : (isSeniorHistoricalRole
+            ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${effectiveSeniorPoletime}. Abaixo disso, só no vácuo perfeito."`
+            : `"Pelo movimento dos boxes e contatos no pitwall, a marca de referência é ${effectiveSeniorPoletime}. Esse é o ponto ótimo de aposta."`);
 
-            const res = await fetch('/api/war-room/memory', { headers });
-            const text = await res.text();
-            let data: any;
-            try {
-                data = JSON.parse(text);
-            } catch {
-                return;
-            }
-            if (data.ok && data.memory) {
-                setTacticalMemory(data.memory);
-            }
-        } catch (_) {
-            // Silencioso
-        } finally {
-            setIsMemoryLoading(false);
-        }
-    };
+    const techPoletimeLine = sessionBriefing?.poletime.technical.line || (
+        isSeniorHistoricalRole
+            ? `"Nossos modelos estocásticos apontam ${effectiveTechPoletime}. Há ganho aerodinâmico real nos setores 2 e 3."`
+            : `"Pelos micro-setores registrados na garagem, vejo potencial para ${effectiveTechPoletime}. A evolução da pista vai favorecer o Q3."`
+    );
 
-    const handleClearMemory = async () => {
-        if (!confirm('Deseja realmente reiniciar o histórico de memória tática do pit wall?')) return;
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const token = session?.access_token;
-            const headers: Record<string, string> = {};
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
+    const seniorTop10Line = sessionBriefing?.top10.senior.line || (
+        isSeniorHistoricalRole
+            ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${effectiveSeniorTop10.slice(0, 3).join(', ')}."`
+            : `"Quem quer pontuar alto no campeonato precisa mirar nestes nomes: ${effectiveSeniorTop10.slice(0, 3).join(', ')} decidem as primeiras posições."`
+    );
 
-            const res = await fetch('/api/war-room/memory', { method: 'DELETE', headers });
-            const text = await res.text();
-            let data: any;
-            try {
-                data = JSON.parse(text);
-            } catch {
-                return;
-            }
-            if (data.ok) {
-                setMemoryResetNotice('Memória reiniciada com sucesso.');
-                setTacticalMemory({
-                    userId: user?.id || 'guest',
-                    hasHistory: false,
-                    accuracyRate: null,
-                    totalPredictions: 0,
-                    recentPicksSummary: null,
-                    updatedAt: null,
-                });
-            }
-        } catch (_) {
-            alert('Falha ao reiniciar memória.');
-        }
-    };
+    const techTop10Line = sessionBriefing?.top10.technical.line || (
+        isSeniorHistoricalRole
+            ? `"Nossas simulações de Monte Carlo indicam ${effectiveTechTop10.slice(0, 3).join(', ')} com maior eficiência de degradação térmica para domingo."`
+            : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${effectiveTechTop10.slice(0, 3).join(', ')}."`
+    );
+
+    const seniorEvoLine = sessionBriefing?.evo.senior.line || `"Na largada vai ter confusão. Aposto em ${effectiveSeniorEvo[0]} escalando o pelotão."`;
+    const techEvoLine = sessionBriefing?.evo.technical.line || `"Ritmo de tráfego indica ${effectiveTechEvo[0]} com maior delta de ultrapassagem."`;
+
+    const seniorH2HLine = sessionBriefing?.h2h.senior.line || `"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`;
+    const techH2HLine = sessionBriefing?.h2h.technical.line || `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`;
 
     // Função de limpeza de tela e transição entre tópicos
     const transitionToTopic = (next: Topic) => {
@@ -764,8 +693,10 @@ export function WarRoomContent() {
     // TÓPICO 1: POLETIME
     // ==========================================
     const handlePoletimeSeniorAccept = () => {
-        setChosenPoletime(seniorTimeTarget);
-        saveToLocalStorage({ poletime: seniorTimeTarget });
+        setChosenPoletime(effectiveSeniorPoletime);
+        store.setPoletime(effectiveSeniorPoletime);
+        saveToLocalStorage({ poletime: effectiveSeniorPoletime });
+        soundEngine.playKeyClick('!');
         transitionToTopic('TOP10');
     };
 
@@ -774,8 +705,10 @@ export function WarRoomContent() {
     };
 
     const handlePoletimeTechAccept = () => {
-        setChosenPoletime(techTimeTarget);
-        saveToLocalStorage({ poletime: techTimeTarget });
+        setChosenPoletime(effectiveTechPoletime);
+        store.setPoletime(effectiveTechPoletime);
+        saveToLocalStorage({ poletime: effectiveTechPoletime });
+        soundEngine.playKeyClick('!');
         transitionToTopic('TOP10');
     };
 
@@ -788,8 +721,10 @@ export function WarRoomContent() {
     // TÓPICO 2: TOP 10 FINISH
     // ==========================================
     const handleTop10SeniorAccept = () => {
-        setChosenTop10(seniorTop10List);
-        saveToLocalStorage({ top10: seniorTop10List });
+        setChosenTop10(effectiveSeniorTop10);
+        store.setTop10(effectiveSeniorTop10);
+        saveToLocalStorage({ top10: effectiveSeniorTop10 });
+        soundEngine.playKeyClick('!');
         transitionToTopic('EVO');
     };
 
@@ -798,8 +733,10 @@ export function WarRoomContent() {
     };
 
     const handleTop10TechAccept = () => {
-        setChosenTop10(techTop10List);
-        saveToLocalStorage({ top10: techTop10List });
+        setChosenTop10(effectiveTechTop10);
+        store.setTop10(effectiveTechTop10);
+        saveToLocalStorage({ top10: effectiveTechTop10 });
+        soundEngine.playKeyClick('!');
         transitionToTopic('EVO');
     };
 
@@ -812,9 +749,10 @@ export function WarRoomContent() {
     // TÓPICO 3: EVO / ESCALADA
     // ==========================================
     const handleEvoSeniorAccept = () => {
-        const evoGrid = [seniorEvoDriver, 'SAI', 'ALO', 'TSU', 'ALB'];
-        setChosenEvo(evoGrid);
-        saveToLocalStorage({ evo: evoGrid });
+        setChosenEvo(effectiveSeniorEvo);
+        store.setEvo(effectiveSeniorEvo);
+        saveToLocalStorage({ evo: effectiveSeniorEvo });
+        soundEngine.playKeyClick('!');
         transitionToTopic('H2H');
     };
 
@@ -823,9 +761,10 @@ export function WarRoomContent() {
     };
 
     const handleEvoTechAccept = () => {
-        const evoGrid = [techEvoDriver, 'HAM', 'ALO', 'TSU', 'COL'];
-        setChosenEvo(evoGrid);
-        saveToLocalStorage({ evo: evoGrid });
+        setChosenEvo(effectiveTechEvo);
+        store.setEvo(effectiveTechEvo);
+        saveToLocalStorage({ evo: effectiveTechEvo });
+        soundEngine.playKeyClick('!');
         transitionToTopic('H2H');
     };
 
@@ -838,12 +777,10 @@ export function WarRoomContent() {
     // TÓPICO 4: H2H / DUELOS TÁTICOS
     // ==========================================
     const handleH2HSeniorAccept = () => {
-        const seniorPicks = {
-            m1: '04', m2: '16', m3: '63', m4: '01', m5: '14',
-            m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27'
-        };
-        setChosenH2H(seniorPicks);
-        saveToLocalStorage({ h2h: seniorPicks });
+        setChosenH2H(effectiveSeniorH2H);
+        store.setH2H(effectiveSeniorH2H);
+        saveToLocalStorage({ h2h: effectiveSeniorH2H });
+        soundEngine.playKeyClick('!');
         transitionToTopic('FINAL_MISC');
     };
 
@@ -852,12 +789,10 @@ export function WarRoomContent() {
     };
 
     const handleH2HTechAccept = () => {
-        const techPicks = {
-            m1: '81', m2: '44', m3: '12', m4: '01', m5: '14',
-            m6: '43', m7: '87', m8: '41', m9: '77', m10: '23', m11: '05'
-        };
-        setChosenH2H(techPicks);
-        saveToLocalStorage({ h2h: techPicks });
+        setChosenH2H(effectiveTechH2H);
+        store.setH2H(effectiveTechH2H);
+        saveToLocalStorage({ h2h: effectiveTechH2H });
+        soundEngine.playKeyClick('!');
         transitionToTopic('FINAL_MISC');
     };
 
@@ -916,7 +851,7 @@ export function WarRoomContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/75" />
             </div>
 
-            {/* BARRA SUPERIOR: SAÍDA & FERRAMENTAS DE IA */}
+            {/* BARRA SUPERIOR: IDENTIDADE OPERACIONAL */}
             <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between gap-2">
                 <Link
                     href={getDashboardPath(userSlug, '/headquarters')}
@@ -927,25 +862,13 @@ export function WarRoomContent() {
                 </Link>
 
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={handleOpenMemoryModal}
-                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-white/70 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 hover:border-[#fbaa19]/40 backdrop-blur-sm cursor-pointer"
-                        title="Ver histórico tático e assertividade do usuário"
+                    <div 
+                        className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border backdrop-blur-sm"
+                        style={{ borderColor: `${theme.techColor}40`, color: theme.techColor }}
                     >
-                        <Brain className="w-3.5 h-3.5 text-[#fbaa19]" />
-                        <span className="hidden sm:inline">MEMÓRIA TÁTICA</span>
-                        <span className="sm:hidden">MEMÓRIA</span>
-                    </button>
-
-                    <button
-                        onClick={handleRequestAiSuggestion}
-                        disabled={isSuggesting}
-                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-black bg-[#fbaa19] hover:bg-white transition-all uppercase tracking-wider px-2.5 sm:px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(251,170,25,0.35)] cursor-pointer disabled:opacity-50"
-                        title="Gerar proposta tática completa baseada em IA e telemetria"
-                    >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>{isSuggesting ? 'GERANDO...' : 'SUGESTÃO IA'}</span>
-                    </button>
+                        <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.techColor }} />
+                        <span>{theme.badge} // {teamPrincipal?.teamName.toUpperCase() || 'PIT WALL'}</span>
+                    </div>
                 </div>
             </div>
 
@@ -969,12 +892,7 @@ export function WarRoomContent() {
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag={`1/4 ${seniorSep} POLETIME Q3`}
                                 strategySource={seniorSourceId}
-                                text={getCardText(
-                                    'senior',
-                                    isSeniorHistoricalRole
-                                        ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo perfeito."`
-                                        : `"Pelo movimento dos boxes e contatos no pitwall, a marca de referência é ${seniorTimeTarget}. Esse é o ponto ótimo de aposta."`
-                                )}
+                                text={getCardText('senior', seniorPoletimeLine)}
                                 isStreaming={isCardStreaming('senior')}
                                 streamingBadge="RÁDIO SÊNIOR"
                                 onRadioConsult={() => {
@@ -984,9 +902,7 @@ export function WarRoomContent() {
                                         topic: 'POLETIME',
                                         circuitId: 'americas',
                                         message: 'M. Amon, qual o seu conselho de pista para a disputa da Pole Position?',
-                                        fallbackText: isSeniorHistoricalRole
-                                            ? `"Sinto no estômago e na leitura deste asfalto. A marca ideal para a pole é ${seniorTimeTarget}. Abaixo disso, só no vácuo perfeito."`
-                                            : `"Pelo movimento dos boxes e contatos no pitwall, a marca de referência é ${seniorTimeTarget}. Esse é o ponto ótimo de aposta."`
+                                        fallbackText: seniorPoletimeLine
                                     });
                                 }}
                                 accentColor={theme.seniorColor}
@@ -995,7 +911,7 @@ export function WarRoomContent() {
                                 settledLabel="COPY"
                                 onCopy={subStep === 'SENIOR' ? handlePoletimeSeniorCopy : undefined}
                                 onFill={handlePoletimeSeniorAccept}
-                                fillLabel={`ACCEPT (${seniorTimeTarget}) »`}
+                                fillLabel={`ACCEPT (${effectiveSeniorPoletime}) »`}
                                 copyLabel="COPY"
                             />
                         </div>
@@ -1009,12 +925,7 @@ export function WarRoomContent() {
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag={`TELEMETRIA ${techSep} Q3`}
                                     strategySource={techSourceId}
-                                    text={getCardText(
-                                        'technical',
-                                        isSeniorHistoricalRole
-                                            ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
-                                            : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
-                                    )}
+                                    text={getCardText('technical', techPoletimeLine)}
                                     isStreaming={isCardStreaming('technical')}
                                     streamingBadge="TELEMETRIA AO VIVO"
                                     onRadioConsult={() => {
@@ -1024,9 +935,7 @@ export function WarRoomContent() {
                                             topic: 'POLETIME',
                                             circuitId: 'americas',
                                             message: 'Engenheiro, qual a projeção matemática de tempo exato para o Q3?',
-                                            fallbackText: isSeniorHistoricalRole
-                                                ? `"Nossos modelos estocásticos apontam ${techTimeTarget}. Há ganho aerodinâmico real nos setores 2 e 3."`
-                                                : `"Pelos micro-setores registrados na garagem, vejo potencial para ${techTimeTarget}. A evolução da pista vai favorecer o Q3."`
+                                            fallbackText: techPoletimeLine
                                         });
                                     }}
                                     accentColor={theme.techColor}
@@ -1034,7 +943,7 @@ export function WarRoomContent() {
                                     animationDirection="right"
                                     onCopy={handlePoletimeTechCopy}
                                     onFill={handlePoletimeTechAccept}
-                                    fillLabel={`ACCEPT (${techTimeTarget}) »`}
+                                    fillLabel={`ACCEPT (${effectiveTechPoletime}) »`}
                                     copyLabel="COPY"
                                 />
                             </div>
@@ -1055,12 +964,7 @@ export function WarRoomContent() {
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag={`2/4 ${seniorSep} TOP 10 FINISH`}
                                 strategySource={seniorSourceId}
-                                text={getCardText(
-                                    'senior',
-                                    isSeniorHistoricalRole
-                                        ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${seniorTop3}."`
-                                        : `"Quem quer pontuar alto no campeonato precisa mirar nestes nomes: ${seniorTop3} decidem as primeiras posições."`
-                                )}
+                                text={getCardText('senior', seniorTop10Line)}
                                 isStreaming={isCardStreaming('senior')}
                                 streamingBadge="RÁDIO SÊNIOR"
                                 onRadioConsult={() => {
@@ -1070,9 +974,7 @@ export function WarRoomContent() {
                                         topic: 'TOP10',
                                         circuitId: 'americas',
                                         message: 'M. Amon, qual o seu conselho sobre o ritmo de corrida para o Top 10?',
-                                        fallbackText: isSeniorHistoricalRole
-                                            ? `"Corrida aqui é desgaste e casca grossa. A ponta vai se consolidar com ${seniorTop3}."`
-                                            : `"Quem quer pontuar alto no campeonato precisa mirar nestes nomes: ${seniorTop3} decidem as primeiras posições."`
+                                        fallbackText: seniorTop10Line
                                     });
                                 }}
                                 accentColor={theme.seniorColor}
@@ -1095,12 +997,7 @@ export function WarRoomContent() {
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag={`MONTE CARLO ${techSep} SIM`}
                                     strategySource={techSourceId}
-                                    text={getCardText(
-                                        'technical',
-                                        isSeniorHistoricalRole
-                                            ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
-                                            : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
-                                    )}
+                                    text={getCardText('technical', techTop10Line)}
                                     isStreaming={isCardStreaming('technical')}
                                     streamingBadge="TELEMETRIA AO VIVO"
                                     onRadioConsult={() => {
@@ -1110,9 +1007,7 @@ export function WarRoomContent() {
                                             topic: 'TOP10',
                                             circuitId: 'americas',
                                             message: 'Engenheiro, quais os dados de degradação térmica para os líderes?',
-                                            fallbackText: isSeniorHistoricalRole
-                                                ? `"Nossas simulações de Monte Carlo indicam ${techTop3} com maior eficiência de degradação térmica para domingo."`
-                                                : `"Cruzando os dados de ritmo em stint longo, o favoritismo térmico é de ${techTop3}."`
+                                            fallbackText: techTop10Line
                                         });
                                     }}
                                     accentColor={theme.techColor}
@@ -1140,7 +1035,7 @@ export function WarRoomContent() {
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="3/4 • EVO / ESCALADA"
-                                text={getCardText('senior', `"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`)}
+                                text={getCardText('senior', seniorEvoLine)}
                                 isStreaming={isCardStreaming('senior')}
                                 streamingBadge="RÁDIO SÊNIOR"
                                 onRadioConsult={() => {
@@ -1150,7 +1045,7 @@ export function WarRoomContent() {
                                         topic: 'EVO',
                                         circuitId: 'americas',
                                         message: 'M. Amon, quem tem estofo para escalar o grid com Safety Car?',
-                                        fallbackText: `"Na largada vai ter confusão. Aposto em ${seniorEvoDriver} escalando o pelotão."`
+                                        fallbackText: seniorEvoLine
                                     });
                                 }}
                                 accentColor={theme.seniorColor}
@@ -1159,7 +1054,7 @@ export function WarRoomContent() {
                                 settledLabel="COPY"
                                 onCopy={subStep === 'SENIOR' ? handleEvoSeniorCopy : undefined}
                                 onFill={handleEvoSeniorAccept}
-                                fillLabel={`ACCEPT (${seniorEvoDriver}) »`}
+                                fillLabel={`ACCEPT (${effectiveSeniorEvo[0]}) »`}
                                 copyLabel="COPY"
                             />
                         </div>
@@ -1172,7 +1067,7 @@ export function WarRoomContent() {
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DELTA ULTRAPASSAGEM"
-                                    text={getCardText('technical', `"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`)}
+                                    text={getCardText('technical', techEvoLine)}
                                     isStreaming={isCardStreaming('technical')}
                                     streamingBadge="TELEMETRIA AO VIVO"
                                     onRadioConsult={() => {
@@ -1182,7 +1077,7 @@ export function WarRoomContent() {
                                             topic: 'EVO',
                                             circuitId: 'americas',
                                             message: 'Engenheiro, qual o piloto com melhor delta de ultrapassagem nos setores de DRS?',
-                                            fallbackText: `"Ritmo de tráfego indica ${techEvoDriver} com maior delta de ultrapassagem."`
+                                            fallbackText: techEvoLine
                                         });
                                     }}
                                     accentColor={theme.techColor}
@@ -1190,7 +1085,7 @@ export function WarRoomContent() {
                                     animationDirection="right"
                                     onCopy={handleEvoTechCopy}
                                     onFill={handleEvoTechAccept}
-                                    fillLabel={`ACCEPT (${techEvoDriver}) »`}
+                                    fillLabel={`ACCEPT (${effectiveTechEvo[0]}) »`}
                                     copyLabel="COPY"
                                 />
                             </div>
@@ -1210,7 +1105,7 @@ export function WarRoomContent() {
                                 speakerRole="ESTRATEGISTA SÊNIOR"
                                 avatarUrl={seniorStrategist.avatarUrl}
                                 categoryTag="4/4 • DUELOS TÁTICOS"
-                                text={getCardText('senior', `"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`)}
+                                text={getCardText('senior', seniorH2HLine)}
                                 isStreaming={isCardStreaming('senior')}
                                 streamingBadge="RÁDIO SÊNIOR"
                                 onRadioConsult={() => {
@@ -1220,7 +1115,7 @@ export function WarRoomContent() {
                                         topic: 'H2H',
                                         circuitId: 'americas',
                                         message: 'M. Amon, como avaliar a pressão psicológica nos duelos diretos de garagem?',
-                                        fallbackText: `"Primeiro rival é o companheiro de box. Cravamos ${seniorH2HDrivers} nos duelos internos."`
+                                        fallbackText: seniorH2HLine
                                     });
                                 }}
                                 accentColor={theme.seniorColor}
@@ -1242,7 +1137,7 @@ export function WarRoomContent() {
                                     speakerRole={`ENGENHARIA // ${theme.badge}`}
                                     avatarUrl={technicalStrategist.avatarUrl}
                                     categoryTag="DUELOS ASA MÓVEL"
-                                    text={getCardText('technical', `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`)}
+                                    text={getCardText('technical', techH2HLine)}
                                     isStreaming={isCardStreaming('technical')}
                                     streamingBadge="TELEMETRIA AO VIVO"
                                     onRadioConsult={() => {
@@ -1252,7 +1147,7 @@ export function WarRoomContent() {
                                             topic: 'H2H',
                                             circuitId: 'americas',
                                             message: 'Engenheiro, os dados de telemetria apontam vantagem de motor ou de chassi nos confrontos diretos?',
-                                            fallbackText: `"Telemetria cruzada aponta inversão técnica nos duelos de asa móvel."`
+                                            fallbackText: techH2HLine
                                         });
                                     }}
                                     accentColor={theme.techColor}
@@ -1269,35 +1164,21 @@ export function WarRoomContent() {
                 )}
 
                 {/* ========================================================================= */}
-                {/* TÓPICO 5: CONCLUSÃO & DIRECIONAMENTO PARA O USUÁRIO PREENCHER O MISC      */}
+                {/* TÓPICO 5: CONCLUSÃO & ORDENS DO CHEFE DE EQUIPE                           */}
                 {/* ========================================================================= */}
                 {currentTopic === 'FINAL_MISC' && (
-                    <div className="w-full animate-fade-in">
-                        <div 
-                            className="relative w-full rounded-2xl p-6 md:p-8 backdrop-blur-md flex flex-col items-center gap-5 text-center border shadow-2xl"
-                            style={{
-                                backgroundColor: 'rgba(8, 20, 15, 0.95)',
-                                borderColor: 'rgba(16, 185, 129, 0.5)',
-                                boxShadow: '0 15px 40px -10px rgba(16, 185, 129, 0.35)'
-                            }}
-                        >
-                            <div className="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase tracking-widest">
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                                <span>✓ POLETIME, TOP 10, EVO E DUELOS COMPILADOS</span>
-                            </div>
-
-                            <p className="text-white/85 text-xs sm:text-sm max-w-lg leading-relaxed">
-                                A estratégia principal da equipe está fechada no protocolo. Agora é a sua vez como Estrategista Principal: defina os eventos de pista (<span className="text-[#fbaa19] font-bold">MISC / Event Props</span>) sozinho no grid.
-                            </p>
-
-                            <button
-                                onClick={handleGoToPositionsMisc}
-                                className="w-full max-w-md bg-[#fbaa19] text-black font-black uppercase tracking-[0.2em] py-3.5 px-6 hover:bg-white transition-all rounded-xl shadow-[0_0_25px_rgba(251,170,25,0.45)] cursor-pointer text-xs sm:text-sm flex items-center justify-center gap-2"
-                            >
-                                <span>[ TRANSMITIR ORDENS & PREENCHER MISC ]</span>
-                                <ArrowRight className="w-4 h-4" />
-                            </button>
-                        </div>
+                    <div className="w-full animate-fade-in-left">
+                        <BoxCard
+                            speakerBadge={teamPrincipal ? `[${teamPrincipal.code}]` : '[DIR.GERAL]'}
+                            speakerRole={teamPrincipal ? `CHEFE DE EQUIPE // ${teamPrincipal.teamName.toUpperCase()}` : 'CHEFE DE EQUIPE // PIT WALL'}
+                            avatarUrl={teamPrincipal?.avatarUrl}
+                            categoryTag="ORDENS DE GARAGEM // MISC & EVENT PROPS"
+                            text={principalClosing || (teamPrincipal?.fridayMiscBriefing ? `"${teamPrincipal.fridayMiscBriefing}"` : `"A estratégia de telemetria está compilada. Assuma o pit wall, defina os eventos de pista e transmita a ordem."`)}
+                            accentColor="#10b981"
+                            animationDirection="left"
+                            onFill={handleGoToPositionsMisc}
+                            fillLabel="[ TRANSMITIR ORDENS & PREENCHER MISC » ]"
+                        />
                     </div>
                 )}
 
@@ -1358,217 +1239,6 @@ export function WarRoomContent() {
                 )}
 
             </div>
-
-            {/* ========================================================================= */}
-            {/* MODAL 1: SUGESTÃO TÁTICA ESTRUTURADA DA IA                                */}
-            {/* ========================================================================= */}
-            {suggestModalOpen && (
-                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in font-mono">
-                    <div className="relative w-full max-w-xl bg-[#0a0a0c] border border-white/15 rounded-xl p-5 sm:p-6 shadow-2xl flex flex-col gap-4 text-xs text-white/90 max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                            <div className="flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-[#fbaa19]" />
-                                <span className="text-[#fbaa19] font-black uppercase tracking-wider text-[11px] sm:text-xs">
-                                    &gt;_ PROPOSTA TÁTICA DA IA // PIT WALL
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setSuggestModalOpen(false)}
-                                className="text-white/50 hover:text-white transition-colors cursor-pointer p-1"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        {isSuggesting && (
-                            <div className="py-10 flex flex-col items-center justify-center gap-3 text-center">
-                                <div className="w-8 h-8 border-3 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
-                                <p className="text-[11px] text-[#fbaa19] font-bold tracking-widest uppercase animate-pulse">
-                                    &gt;_ Sintonizando telemetria e calculando proposta...
-                                </p>
-                            </div>
-                        )}
-
-                        {suggestError && !isSuggesting && (
-                            <div className="bg-black/60 border-l-2 border-[#fbaa19] text-[#fbaa19] p-3 rounded text-[11px] font-mono leading-relaxed">
-                                {suggestError}
-                            </div>
-                        )}
-
-                        {suggestedPrediction && !isSuggesting && (
-                            <div className="flex flex-col gap-3.5 animate-fade-in">
-                                {suggestedPrediction.reasoning && (
-                                    <div className="bg-white/[0.03] border-l-2 border-[#fbaa19] p-3 text-white/80 italic text-[11px] leading-relaxed">
-                                        &gt;_ &ldquo;{suggestedPrediction.reasoning}&rdquo;
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
-                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                            POLE POSITION ESTIMADA
-                                        </span>
-                                        <span className="text-[#fbaa19] font-bold text-sm tracking-widest">
-                                            {suggestedPrediction.formattedPoletime}
-                                        </span>
-                                    </div>
-
-                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
-                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                            PILOTOS DE EVOLUÇÃO (EVO)
-                                        </span>
-                                        <span className="text-white/90 font-bold">
-                                            {suggestedPrediction.evo.join(', ')}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="bg-black/60 border border-white/10 p-2.5 rounded">
-                                    <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                        PREVISÃO DO TOP 10 (GRID DE CHEGADA)
-                                    </span>
-                                    <p className="text-white/90 font-bold tracking-wide">
-                                        {suggestedPrediction.top10.join(' › ')}
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
-                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                            DUELOS H2H (MATCHUPS)
-                                        </span>
-                                        <span className="text-emerald-400 font-bold">
-                                            ✓ 11 confrontos preenchidos
-                                        </span>
-                                    </div>
-
-                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
-                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                            EVENTOS DE PISTA (MISC)
-                                        </span>
-                                        <span className="text-white/80 font-bold">
-                                            Q1: {suggestedPrediction.misc.q1} | Q2: {suggestedPrediction.misc.q2} | Q3: {suggestedPrediction.misc.q3}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {applySuccessNotice && (
-                                    <div className="bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 p-2.5 rounded text-center font-bold text-[11px] animate-fade-in flex items-center justify-center gap-1.5">
-                                        <Check className="w-3.5 h-3.5" />
-                                        <span>{applySuccessNotice}</span>
-                                    </div>
-                                )}
-
-                                <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-3 border-t border-white/10">
-                                    <button
-                                        onClick={handleApplySuggestion}
-                                        className="flex-1 bg-[#fbaa19] text-black font-black uppercase tracking-wider py-2.5 px-4 rounded hover:bg-white transition-all cursor-pointer text-xs flex items-center justify-center gap-1.5"
-                                    >
-                                        <Check className="w-3.5 h-3.5" />
-                                        <span>[ APLICAR NO RASCUNHO & STORE ]</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setSuggestModalOpen(false)}
-                                        className="bg-white/5 hover:bg-white/10 text-white/70 py-2.5 px-4 rounded transition-all cursor-pointer text-xs uppercase"
-                                    >
-                                        [ DESCARTAR ]
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* ========================================================================= */}
-            {/* MODAL 2: MEMÓRIA TÁTICA DO USUÁRIO & PRIVACIDADE                          */}
-            {/* ========================================================================= */}
-            {memoryModalOpen && (
-                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in font-mono">
-                    <div className="relative w-full max-w-md bg-[#0a0a0c] border border-white/15 rounded-xl p-5 sm:p-6 shadow-2xl flex flex-col gap-4 text-xs text-white/90">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                            <div className="flex items-center gap-2">
-                                <Brain className="w-4 h-4 text-[#fbaa19]" />
-                                <span className="text-[#fbaa19] font-black uppercase tracking-wider text-[11px] sm:text-xs">
-                                    &gt;_ MEMÓRIA TÁTICA // PIT WALL
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setMemoryModalOpen(false)}
-                                className="text-white/50 hover:text-white transition-colors cursor-pointer p-1"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        {isMemoryLoading ? (
-                            <div className="py-8 flex flex-col items-center justify-center gap-2 text-center">
-                                <div className="w-6 h-6 border-2 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
-                                <p className="text-[10px] text-white/50 uppercase">Carregando métricas...</p>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-3">
-                                <div className="grid grid-cols-2 gap-2 text-center">
-                                    <div className="bg-black/60 border border-white/10 p-3 rounded">
-                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                            TAXA DE ASSERTIVIDADE
-                                        </span>
-                                        <span className="text-[#fbaa19] font-bold text-lg">
-                                            {tacticalMemory?.hasHistory && tacticalMemory.accuracyRate !== null ? `${tacticalMemory.accuracyRate}%` : '—'}
-                                        </span>
-                                    </div>
-                                    <div className="bg-black/60 border border-white/10 p-3 rounded">
-                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                            GPS NO PIT WALL
-                                        </span>
-                                        <span className="text-white font-bold text-lg">
-                                            {tacticalMemory?.hasHistory ? tacticalMemory.totalPredictions : 0}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="bg-black/60 border border-white/10 p-3 rounded">
-                                    <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
-                                        HISTÓRICO TÁTICO RECENTE
-                                    </span>
-                                    <p className="text-white/80 text-[11px] leading-relaxed">
-                                        {tacticalMemory?.hasHistory
-                                            ? (tacticalMemory.recentPicksSummary || '>_ Histórico registrado. Resumo ainda não compilado.')
-                                            : '>_ Sem histórico pontuado. Seu registro começa no próximo GP.'}
-                                    </p>
-                                </div>
-
-                                <div className="bg-white/[0.02] border border-white/5 p-3 rounded text-[10px] text-white/45 leading-relaxed">
-                                    <p className="font-bold uppercase text-white/60 mb-1">Privacidade &amp; LGPD:</p>
-                                    Nenhum dado pessoal é retido. As métricas agregadas de jogo calibram exclusivamente o tom e a profundidade técnica dos diálogos no pit wall.
-                                </div>
-
-                                {memoryResetNotice && (
-                                    <div className="bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 p-2 rounded text-center text-[10px]">
-                                        ✓ {memoryResetNotice}
-                                    </div>
-                                )}
-
-                                <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-white/10">
-                                    <button
-                                        onClick={handleClearMemory}
-                                        className="flex-1 bg-red-950/30 hover:bg-red-900/40 text-red-300 border border-red-500/30 py-2 px-3 rounded text-[11px] uppercase transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                                    >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                        <span>[ REINICIAR MEMÓRIA ]</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setMemoryModalOpen(false)}
-                                        className="bg-white/5 hover:bg-white/10 text-white/70 py-2 px-3 rounded text-[11px] uppercase transition-colors cursor-pointer"
-                                    >
-                                        [ FECHAR ]
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
         </main>
     );
 }

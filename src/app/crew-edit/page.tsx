@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
     ArrowLeft,
     Award,
+    Brain,
     Check,
     Cpu,
     RotateCcw,
@@ -12,8 +13,11 @@ import {
     Search,
     Shield,
     SlidersHorizontal,
+    Trash2,
     Users,
 } from 'lucide-react';
+import { supabase } from '@/utils/supabase';
+import { StrategistMemory } from '@/lib/strategist-memory';
 import { getSystemBoxStyle } from '@/components/system-modal';
 import {
     CharacterRoleOverride,
@@ -188,6 +192,54 @@ export default function CrewEditPage() {
                 overrides: nextOverrides,
             };
         });
+    };
+
+    const [tacticalMemory, setTacticalMemory] = useState<StrategistMemory | null>(null);
+    const [memoryNotice, setMemoryNotice] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadMemory = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const token = session?.access_token;
+                const headers: Record<string, string> = {};
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                const res = await fetch('/api/war-room/memory', { headers });
+                const data = await res.json().catch(() => null);
+                if (data?.ok && data.memory) {
+                    setTacticalMemory(data.memory);
+                }
+            } catch (_) {
+                // Silencioso
+            }
+        };
+        loadMemory();
+    }, []);
+
+    const handleClearTacticalMemory = async () => {
+        if (!confirm('Deseja realmente reiniciar o histórico de memória tática do pit wall?')) return;
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch('/api/war-room/memory', { method: 'DELETE', headers });
+            const data = await res.json().catch(() => null);
+            if (data?.ok) {
+                setMemoryNotice('Histórico de memória tática reiniciado com sucesso (LGPD).');
+                setTacticalMemory({
+                    userId: 'me',
+                    hasHistory: false,
+                    accuracyRate: null,
+                    totalPredictions: 0,
+                    recentPicksSummary: null,
+                    updatedAt: null,
+                });
+                setTimeout(() => setMemoryNotice(null), 4000);
+            }
+        } catch (_) {
+            alert('Falha ao reiniciar memória tática.');
+        }
     };
 
     const handleSaveAll = async () => {
@@ -546,6 +598,71 @@ export default function CrewEditPage() {
                             </button>
                         </div>
                     </div>
+                </section>
+
+                {/* SEÇÃO: PRIVACIDADE & MEMÓRIA TÁTICA (LGPD) */}
+                <section
+                    className="border border-[#000000] rounded-[3px] p-5 sm:p-6 flex flex-col gap-4"
+                    style={getSystemBoxStyle('#fbaa19')}
+                >
+                    <div className="flex items-center justify-between flex-wrap gap-3 border-b border-white/10 pb-3">
+                        <div className="flex items-center gap-2">
+                            <Brain className="w-4 h-4 text-[#fbaa19]" />
+                            <h2 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
+                                MEMÓRIA TÁTICA DO PIT WALL &amp; PRIVACIDADE (LGPD)
+                            </h2>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleClearTacticalMemory}
+                            className="px-3 py-1.5 rounded-[3px] border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 text-red-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-colors"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>REINICIAR MEMÓRIA TÁTICA</span>
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="bg-[#030303] border border-[#000000] p-3 rounded-[3px]">
+                            <span className="text-[10px] text-white/40 uppercase tracking-widest font-black block mb-1">
+                                TAXA DE ASSERTIVIDADE HISTÓRICA
+                            </span>
+                            <span className="text-[#fbaa19] font-bold text-base">
+                                {tacticalMemory?.hasHistory && tacticalMemory.accuracyRate !== null
+                                    ? `${tacticalMemory.accuracyRate}%`
+                                    : 'SEM REGISTRO SUFICIENTE'}
+                            </span>
+                        </div>
+                        <div className="bg-[#030303] border border-[#000000] p-3 rounded-[3px]">
+                            <span className="text-[10px] text-white/40 uppercase tracking-widest font-black block mb-1">
+                                GPS COMPUTADOS NO PIT WALL
+                            </span>
+                            <span className="text-white font-bold text-base">
+                                {tacticalMemory?.hasHistory ? tacticalMemory.totalPredictions : 0}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="bg-[#030303] border border-[#000000] p-3 rounded-[3px] text-xs">
+                        <span className="text-[10px] text-white/40 uppercase tracking-widest font-black block mb-1">
+                            RESUMO DA TELEMETRIA RECENTE
+                        </span>
+                        <p className="text-white/80 leading-relaxed text-[11px]">
+                            {tacticalMemory?.hasHistory
+                                ? (tacticalMemory.recentPicksSummary || '>_ Telemetria gravada. Resumo em compilação.')
+                                : '>_ Sem histórico pontuado. O aprendizado da equipe técnica inicia no próximo GP oficial.'}
+                        </p>
+                    </div>
+
+                    <p className="text-[10px] text-white/40 leading-relaxed">
+                        <strong>Conformidade LGPD / TS1:</strong> As métricas acima são exclusivamente anônimas e agregadas para calibração das linhas de diálogo e tom dos estrategistas no pit wall. Nenhum dado pessoal identificável é retido.
+                    </p>
+
+                    {memoryNotice && (
+                        <div className="bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 p-2.5 rounded-[3px] text-center font-bold text-xs">
+                            ✓ {memoryNotice}
+                        </div>
+                    )}
                 </section>
             </div>
         </main>
