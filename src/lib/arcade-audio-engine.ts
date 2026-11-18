@@ -1,5 +1,5 @@
 /**
- * BAEFF1 Arcade Noir // Suspense Audio Engine
+ * TS1 Arcade Noir // Suspense Audio Engine
  * 
  * Sintetizador procedural via Web Audio API com estética 80s Arcade Suspense / Cyberpunk Pitwall:
  * - Baixo arpejado sombrio em Ré Menor (D minor suspense arpeggio)
