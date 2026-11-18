@@ -1,5 +1,5 @@
 /**
- * Script para gerar os templates de e-mail com a identidade visual VoltGrid
+ * Script para gerar os templates de e-mail com a identidade visual The Strategist One (TS1)
  * e atualizá-los diretamente na API de gerenciamento do Supabase Auth.
  */
 
@@ -7,15 +7,21 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
+// TODO(logo): Substituir voltgrid-logo.png pelo asset definitivo da nova marca (The Strategist One) no bucket do Supabase
 const LOGO_URL = process.env.NEXT_PUBLIC_SUPABASE_URL 
   ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/voltgrid-logo.png`
   : 'https://fivzbbqzgvvwgtlhietx.supabase.co/storage/v1/object/public/avatars/voltgrid-logo.png';
 const SUPABASE_ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
-const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'fivzbbqzgvvwgtlhietx';
+const PROJECT_REF = process.env.SUPABASE_PROJECT_REF;
 
 if (!SUPABASE_ACCESS_TOKEN) {
   console.error('ERRO: SUPABASE_ACCESS_TOKEN ausente.');
-  console.error('Uso: SUPABASE_ACCESS_TOKEN=sbp_... node scripts/setup-email-templates.js (ou use node --env-file=.env.local)');
+  console.error('Uso: SUPABASE_ACCESS_TOKEN=sbp_... node scripts/setup-email-templates.js');
+  process.exit(1);
+}
+
+if (!PROJECT_REF) {
+  console.error('ERRO: SUPABASE_PROJECT_REF ausente.');
   process.exit(1);
 }
 
@@ -25,7 +31,7 @@ function generateTemplate({ tag, title, message, buttonText, isRecovery = false 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VoltGrid</title>
+  <title>The Strategist One</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #080809; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #ffffff; -webkit-font-smoothing: antialiased;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #080809; margin: 0; padding: 40px 16px;">
@@ -34,23 +40,24 @@ function generateTemplate({ tag, title, message, buttonText, isRecovery = false 
         <!-- Main Card -->
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; background-color: #121316; border: 1px solid #23252c; border-top: 4px solid #fbaa19; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);">
           
-          <!-- Header with VoltGrid Logo -->
+          <!-- Header with Logo TODO(logo) -->
           <tr>
             <td align="center" style="padding: 36px 32px 24px 32px; background-color: #121316; border-bottom: 1px solid #1e2026;">
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" style="vertical-align: middle;">
-                    <img src="${LOGO_URL}" alt="VoltGrid Logo" width="64" height="64" style="display: block; width: 64px; height: 64px; margin-bottom: 14px; border: 0;" />
+                    <!-- TODO(logo): Atualizar asset do logo quando novo design estiver pronto -->
+                    <img src="${LOGO_URL}" alt="The Strategist One Logo" width="64" height="64" style="display: block; width: 64px; height: 64px; margin-bottom: 14px; border: 0;" />
                   </td>
                 </tr>
                 <tr>
                   <td align="center">
-                    <span style="font-size: 24px; font-weight: 900; letter-spacing: 5px; color: #fbaa19; text-transform: uppercase; font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">VOLTGRID</span>
+                    <span style="font-size: 20px; font-weight: 900; letter-spacing: 4px; color: #fbaa19; text-transform: uppercase; font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">THE STRATEGIST ONE</span>
                   </td>
                 </tr>
                 <tr>
                   <td align="center" style="padding-top: 5px;">
-                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 3px; color: #717684; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">F1 TELEMETRY &amp; STRATEGY // BAEFF1</span>
+                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 3px; color: #717684; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">F1 TELEMETRY &amp; STRATEGY // TS1</span>
                   </td>
                 </tr>
               </table>
@@ -106,7 +113,7 @@ function generateTemplate({ tag, title, message, buttonText, isRecovery = false 
 
               <!-- Security Warning -->
               <p style="margin: 0; font-size: 11px; line-height: 1.5; color: #626672;">
-                🔒 Este link de confirmação é pessoal e expira por segurança. Se você não solicitou esta ação no ecossistema VoltGrid, ${isRecovery ? 'nenhuma alteração foi efetuada e sua conta permanece em segurança.' : 'desconsidere esta mensagem com segurança.'}
+                🔒 Este link de confirmação é pessoal e expira por segurança. Se você não solicitou esta ação no ecossistema The Strategist One, ${isRecovery ? 'nenhuma alteração foi efetuada e sua conta permanece em segurança.' : 'desconsidere esta mensagem com segurança.'}
               </p>
             </td>
           </tr>
@@ -115,7 +122,7 @@ function generateTemplate({ tag, title, message, buttonText, isRecovery = false 
           <tr>
             <td align="center" style="padding: 24px 32px; background-color: #0b0c0e; border-top: 1px solid #1a1c22;">
               <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #8e929e; letter-spacing: 1px; text-transform: uppercase;">
-                VOLTGRID &bull; BAEFF1 TELEMETRY SYSTEM
+                THE STRATEGIST ONE &bull; TS1 TELEMETRY SYSTEM
               </p>
               <p style="margin: 0; font-size: 10px; color: #51545e; letter-spacing: 0.5px;">
                 Pitwall Command &bull; Gestão Estratégica de Pilotos e Escuderias
@@ -138,7 +145,7 @@ fs.mkdirSync(templatesDir, { recursive: true });
 const confirmationHtml = generateTemplate({
   tag: 'SUPERLICENÇA // ATIVAÇÃO',
   title: 'Confirme sua Superlicença de Piloto',
-  message: 'Bem-vindo ao centro de operações da VoltGrid. Para habilitar seu acesso à telemetria ao vivo, decisões de estratégia e ao terminal de pitwall da temporada 2026, confirme seu e-mail através do link abaixo.',
+  message: 'Bem-vindo ao centro de operações do The Strategist One. Para habilitar seu acesso à telemetria ao vivo, decisões de estratégia e ao terminal de pitwall da temporada 2026, confirme seu e-mail através do link abaixo.',
   buttonText: 'CONFIRMAR SUPERLICENÇA'
 });
 
@@ -152,14 +159,14 @@ const magicLinkHtml = generateTemplate({
 const inviteHtml = generateTemplate({
   tag: 'CONVITE // ESQUADRÃO DE TELEMETRIA',
   title: 'Você foi convocado para o Pitwall',
-  message: 'Você recebeu um convite oficial para ingressar na plataforma VoltGrid e assumir a estratégia da sua escuderia na temporada 2026. Clique no botão abaixo para aceitar o convite e ativar sua conta.',
+  message: 'Você recebeu um convite oficial para ingressar na plataforma The Strategist One e assumir a estratégia da sua escuderia na temporada 2026. Clique no botão abaixo para aceitar o convite e ativar sua conta.',
   buttonText: 'ACEITAR CONVITE E ENTRAR'
 });
 
 const emailChangeHtml = generateTemplate({
   tag: 'SEGURANÇA // ATUALIZAÇÃO CADASTRO',
   title: 'Confirme seu novo endereço de e-mail',
-  message: 'Uma solicitação foi iniciada para transferir sua conta VoltGrid para o endereço <strong>{{ .NewEmail }}</strong>. Para validar a alteração e proteger sua Superlicença, confirme através do botão abaixo.',
+  message: 'Uma solicitação foi iniciada para transferir sua conta The Strategist One para o endereço <strong>{{ .NewEmail }}</strong>. Para validar a alteração e proteger sua Superlicença, confirme através do botão abaixo.',
   buttonText: 'CONFIRMAR NOVO E-MAIL'
 });
 
@@ -186,30 +193,33 @@ console.log('   - recovery.html');
 
 // 2. Montar payload para a API do Supabase Auth
 const payload = {
-  mailer_subjects_confirmation: '⚡ VoltGrid | Confirme seu e-mail para ativar sua Superlicença',
+  mailer_subjects_confirmation: '⚡ TS1 | Confirme seu e-mail para ativar sua Superlicença',
   mailer_templates_confirmation_content: confirmationHtml,
 
-  mailer_subjects_magic_link: '⚡ VoltGrid | Seu link de acesso ao Pitwall',
+  mailer_subjects_magic_link: '⚡ TS1 | Seu link de acesso ao Pitwall',
   mailer_templates_magic_link_content: magicLinkHtml,
 
-  mailer_subjects_invite: '⚡ VoltGrid | Você foi convocado para o Pitwall',
+  mailer_subjects_invite: '⚡ TS1 | Você foi convocado para o Pitwall',
   mailer_templates_invite_content: inviteHtml,
 
-  mailer_subjects_email_change: '⚡ VoltGrid | Confirmação de alteração de e-mail',
+  mailer_subjects_email_change: '⚡ TS1 | Confirmação de alteração de e-mail',
   mailer_templates_email_change_content: emailChangeHtml,
 
-  mailer_subjects_recovery: '⚡ VoltGrid | Redefinição de senha do estrategista',
+  mailer_subjects_recovery: '⚡ TS1 | Redefinição de senha do estrategista',
   mailer_templates_recovery_content: recoveryHtml
 };
 
 // Se variáveis SMTP estiverem presentes no ambiente, inclui no payload:
 if (process.env.SMTP_HOST) {
+  if (!process.env.SMTP_PASS) {
+    throw new Error('SMTP_PASS ausente no ambiente');
+  }
   payload.smtp_host = process.env.SMTP_HOST;
   payload.smtp_port = process.env.SMTP_PORT || '587';
   payload.smtp_user = process.env.SMTP_USER || '';
-  payload.smtp_pass = process.env.SMTP_PASS || '';
+  payload.smtp_pass = process.env.SMTP_PASS;
   payload.smtp_admin_email = process.env.SMTP_ADMIN_EMAIL || 'noreply@voltgrid.app';
-  payload.smtp_sender_name = process.env.SMTP_SENDER_NAME || 'VoltGrid Telemetry';
+  payload.smtp_sender_name = process.env.SMTP_SENDER_NAME || 'The Strategist One Telemetry';
   console.log('📧 Dados SMTP customizados detectados, enviando junto com os templates...');
 }
 
