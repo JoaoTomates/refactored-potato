@@ -610,15 +610,32 @@ export function WarRoomContent() {
         setSuggestModalOpen(true);
         setApplySuccessNotice(null);
         try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json',
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const res = await fetch('/api/war-room/suggest-prediction', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({
                     circuitId: 'americas',
                     characterType: subStep === 'TECH' ? 'technical' : 'senior',
                 }),
             });
-            const data = await res.json();
+
+            const text = await res.text();
+            let data: any;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                throw new Error('Canal de telemetria indisponível ou deploy em andamento no servidor. Aguarde alguns instantes e tente novamente.');
+            }
+
             if (!res.ok || !data.ok) {
                 throw new Error(data.error || 'Falha ao compilar proposta de estratégia.');
             }
@@ -668,8 +685,21 @@ export function WarRoomContent() {
         setIsMemoryLoading(true);
         setMemoryResetNotice(null);
         try {
-            const res = await fetch('/api/war-room/memory');
-            const data = await res.json();
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const res = await fetch('/api/war-room/memory', { headers });
+            const text = await res.text();
+            let data: any;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                return;
+            }
             if (data.ok && data.memory) {
                 setTacticalMemory(data.memory);
             }
@@ -683,8 +713,21 @@ export function WarRoomContent() {
     const handleClearMemory = async () => {
         if (!confirm('Deseja realmente reiniciar o histórico de memória tática do pit wall?')) return;
         try {
-            const res = await fetch('/api/war-room/memory', { method: 'DELETE' });
-            const data = await res.json();
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const res = await fetch('/api/war-room/memory', { method: 'DELETE', headers });
+            const text = await res.text();
+            let data: any;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                return;
+            }
             if (data.ok) {
                 setMemoryResetNotice('Memória reiniciada com sucesso.');
                 setTacticalMemory({
