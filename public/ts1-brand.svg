@@ -1,0 +1,28 @@
+<svg width="400" height="80" viewBox="0 0 400 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="ts1-brand-top">
+      <rect x="0" y="0" width="100" height="50" />
+    </clipPath>
+    <clipPath id="ts1-brand-bottom">
+      <rect x="0" y="50" width="100" height="50" />
+    </clipPath>
+  </defs>
+
+  <!-- Círculo Bicolor Original (x=10..70, y=10..70) -->
+  <g transform="translate(10, 10) scale(0.6)">
+    <!-- Anel Externo Dourado / Âmbar (#fbaa19) -->
+    <circle cx="50" cy="50" r="47" stroke="#fbaa19" stroke-width="4" />
+    <!-- Anel Interno Preto de Contenção (#000000) -->
+    <circle cx="50" cy="50" r="43" stroke="#000000" stroke-width="2.5" />
+    <!-- Metade Superior Bicolor (Âmbar) - Lisa e Limpa -->
+    <circle cx="50" cy="50" r="41" fill="#fbaa19" clip-path="url(#ts1-brand-top)" />
+    <!-- Metade Inferior Bicolor (Preto) -->
+    <circle cx="50" cy="50" r="41" fill="#000000" clip-path="url(#ts1-brand-bottom)" />
+    <!-- Linha de Horizonte Tático -->
+    <line x1="9" y1="50" x2="91" y2="50" stroke="#000000" stroke-width="1.5" />
+  </g>
+
+  <!-- Tipografia THE STRATEGIST ONE -->
+  <text x="82" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Montserrat', sans-serif" font-weight="900" font-size="20" fill="#fbaa19" letter-spacing="3.2">THE STRATEGIST ONE</text>
+  <text x="83" y="58" font-family="-apple-system, BlinkMacSystemFont, 'JetBrains Mono', 'Segoe UI', monospace" font-weight="600" font-size="8.5" fill="#ffffff" fill-opacity="0.55" letter-spacing="2.2">F1 TELEMETRY &amp; STRATEGY // TS1</text>
+</svg>

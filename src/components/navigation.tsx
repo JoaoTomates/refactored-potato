@@ -90,10 +90,10 @@ const Navigation = () => {
                 >
                     <div className="flex items-center justify-between w-full max-w-5xl mx-auto px-4 md:px-8 h-14 md:h-16">
                         
-                        {/* LEFT: Logo */}
+                        {/* LEFT: Logo (The Strategist One) */}
                         <div className="flex items-center">
                             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
-                                <Logo isOnDarkBackground={true} />
+                                <Logo isOnDarkBackground={true} size="sm" showSubtitle={false} />
                             </Link>
                         </div>
 

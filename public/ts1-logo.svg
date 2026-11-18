@@ -1,0 +1,25 @@
+<svg width="512" height="512" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="ts1-top-half">
+      <rect x="0" y="0" width="100" height="50" />
+    </clipPath>
+    <clipPath id="ts1-bottom-half">
+      <rect x="0" y="50" width="100" height="50" />
+    </clipPath>
+  </defs>
+
+  <!-- Anel Externo Dourado / Âmbar TS1 (#fbaa19) -->
+  <circle cx="50" cy="50" r="47" stroke="#fbaa19" stroke-width="4" />
+
+  <!-- Anel Interno Preto de Contenção (#000000) -->
+  <circle cx="50" cy="50" r="43" stroke="#000000" stroke-width="2.5" />
+
+  <!-- Metade Superior Bicolor (Âmbar) - Lisa e Limpa -->
+  <circle cx="50" cy="50" r="41" fill="#fbaa19" clip-path="url(#ts1-top-half)" />
+
+  <!-- Metade Inferior Bicolor (Preto) -->
+  <circle cx="50" cy="50" r="41" fill="#000000" clip-path="url(#ts1-bottom-half)" />
+
+  <!-- Linha de Horizonte Tático -->
+  <line x1="9" y1="50" x2="91" y2="50" stroke="#000000" stroke-width="1.5" />
+</svg>

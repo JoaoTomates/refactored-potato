@@ -22,8 +22,8 @@ const Footer = () => {
                     <div className="flex items-center gap-4">
                         <Link href="/">
                             <div className="scale-50 origin-left opacity-50 grayscale">
-                                <div className="block dark:hidden"><Logo isOnDarkBackground={false} /></div>
-                                <div className="hidden dark:block"><Logo isOnDarkBackground={true} /></div>
+                                <div className="block dark:hidden"><Logo isOnDarkBackground={false} variant="icon-only" /></div>
+                                <div className="hidden dark:block"><Logo isOnDarkBackground={true} variant="icon-only" /></div>
                             </div>
                         </Link>
                         <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">

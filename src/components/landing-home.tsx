@@ -260,21 +260,9 @@ function LandingHomeContent() {
                 )}
 
                 <div className="max-w-[1440px] mx-auto px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-                    {/* LADO ESQUERDO: LOGO TODO(logo) THE STRATEGIST ONE */}
+                    {/* LADO ESQUERDO: LOGO THE STRATEGIST ONE (OPÇÃO 2 APROVADA: CÍRCULO LIMPO + TEXTO) */}
                     <div className="flex items-center gap-3.5 shrink-0">
-                        {/* TODO(logo): Atualizar componente de logo quando o novo ícone for disponibilizado */}
                         <Logo size="lg" />
-                        <div className="flex flex-col leading-none">
-                            <span
-                                style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
-                                className="text-base sm:text-xl font-black tracking-[0.14em] text-[#fbaa19] uppercase"
-                            >
-                                THE STRATEGIST ONE
-                            </span>
-                            <span className="text-[9px] tracking-[0.28em] text-white/55 uppercase mt-1">
-                                F1 TELEMETRY &amp; STRATEGY // TS1
-                            </span>
-                        </div>
                     </div>
 
                     {/* LADO DIREITO: INPUTS SOLTOS EM LINHA + PRIMEIRA VEZ */}
