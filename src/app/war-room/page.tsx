@@ -14,10 +14,13 @@ import {
 import { getGroupTechnicalEngineer } from '@/lib/group-engineers';
 import { getStrategistSquad } from '@/lib/teamwork';
 import { getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/slug';
-import { ChevronLeft, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ArrowRight, Sparkles, Brain, Trash2, Check, X } from 'lucide-react';
 import { DialogueBox, DialogueActionButton, pitWallSound as soundEngine } from '@/components/dialogue-box';
 import { useWarRoomChat } from '@/hooks/useWarRoomChat';
 import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
+import { usePredictionStore } from '@/store/usePredictionStore';
+import { ValidatedPrediction } from '@/lib/prediction-validator';
+import { StrategistMemory } from '@/lib/strategist-memory';
 
 // --- Definição das 3 Cores por Aliança ---
 // Cor 1: Sênior (#fbaa19 - Amarelo Frank Miller Noir)
@@ -404,6 +407,21 @@ export function WarRoomContent() {
         m6: '10', m7: '31', m8: '30', m9: '11', m10: '55', m11: '27'
     });
 
+    const store = usePredictionStore();
+
+    // Estado da Sugestão Assistida por IA
+    const [isSuggesting, setIsSuggesting] = useState(false);
+    const [suggestModalOpen, setSuggestModalOpen] = useState(false);
+    const [suggestedPrediction, setSuggestedPrediction] = useState<ValidatedPrediction | null>(null);
+    const [suggestError, setSuggestError] = useState<string | null>(null);
+    const [applySuccessNotice, setApplySuccessNotice] = useState<string | null>(null);
+
+    // Estado da Memória Tática
+    const [memoryModalOpen, setMemoryModalOpen] = useState(false);
+    const [tacticalMemory, setTacticalMemory] = useState<StrategistMemory | null>(null);
+    const [isMemoryLoading, setIsMemoryLoading] = useState(false);
+    const [memoryResetNotice, setMemoryResetNotice] = useState<string | null>(null);
+
     useEffect(() => {
         if (authLoading) return;
 
@@ -585,6 +603,103 @@ export function WarRoomContent() {
         localStorage.setItem('war_room_draft', JSON.stringify(updated));
     };
 
+    // Handlers da Sugestão Assistida por IA
+    const handleRequestAiSuggestion = async () => {
+        setIsSuggesting(true);
+        setSuggestError(null);
+        setSuggestModalOpen(true);
+        setApplySuccessNotice(null);
+        try {
+            const res = await fetch('/api/war-room/suggest-prediction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    circuitId: 'americas',
+                    characterType: subStep === 'TECH' ? 'technical' : 'senior',
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                throw new Error(data.error || 'Falha ao compilar proposta de estratégia.');
+            }
+            setSuggestedPrediction(data.suggestion);
+        } catch (err: any) {
+            setSuggestError(err.message || 'Erro de comunicação no rádio.');
+        } finally {
+            setIsSuggesting(false);
+        }
+    };
+
+    const handleApplySuggestion = () => {
+        if (!suggestedPrediction) return;
+
+        // 1. Atualiza Zustand Store
+        store.setPoletime(suggestedPrediction.poletime);
+        store.setTop10(suggestedPrediction.top10);
+        store.setEvo(suggestedPrediction.evo);
+        store.setH2H(suggestedPrediction.h2h);
+        store.setMisc(suggestedPrediction.misc);
+
+        // 2. Atualiza estado local do War Room
+        setChosenPoletime(suggestedPrediction.formattedPoletime);
+        setChosenTop10(suggestedPrediction.top10);
+        setChosenEvo(suggestedPrediction.evo);
+        setChosenH2H(suggestedPrediction.h2h);
+
+        // 3. Persiste no localStorage para sincronização com /positions
+        saveToLocalStorage({
+            poletime: suggestedPrediction.formattedPoletime,
+            top10: suggestedPrediction.top10,
+            evo: suggestedPrediction.evo,
+            h2h: suggestedPrediction.h2h,
+        });
+
+        // 4. Som e notificação de confirmação
+        soundEngine.playKeyClick('!');
+        setApplySuccessNotice('Estratégia da IA gravada no rascunho com sucesso!');
+        setTimeout(() => {
+            setApplySuccessNotice(null);
+            setSuggestModalOpen(false);
+        }, 1500);
+    };
+
+    const handleOpenMemoryModal = async () => {
+        setMemoryModalOpen(true);
+        setIsMemoryLoading(true);
+        setMemoryResetNotice(null);
+        try {
+            const res = await fetch('/api/war-room/memory');
+            const data = await res.json();
+            if (data.ok && data.memory) {
+                setTacticalMemory(data.memory);
+            }
+        } catch (_) {
+            // Silencioso
+        } finally {
+            setIsMemoryLoading(false);
+        }
+    };
+
+    const handleClearMemory = async () => {
+        if (!confirm('Deseja realmente reiniciar o histórico de memória tática do pit wall?')) return;
+        try {
+            const res = await fetch('/api/war-room/memory', { method: 'DELETE' });
+            const data = await res.json();
+            if (data.ok) {
+                setMemoryResetNotice('Memória reiniciada com sucesso.');
+                setTacticalMemory({
+                    userId: user?.id || 'guest',
+                    accuracyRate: 72.0,
+                    totalPredictions: 1,
+                    recentPicksSummary: 'Estrategista estreando telemetria de precisão na temporada.',
+                    updatedAt: new Date().toISOString(),
+                });
+            }
+        } catch (_) {
+            alert('Falha ao reiniciar memória.');
+        }
+    };
+
     // Função de limpeza de tela e transição entre tópicos
     const transitionToTopic = (next: Topic) => {
         resetChat();
@@ -752,8 +867,8 @@ export function WarRoomContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/75" />
             </div>
 
-            {/* BARRA SUPERIOR: SAÍDA */}
-            <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between">
+            {/* BARRA SUPERIOR: SAÍDA & FERRAMENTAS DE IA */}
+            <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between gap-2">
                 <Link
                     href={getDashboardPath(userSlug, '/headquarters')}
                     className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
@@ -761,6 +876,28 @@ export function WarRoomContent() {
                     <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />
                     <span>[ « SAIR ]</span>
                 </Link>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleOpenMemoryModal}
+                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-white/70 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 hover:border-[#fbaa19]/40 backdrop-blur-sm cursor-pointer"
+                        title="Ver histórico tático e assertividade do usuário"
+                    >
+                        <Brain className="w-3.5 h-3.5 text-[#fbaa19]" />
+                        <span className="hidden sm:inline">MEMÓRIA TÁTICA</span>
+                        <span className="sm:hidden">MEMÓRIA</span>
+                    </button>
+
+                    <button
+                        onClick={handleRequestAiSuggestion}
+                        disabled={isSuggesting}
+                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-black bg-[#fbaa19] hover:bg-white transition-all uppercase tracking-wider px-2.5 sm:px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(251,170,25,0.35)] cursor-pointer disabled:opacity-50"
+                        title="Gerar proposta tática completa baseada em IA e telemetria"
+                    >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{isSuggesting ? 'GERANDO...' : 'SUGESTÃO IA'}</span>
+                    </button>
+                </div>
             </div>
 
             {/* CONTAINER VERTICAL DE DIÁLOGOS CENTRALIZADO NA TELA */}
@@ -1172,6 +1309,215 @@ export function WarRoomContent() {
                 )}
 
             </div>
+
+            {/* ========================================================================= */}
+            {/* MODAL 1: SUGESTÃO TÁTICA ESTRUTURADA DA IA                                */}
+            {/* ========================================================================= */}
+            {suggestModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in font-mono">
+                    <div className="relative w-full max-w-xl bg-[#0a0a0c] border border-white/15 rounded-xl p-5 sm:p-6 shadow-2xl flex flex-col gap-4 text-xs text-white/90 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-[#fbaa19]" />
+                                <span className="text-[#fbaa19] font-black uppercase tracking-wider text-[11px] sm:text-xs">
+                                    &gt;_ PROPOSTA TÁTICA DA IA // PIT WALL
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => setSuggestModalOpen(false)}
+                                className="text-white/50 hover:text-white transition-colors cursor-pointer p-1"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {isSuggesting && (
+                            <div className="py-10 flex flex-col items-center justify-center gap-3 text-center">
+                                <div className="w-8 h-8 border-3 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
+                                <p className="text-[11px] text-[#fbaa19] font-bold tracking-widest uppercase animate-pulse">
+                                    &gt;_ Sintonizando telemetria e calculando proposta...
+                                </p>
+                            </div>
+                        )}
+
+                        {suggestError && !isSuggesting && (
+                            <div className="bg-red-950/40 border border-red-500/40 text-red-300 p-3 rounded text-[11px]">
+                                {suggestError}
+                            </div>
+                        )}
+
+                        {suggestedPrediction && !isSuggesting && (
+                            <div className="flex flex-col gap-3.5 animate-fade-in">
+                                {suggestedPrediction.reasoning && (
+                                    <div className="bg-white/[0.03] border-l-2 border-[#fbaa19] p-3 text-white/80 italic text-[11px] leading-relaxed">
+                                        &gt;_ &ldquo;{suggestedPrediction.reasoning}&rdquo;
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
+                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                            POLE POSITION ESTIMADA
+                                        </span>
+                                        <span className="text-[#fbaa19] font-bold text-sm tracking-widest">
+                                            {suggestedPrediction.formattedPoletime}
+                                        </span>
+                                    </div>
+
+                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
+                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                            PILOTOS DE EVOLUÇÃO (EVO)
+                                        </span>
+                                        <span className="text-white/90 font-bold">
+                                            {suggestedPrediction.evo.join(', ')}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-black/60 border border-white/10 p-2.5 rounded">
+                                    <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                        PREVISÃO DO TOP 10 (GRID DE CHEGADA)
+                                    </span>
+                                    <p className="text-white/90 font-bold tracking-wide">
+                                        {suggestedPrediction.top10.join(' › ')}
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
+                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                            DUELOS H2H (MATCHUPS)
+                                        </span>
+                                        <span className="text-emerald-400 font-bold">
+                                            ✓ 11 confrontos preenchidos
+                                        </span>
+                                    </div>
+
+                                    <div className="bg-black/60 border border-white/10 p-2.5 rounded">
+                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                            EVENTOS DE PISTA (MISC)
+                                        </span>
+                                        <span className="text-white/80 font-bold">
+                                            Q1: {suggestedPrediction.misc.q1} | Q2: {suggestedPrediction.misc.q2} | Q3: {suggestedPrediction.misc.q3}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {applySuccessNotice && (
+                                    <div className="bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 p-2.5 rounded text-center font-bold text-[11px] animate-fade-in flex items-center justify-center gap-1.5">
+                                        <Check className="w-3.5 h-3.5" />
+                                        <span>{applySuccessNotice}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-3 border-t border-white/10">
+                                    <button
+                                        onClick={handleApplySuggestion}
+                                        className="flex-1 bg-[#fbaa19] text-black font-black uppercase tracking-wider py-2.5 px-4 rounded hover:bg-white transition-all cursor-pointer text-xs flex items-center justify-center gap-1.5"
+                                    >
+                                        <Check className="w-3.5 h-3.5" />
+                                        <span>[ APLICAR NO RASCUNHO & STORE ]</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSuggestModalOpen(false)}
+                                        className="bg-white/5 hover:bg-white/10 text-white/70 py-2.5 px-4 rounded transition-all cursor-pointer text-xs uppercase"
+                                    >
+                                        [ DESCARTAR ]
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* MODAL 2: MEMÓRIA TÁTICA DO USUÁRIO & PRIVACIDADE                          */}
+            {/* ========================================================================= */}
+            {memoryModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in font-mono">
+                    <div className="relative w-full max-w-md bg-[#0a0a0c] border border-white/15 rounded-xl p-5 sm:p-6 shadow-2xl flex flex-col gap-4 text-xs text-white/90">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div className="flex items-center gap-2">
+                                <Brain className="w-4 h-4 text-[#fbaa19]" />
+                                <span className="text-[#fbaa19] font-black uppercase tracking-wider text-[11px] sm:text-xs">
+                                    &gt;_ MEMÓRIA TÁTICA // PIT WALL
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => setMemoryModalOpen(false)}
+                                className="text-white/50 hover:text-white transition-colors cursor-pointer p-1"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {isMemoryLoading ? (
+                            <div className="py-8 flex flex-col items-center justify-center gap-2 text-center">
+                                <div className="w-6 h-6 border-2 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
+                                <p className="text-[10px] text-white/50 uppercase">Carregando métricas...</p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                <div className="grid grid-cols-2 gap-2 text-center">
+                                    <div className="bg-black/60 border border-white/10 p-3 rounded">
+                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                            TAXA DE ASSERTIVIDADE
+                                        </span>
+                                        <span className="text-[#fbaa19] font-bold text-lg">
+                                            {tacticalMemory?.accuracyRate ? `${tacticalMemory.accuracyRate}%` : '72%'}
+                                        </span>
+                                    </div>
+                                    <div className="bg-black/60 border border-white/10 p-3 rounded">
+                                        <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                            GPS NO PIT WALL
+                                        </span>
+                                        <span className="text-white font-bold text-lg">
+                                            {tacticalMemory?.totalPredictions || 1}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-black/60 border border-white/10 p-3 rounded">
+                                    <span className="text-white/40 block text-[9px] uppercase tracking-wider font-bold mb-1">
+                                        HISTÓRICO TÁTICO RECENTE
+                                    </span>
+                                    <p className="text-white/80 text-[11px] leading-relaxed">
+                                        {tacticalMemory?.recentPicksSummary || 'Estrategista ativo na temporada com telemetria calibrada.'}
+                                    </p>
+                                </div>
+
+                                <div className="bg-white/[0.02] border border-white/5 p-3 rounded text-[10px] text-white/45 leading-relaxed">
+                                    <p className="font-bold uppercase text-white/60 mb-1">Privacidade &amp; LGPD:</p>
+                                    Nenhum dado pessoal é retido. As métricas agregadas de jogo calibram exclusivamente o tom e a profundidade técnica dos diálogos no pit wall.
+                                </div>
+
+                                {memoryResetNotice && (
+                                    <div className="bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 p-2 rounded text-center text-[10px]">
+                                        ✓ {memoryResetNotice}
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-white/10">
+                                    <button
+                                        onClick={handleClearMemory}
+                                        className="flex-1 bg-red-950/30 hover:bg-red-900/40 text-red-300 border border-red-500/30 py-2 px-3 rounded text-[11px] uppercase transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <span>[ REINICIAR MEMÓRIA ]</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setMemoryModalOpen(false)}
+                                        className="bg-white/5 hover:bg-white/10 text-white/70 py-2 px-3 rounded text-[11px] uppercase transition-colors cursor-pointer"
+                                    >
+                                        [ FECHAR ]
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

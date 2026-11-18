@@ -5,6 +5,7 @@ import { getRaceWeekDossier } from '@/lib/f1-dossier';
 import { buildStrategistSystemPrompt } from '@/lib/strategist-personas';
 import { SENIOR_STRATEGISTS, getSeniorStrategistById } from '@/lib/race-directors';
 import { TECHNICAL_STRATEGISTS_POOL } from '@/lib/technical-strategists';
+import { getUserStrategistMemory } from '@/lib/strategist-memory';
 
 export const maxDuration = 30;
 
@@ -70,8 +71,11 @@ export async function POST(request: Request) {
         ) || TECHNICAL_STRATEGISTS_POOL[0];
     }
 
-    // 5. Monta o Dossiê de Telemetria da Etapa
-    const dossier = await getRaceWeekDossier(circuitId, userDriverCode);
+    // 5. Monta o Dossiê de Telemetria da Etapa & Memória Tática
+    const [dossier, memory] = await Promise.all([
+      getRaceWeekDossier(circuitId, userDriverCode),
+      getUserStrategistMemory(user.id),
+    ]);
 
     // 6. Constrói o System Prompt da Persona
     const systemPromptContent = buildStrategistSystemPrompt({
@@ -83,6 +87,7 @@ export async function POST(request: Request) {
       locale,
       raceWeekDay,
       raceWeekObjective,
+      memory,
     });
 
     const messages: ChatMessage[] = [

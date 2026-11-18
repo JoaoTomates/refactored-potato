@@ -15,6 +15,7 @@ import { SeniorStrategist } from '@/lib/race-directors';
 import { TechnicalStrategist } from '@/lib/technical-strategists';
 import { TeamPrincipal } from '@/lib/paddock-crew';
 import { F1Dossier } from '@/lib/f1-dossier';
+import { StrategistMemory } from '@/lib/strategist-memory';
 
 export interface PersonaPromptContext {
   characterType: 'senior' | 'technical';
@@ -25,6 +26,7 @@ export interface PersonaPromptContext {
   locale?: string;
   raceWeekDay?: string;       // 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
   raceWeekObjective?: string; // Objetivo tático do dia no ciclo de 7 dias
+  memory?: StrategistMemory | null; // Memória de acertos/palpites passados
 }
 
 export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
@@ -82,6 +84,7 @@ export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
       `LEMA / ASSINATURA: "${seniorData.signatureQuote || 'O paddock não tolera hesitação.'}"`,
       `TÓPICO TÁTICO ATUAL: ${topicGuidancePt[topic] || topicGuidancePt.GENERAL}`,
       ctx.raceWeekDay ? `FASE DA SEMANA DE CORRIDA: Dia atual [${ctx.raceWeekDay.toUpperCase()}]. Objetivo operacional: ${ctx.raceWeekObjective || 'Acompanhamento do cronograma'}.` : '',
+      ctx.memory ? `HISTÓRICO TÁTICO DO USUÁRIO (MEMÓRIA): Assertividade recente de ${ctx.memory.accuracyRate}%. Resumo: "${ctx.memory.recentPicksSummary}". Se oportuno, cite ou comente sobre esse histórico em tom experiente.` : '',
       '',
       'DOSSIÊ DE TELEMETRIA DA ETAPA (USE APENAS ESTES NÚMEROS, NUNCA INVENTE DADOS):',
       dossier.shortSummary,
@@ -130,6 +133,7 @@ export function buildStrategistSystemPrompt(ctx: PersonaPromptContext): string {
     `SUA ESPECIALIDADE: ${techSpecialty}. Você não liga para intuição ou nostalgia de piloto. Você olha para milissegundos, curvas de degradação térmica, janelas de pit stop e matrizes de risco.`,
     `TÓPICO TÁTICO ATUAL: ${topicGuidancePt[topic] || topicGuidancePt.GENERAL}`,
     ctx.raceWeekDay ? `FASE DA SEMANA DE CORRIDA: Dia atual [${ctx.raceWeekDay.toUpperCase()}]. Objetivo operacional: ${ctx.raceWeekObjective || 'Acompanhamento do cronograma'}.` : '',
+    ctx.memory ? `HISTÓRICO TÁTICO DO USUÁRIO (MEMÓRIA): Assertividade recente de ${ctx.memory.accuracyRate}%. Resumo: "${ctx.memory.recentPicksSummary}". Use esses dados de histórico para calibrar a margem de risco.` : '',
     '',
     'DOSSIÊ DE TELEMETRIA DA ETAPA (USE APENAS ESTES NÚMEROS, NUNCA INVENTE DADOS):',
     dossier.shortSummary,
