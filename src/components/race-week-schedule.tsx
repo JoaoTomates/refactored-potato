@@ -79,6 +79,8 @@ export default function RaceWeekSchedule({
     const [userMentorId, setUserMentorId] = useState<string | null>(mentorId || propMentor?.id || null);
     const [userTeamCode, setUserTeamCode] = useState<string>(teamCode || 'FER');
     const [crewConfig, setCrewConfig] = useState<CrewRolesConfig>(DEFAULT_CREW_ROLES_CONFIG);
+    const [postRaceReaction, setPostRaceReaction] = useState<string | null>(null);
+    const [isGeneratingDebrief, setIsGeneratingDebrief] = useState(false);
 
     // Identifica o dia da semana atual no fuso local (0 = Domingo, 1 = Segunda ... 6 = Sábado)
     const todayIndex = new Date().getDay();
@@ -547,6 +549,37 @@ export default function RaceWeekSchedule({
         };
     });
 
+    const handleGeneratePostRaceDebrief = async () => {
+        setIsGeneratingDebrief(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (session?.access_token) {
+                headers['Authorization'] = `Bearer ${session.access_token}`;
+            }
+            const res = await fetch('/api/race-week/post-race-reaction', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    round: String(event?.round || '19'),
+                    teamCode: userTeamCode,
+                    userPoints: 165,
+                    circuitName: event?.name || 'Grande Prêmio',
+                }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data?.reaction) {
+                    setPostRaceReaction(data.reaction);
+                }
+            }
+        } catch (err) {
+            console.warn('Erro ao carregar debriefing dinâmico:', err);
+        } finally {
+            setIsGeneratingDebrief(false);
+        }
+    };
+
     // Dia ativo selecionado para exibição
     const activeDayData = selectedDay === 'today'
         ? (raceWeekDays.find(d => d.dayId === currentDayId) || raceWeekDays[4])
@@ -690,11 +723,11 @@ export default function RaceWeekSchedule({
                                             <DialogueBox
                                                 compact
                                                 typewriter={false}
-                                                speaker={day.mentorDialogue.speaker}
-                                                speakerRole={day.mentorDialogue.role}
-                                                categoryTag={day.dayId === 'fri' ? "DIÁLOGO DIRETO COM O CHEFÃO" : "RÁDIO DE PITWALL"}
-                                                avatarUrl={day.dayId === 'fri' ? undefined : day.mentorDialogue.avatarUrl}
-                                                text={day.mentorDialogue.message}
+                                                speaker={day.dayId === 'sun' && postRaceReaction ? principal.code : day.mentorDialogue.speaker}
+                                                speakerRole={day.dayId === 'sun' && postRaceReaction ? `CHEFE DE EQUIPE // ${principal.teamName}` : day.mentorDialogue.role}
+                                                categoryTag={day.dayId === 'fri' ? "DIÁLOGO DIRETO COM O CHEFÃO" : day.dayId === 'sun' && postRaceReaction ? "DEBRIEFING OFICIAL" : "RÁDIO DE PITWALL"}
+                                                avatarUrl={day.dayId === 'fri' || (day.dayId === 'sun' && postRaceReaction) ? undefined : day.mentorDialogue.avatarUrl}
+                                                text={day.dayId === 'sun' && postRaceReaction ? postRaceReaction : day.mentorDialogue.message}
                                                 accentColor={day.dayId === 'fri' ? "#ef4444" : "#fbaa19"}
                                                 italic
                                                 footerNote={
@@ -712,6 +745,18 @@ export default function RaceWeekSchedule({
                                                             >
                                                                 <Flame className="w-3.5 h-3.5" />
                                                                 <span>DESPACHO COM {principal.code} »</span>
+                                                            </button>
+                                                        </div>
+                                                    ) : day.dayId === 'sun' ? (
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleGeneratePostRaceDebrief}
+                                                                disabled={isGeneratingDebrief}
+                                                                className="bg-[#fbaa19] hover:bg-[#fbaa19]/90 text-black font-black uppercase text-[10px] sm:text-[11px] tracking-wider px-3.5 py-1.5 rounded-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                                                            >
+                                                                <Radio className="w-3.5 h-3.5" />
+                                                                <span>{isGeneratingDebrief ? 'TRANSMISSÃO AO VIVO...' : `DEBRIEFING COM ${principal.code} »`}</span>
                                                             </button>
                                                         </div>
                                                     ) : undefined

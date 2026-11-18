@@ -17,6 +17,7 @@ import { getDashboardPath, normalizeAtSlug, slugAlphanumericKey } from '@/lib/sl
 import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { DialogueBox, DialogueActionButton, pitWallSound as soundEngine } from '@/components/dialogue-box';
 import { useWarRoomChat } from '@/hooks/useWarRoomChat';
+import { RACE_WEEK_DIALOGS } from '@/data/dialogues';
 
 // --- Definição das 3 Cores por Aliança ---
 // Cor 1: Sênior (#fbaa19 - Amarelo Frank Miller Noir)
@@ -379,6 +380,13 @@ export function WarRoomContent() {
     const isCardStreaming = (charType: 'senior' | 'technical') => {
         return isTransmitting && activeSpeaker === charType;
     };
+
+    const todayIndex = new Date().getDay();
+    const dayIndexToDayId: Record<number, string> = {
+        0: 'sun', 1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu', 5: 'fri', 6: 'sat'
+    };
+    const activeRaceWeekDay = dayIndexToDayId[todayIndex] || 'fri';
+    const activeRaceWeekObjective = RACE_WEEK_DIALOGS[activeRaceWeekDay]?.tacticalObjective;
 
     // Sub-etapa interna em cada tópico:
     // 'SENIOR': apenas fala do Sênior visível (Row 1)
@@ -1125,6 +1133,8 @@ export function WarRoomContent() {
                                     characterId: targetCharId,
                                     topic: currentTopic,
                                     circuitId: 'americas',
+                                    raceWeekDay: activeRaceWeekDay,
+                                    raceWeekObjective: activeRaceWeekObjective,
                                     message: query,
                                     fallbackText: targetCharType === 'senior' 
                                         ? 'Telemetria do rádio sênior em sincronização padrão.' 

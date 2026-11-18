@@ -51,6 +51,8 @@ export async function POST(request: Request) {
     const topic = body.topic || 'GENERAL';
     const userDriverCode = typeof body.driverCode === 'string' ? body.driverCode.trim() : undefined;
     const locale = typeof body.locale === 'string' ? body.locale : 'pt';
+    const raceWeekDay = typeof body.raceWeekDay === 'string' ? body.raceWeekDay : undefined;
+    const raceWeekObjective = typeof body.raceWeekObjective === 'string' ? body.raceWeekObjective : undefined;
 
     // 4. Resolve o Personagem Específico
     let seniorData = null;
@@ -79,6 +81,8 @@ export async function POST(request: Request) {
       dossier,
       topic,
       locale,
+      raceWeekDay,
+      raceWeekObjective,
     });
 
     const messages: ChatMessage[] = [

@@ -15,6 +15,8 @@ export interface AskStrategistOptions {
   topic?: string;
   circuitId?: string;
   driverCode?: string;
+  raceWeekDay?: string;
+  raceWeekObjective?: string;
   message: string;
   fallbackText: string;
 }
@@ -61,6 +63,8 @@ export function useWarRoomChat() {
           circuitId: opts.circuitId,
           topic: opts.topic,
           driverCode: opts.driverCode,
+          raceWeekDay: opts.raceWeekDay,
+          raceWeekObjective: opts.raceWeekObjective,
           message: opts.message,
           history: historyRef.current.slice(-4),
         }),
