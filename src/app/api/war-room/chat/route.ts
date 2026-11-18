@@ -132,18 +132,19 @@ export async function POST(request: Request) {
       },
     });
   } catch (error: unknown) {
-    if (error instanceof LLMError) {
-      const status = error.status || (error.code === 'RATE_LIMIT' ? 429 : 503);
-      return NextResponse.json(
-        { error: error.message, code: error.code },
-        { status }
-      );
-    }
+    const isRateLimit = error instanceof LLMError && error.code === 'RATE_LIMIT';
+    const status = isRateLimit ? 429 : 503;
+    console.error('[WAR_ROOM_CHAT_ROUTE_ERROR]', (error as Error)?.name || 'Error');
 
-    const message = (error as Error)?.message || 'Falha na comunicação de rádio com o pit wall.';
     return NextResponse.json(
-      { error: message, code: 'INTERNAL_ERROR' },
-      { status: 500 }
+      {
+        error: 'ai_unavailable',
+        code: isRateLimit ? 'RATE_LIMIT' : 'AI_UNAVAILABLE',
+        message: isRateLimit
+          ? '>_ Cota de telemetria diária atingida. Consulte os relatórios gravados.'
+          : '>_ Sem sinal com o pit wall. Tente novamente em instantes.',
+      },
+      { status }
     );
   }
 }

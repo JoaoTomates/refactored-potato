@@ -2,10 +2,12 @@
  * Cliente agnóstico para provedores de LLM compatíveis com a API OpenAI /chat/completions.
  * Suporta Google Gemini (via OpenAI compat), Ollama local, OpenAI, Groq, etc.
  * 
- * REGRAS DE SEGURANÇA:
+ * REGRAS DE SEGURANÇA E IMERSÃO:
  * - Apenas executado no servidor (Route Handlers / Server Actions).
- * - Sem valores de fallback com chaves/segredos.
- * - Tratamento de 429 (quota excedida), timeout e 1 retry com backoff exponencial.
+ * - NUNCA expõe mensagens cruas do provedor de IA ao cliente.
+ * - Registra logs detalhados e sanitizados exclusivamente no servidor (sem chaves nem PII).
+ * - Suporte a modelo de contingência (process.env.LLM_FALLBACK_MODEL) para 404, 410 ou 429.
+ * - Fallback transparente e silencioso.
  */
 
 export interface ChatMessage {
@@ -22,7 +24,7 @@ export interface LLMRequestOptions {
 
 export class LLMError extends Error {
   constructor(
-    message: string,
+    message: string = 'ai_unavailable',
     public readonly code: 'MISSING_ENV' | 'RATE_LIMIT' | 'TIMEOUT' | 'API_ERROR' | 'NETWORK_ERROR',
     public readonly status?: number
   ) {
@@ -31,21 +33,40 @@ export class LLMError extends Error {
   }
 }
 
-function getLLMConfig() {
+export interface LLMConfig {
+  endpoint: string;
+  model: string;
+  fallbackModel: string | null;
+  apiKey: string;
+}
+
+/**
+ * Sanitiza qualquer string antes de enviar para o console/log do servidor,
+ * removendo tokens, segredos e potenciais dados sensíveis.
+ */
+function sanitizeForLog(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .replace(/bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer [REDACTED]')
+    .replace(/[A-Za-z0-9_-]{25,}/g, '[REDACTED]');
+}
+
+export function getLLMConfig(): LLMConfig {
   const baseUrl = process.env.LLM_BASE_URL?.trim();
   const model = process.env.LLM_MODEL?.trim();
+  const fallbackModel = process.env.LLM_FALLBACK_MODEL?.trim() || null;
   const apiKey = process.env.LLM_API_KEY?.trim();
 
   if (!baseUrl) {
     throw new LLMError(
-      'Configuração incompleta: LLM_BASE_URL não foi definida no ambiente.',
+      'ai_unavailable',
       'MISSING_ENV'
     );
   }
 
   if (!model) {
     throw new LLMError(
-      'Configuração incompleta: LLM_MODEL não foi definida no ambiente.',
+      'ai_unavailable',
       'MISSING_ENV'
     );
   }
@@ -54,7 +75,7 @@ function getLLMConfig() {
   const isLocalOllama = baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1');
   if (!apiKey && !isLocalOllama) {
     throw new LLMError(
-      'Configuração incompleta: LLM_API_KEY não foi definida no ambiente.',
+      'ai_unavailable',
       'MISSING_ENV'
     );
   }
@@ -65,22 +86,23 @@ function getLLMConfig() {
     ? normalizedBase
     : `${normalizedBase}/chat/completions`;
 
-  return { endpoint, model, apiKey: apiKey || 'ollama' };
+  return { endpoint, model, fallbackModel, apiKey: apiKey || 'ollama' };
 }
 
 /**
  * Executa uma requisição de completude com 1 retry e timeout.
+ * Em caso de erro, loga sanitizado no servidor e lança LLMError com código limpo.
  */
 async function fetchWithRetry(
   url: string,
   options: RequestInit,
+  modelName: string,
   timeoutMs = 18000
 ): Promise<Response> {
   const makeAttempt = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    // Concatena sinal externo se houver
     if (options.signal) {
       options.signal.addEventListener('abort', () => controller.abort());
     }
@@ -96,34 +118,44 @@ async function fetchWithRetry(
       clearTimeout(timeoutId);
       const isAbort = (err as { name?: string })?.name === 'AbortError';
       if (isAbort) {
-        throw new LLMError(`A requisição à LLM excedeu o tempo limite de ${timeoutMs / 1000}s.`, 'TIMEOUT');
+        console.error(`[LLM_SERVER_TIMEOUT] Timeout após ${timeoutMs / 1000}s para o modelo ${modelName}`);
+        throw new LLMError('ai_unavailable', 'TIMEOUT', 504);
       }
-      throw new LLMError(`Falha de rede ao conectar com a LLM: ${(err as Error)?.message}`, 'NETWORK_ERROR');
+      console.error(`[LLM_SERVER_NETWORK] Falha de conexão: ${sanitizeForLog((err as Error)?.message || '')}`);
+      throw new LLMError('ai_unavailable', 'NETWORK_ERROR', 503);
     }
   };
 
   try {
     const response = await makeAttempt();
+
     if (response.status === 429) {
-      throw new LLMError('Limite de requisições / cota excedida no provedor de IA (429).', 'RATE_LIMIT', 429);
+      const errBody = await response.text().catch(() => '');
+      console.error(`[LLM_SERVER_429] Cota excedida no modelo ${modelName}: ${sanitizeForLog(errBody)}`);
+      throw new LLMError('ai_unavailable', 'RATE_LIMIT', 429);
     }
+
     if (response.status >= 500) {
-      // 1 tentativa de retry com backoff de 1s para instabilidades temporárias do servidor
+      // 1 tentativa de retry com backoff de 1s para instabilidades temporárias
       await new Promise((r) => setTimeout(r, 1000));
       const retryResponse = await makeAttempt();
       if (!retryResponse.ok) {
-        throw new LLMError(`Provedor de LLM retornou erro ${retryResponse.status}: ${retryResponse.statusText}`, 'API_ERROR', retryResponse.status);
+        const errBody = await retryResponse.text().catch(() => '');
+        console.error(`[LLM_SERVER_5XX] Status ${retryResponse.status} no modelo ${modelName}: ${sanitizeForLog(errBody)}`);
+        throw new LLMError('ai_unavailable', 'API_ERROR', retryResponse.status);
       }
       return retryResponse;
     }
+
     if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new LLMError(`Provedor de LLM retornou erro ${response.status}: ${errorText || response.statusText}`, 'API_ERROR', response.status);
+      const errBody = await response.text().catch(() => '');
+      console.error(`[LLM_SERVER_ERROR] Status ${response.status} no modelo ${modelName}: ${sanitizeForLog(errBody)}`);
+      throw new LLMError('ai_unavailable', 'API_ERROR', response.status);
     }
+
     return response;
   } catch (error) {
     if (error instanceof LLMError && error.code === 'NETWORK_ERROR') {
-      // Tenta mais uma vez em caso de falha de socket/rede
       await new Promise((r) => setTimeout(r, 800));
       return await makeAttempt();
     }
@@ -132,30 +164,62 @@ async function fetchWithRetry(
 }
 
 /**
+ * Cria o corpo da requisição compatível com OpenAI.
+ */
+function buildRequestBody(model: string, opts: LLMRequestOptions, stream: boolean) {
+  return JSON.stringify({
+    model,
+    messages: opts.messages,
+    temperature: opts.temperature ?? 0.7,
+    max_tokens: opts.maxTokens ?? 350,
+    stream,
+  });
+}
+
+/**
  * Retorna uma ReadableStream com os tokens textuais da LLM em streaming.
+ * Se o modelo principal retornar 404, 410 ou 429, tenta o fallbackModel antes de falhar.
  */
 export async function streamChatCompletion(opts: LLMRequestOptions): Promise<ReadableStream<Uint8Array>> {
   const config = getLLMConfig();
   const encoder = new TextEncoder();
 
-  const response = await fetchWithRetry(config.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: config.model,
-      messages: opts.messages,
-      temperature: opts.temperature ?? 0.7,
-      max_tokens: opts.maxTokens ?? 350,
-      stream: true,
-    }),
-    signal: opts.signal,
-  });
+  const executeRequest = async (modelToUse: string): Promise<Response> => {
+    return fetchWithRetry(
+      config.endpoint,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiKey}`,
+        },
+        body: buildRequestBody(modelToUse, opts, true),
+        signal: opts.signal,
+      },
+      modelToUse
+    );
+  };
+
+  let response: Response;
+  try {
+    response = await executeRequest(config.model);
+  } catch (primaryErr) {
+    const isRecoverableStatus = primaryErr instanceof LLMError && (primaryErr.status === 404 || primaryErr.status === 410 || primaryErr.status === 429);
+    if (isRecoverableStatus && config.fallbackModel && config.fallbackModel !== config.model) {
+      console.warn(`[LLM_CONTINGENCY] Modelo primário (${config.model}) falhou (status ${primaryErr.status}). Tentando modelo de contingência: ${config.fallbackModel}`);
+      try {
+        response = await executeRequest(config.fallbackModel);
+      } catch (fallbackErr) {
+        throw fallbackErr;
+      }
+    } else {
+      throw primaryErr;
+    }
+  }
 
   if (!response.body) {
-    throw new LLMError('Resposta da LLM não possui stream body.', 'API_ERROR');
+    console.error('[LLM_SERVER_ERROR] Resposta da LLM sem stream body');
+    throw new LLMError('ai_unavailable', 'API_ERROR', 502);
   }
 
   const reader = response.body.getReader();
@@ -176,7 +240,7 @@ export async function streamChatCompletion(opts: LLMRequestOptions): Promise<Rea
 
           for (const line of lines) {
             const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith(':')) continue; // Comentários keep-alive do SSE
+            if (!trimmed || trimmed.startsWith(':')) continue;
             if (trimmed === 'data: [DONE]') {
               controller.close();
               return;
@@ -190,14 +254,15 @@ export async function streamChatCompletion(opts: LLMRequestOptions): Promise<Rea
                   controller.enqueue(encoder.encode(deltaContent));
                 }
               } catch {
-                // Linha de dados incompleta ou parse ignorado
+                // Fragmento parcial ignorado
               }
             }
           }
         }
         controller.close();
       } catch (err) {
-        controller.error(err);
+        console.error('[LLM_STREAM_ERROR] Erro na leitura do stream:', sanitizeForLog((err as Error)?.message || ''));
+        controller.error(new LLMError('ai_unavailable', 'API_ERROR'));
       } finally {
         reader.releaseLock();
       }
@@ -207,30 +272,57 @@ export async function streamChatCompletion(opts: LLMRequestOptions): Promise<Rea
 
 /**
  * Completa a mensagem e retorna o texto completo (não-streaming).
+ * Se o modelo principal retornar 404, 410 ou 429, tenta o fallbackModel antes de falhar.
  */
 export async function chatCompletion(opts: LLMRequestOptions): Promise<string> {
   const config = getLLMConfig();
 
-  const response = await fetchWithRetry(config.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: config.model,
-      messages: opts.messages,
-      temperature: opts.temperature ?? 0.7,
-      max_tokens: opts.maxTokens ?? 350,
-      stream: false,
-    }),
-    signal: opts.signal,
-  });
+  const executeRequest = async (modelToUse: string): Promise<Response> => {
+    return fetchWithRetry(
+      config.endpoint,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiKey}`,
+        },
+        body: buildRequestBody(modelToUse, opts, false),
+        signal: opts.signal,
+      },
+      modelToUse
+    );
+  };
 
-  const data = await response.json();
+  let response: Response;
+  try {
+    response = await executeRequest(config.model);
+  } catch (primaryErr) {
+    const isRecoverableStatus = primaryErr instanceof LLMError && (primaryErr.status === 404 || primaryErr.status === 410 || primaryErr.status === 429);
+    if (isRecoverableStatus && config.fallbackModel && config.fallbackModel !== config.model) {
+      console.warn(`[LLM_CONTINGENCY] Modelo primário (${config.model}) falhou (status ${primaryErr.status}). Tentando modelo de contingência: ${config.fallbackModel}`);
+      try {
+        response = await executeRequest(config.fallbackModel);
+      } catch (fallbackErr) {
+        throw fallbackErr;
+      }
+    } else {
+      throw primaryErr;
+    }
+  }
+
+  let data: any;
+  try {
+    data = await response.json();
+  } catch {
+    console.error('[LLM_SERVER_ERROR] Falha no parse JSON da resposta da LLM');
+    throw new LLMError('ai_unavailable', 'API_ERROR', 502);
+  }
+
   const content = data.choices?.[0]?.message?.content;
   if (!content) {
-    throw new LLMError('Formato de resposta inesperado do provedor de LLM.', 'API_ERROR');
+    console.error('[LLM_SERVER_ERROR] Resposta sem choices[0].message.content válida:', sanitizeForLog(JSON.stringify(data)));
+    throw new LLMError('ai_unavailable', 'API_ERROR', 502);
   }
+
   return content;
 }
