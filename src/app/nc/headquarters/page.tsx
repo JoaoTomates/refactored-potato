@@ -312,7 +312,12 @@ function MinimalHeadquartersFlow() {
                                 className={`border border-[#000000] rounded-[3px] p-6 flex flex-col justify-between gap-5 relative overflow-hidden transition-all font-mono ${
                                     isSigning ? 'ring-1 ring-[#fbaa19]' : ''
                                 }`}
-                                style={getSystemBoxStyle(isSigning ? '#fbaa19' : team.color)}
+                                style={{
+                                    ...getSystemBoxStyle(isSigning ? '#fbaa19' : team.color),
+                                    backgroundColor: '#070709',
+                                    background: 'linear-gradient(160deg, #0b0b0e 0%, #030305 100%)',
+                                    opacity: 1,
+                                }}
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">

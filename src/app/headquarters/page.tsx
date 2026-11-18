@@ -419,10 +419,25 @@ O que essas equipes esperam de você:
                     startDelay={100}
                     speed={18}
                     compact
+                    typewriter={!typingDone}
                     minHeightClass="min-h-[130px] md:min-h-[110px]"
                     onReadyForNext={() => setTypingDone(true)}
+                    onComplete={() => setTypingDone(true)}
+                    onClick={() => setTypingDone(true)}
                     animateEntrance
                 />
+
+                {!typingDone && (
+                    <div className="flex justify-center -mt-1 mb-1">
+                        <button
+                            type="button"
+                            onClick={() => setTypingDone(true)}
+                            className="text-[10px] text-gray-500 hover:text-[#fbaa19] tracking-widest uppercase font-mono py-1 px-3 transition-colors cursor-pointer animate-pulse"
+                        >
+                            [ CLIQUE AQUI PARA AVANÇAR DIÁLOGO E VER VAGAS » ]
+                        </button>
+                    </div>
+                )}
 
                 {errorMsg && (
                     <div className="bg-red-900/40 border border-red-500/50 p-3 rounded text-red-500 font-bold uppercase tracking-widest text-xs animate-fade-in">
@@ -430,85 +445,92 @@ O que essas equipes esperam de você:
                     </div>
                 )}
 
-                {/* Propostas Oficiais de Equipes em Badges Compactos Interativos (Mesmo padrão sólido do box text) */}
-                <div className={`grid grid-cols-1 md:grid-cols-2 gap-3.5 transition-opacity duration-700 ${typingDone ? 'opacity-100' : 'opacity-90'}`}>
-                    {offeredTeams.map((teamOffer) => {
-                        const availableSpots = Math.max(0, 2 - teamOffer.occupied);
-                        const isSigning = signingId === teamOffer.id;
+                {/* Propostas Oficiais de Equipes em Badges Compactos 100% Sólidos (Somente após término da fala do diretor ou clique para avançar) */}
+                {typingDone && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 animate-fade-in">
+                        {offeredTeams.map((teamOffer) => {
+                            const availableSpots = Math.max(0, 2 - teamOffer.occupied);
+                            const isSigning = signingId === teamOffer.id;
 
-                        return (
-                            <button
-                                key={teamOffer.id}
-                                onClick={() => availableSpots > 0 && !isSigning && handleSignContract(teamOffer)}
-                                disabled={isSigning || availableSpots <= 0}
-                                className={`relative w-full text-left border border-[#000000] rounded-[3px] p-3.5 sm:p-4 transition-all cursor-pointer group flex flex-col justify-between gap-2.5 overflow-hidden font-mono ${
-                                    isSigning 
-                                        ? 'ring-1 ring-[#fbaa19]' 
-                                        : 'hover:brightness-110'
-                                } ${availableSpots <= 0 ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                style={getSystemBoxStyle(isSigning ? '#fbaa19' : teamOffer.color)}
-                            >
-                                {/* Topo: Emblema, Nome e Vagas */}
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        <div 
-                                            className="w-10 h-10 rounded-[3px] flex items-center justify-center font-black text-sm border border-[#000000] text-white shrink-0"
-                                            style={{ backgroundColor: teamOffer.color }}
-                                        >
-                                            {teamOffer.code}
-                                        </div>
-                                        <div className="flex flex-col min-w-0">
-                                            <span className="text-white text-[calc(0.875rem+0.5px)] font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors truncate">
-                                                {teamOffer.name}
-                                            </span>
-                                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest truncate">
-                                                {teamOffer.seatTitle}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <span className="text-[9px] text-emerald-400 font-mono font-bold bg-[#030303] border border-[#000000] px-2 py-0.5 rounded-[3px] shrink-0">
-                                        {availableSpots} {availableSpots === 1 ? 'VAGA' : 'VAGAS'}
-                                    </span>
-                                </div>
-
-                                {/* Dossiê tático da garagem resumido */}
-                                <p className="text-[calc(0.6875rem+0.5px)] text-gray-300 italic border-l-2 pl-2.5 leading-snug line-clamp-2" style={{ borderColor: teamOffer.color }}>
-                                    "{teamOffer.description}"
-                                </p>
-
-                                {/* Unidade de Potência */}
-                                <div className="text-[10px] text-gray-400 font-mono flex items-center justify-between pt-2 border-t border-white/10">
-                                    <span className="uppercase text-gray-500">UNIDADE DE POTÊNCIA:</span>
-                                    <span className="text-amber-400 font-bold truncate max-w-[200px]">{teamOffer.engineSpec}</span>
-                                </div>
-
-                                {/* Barra de Confirmação Integrada ao Badge */}
-                                <div 
-                                    className="w-full py-2.5 px-3 rounded-[3px] text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1.5 border border-[#000000] mt-0.5"
+                            return (
+                                <button
+                                    key={teamOffer.id}
+                                    onClick={() => availableSpots > 0 && !isSigning && handleSignContract(teamOffer)}
+                                    disabled={isSigning || availableSpots <= 0}
+                                    className={`relative w-full text-left border border-[#000000] rounded-[3px] p-3.5 sm:p-4 transition-all cursor-pointer group flex flex-col justify-between gap-2.5 overflow-hidden font-mono bg-[#070709] ${
+                                        isSigning 
+                                            ? 'ring-1 ring-[#fbaa19]' 
+                                            : 'hover:brightness-110'
+                                    } ${availableSpots <= 0 ? 'cursor-not-allowed' : ''}`}
                                     style={{
-                                        backgroundColor: isSigning ? '#fbaa19' : `${teamOffer.color}18`,
-                                        color: isSigning ? '#000' : '#fff'
+                                        ...getSystemBoxStyle(isSigning ? '#fbaa19' : teamOffer.color),
+                                        backgroundColor: '#070709',
+                                        background: 'linear-gradient(160deg, #0b0b0e 0%, #030305 100%)',
+                                        opacity: 1,
                                     }}
                                 >
-                                    {isSigning ? (
-                                        <>
-                                            <span className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                                            <span>HOMOLOGANDO CONTRATO...</span>
-                                        </>
-                                    ) : availableSpots <= 0 ? (
-                                        <span className="text-gray-500">[ GARAGEM COMPLETA ]</span>
-                                    ) : (
-                                        <>
-                                            <span className="group-hover:text-[#fbaa19] transition-colors">CONFIRMAR ASSENTO COM A {teamOffer.name.toUpperCase()}</span>
-                                            <span className="text-[#fbaa19]">»</span>
-                                        </>
-                                    )}
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
+                                    {/* Topo: Emblema, Nome e Vagas */}
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2.5 min-w-0">
+                                            <div 
+                                                className="w-10 h-10 rounded-[3px] flex items-center justify-center font-black text-sm border border-[#000000] text-white shrink-0"
+                                                style={{ backgroundColor: teamOffer.color }}
+                                            >
+                                                {teamOffer.code}
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-white text-[calc(0.875rem+0.5px)] font-black uppercase tracking-wider group-hover:text-[#fbaa19] transition-colors truncate">
+                                                    {teamOffer.name}
+                                                </span>
+                                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest truncate">
+                                                    {teamOffer.seatTitle}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <span className="text-[9px] text-emerald-400 font-mono font-bold bg-[#030303] border border-[#000000] px-2 py-0.5 rounded-[3px] shrink-0">
+                                            {availableSpots} {availableSpots === 1 ? 'VAGA' : 'VAGAS'}
+                                        </span>
+                                    </div>
+
+                                    {/* Dossiê tático da garagem resumido */}
+                                    <p className="text-[calc(0.6875rem+0.5px)] text-gray-300 italic border-l-2 pl-2.5 leading-snug line-clamp-2" style={{ borderColor: teamOffer.color }}>
+                                        "{teamOffer.description}"
+                                    </p>
+
+                                    {/* Unidade de Potência */}
+                                    <div className="text-[10px] text-gray-400 font-mono flex items-center justify-between pt-2 border-t border-white/10">
+                                        <span className="uppercase text-gray-500">UNIDADE DE POTÊNCIA:</span>
+                                        <span className="text-amber-400 font-bold truncate max-w-[200px]">{teamOffer.engineSpec}</span>
+                                    </div>
+
+                                    {/* Barra de Confirmação Integrada ao Badge */}
+                                    <div 
+                                        className="w-full py-2.5 px-3 rounded-[3px] text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1.5 border border-[#000000] mt-0.5"
+                                        style={{
+                                            backgroundColor: isSigning ? '#fbaa19' : `${teamOffer.color}25`,
+                                            color: isSigning ? '#000' : '#fff'
+                                        }}
+                                    >
+                                        {isSigning ? (
+                                            <>
+                                                <span className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                                                <span>HOMOLOGANDO CONTRATO...</span>
+                                            </>
+                                        ) : availableSpots <= 0 ? (
+                                            <span className="text-gray-500">[ GARAGEM COMPLETA ]</span>
+                                        ) : (
+                                            <>
+                                                <span className="group-hover:text-[#fbaa19] transition-colors">CONFIRMAR ASSENTO COM A {teamOffer.name.toUpperCase()}</span>
+                                                <span className="text-[#fbaa19]">»</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* Rodapé institucional */}
                 <div className="text-center text-[11px] text-gray-400 tracking-widest uppercase border-t border-white/10 pt-4 flex flex-col gap-1 font-mono">
