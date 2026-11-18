@@ -154,61 +154,68 @@ export async function POST(request: Request) {
                 }
             }
 
-            // 4. Verifica se o mesmo deviceHash já tem conta ativa recente (últimos 30 dias)
-            const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-            const { data: deviceSignals } = await adminClient
-                .from('account_signals')
-                .select('user_id')
-                .eq('device_hash', deviceHash)
-                .gte('created_at', thirtyDaysAgo)
-                .limit(5);
+            // Suspensão temporária das travas de IP e Dispositivo (até 31/12/2026 ou via DISABLE_IP_RESTRICTION=true)
+            // para permitir cadastro manual de múltiplos pilotos fictícios e contas de teste na mesma máquina/rede.
+            const IP_DEVICE_SUSPENDED_UNTIL = new Date('2026-12-31T23:59:59.999Z').getTime();
+            const isIpDeviceRestrictionSuspended = Date.now() < IP_DEVICE_SUSPENDED_UNTIL || process.env.DISABLE_IP_RESTRICTION === 'true';
 
-            const deviceUserIds = Array.from(new Set((deviceSignals || []).map((s) => s.user_id)));
-            if (deviceUserIds.length > 0) {
-                const { data: activeDeviceProfiles } = await adminClient
-                    .from('profiles')
-                    .select('id')
-                    .in('id', deviceUserIds)
-                    .limit(1);
-
-                if (activeDeviceProfiles && activeDeviceProfiles.length > 0) {
-                    return NextResponse.json(
-                        {
-                            error: 'Já existe uma Superlicença ativa vinculada a este dispositivo. Entre pelo Pit Board com sua conta existente.',
-                        },
-                        { status: 403 }
-                    );
-                }
-            }
-
-            // 5. Verifica se o mesmo ipHash possui outra conta ativa (rede compartilhada -> isola em cluster)
-            if (clientIp !== 'unknown') {
-                const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-                const { data: ipSignals } = await adminClient
+            if (!isIpDeviceRestrictionSuspended) {
+                // 4. Verifica se o mesmo deviceHash já tem conta ativa recente (últimos 30 dias)
+                const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const { data: deviceSignals } = await adminClient
                     .from('account_signals')
                     .select('user_id')
-                    .eq('ip_hash', ipHash)
-                    .gte('created_at', sevenDaysAgo)
+                    .eq('device_hash', deviceHash)
+                    .gte('created_at', thirtyDaysAgo)
                     .limit(5);
 
-                const ipUserIds = Array.from(new Set((ipSignals || []).map((s) => s.user_id)));
-                if (ipUserIds.length > 0) {
-                    const { data: clusterProfiles } = await adminClient
+                const deviceUserIds = Array.from(new Set((deviceSignals || []).map((s) => s.user_id)));
+                if (deviceUserIds.length > 0) {
+                    const { data: activeDeviceProfiles } = await adminClient
                         .from('profiles')
-                        .select('id, risk_cluster_id')
-                        .in('id', ipUserIds);
+                        .select('id')
+                        .in('id', deviceUserIds)
+                        .limit(1);
 
-                    if (clusterProfiles && clusterProfiles.length > 0) {
-                        const existingCluster = clusterProfiles.find((p) => p.risk_cluster_id)?.risk_cluster_id;
-                        riskClusterId = existingCluster || crypto.randomUUID();
-                        trustLevel = 'flagged_cluster';
+                    if (activeDeviceProfiles && activeDeviceProfiles.length > 0) {
+                        return NextResponse.json(
+                            {
+                                error: 'Já existe uma Superlicença ativa vinculada a este dispositivo. Entre pelo Pit Board com sua conta existente.',
+                            },
+                            { status: 403 }
+                        );
+                    }
+                }
 
-                        // Garante que as contas anteriores da mesma rede também fiquem vinculadas ao mesmo cluster
-                        if (!existingCluster) {
-                            await adminClient
-                                .from('profiles')
-                                .update({ risk_cluster_id: riskClusterId, trust_level: 'flagged_cluster' })
-                                .in('id', clusterProfiles.map((p) => p.id));
+                // 5. Verifica se o mesmo ipHash possui outra conta ativa (rede compartilhada -> isola em cluster)
+                if (clientIp !== 'unknown') {
+                    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                    const { data: ipSignals } = await adminClient
+                        .from('account_signals')
+                        .select('user_id')
+                        .eq('ip_hash', ipHash)
+                        .gte('created_at', sevenDaysAgo)
+                        .limit(5);
+
+                    const ipUserIds = Array.from(new Set((ipSignals || []).map((s) => s.user_id)));
+                    if (ipUserIds.length > 0) {
+                        const { data: clusterProfiles } = await adminClient
+                            .from('profiles')
+                            .select('id, risk_cluster_id')
+                            .in('id', ipUserIds);
+
+                        if (clusterProfiles && clusterProfiles.length > 0) {
+                            const existingCluster = clusterProfiles.find((p) => p.risk_cluster_id)?.risk_cluster_id;
+                            riskClusterId = existingCluster || crypto.randomUUID();
+                            trustLevel = 'flagged_cluster';
+
+                            // Garante que as contas anteriores da mesma rede também fiquem vinculadas ao mesmo cluster
+                            if (!existingCluster) {
+                                await adminClient
+                                    .from('profiles')
+                                    .update({ risk_cluster_id: riskClusterId, trust_level: 'flagged_cluster' })
+                                    .in('id', clusterProfiles.map((p) => p.id));
+                            }
                         }
                     }
                 }
