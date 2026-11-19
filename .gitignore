@@ -51,3 +51,6 @@ repomix-output*
 /scratch/
 scratch/
 
+
+# VoltGrid legacy backups
+.backups_voltgrid/

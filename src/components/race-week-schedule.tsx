@@ -711,30 +711,21 @@ export default function RaceWeekSchedule({
                             {/* REGRA: Terça, Quarta e Quinta foram movidas para dentro do botão da Mesa de Engenharia */}
                             {(day.dayId === 'mon' || day.dayId === 'fri' || day.dayId === 'sat' || day.dayId === 'sun') && (
                                 <div className="grid grid-cols-1 gap-3 relative z-10">
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                                        {/* Avatar dedicado do Chefe de Equipe no diálogo de Sexta */}
-                                        {day.dayId === 'fri' && (
-                                            <div className="hidden sm:block shrink-0">
-                                                <TeamPrincipalAvatar teamCode={principal.teamCode} size={64} />
-                                            </div>
-                                        )}
-
-                                        <div className="flex-1 w-full">
-                                            <DialogueBox
-                                                compact
-                                                typewriter={false}
-                                                speaker={day.dayId === 'sun' && postRaceReaction ? principal.code : day.mentorDialogue.speaker}
-                                                speakerRole={day.dayId === 'sun' && postRaceReaction ? `CHEFE DE EQUIPE // ${principal.teamName}` : day.mentorDialogue.role}
-                                                categoryTag={day.dayId === 'fri' ? "DIÁLOGO DIRETO COM O CHEFÃO" : day.dayId === 'sun' && postRaceReaction ? "DEBRIEFING OFICIAL" : "RÁDIO DE PITWALL"}
-                                                avatarUrl={day.dayId === 'fri' || (day.dayId === 'sun' && postRaceReaction) ? undefined : day.mentorDialogue.avatarUrl}
-                                                text={day.dayId === 'sun' && postRaceReaction ? postRaceReaction : day.mentorDialogue.message}
-                                                accentColor={day.dayId === 'fri' ? "#ef4444" : "#fbaa19"}
-                                                italic
-                                                footerNote={
-                                                    <>
-                                                        <strong className="text-white/70">Alvo Tático:</strong> {day.mentorDialogue.tacticalObjective}
-                                                    </>
-                                                }
+                                    <DialogueBox
+                                        compact
+                                        typewriter={false}
+                                        speaker={day.dayId === 'fri' ? principal.code : (day.dayId === 'sun' && postRaceReaction ? principal.code : day.mentorDialogue.speaker)}
+                                        speakerRole={day.dayId === 'fri' ? `TEAM PRINCIPAL // ${principal.teamName}` : (day.dayId === 'sun' && postRaceReaction ? `CHEFE DE EQUIPE // ${principal.teamName}` : day.mentorDialogue.role)}
+                                        categoryTag={day.dayId === 'fri' ? "DIÁLOGO DIRETO COM O CHEFÃO" : day.dayId === 'sun' && postRaceReaction ? "DEBRIEFING OFICIAL" : "RÁDIO DE PITWALL"}
+                                        avatarUrl={day.dayId === 'fri' || (day.dayId === 'sun' && postRaceReaction) ? (principal.avatarUrl || `/avatar/principals/${principal.teamCode}.jpg`) : day.mentorDialogue.avatarUrl}
+                                        text={day.dayId === 'sun' && postRaceReaction ? postRaceReaction : day.mentorDialogue.message}
+                                        accentColor={day.dayId === 'fri' ? "#ef4444" : "#fbaa19"}
+                                        italic
+                                        footerNote={
+                                            <>
+                                                <strong className="text-white/70">Alvo Tático:</strong> {day.mentorDialogue.tacticalObjective}
+                                            </>
+                                        }
                                                 extraAction={
                                                     day.dayId === 'mon' ? (
                                                         <div className="flex items-center gap-2 shrink-0">

@@ -811,7 +811,7 @@ export function WarRoomContent() {
             <main className="w-full min-h-screen bg-[#050401] flex flex-col items-center justify-center font-mono gap-4 p-4">
                 <div className="w-10 h-10 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin" />
                 <p className="text-xs font-bold tracking-[0.22em] text-[#fbaa19] uppercase animate-pulse text-center">
-                    &gt;_ VERIFICANDO CREDENCIAL NA WAR ROOM...
+                    &gt;_ CONECTANDO À STRATEGY DESK...
                 </p>
             </main>
         );
@@ -867,7 +867,7 @@ export function WarRoomContent() {
                         style={{ borderColor: `${theme.techColor}40`, color: theme.techColor }}
                     >
                         <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.techColor }} />
-                        <span>{theme.badge} // {teamPrincipal?.teamName.toUpperCase() || 'PIT WALL'}</span>
+                        <span>STRATEGY DESK // {theme.badge} • {teamPrincipal?.teamName.toUpperCase() || 'PIT WALL'}</span>
                     </div>
                 </div>
             </div>
@@ -1170,10 +1170,10 @@ export function WarRoomContent() {
                     <div className="w-full animate-fade-in-left">
                         <BoxCard
                             speakerBadge={teamPrincipal ? `[${teamPrincipal.code}]` : '[DIR.GERAL]'}
-                            speakerRole={teamPrincipal ? `CHEFE DE EQUIPE // ${teamPrincipal.teamName.toUpperCase()}` : 'CHEFE DE EQUIPE // PIT WALL'}
+                            speakerRole={teamPrincipal ? `CHEFE DE EQUIPE // ${teamPrincipal.teamName.toUpperCase()}` : 'CHEFE DE EQUIPE // STRATEGY DESK'}
                             avatarUrl={teamPrincipal?.avatarUrl}
-                            categoryTag="ORDENS DE GARAGEM // MISC & EVENT PROPS"
-                            text={principalClosing || (teamPrincipal?.fridayMiscBriefing ? `"${teamPrincipal.fridayMiscBriefing}"` : `"A estratégia de telemetria está compilada. Assuma o pit wall, defina os eventos de pista e transmita a ordem."`)}
+                            categoryTag="ORDENS DA STRATEGY DESK // MISC & EVENT PROPS"
+                            text={principalClosing || (teamPrincipal?.fridayMiscBriefing ? `"${teamPrincipal.fridayMiscBriefing}"` : `"A estratégia de telemetria está compilada na Strategy Desk. Assuma o pit wall, defina os eventos de pista e transmita a ordem."`)}
                             accentColor="#10b981"
                             animationDirection="left"
                             onFill={handleGoToPositionsMisc}
@@ -1182,7 +1182,7 @@ export function WarRoomContent() {
                     </div>
                 )}
 
-                {/* RÁDIO INTERATIVO DO PIT WALL (IA) */}
+                {/* RÁDIO INTERATIVO DA STRATEGY DESK (IA) */}
                 {currentTopic !== 'FINAL_MISC' && (
                     <div className="w-full mt-1 flex flex-col gap-1.5 animate-fade-in font-mono">
                         <form
@@ -1217,8 +1217,8 @@ export function WarRoomContent() {
                                 disabled={isTransmitting}
                                 placeholder={
                                     isTransmitting
-                                        ? "Transmissão aberta no canal de telemetria..."
-                                        : `Questionar ${subStep === 'TECH' && technicalStrategist ? technicalStrategist.code : seniorStrategist.code} pelo rádio... [Enter para transmitir]`
+                                        ? "Transmissão aberta na Strategy Desk..."
+                                        : `Questionar ${subStep === 'TECH' && technicalStrategist ? technicalStrategist.code : seniorStrategist.code} na Strategy Desk... [Enter para transmitir]`
                                 }
                                 className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/35 text-xs font-mono disabled:opacity-50"
                             />
