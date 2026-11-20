@@ -1976,319 +1976,329 @@ export default function OfficialStrategistDashboard() {
                                 onToggleCollapse={() => setLeftCollapsed(true)}
                             />
 
-                            {/* SANFONA 1: COMPANHEIRO DE EQUIPE (BOX) */}
+                            {/* SANFONA MESTRE: STAFF TÉCNICO // PIT WALL & GARAGEM */}
                             <Panel
-                                title="Companheiro de Box"
-                                tag={teamPartner ? (teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : "CONFIRMADO") : "VAGA ABERTA"}
+                                title="Staff Técnico // Pit Wall & Box"
+                                tag="CORPO TÉCNICO"
                                 accentColor={teamColor}
                                 collapsible={true}
                                 defaultOpen={false}
+                                bodyClass="p-2.5 flex flex-col gap-2.5 bg-black/40"
                             >
-                                {teamPartner ? (
-                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
-                                            <div
-                                                className="w-10 h-10 rounded-full border flex items-center justify-center font-black text-xs shrink-0 overflow-hidden bg-black/60"
-                                                style={{ borderColor: `${teamColor}40` }}
-                                            >
-                                                {teamPartner.avatarUrl ? (
+                                {/* 1. COMPANHEIRO DE EQUIPE (BOX) */}
+                                <Panel
+                                    title="Companheiro de Box"
+                                    tag={teamPartner ? (teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : "CONFIRMADO") : "VAGA ABERTA"}
+                                    accentColor={teamColor}
+                                    collapsible={true}
+                                    defaultOpen={false}
+                                >
+                                    {teamPartner ? (
+                                        <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                            <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                                <div
+                                                    className="w-10 h-10 rounded-full border flex items-center justify-center font-black text-xs shrink-0 overflow-hidden bg-black/60"
+                                                    style={{ borderColor: `${teamColor}40` }}
+                                                >
+                                                    {teamPartner.avatarUrl ? (
+                                                        <img
+                                                            src={teamPartner.avatarUrl}
+                                                            alt={teamPartner.name}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                (e.target as HTMLElement).style.display = 'none';
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <span style={{ color: teamColor }}>
+                                                            {teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : teamPartner.name.slice(0, 2)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <span className="text-[7.5px] text-white/40 uppercase tracking-widest block">
+                                                        ESTRATEGISTA PARCEIRO DE BOX
+                                                    </span>
+                                                    <h3 className="font-black text-white text-sm tracking-wider truncate">
+                                                        {teamPartner.name}
+                                                    </h3>
+                                                    <span className="text-[9px] text-white/50 block">
+                                                        {me.teamName} · {getChampionGroupName(me.groupId)}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-white/40 uppercase">TELEMETRIA:</span>
+                                                    <span className="text-emerald-400 font-bold flex items-center gap-1">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                                        COMPARTILHADA
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-between text-[9px] text-white/50">
+                                                    <span>CANAL DE GARAGEM:</span>
+                                                    <span>{me.teamCode}-PIT-2</span>
+                                                </div>
+                                            </div>
+
+                                            {teamPartner.slug && (
+                                                <Link
+                                                    href={getDashboardPath(teamPartner.slug)}
+                                                    className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
+                                                >
+                                                    <span>[ VER TELEMETRIA DO COMPANHEIRO ]</span>
+                                                    <span style={{ color: teamColor }}>»</span>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                            <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+                                                <span className="font-bold block text-[11px] mb-1 uppercase tracking-wider">
+                                                    ASSENTO DISPONÍVEL NO BOX
+                                                </span>
+                                                <p className="text-[10px] text-white/70 leading-relaxed">
+                                                    A segunda vaga da <strong className="text-white">{me.teamName}</strong> no grupo <strong>{getChampionGroupName(me.groupId)}</strong> ainda não foi ocupada. Convide outro estrategista para compartilhar telemetria.
+                                                </p>
+                                            </div>
+
+                                            {isOwner && (
+                                                <Link
+                                                    href="/invite"
+                                                    className="w-full bg-[#fbaa19]/10 hover:bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
+                                                >
+                                                    <span>[ ENVIAR CONVITE DE BOX ]</span>
+                                                    <span>»</span>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    )}
+                                </Panel>
+
+                                {/* 2. CHEFE DE EQUIPE (TEAM PRINCIPAL) */}
+                                {teamPrincipal && (
+                                    <Panel
+                                        title="Chefe de Equipe"
+                                        tag={teamPrincipal.code}
+                                        accentColor={teamColor}
+                                        collapsible={true}
+                                        defaultOpen={false}
+                                    >
+                                        <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                            <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                                {/* Avatar do Engenheiro-Chefe da Aliança / Chefe de Equipe */}
+                                                <div
+                                                    className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
+                                                    style={{ borderColor: `${teamColor}50` }}
+                                                >
                                                     <img
-                                                        src={teamPartner.avatarUrl}
-                                                        alt={teamPartner.name}
+                                                        src={ALLIANCE_CHIEFS_DATA[allianceId]?.avatarUrl || ALLIANCE_CHIEFS_DATA[allianceId]?.fallbackUrl}
+                                                        alt={ALLIANCE_CHIEFS_DATA[allianceId]?.chiefName || teamPrincipal.fullName}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {
-                                                            (e.target as HTMLElement).style.display = 'none';
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.src = ALLIANCE_CHIEFS_DATA[allianceId]?.fallbackUrl || '/avatar/others/alianca_1_a.jpg';
                                                         }}
                                                     />
-                                                ) : (
-                                                    <span style={{ color: teamColor }}>
-                                                        {teamPartner.driverNumber ? `#${teamPartner.driverNumber}` : teamPartner.name.slice(0, 2)}
+                                                    <div
+                                                        className="absolute bottom-0 inset-x-0 h-1"
+                                                        style={{ backgroundColor: teamColor }}
+                                                    />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="font-black text-white text-sm tracking-wider truncate">
+                                                            {teamPrincipal.code}
+                                                        </span>
+                                                        <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
+                                                            CHIEF
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[10px] text-white/60 block truncate">
+                                                        {teamPrincipal.fullName}
                                                     </span>
-                                                )}
+                                                    <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
+                                                        {teamPrincipal.title}
+                                                    </span>
+                                                </div>
+
+                                                <span
+                                                    className="text-[8.5px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border shrink-0"
+                                                    style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}12` }}
+                                                >
+                                                    TEAM PRINCIPAL
+                                                </span>
                                             </div>
-                                            <div className="min-w-0 flex-1">
-                                                <span className="text-[7.5px] text-white/40 uppercase tracking-widest block">
-                                                    ESTRATEGISTA PARCEIRO DE BOX
+
+                                            <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                                <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-bold">
+                                                    PERFIL DE COMANDO
                                                 </span>
-                                                <h3 className="font-black text-white text-sm tracking-wider truncate">
-                                                    {teamPartner.name}
-                                                </h3>
-                                                <span className="text-[9px] text-white/50 block">
-                                                    {me.teamName} · {getChampionGroupName(me.groupId)}
+                                                <p className="text-white/80 italic leading-relaxed text-[10.5px]">
+                                                    "{teamPrincipal.personality}"
+                                                </p>
+                                            </div>
+
+                                            <div className="p-2 rounded bg-white/[0.02] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                                <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-bold">
+                                                    DIRETRIZ DA MURETA
                                                 </span>
+                                                <p className="text-white/90 leading-relaxed text-[10.5px]">
+                                                    {teamPrincipal.briefingFocus}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
+                                                <span>HOSPITALITY DA ESCUDERIA</span>
+                                                <span className="text-emerald-400 font-bold">CANAL ABERTO</span>
                                             </div>
                                         </div>
+                                    </Panel>
+                                )}
 
-                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-white/40 uppercase">TELEMETRIA:</span>
-                                                <span className="text-emerald-400 font-bold flex items-center gap-1">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                                    COMPARTILHADA
+                                {/* 3. ESTRATEGISTA SÊNIOR (CONSELHEIRO DE PADDOCK) */}
+                                {assignedMentor && mentorVoice && (
+                                    <Panel
+                                        title="Estrategista Sênior"
+                                        tag={mentorVoice.accentBadge}
+                                        accentColor={teamColor}
+                                        collapsible={true}
+                                        defaultOpen={false}
+                                    >
+                                        <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                            <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                                {/* Avatar do Conselheiro Sênior */}
+                                                <div
+                                                    className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
+                                                    style={{ borderColor: `${teamColor}50` }}
+                                                >
+                                                    <img
+                                                        src={assignedMentor.avatarUrl || `/avatar/ex_drivers/avatar_driver_${parseInt(assignedMentor.id.replace('strat-', ''), 10)}.jpg`}
+                                                        alt={assignedMentor.displayName}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            const num = parseInt(assignedMentor.id.replace('strat-', ''), 10);
+                                                            (e.target as HTMLImageElement).src = `/avatar/ex_drivers/avatar_driver_${num}.jpg`;
+                                                        }}
+                                                    />
+                                                    <div
+                                                        className="absolute bottom-0 inset-x-0 h-1"
+                                                        style={{ backgroundColor: teamColor }}
+                                                    />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="font-black text-white text-sm tracking-wider truncate">
+                                                            {assignedMentor.code}
+                                                        </span>
+                                                        <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
+                                                            {assignedMentor.decade}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[10px] text-white/60 block truncate">
+                                                        {assignedMentor.displayName} ({assignedMentor.nationality})
+                                                    </span>
+                                                    <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
+                                                        CONSELHEIRO SÊNIOR
+                                                    </span>
+                                                </div>
+
+                                                <span
+                                                    className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0"
+                                                    style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}15` }}
+                                                >
+                                                    {ALLIANCES[allianceId].short}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center justify-between text-[9px] text-white/50">
-                                                <span>CANAL DE GARAGEM:</span>
-                                                <span>{me.teamCode}-PIT-2</span>
-                                            </div>
-                                        </div>
 
-                                        {teamPartner.slug && (
-                                            <Link
-                                                href={getDashboardPath(teamPartner.slug)}
-                                                className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
-                                            >
-                                                <span>[ VER TELEMETRIA DO COMPANHEIRO ]</span>
-                                                <span style={{ color: teamColor }}>»</span>
-                                            </Link>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-                                            <span className="font-bold block text-[11px] mb-1 uppercase tracking-wider">
-                                                ASSENTO DISPONÍVEL NO BOX
-                                            </span>
-                                            <p className="text-[10px] text-white/70 leading-relaxed">
-                                                A segunda vaga da <strong className="text-white">{me.teamName}</strong> no grupo <strong>{getChampionGroupName(me.groupId)}</strong> ainda não foi ocupada. Convide outro estrategista para compartilhar telemetria.
+                                            <p className="text-white/90 text-xs italic leading-relaxed border-l-2 pl-2.5 py-0.5" style={{ borderLeftColor: teamColor }}>
+                                                {mentorVoice.radioTransmission}
                                             </p>
-                                        </div>
 
-                                        {isOwner && (
-                                            <Link
-                                                href="/invite"
-                                                className="w-full bg-[#fbaa19]/10 hover:bg-[#fbaa19]/20 text-[#fbaa19] border border-[#fbaa19]/30 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 text-center"
+                                            <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                                <span className="text-white/40 uppercase">ORDEM DE PITWALL:</span>
+                                                <span className="font-bold text-emerald-400">{mentorVoice.tacticalOrder}</span>
+                                            </div>
+
+                                            <button
+                                                onClick={() => setActiveTab('radio')}
+                                                className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                                             >
-                                                <span>[ ENVIAR CONVITE DE BOX ]</span>
-                                                <span>»</span>
-                                            </Link>
-                                        )}
-                                    </div>
+                                                <span>[ ABRIR FREQUÊNCIA NO RÁDIO ]</span>
+                                                <span style={{ color: teamColor }}>»</span>
+                                            </button>
+                                        </div>
+                                    </Panel>
+                                )}
+
+                                {/* 4. ENGENHEIRO TÉCNICO ALOCADO */}
+                                {assignedEngineer && (
+                                    <Panel
+                                        title="Engenheiro Técnico"
+                                        tag={assignedEngineer.code}
+                                        accentColor={teamColor}
+                                        collapsible={true}
+                                        defaultOpen={false}
+                                    >
+                                        <div className="flex flex-col gap-2.5 font-mono text-xs">
+                                            {/* Header com Avatar do Engenheiro */}
+                                            <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
+                                                <div
+                                                    className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
+                                                    style={{ borderColor: `${teamColor}50` }}
+                                                >
+                                                    <img
+                                                        src={assignedEngineer.avatarUrl}
+                                                        alt={assignedEngineer.fullName}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.src = `/avatar/eng/avatar_${assignedEngineer.avatarIndex}.jpg`;
+                                                        }}
+                                                    />
+                                                    <div
+                                                        className="absolute bottom-0 inset-x-0 h-1"
+                                                        style={{ backgroundColor: teamColor }}
+                                                    />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="font-black text-white text-sm tracking-wider truncate">
+                                                            {assignedEngineer.code}
+                                                        </span>
+                                                        <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
+                                                            ENG #{assignedEngineer.avatarIndex}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[10px] text-white/60 block truncate">
+                                                        {assignedEngineer.fullName} ({assignedEngineer.nationality}, {assignedEngineer.age}a)
+                                                    </span>
+                                                    <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
+                                                        {assignedEngineer.role}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Especialidade Técnica */}
+                                            <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
+                                                <span className="text-white/40 uppercase text-[8px] tracking-widest">ESPECIALIDADE TÁTICA:</span>
+                                                <p className="text-white/90 leading-relaxed text-[10.5px]">
+                                                    {assignedEngineer.specialty}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
+                                                <span>ALOCAÇÃO: DETERMINÍSTICA</span>
+                                                <span className="text-emerald-400 font-bold">DISPONÍVEL NO PITWALL</span>
+                                            </div>
+                                        </div>
+                                    </Panel>
                                 )}
                             </Panel>
-
-                            {/* SANFONA 2: ENGENHEIRO TÉCNICO ALOCADO */}
-                            {assignedEngineer && (
-                                <Panel
-                                    title="Engenheiro Técnico"
-                                    tag={assignedEngineer.code}
-                                    accentColor={teamColor}
-                                    collapsible={true}
-                                    defaultOpen={false}
-                                >
-                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        {/* Header com Avatar do Engenheiro */}
-                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
-                                            <div
-                                                className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
-                                                style={{ borderColor: `${teamColor}50` }}
-                                            >
-                                                <img
-                                                    src={assignedEngineer.avatarUrl}
-                                                    alt={assignedEngineer.fullName}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.src = `/avatar/eng/avatar_${assignedEngineer.avatarIndex}.jpg`;
-                                                    }}
-                                                />
-                                                <div
-                                                    className="absolute bottom-0 inset-x-0 h-1"
-                                                    style={{ backgroundColor: teamColor }}
-                                                />
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="font-black text-white text-sm tracking-wider truncate">
-                                                        {assignedEngineer.code}
-                                                    </span>
-                                                    <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
-                                                        ENG #{assignedEngineer.avatarIndex}
-                                                    </span>
-                                                </div>
-                                                <span className="text-[10px] text-white/60 block truncate">
-                                                    {assignedEngineer.fullName} ({assignedEngineer.nationality}, {assignedEngineer.age}a)
-                                                </span>
-                                                <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
-                                                    {assignedEngineer.role}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Especialidade Técnica */}
-                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
-                                            <span className="text-white/40 uppercase text-[8px] tracking-widest">ESPECIALIDADE TÁTICA:</span>
-                                            <p className="text-white/90 leading-relaxed text-[10.5px]">
-                                                {assignedEngineer.specialty}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
-                                            <span>ALOCAÇÃO: DETERMINÍSTICA</span>
-                                            <span className="text-emerald-400 font-bold">DISPONÍVEL NO PITWALL</span>
-                                        </div>
-                                    </div>
-                                </Panel>
-                            )}
-
-                            {/* Card do Conselheiro Sênior de Paddock */}
-                            {assignedMentor && mentorVoice && (
-                                <Panel
-                                    title="Conselheiro de Paddock"
-                                    tag={mentorVoice.accentBadge}
-                                    accentColor={teamColor}
-                                    collapsible={true}
-                                    defaultOpen={false}
-                                >
-                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
-                                            {/* Avatar do Conselheiro Sênior */}
-                                            <div
-                                                className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
-                                                style={{ borderColor: `${teamColor}50` }}
-                                            >
-                                                <img
-                                                    src={assignedMentor.avatarUrl || `/avatar/ex_drivers/avatar_driver_${parseInt(assignedMentor.id.replace('strat-', ''), 10)}.jpg`}
-                                                    alt={assignedMentor.displayName}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        const num = parseInt(assignedMentor.id.replace('strat-', ''), 10);
-                                                        (e.target as HTMLImageElement).src = `/avatar/ex_drivers/avatar_driver_${num}.jpg`;
-                                                    }}
-                                                />
-                                                <div
-                                                    className="absolute bottom-0 inset-x-0 h-1"
-                                                    style={{ backgroundColor: teamColor }}
-                                                />
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="font-black text-white text-sm tracking-wider truncate">
-                                                        {assignedMentor.code}
-                                                    </span>
-                                                    <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
-                                                        {assignedMentor.decade}
-                                                    </span>
-                                                </div>
-                                                <span className="text-[10px] text-white/60 block truncate">
-                                                    {assignedMentor.displayName} ({assignedMentor.nationality})
-                                                </span>
-                                                <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
-                                                    CONSELHEIRO SÊNIOR
-                                                </span>
-                                            </div>
-
-                                            <span
-                                                className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0"
-                                                style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}15` }}
-                                            >
-                                                {ALLIANCES[allianceId].short}
-                                            </span>
-                                        </div>
-
-                                        <p className="text-white/90 text-xs italic leading-relaxed border-l-2 pl-2.5 py-0.5" style={{ borderLeftColor: teamColor }}>
-                                            {mentorVoice.radioTransmission}
-                                        </p>
-
-                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
-                                            <span className="text-white/40 uppercase">ORDEM DE PITWALL:</span>
-                                            <span className="font-bold text-emerald-400">{mentorVoice.tacticalOrder}</span>
-                                        </div>
-
-                                        <button
-                                            onClick={() => setActiveTab('radio')}
-                                            className="mt-1 w-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                                        >
-                                            <span>[ ABRIR FREQUÊNCIA NO RÁDIO ]</span>
-                                            <span style={{ color: teamColor }}>»</span>
-                                        </button>
-                                    </div>
-                                </Panel>
-                            )}
-
-                            {/* SANFONA: CHEFE DE EQUIPE (TEAM PRINCIPAL) */}
-                            {teamPrincipal && (
-                                <Panel
-                                    title="Chefe de Equipe"
-                                    tag={teamPrincipal.code}
-                                    accentColor={teamColor}
-                                    collapsible={true}
-                                    defaultOpen={false}
-                                >
-                                    <div className="flex flex-col gap-2.5 font-mono text-xs">
-                                        <div className="flex items-center gap-3 border-b border-white/10 pb-2.5">
-                                            {/* Avatar do Engenheiro-Chefe da Aliança / Chefe de Equipe */}
-                                            <div
-                                                className="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-black relative shadow-lg"
-                                                style={{ borderColor: `${teamColor}50` }}
-                                            >
-                                                <img
-                                                    src={ALLIANCE_CHIEFS_DATA[allianceId]?.avatarUrl || ALLIANCE_CHIEFS_DATA[allianceId]?.fallbackUrl}
-                                                    alt={ALLIANCE_CHIEFS_DATA[allianceId]?.chiefName || teamPrincipal.fullName}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.src = ALLIANCE_CHIEFS_DATA[allianceId]?.fallbackUrl || '/avatar/others/alianca_1_a.jpg';
-                                                    }}
-                                                />
-                                                <div
-                                                    className="absolute bottom-0 inset-x-0 h-1"
-                                                    style={{ backgroundColor: teamColor }}
-                                                />
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="font-black text-white text-sm tracking-wider truncate">
-                                                        {teamPrincipal.code}
-                                                    </span>
-                                                    <span className="text-[8px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
-                                                        CHIEF
-                                                    </span>
-                                                </div>
-                                                <span className="text-[10px] text-white/60 block truncate">
-                                                    {teamPrincipal.fullName}
-                                                </span>
-                                                <span className="text-[8.5px] font-bold uppercase tracking-wider block mt-0.5" style={{ color: teamColor }}>
-                                                    {teamPrincipal.title}
-                                                </span>
-                                            </div>
-
-                                            <span
-                                                className="text-[8.5px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border shrink-0"
-                                                style={{ borderColor: `${teamColor}40`, color: teamColor, backgroundColor: `${teamColor}12` }}
-                                            >
-                                                TEAM PRINCIPAL
-                                            </span>
-                                        </div>
-
-                                        <div className="p-2 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]">
-                                            <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-bold">
-                                                PERFIL DE COMANDO
-                                            </span>
-                                            <p className="text-white/80 italic leading-relaxed text-[10.5px]">
-                                                "{teamPrincipal.personality}"
-                                            </p>
-                                        </div>
-
-                                        <div className="p-2 rounded bg-white/[0.02] border border-white/5 flex flex-col gap-1 text-[10px]">
-                                            <span className="text-[7.5px] text-white/40 uppercase tracking-widest block font-bold">
-                                                DIRETRIZ DA MURETA
-                                            </span>
-                                            <p className="text-white/90 leading-relaxed text-[10.5px]">
-                                                {teamPrincipal.briefingFocus}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
-                                            <span>HOSPITALITY DA ESCUDERIA</span>
-                                            <span className="text-emerald-400 font-bold">CANAL ABERTO</span>
-                                        </div>
-                                    </div>
-                                </Panel>
-                            )}
 
                             {/* GRID COMPACTO 2x3 DE FERRAMENTAS DO ESTRATEGISTA */}
                             <div className="p-2.5 rounded bg-[#0a0d14] border border-white/10 mt-1 flex flex-col gap-1.5 shadow-inner">

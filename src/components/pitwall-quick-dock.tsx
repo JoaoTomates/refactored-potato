@@ -10,6 +10,7 @@ import {
     SlidersHorizontal,
     Users,
     Flag,
+    Shield,
     ShieldAlert,
     Trophy,
     Wrench,
@@ -131,127 +132,22 @@ export default function PitwallQuickDock({
 
     return (
         <div className="w-full flex flex-col gap-2.5 font-mono">
-            {/* 10 BOTÕES TÁTICOS PITWALL (RACE WEEK + 8 TÁTICOS + TEAM) */}
+            {/* 5 BOTÕES TÁTICOS SIMPLIFICADOS DO PITWALL DOCK */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                {/* 1. RACE WEEK (Primeira posição, ativo se for semana de corrida) */}
-                <button
-                    type="button"
-                    onClick={onToggleRaceWeek}
-                    disabled={!isRaceWeekActive}
-                    title={isRaceWeekActive ? (isRaceWeekOpen ? 'Ocultar Race Week' : 'Exibir Race Week') : 'Race Week inativo (fora de semana de GP)'}
-                    className={`${btnBase} ${
-                        isRaceWeekActive
-                            ? isRaceWeekOpen
-                                ? 'bg-[#fbaa19] text-black border-[#fbaa19] font-black shadow-[0_0_12px_rgba(251,170,25,0.35)]'
-                                : 'bg-[#030303] text-amber-400 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-400'
-                            : 'opacity-40 cursor-not-allowed bg-black/40 text-white/40 border-white/5'
-                    }`}
-                >
-                    <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <Calendar className={`w-3.5 h-3.5 shrink-0 ${isRaceWeekActive ? 'text-inherit' : 'text-white/40'}`} />
-                        <span className="truncate">RACE WEEK</span>
-                    </span>
-                    {isRaceWeekActive && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    )}
-                </button>
+                {/* 1. SCHEDULE */}
+                {renderNavButton('calendar', '/next-race', '[Schedule]', Calendar)}
 
-                {/* 2. TRACK INTEL */}
-                <button
-                    type="button"
-                    onClick={() =>
-                        setActiveDrawer((prev) => (prev === 'track_intel' ? null : 'track_intel'))
-                    }
-                    className={`${btnBase} ${activeDrawer === 'track_intel' ? btnActive : btnInactive}`}
-                >
-                    <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <MapPin className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">TRACK INTEL</span>
-                    </span>
-                    <span className="text-[8px] opacity-60 shrink-0">
-                        {activeDrawer === 'track_intel' ? '▾' : '▸'}
-                    </span>
-                </button>
+                {/* 2. RESULTS */}
+                {renderNavButton('classification', '/f1-results/01', '[Results]', Flag)}
 
-                {/* 3. OPEN ORDERS */}
-                <button
-                    type="button"
-                    onClick={() =>
-                        setActiveDrawer((prev) => (prev === 'open_orders' ? null : 'open_orders'))
-                    }
-                    className={`${btnBase} ${activeDrawer === 'open_orders' ? btnActive : btnInactive}`}
-                >
-                    <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">OPEN ORDERS</span>
-                    </span>
-                    <span className="text-[8px] opacity-60 shrink-0">
-                        {activeDrawer === 'open_orders' ? '▾' : '▸'}
-                    </span>
-                </button>
+                {/* 3. STANDINGS */}
+                {renderNavButton('rankings', '/rankings', '[Standings]', Trophy)}
 
-                {/* 4. F1 GRID */}
-                {renderNavButton('f1', '/f1', 'F1 GRID', Users)}
+                {/* 4. STRATEGISTS */}
+                {renderNavButton('crew', '/crew', '[Strategists]', Users)}
 
-                {/* 5. CLASSIFICATION */}
-                {renderNavButton('classification', '/f1-results/01', 'CLASSIFICATION', Flag)}
-
-                {/* 6. STEWARDS (Modal de Voting Inline) */}
-                <button
-                    type="button"
-                    onClick={onOpenVoting}
-                    className={`${btnBase} ${btnInactive}`}
-                >
-                    <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <ShieldAlert
-                            className={`w-3.5 h-3.5 shrink-0 ${
-                                pendingStewardCount > 0 ? 'text-[#fbaa19]' : ''
-                            }`}
-                        />
-                        <span className="truncate">STEWARDS</span>
-                    </span>
-                    {pendingStewardCount > 0 ? (
-                        <span className="px-1.5 py-0.2 rounded-[2px] bg-[#fbaa19] text-black font-black text-[9px] shrink-0">
-                            {pendingStewardCount}
-                        </span>
-                    ) : (
-                        <span className="text-[8px] opacity-45 shrink-0">VOTE</span>
-                    )}
-                </button>
-
-                {/* 7. FANTASY GAME */}
-                <Link
-                    href="/fantasy"
-                    className={`${btnBase} ${btnInactive} hover:border-amber-400/50 hover:text-amber-400`}
-                    title="Acessar o Fantasy Game TS1 Oficial"
-                >
-                    <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <Gamepad2 className="w-3.5 h-3.5 text-[#fbaa19] shrink-0" />
-                        <span className="truncate">FANTASY</span>
-                    </span>
-                    <span className="text-[7.5px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-black border border-amber-500/40 shrink-0">
-                        GAME
-                    </span>
-                </Link>
-
-                {/* 8. GARAGE CREW */}
-                {renderNavButton('crew', '/crew', 'GARAGE CREW', Wrench)}
-
-                {/* 9. PADDOCK WIRE */}
-                {renderNavButton('news', '/news', 'PADDOCK WIRE', Newspaper)}
-
-                {/* 10. SOCIAL FEED */}
-                <Link
-                    href="/socialmedia"
-                    className={`${btnBase} ${btnInactive} hover:border-[#00e5ff]/50 hover:text-[#00e5ff]`}
-                    title="Acessar Paddock Social & Comunicação de Pilotos"
-                >
-                    <span className="flex items-center gap-1.5 min-w-0 truncate">
-                        <Radio className="w-3.5 h-3.5 text-[#00e5ff] shrink-0" />
-                        <span className="truncate">SOCIAL FEED</span>
-                    </span>
-                    <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
-                </Link>
+                {/* 5. TEAMS */}
+                {renderNavButton('f1', '/f1', '[Teams]', Shield)}
             </div>
 
             {/* DRAWER INLINE: TRACK INTEL */}
