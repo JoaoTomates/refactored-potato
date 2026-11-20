@@ -754,8 +754,6 @@ export default function RaceWeekSchedule({
                                                 }
                                             />
                                         </div>
-                                    </div>
-                                </div>
                             )}
 
                             {/* ROTINA OPERACIONAL RESUMIDA */}
