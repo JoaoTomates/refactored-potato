@@ -54,6 +54,8 @@ export function useWarRoomChat() {
       }
 
       // 2. Dispara requisição para o Route Handler seguro
+      console.log(`>_ [STRATEGY DESK RADIO] Transmitindo via rádio para ${opts.characterType.toUpperCase()} [${opts.characterId}]: "${opts.message}"`);
+
       const response = await fetch('/api/war-room/chat', {
         method: 'POST',
         headers,
@@ -74,12 +76,14 @@ export function useWarRoomChat() {
       // Se falhar (ex: 401, 429, 503), faz fallback silencioso para o diálogo roteirizado
       if (!response.ok || !response.body) {
         const errJson = await response.json().catch(() => null);
-        console.warn('[WarRoom Chat] Fallback para roteiro estático:', errJson?.error || response.statusText);
+        console.warn('>_ [STRATEGY DESK RADIO] Falha na transmissão IA (fallback estático acionado):', errJson?.error || response.statusText);
         setStreamingText(opts.fallbackText);
         setError(errJson?.error || 'Rádio instável');
         setIsTransmitting(false);
         return;
       }
+
+      console.log(`>_ [STRATEGY DESK RADIO] Resposta IA conectada (HTTP 200). Iniciando recepção de telemetria...`);
 
       const remainingHeader = response.headers.get('X-RateLimit-Remaining');
       if (remainingHeader !== null) {

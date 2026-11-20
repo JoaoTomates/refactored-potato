@@ -413,6 +413,7 @@ export function WarRoomContent() {
     const [sessionBriefing, setSessionBriefing] = useState<WarRoomBriefing | null>(null);
     const [principalClosing, setPrincipalClosing] = useState<string | null>(null);
     const [teamPrincipal, setTeamPrincipal] = useState<TeamPrincipal | null>(null);
+    const [aiStatus, setAiStatus] = useState<'syncing' | 'online' | 'fallback'>('syncing');
 
     useEffect(() => {
         if (authLoading) return;
@@ -536,6 +537,8 @@ export function WarRoomContent() {
                 const headers: Record<string, string> = {};
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
+                console.log('>_ [STRATEGY DESK] Sintonizando telemetria IA com o servidor...');
+
                 const [briefingRes, closingRes] = await Promise.all([
                     fetch('/api/war-room/briefing', { headers }).then(r => r.json()).catch(() => null),
                     fetch('/api/war-room/principal-closing', {
@@ -548,13 +551,21 @@ export function WarRoomContent() {
                 if (isActive) {
                     if (briefingRes?.ok && briefingRes.briefing) {
                         setSessionBriefing(briefingRes.briefing);
+                        setAiStatus('online');
+                        console.log('>_ [STRATEGY DESK] IA ONLINE (Gemini 3.8 Flash). Briefing de telemetria recebido:', briefingRes.briefing);
+                    } else {
+                        setAiStatus('fallback');
+                        console.warn('>_ [STRATEGY DESK] Briefing IA em fallback determinístico (roteiro estático / consenso). Motivo:', briefingRes?.error || 'sem dados de IA');
                     }
                     if (closingRes?.ok && closingRes.closingStatement) {
                         setPrincipalClosing(closingRes.closingStatement);
                     }
                 }
-            } catch (_) {
-                // Silencioso: o sistema usa fallbacks determinísticos sem quebrar a imersão
+            } catch (err) {
+                if (isActive) {
+                    setAiStatus('fallback');
+                    console.warn('>_ [STRATEGY DESK] Erro de rede ao conectar à IA. Operando em modo de segurança:', err);
+                }
             }
         };
 
@@ -862,6 +873,39 @@ export function WarRoomContent() {
                 </Link>
 
                 <div className="flex items-center gap-2">
+                    {/* SINAL VISUAL TÁTICO: STATUS DO MOTOR DE IA / TELEMETRIA */}
+                    <div 
+                        className={`flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg border backdrop-blur-sm transition-all duration-300 ${
+                            aiStatus === 'online' 
+                                ? 'bg-emerald-950/50 text-emerald-400 border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
+                                : aiStatus === 'syncing' 
+                                    ? 'bg-amber-950/40 text-amber-400 border-amber-500/30' 
+                                    : 'bg-zinc-900/70 text-zinc-400 border-zinc-700/40'
+                        }`}
+                        title={
+                            aiStatus === 'online' 
+                                ? 'Motor de IA (Gemini 3.8 Flash) ativo: briefing, propostas e rádio ao vivo integrados.' 
+                                : aiStatus === 'syncing' 
+                                    ? 'Sintonizando canal de telemetria IA...' 
+                                    : 'Modo seguro ativo: operando com dados históricos e telemetria determinística.'
+                        }
+                    >
+                        <span 
+                            className={`w-1.5 h-1.5 rounded-full ${
+                                aiStatus === 'online' 
+                                    ? 'bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.9)]' 
+                                    : aiStatus === 'syncing' 
+                                        ? 'bg-amber-400 animate-ping' 
+                                        : 'bg-zinc-500'
+                            }`} 
+                        />
+                        <span>
+                            {aiStatus === 'online' && 'AI TELEMETRY // ONLINE'}
+                            {aiStatus === 'syncing' && 'AI // SYNCING...'}
+                            {aiStatus === 'fallback' && 'TELEMETRY // SECURE FALLBACK'}
+                        </span>
+                    </div>
+
                     <div 
                         className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border backdrop-blur-sm"
                         style={{ borderColor: `${theme.techColor}40`, color: theme.techColor }}
