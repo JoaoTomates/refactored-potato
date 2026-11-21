@@ -1828,8 +1828,8 @@ export default function OfficialStrategistDashboard() {
                     </div>
                 </header>
 
-                {/* Ticker Nasdaq dentro da página, logo abaixo do menu TS1 // Terminal do Estrategista */}
-                <NasdaqTicker />
+                {/* Ticker Nasdaq dentro da página: RENDERIZA APENAS NO DASHBOARD PRINCIPAL (activeView === 'menu') */}
+                {activeView === "menu" && <NasdaqTicker />}
 
                 {isDemo ? (
                     <div className="max-w-[1500px] mx-auto px-3 md:px-6 pt-4">
