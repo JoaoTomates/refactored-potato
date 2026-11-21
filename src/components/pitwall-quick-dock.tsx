@@ -132,8 +132,9 @@ export default function PitwallQuickDock({
 
     return (
         <div className="w-full flex flex-col gap-2.5 font-mono">
-            {/* 5 BOTÕES TÁTICOS SIMPLIFICADOS DO PITWALL DOCK */}
+            {/* 10 BOTÕES TÁTICOS DO PITWALL DOCK (2 FILEIRAS DE 5) */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {/* FILEIRA 1 */}
                 {/* 1. SCHEDULE */}
                 {renderNavButton('calendar', '/next-race', '[Schedule]', Calendar)}
 
@@ -148,6 +149,83 @@ export default function PitwallQuickDock({
 
                 {/* 5. TEAMS */}
                 {renderNavButton('f1', '/f1', '[Teams]', Shield)}
+
+                {/* FILEIRA 2: STEWARDS + 4 GENÉRICOS */}
+                {/* 6. STEWARDS */}
+                <button
+                    type="button"
+                    onClick={onOpenVoting}
+                    className={`${btnBase} ${btnInactive} hover:border-[#fbaa19]/50 hover:text-[#fbaa19]`}
+                    title="Acessar Votação e Decisões dos Stewards BAEF"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <ShieldAlert
+                            className={`w-3.5 h-3.5 shrink-0 ${
+                                pendingStewardCount > 0 ? 'text-[#fbaa19]' : ''
+                            }`}
+                        />
+                        <span className="truncate">[Stewards]</span>
+                    </span>
+                    {pendingStewardCount > 0 ? (
+                        <span className="px-1.5 py-0.2 rounded-[2px] bg-[#fbaa19] text-black font-black text-[9px] shrink-0">
+                            {pendingStewardCount}
+                        </span>
+                    ) : (
+                        <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
+                    )}
+                </button>
+
+                {/* 7. GENERIC 02 */}
+                <button
+                    type="button"
+                    className={`${btnBase} ${btnInactive}`}
+                    title="Módulo Tático 02"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <SlidersHorizontal className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                        <span className="truncate">[Module 02]</span>
+                    </span>
+                    <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
+                </button>
+
+                {/* 8. GENERIC 03 */}
+                <button
+                    type="button"
+                    className={`${btnBase} ${btnInactive}`}
+                    title="Módulo Tático 03"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Radio className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                        <span className="truncate">[Module 03]</span>
+                    </span>
+                    <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
+                </button>
+
+                {/* 9. GENERIC 04 */}
+                <button
+                    type="button"
+                    className={`${btnBase} ${btnInactive}`}
+                    title="Módulo Tático 04"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Wrench className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                        <span className="truncate">[Module 04]</span>
+                    </span>
+                    <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
+                </button>
+
+                {/* 10. GENERIC 05 */}
+                <button
+                    type="button"
+                    className={`${btnBase} ${btnInactive}`}
+                    title="Módulo Tático 05"
+                >
+                    <span className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Gamepad2 className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                        <span className="truncate">[Module 05]</span>
+                    </span>
+                    <ArrowUpRight className="w-3 h-3 opacity-45 shrink-0" />
+                </button>
             </div>
 
             {/* DRAWER INLINE: TRACK INTEL */}
