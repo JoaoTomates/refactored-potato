@@ -975,7 +975,7 @@ export default function OfficialStrategistDashboard() {
         }
     };
     const [leftCollapsed, setLeftCollapsed] = useState(false);
-    const [rightCollapsed, setRightCollapsed] = useState(false);
+    const [rightCollapsed, setRightCollapsed] = useState(true);
     const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
     const stewardVoting = useStewardVoting();
 
@@ -3200,7 +3200,7 @@ export default function OfficialStrategistDashboard() {
 
                             {/* SANFONAS DE RANKING GERAL (TOP 10): MASTER, MILESIMUS E POLETIME */}
                             {[
-                                { title: 'Master · Ranking Geral', accent: mainAccent, list: masterTop10, defaultOpen: true },
+                                { title: 'Master · Ranking Geral', accent: mainAccent, list: masterTop10, defaultOpen: false },
                                 { title: 'Milesimus · Ranking Geral', accent: mainAccent, list: milesimusTop10, defaultOpen: false },
                                 { title: 'Poletime · Ranking Geral', accent: mainAccent, list: poletimeTop10, defaultOpen: false },
                             ].map(comp => (
