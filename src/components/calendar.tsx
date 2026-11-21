@@ -1,7 +1,16 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { fetchNextEvent, type F1Event, type RaceEvent, mockCalendar, fetchCalendarData } from '@/api/f1-data';
+import F1WorldScheduleMap from '@/components/f1-world-schedule-map';
+import { fetchNextEvent, type F1Event, type RaceEvent, fetchCalendarData } from '@/api/f1-data';
+import { MapPin, ListFilter } from 'lucide-react';
+
+interface CalendarProps {
+    onBack?: () => void;
+    accentColor?: string;
+    defaultMode?: 'map' | 'list';
+}
 
 const RaceCard = ({ race, isNext, isPast, isFuture }: { race: RaceEvent, isNext: boolean, isPast: boolean | null, isFuture: boolean | null }) => {
     return (
@@ -83,7 +92,8 @@ const RaceCard = ({ race, isNext, isPast, isFuture }: { race: RaceEvent, isNext:
     );
 };
 
-const Calendar = () => {
+const Calendar = ({ onBack, accentColor = '#fbaa19', defaultMode = 'map' }: CalendarProps) => {
+    const [viewMode, setViewMode] = useState<'map' | 'list'>(defaultMode);
     const [races, setRaces] = useState<RaceEvent[]>([]);
     const [nextEvent, setNextEvent] = useState<F1Event | null>(null);
     const [loading, setLoading] = useState(true);
@@ -103,44 +113,79 @@ const Calendar = () => {
     const nextRaceObj = races.find(r => r.round === nextEvent?.round);
 
     return (
-        <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 mt-4">
-            {loading ? (
-                <div className="w-full h-64 flex flex-col items-center justify-center border border-black/20 dark:border-[#ffffff3d] bg-white dark:bg-[#1a1a1a]">
-                    <div className="w-8 h-8 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[#fbaa19] font-bold uppercase tracking-widest text-sm">LOADING SECURE DATA...</p>
-                </div>
+        <div className="w-full flex flex-col gap-3">
+            {/* TOGGLE SUTIL ENTRE VISÃO DE MAPA TÁTICO E LISTA */}
+            <div className="flex items-center justify-end gap-2 text-xs font-mono">
+                <button
+                    type="button"
+                    onClick={() => setViewMode('map')}
+                    className={`px-3 py-1 rounded-[2px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer border ${
+                        viewMode === 'map'
+                            ? 'bg-[#ffb800] text-black border-[#ffb800] shadow-[0_0_10px_rgba(255,184,0,0.3)]'
+                            : 'bg-black/60 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700'
+                    }`}
+                >
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>HUD MAPA GLOBAL</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    className={`px-3 py-1 rounded-[2px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer border ${
+                        viewMode === 'list'
+                            ? 'bg-[#ffb800] text-black border-[#ffb800] shadow-[0_0_10px_rgba(255,184,0,0.3)]'
+                            : 'bg-black/60 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700'
+                    }`}
+                >
+                    <ListFilter className="w-3.5 h-3.5" />
+                    <span>LISTA DE ETAPAS</span>
+                </button>
+            </div>
+
+            {/* CONTEÚDO PRINCIPAL: HUD WORLD MAP TÁTICO (PADRÃO) OU LISTA */}
+            {viewMode === 'map' ? (
+                <F1WorldScheduleMap onBack={onBack} accentColor={accentColor} />
             ) : (
-                <div className="flex flex-col gap-8">
-                    {/* Pinned Next Event */}
-                    {nextRaceObj && (
-                        <div className="flex flex-col gap-4 border-b-2 border-dashed border-[#fbaa19]/30 pb-8">
-                            <h3 className="text-[#fbaa19] text-sm font-bold tracking-[0.2em] uppercase flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-pulse"></span>
-                                Up Next
-                            </h3>
-                            <RaceCard race={nextRaceObj} isNext={true} isPast={false} isFuture={false} />
+                <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 mt-2">
+                    {loading ? (
+                        <div className="w-full h-64 flex flex-col items-center justify-center border border-black/20 dark:border-[#ffffff3d] bg-white dark:bg-[#1a1a1a]">
+                            <div className="w-8 h-8 border-4 border-[#fbaa19] border-t-transparent rounded-full animate-spin mb-4" />
+                            <p className="text-[#fbaa19] font-bold uppercase tracking-widest text-sm">LOADING SECURE DATA...</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-8">
+                            {/* Pinned Next Event */}
+                            {nextRaceObj && (
+                                <div className="flex flex-col gap-4 border-b-2 border-dashed border-[#fbaa19]/30 pb-8">
+                                    <h3 className="text-[#fbaa19] text-sm font-bold tracking-[0.2em] uppercase flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-[#fbaa19] animate-pulse" />
+                                        Up Next
+                                    </h3>
+                                    <RaceCard race={nextRaceObj} isNext={true} isPast={false} isFuture={false} />
+                                </div>
+                            )}
+
+                            {/* All Events List (Chronological) */}
+                            <div className="flex flex-col gap-4">
+                                <h3 className="text-gray-500 text-xs font-bold tracking-[0.2em] uppercase mb-2">Full Season Schedule</h3>
+                                {races.map((race) => {
+                                    const isNext = race.round === nextEvent?.round;
+                                    const isPast = nextEvent && Number(race.round) < Number(nextEvent.round);
+                                    const isFuture = nextEvent && Number(race.round) > Number(nextEvent.round);
+                                    
+                                    return (
+                                        <RaceCard 
+                                            key={race.id} 
+                                            race={race} 
+                                            isNext={isNext} 
+                                            isPast={isPast} 
+                                            isFuture={isFuture} 
+                                        />
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
-
-                    {/* All Events List (Chronological) */}
-                    <div className="flex flex-col gap-4">
-                        <h3 className="text-gray-500 text-xs font-bold tracking-[0.2em] uppercase mb-2">Full Season Schedule</h3>
-                        {races.map((race) => {
-                            const isNext = race.round === nextEvent?.round;
-                            const isPast = nextEvent && Number(race.round) < Number(nextEvent.round);
-                            const isFuture = nextEvent && Number(race.round) > Number(nextEvent.round);
-                            
-                            return (
-                                <RaceCard 
-                                    key={race.id} 
-                                    race={race} 
-                                    isNext={isNext} 
-                                    isPast={isPast} 
-                                    isFuture={isFuture} 
-                                />
-                            );
-                        })}
-                    </div>
                 </div>
             )}
         </div>

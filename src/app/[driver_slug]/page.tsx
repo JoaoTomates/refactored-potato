@@ -1885,7 +1885,7 @@ export default function OfficialStrategistDashboard() {
                         <div className="w-full">
                             {activeView === "setup" && isOwner && <SetupForm />}
                             {activeView === "settings" && isOwner && <Settings />}
-                            {activeView === "calendar" && <Calendar />}
+                            {activeView === "calendar" && <Calendar onBack={() => openSubView("menu")} accentColor={mainAccent} />}
                             {activeView === "report" && isOwner && (
                                 <ReportForm
                                     onReportSubmitted={() => stewardVoting.refresh()}
