@@ -1063,7 +1063,7 @@ export function WarRoomContent() {
     }
 
     return (
-        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center justify-start p-2 sm:p-4 transition-all duration-300">
+        <main className="w-full min-h-screen relative bg-[#050401] overflow-x-hidden select-none flex flex-col font-mono items-center justify-start transition-all duration-300">
 
             {/* KEYFRAME ANIMATIONS PARA FADE-IN LEFT & FADE-IN RIGHT */}
             <style jsx global>{`
@@ -1083,24 +1083,11 @@ export function WarRoomContent() {
                 }
             `}</style>
 
-            {/* BACKGROUND IMERSIVO FRANK MILLER NOIR TRAVADO NA VIEWPORT (ESTILO INVITE) */}
-            <div 
-                className="fixed inset-0 w-full h-lvh pointer-events-none z-0 overflow-hidden" 
-                style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
-            >
-                <img
-                    src="/war_room_bg.jpg"
-                    alt="Formula 1 War Room Frank Miller Noir"
-                    className="w-full h-full object-cover object-center brightness-[0.70] contrast-[1.28]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/75" />
-            </div>
-
-            {/* BARRA SUPERIOR: IDENTIDADE OPERACIONAL */}
-            <div className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between gap-2">
+            {/* NAVBAR PRETO COM PEQUENA TRANSPARÊNCIA NO MENU SUPERIOR */}
+            <header className="sticky top-0 z-30 w-full px-4 sm:px-8 py-2.5 flex items-center justify-between border-b border-white/10 bg-black/85 backdrop-blur-md">
                 <Link
                     href={getDashboardPath(userSlug, '/headquarters')}
-                    className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm"
+                    className="flex items-center gap-1.5 text-[11px] font-bold text-white/50 hover:text-[#fbaa19] transition-colors uppercase tracking-wider bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 hover:border-[#fbaa19]/40 backdrop-blur-sm"
                 >
                     <ChevronLeft className="w-3.5 h-3.5 text-[#fbaa19]" />
                     <span>[ « SAIR ]</span>
@@ -1141,18 +1128,18 @@ export function WarRoomContent() {
                     </div>
 
                     <div 
-                        className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-black/75 px-3 py-1.5 rounded-lg border backdrop-blur-sm"
+                        className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-black/60 px-3 py-1.5 rounded-lg border backdrop-blur-sm"
                         style={{ borderColor: `${theme.techColor}40`, color: theme.techColor }}
                     >
                         <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.techColor }} />
                         <span>STRATEGY DESK // {theme.badge} • {teamPrincipal?.teamName.toUpperCase() || 'PIT WALL'}</span>
                     </div>
                 </div>
-            </div>
+            </header>
 
             {/* CONTAINER PRINCIPAL: ROW 1 (DIAS DA SEMANA) + WORKSTATION EM 3 COLUNAS */}
             <div 
-                className={`relative z-10 w-full max-w-[1520px] px-2 sm:px-4 pt-16 sm:pt-20 pb-10 flex flex-col gap-4 sm:gap-5 mx-auto transition-all duration-300 ${
+                className={`relative z-10 w-full max-w-[1520px] px-2 sm:px-4 pt-2.5 sm:pt-3.5 pb-10 flex flex-col gap-3.5 sm:gap-4 mx-auto transition-all duration-300 ${
                     isClearing ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
                 }`}
             >
